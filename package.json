@@ -1,0 +1,20 @@
+{
+  "name": "app-infantil",
+  "private": true,
+  "version": "0.1.0",
+  "description": "App infantil de leitura, quiz e colorir — projeto-irmão do Pedra Angular",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "typescript": "^5.5.0",
+    "vite": "^5.4.0"
+  }
+}

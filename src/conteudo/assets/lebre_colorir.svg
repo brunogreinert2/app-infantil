@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Arte-fonte única: a cena da corrida. Cada região preenchível tem
+       id="regiao-*" e class="colorir-alvo". As camadas base (fill) e
+       linhas (stroke) são derivadas desta mesma arte em tempo de execução
+       — ver src/canvas/camadaBase.ts. Fill inicial branco = página de colorir. -->
+  <rect id="regiao-ceu" class="colorir-alvo" x="0" y="0" width="800" height="420" fill="#ffffff"/>
+  <circle id="regiao-sol" class="colorir-alvo" cx="700" cy="95" r="55" fill="#ffffff"/>
+  <path id="regiao-nuvem" class="colorir-alvo" fill="#ffffff"
+    d="M110,110 a35,30 0 0 1 45,-32 a40,36 0 0 1 76,-6 a32,28 0 0 1 40,38 a25,22 0 0 1 -22,24 l-115,0 a26,24 0 0 1 -24,-24 z"/>
+  <rect id="regiao-grama" class="colorir-alvo" x="0" y="420" width="800" height="180" fill="#ffffff"/>
+  <path id="regiao-caminho" class="colorir-alvo" fill="#ffffff"
+    d="M0,545 C250,485 550,600 800,525 L800,565 C550,645 250,530 0,585 Z"/>
+  <circle id="regiao-arvore-copa" class="colorir-alvo" cx="115" cy="265" r="85" fill="#ffffff"/>
+  <rect id="regiao-arvore-tronco" class="colorir-alvo" x="95" y="330" width="40" height="105" rx="10" fill="#ffffff"/>
+  <rect id="regiao-mastro" class="colorir-alvo" x="688" y="375" width="9" height="115" rx="4" fill="#ffffff"/>
+  <path id="regiao-bandeira" class="colorir-alvo" fill="#ffffff" d="M697,380 L765,398 L697,418 Z"/>
+  <path id="regiao-lebre-orelhas" class="colorir-alvo" fill="#ffffff"
+    d="M238,452 C230,398 248,392 253,446 Z M260,450 C260,398 279,396 274,448 Z"/>
+  <ellipse id="regiao-lebre-corpo" class="colorir-alvo" cx="188" cy="490" rx="58" ry="36" fill="#ffffff"/>
+  <circle id="regiao-lebre-cabeca" class="colorir-alvo" cx="252" cy="472" r="27" fill="#ffffff"/>
+  <circle id="regiao-lebre-rabo" class="colorir-alvo" cx="132" cy="497" r="13" fill="#ffffff"/>
+  <path id="regiao-tartaruga-casco" class="colorir-alvo" fill="#ffffff"
+    d="M520,505 A62,48 0 0 1 644,505 Z"/>
+  <circle id="regiao-tartaruga-cabeca" class="colorir-alvo" cx="662" cy="496" r="19" fill="#ffffff"/>
+  <path id="regiao-tartaruga-patas" class="colorir-alvo" fill="#ffffff"
+    d="M534,505 h22 v18 h-22 Z M608,505 h22 v18 h-22 Z"/>
+</svg>

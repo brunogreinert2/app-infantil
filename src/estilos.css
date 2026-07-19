@@ -1,0 +1,441 @@
+/* Sistema de temas por variável CSS — mesmo mecanismo do Pedra Angular
+   (spec 5). Temas decorativos escolhidos pela criança; texto sempre
+   com contraste ≥ 7:1 sobre o fundo do próprio tema.
+   Fontes: por ora pilha de sistema; Atkinson Hyperlegible / OpenDyslexic
+   embutidas via @font-face data: URI é tarefa pendente (CONTINUAR_AQUI.md). */
+
+:root {
+  --tamanho-base: 20px;
+}
+
+[data-theme='arco-iris'] {
+  --fundo: #fff6ec;
+  --cartao: #ffffff;
+  --texto: #46301e;
+  --texto-suave: #6b533c;
+  --destaque: #d62839;
+  --borda: #f3ddc8;
+  --sombra: 0 4px 14px rgba(150, 90, 30, 0.12);
+}
+
+[data-theme='espaco'] {
+  --fundo: #0d1130;
+  --cartao: #1d2350;
+  --texto: #f2f4ff;
+  --texto-suave: #c3c9f2;
+  --destaque: #8fb3ff;
+  --borda: #323a75;
+  --sombra: 0 4px 14px rgba(0, 0, 10, 0.5);
+}
+
+[data-theme='floresta'] {
+  --fundo: #eef7e8;
+  --cartao: #ffffff;
+  --texto: #1c3a20;
+  --texto-suave: #3f5c42;
+  --destaque: #1c7a3d;
+  --borda: #cfe6c6;
+  --sombra: 0 4px 14px rgba(30, 90, 40, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: var(--tamanho-base);
+  line-height: 1.6;
+  transition: background 0.3s;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+}
+
+.tela {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- barra do topo ---------- */
+.barra-topo {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--cartao);
+  box-shadow: var(--sombra);
+}
+
+.titulo-barra {
+  flex: 1;
+  margin: 0;
+  font-size: 1.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.botao-icone {
+  min-width: 46px;
+  min-height: 46px;
+  border-radius: 14px;
+  background: var(--fundo);
+  color: var(--texto);
+  font-size: 1.05em;
+  font-weight: 700;
+}
+
+.botao-icone:active {
+  transform: scale(0.94);
+}
+
+.ajustes {
+  display: flex;
+  gap: 6px;
+}
+
+/* avatar fixo — troca de perfil a qualquer momento, sem trava (spec 8.6) */
+.chip-perfil {
+  min-width: 46px;
+  min-height: 46px;
+  border-radius: 50%;
+  font-size: 1.4em;
+  background: var(--fundo);
+  border: 3px solid var(--destaque);
+}
+
+/* ---------- tela de perfis ---------- */
+.tela-perfis {
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  padding: 24px;
+}
+
+.pergunta-perfil {
+  font-size: 1.8em;
+  text-align: center;
+  margin: 0;
+}
+
+.grade-perfis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+  justify-content: center;
+}
+
+.cartao-perfil {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 36px;
+  border-radius: 28px;
+  background: var(--cartao);
+  color: var(--texto);
+  box-shadow: var(--sombra);
+  transition: transform 0.15s;
+}
+
+.cartao-perfil:hover,
+.cartao-perfil:focus-visible {
+  transform: scale(1.05);
+}
+
+.avatar-grande {
+  display: grid;
+  place-items: center;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  font-size: 64px;
+  background: var(--fundo);
+  border: 5px solid var(--destaque);
+}
+
+.nome-perfil {
+  font-size: 1.5em;
+  font-weight: 800;
+}
+
+/* ---------- estante ---------- */
+.grade-livros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 28px;
+  justify-content: center;
+}
+
+.cartao-livro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 230px;
+  padding: 26px 20px;
+  border-radius: 24px;
+  background: var(--cartao);
+  color: var(--texto);
+  box-shadow: var(--sombra);
+  transition: transform 0.15s;
+}
+
+.cartao-livro:hover,
+.cartao-livro:focus-visible {
+  transform: scale(1.04);
+}
+
+.capa-emoji {
+  font-size: 60px;
+}
+
+.titulo-livro {
+  font-size: 1.15em;
+  font-weight: 800;
+  text-align: center;
+}
+
+.autor-livro {
+  color: var(--texto-suave);
+  font-size: 0.85em;
+}
+
+.selo-status {
+  margin-top: 6px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: var(--destaque);
+  color: var(--cartao);
+  font-size: 0.8em;
+  font-weight: 700;
+}
+
+/* ---------- leitura ---------- */
+.leitura {
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 20px 80px;
+}
+
+.cabecalho {
+  text-align: center;
+}
+
+.paragrafo {
+  position: relative;
+  padding-right: 54px;
+  margin: 1.1em 0;
+}
+
+.paragrafo p {
+  margin: 0;
+}
+
+.botao-ouvir {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 12px;
+  background: var(--cartao);
+  box-shadow: var(--sombra);
+  font-size: 1.1em;
+}
+
+.cartao-imagem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin: 1.6em 0;
+  padding: 18px;
+  border-radius: 20px;
+  background: var(--cartao);
+  box-shadow: var(--sombra);
+}
+
+.previa-svg svg {
+  width: 100%;
+  max-width: 480px;
+  height: auto;
+  border-radius: 12px;
+  border: 2px solid var(--borda);
+  background: #ffffff;
+}
+
+.botao-grande {
+  min-height: 54px;
+  padding: 0 26px;
+  border-radius: 18px;
+  background: var(--destaque);
+  color: var(--cartao);
+  font-size: 1.05em;
+  font-weight: 800;
+}
+
+.botao-grande:active {
+  transform: scale(0.96);
+}
+
+/* ---------- quiz (zero gate) ---------- */
+.quiz {
+  margin: 1.6em 0;
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: var(--cartao);
+  border: 2px dashed var(--destaque);
+}
+
+.quiz-pergunta {
+  margin: 0 0 12px;
+  font-weight: 800;
+}
+
+.quiz-alternativas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quiz-alternativa {
+  min-height: 50px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: var(--fundo);
+  color: var(--texto);
+  font-size: 1em;
+  text-align: left;
+  border: 2px solid var(--borda);
+}
+
+.quiz-alternativa.correta {
+  background: #1c7a3d;
+  border-color: #1c7a3d;
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.quiz-alternativa.errada {
+  background: #b3213b;
+  border-color: #b3213b;
+  color: #ffffff;
+}
+
+.quiz-alternativa:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.quiz-explicacao {
+  margin: 12px 0 0;
+  color: var(--texto-suave);
+}
+
+.titulo-fim {
+  text-align: center;
+  margin-top: 2em;
+}
+
+.fim-livro {
+  text-align: center;
+  font-size: 1.5em;
+  margin: 2em 0;
+}
+
+.aviso-asset {
+  color: var(--destaque);
+  text-align: center;
+}
+
+/* ---------- tela de colorir (3 camadas, spec 8.2) ---------- */
+.tela-pintura {
+  gap: 14px;
+}
+
+.tela-colorir {
+  position: relative;
+  width: min(96vw, 860px);
+  aspect-ratio: 4 / 3;
+  margin: 10px auto 0;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--sombra);
+  background: #ffffff;
+  touch-action: none;
+}
+
+.tela-colorir svg,
+.camada-pincel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.camada-base .colorir-alvo {
+  cursor: pointer;
+}
+
+.barra-ferramentas {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  padding: 0 16px 28px;
+}
+
+.grupo-ferramentas {
+  display: flex;
+  gap: 10px;
+}
+
+.botao-ferramenta {
+  min-width: 56px;
+  min-height: 56px;
+  border-radius: 16px;
+  font-size: 1.5em;
+  background: var(--cartao);
+  box-shadow: var(--sombra);
+  border: 3px solid transparent;
+}
+
+.botao-ferramenta.ativa {
+  border-color: var(--destaque);
+  background: var(--fundo);
+}
+
+.paleta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  max-width: 560px;
+}
+
+.poco-cor {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid var(--cartao);
+  box-shadow: var(--sombra);
+}
+
+.poco-cor.ativa {
+  transform: scale(1.2);
+  border-color: var(--texto);
+}
