@@ -9,6 +9,30 @@
 > docs/CONTINUAR_AQUI.md e ESPECIFICACAO.md antes de qualquer coisa e siga
 > a lista de próximos passos na ordem."
 
+## Rodada 5 (mesma data — motores: TTS de vez, quebra-cabeça, ajustes/perfis)
+
+- **TTS reescrito de vez** (`src/tts.ts`): além do atraso pós-cancel, agora
+  contorna os DOIS outros bugs do Chrome — utterance coletado pelo GC no meio
+  da fala (referência viva em módulo) e fala longa que para aos ~15s (texto
+  fatiado em pedaços ≤180 chars encadeados por onend + resume periódico +
+  voz pt-BR selecionada explicitamente). Se AINDA falhar em algum aparelho,
+  o plano definitivo é o TTS nativo do Capacitor (passo 5 da lista).
+- **Quebra-cabeça** (`src/telas/telaQuebraCabeca.ts`): botão 🧩 em todo
+  desenho de colorir; monta a arte COM as cores que a criança pintou;
+  4/6/9/12/16/20 peças; recorte por viewBox (nada de imagem rasterizada);
+  interação toque-para-trocar; vitória = confetes. Estado NÃO persiste entre
+  saídas (evolução futura).
+- **Ajustes + gestão de perfis** (`src/telas/telaConfiguracoes.ts`): botão
+  ⚙️ discreto na tela de perfis → trava parental (multiplicação 6-9 × 6-9)
+  → criar/editar/excluir perfis (16 avatares, faixas etárias; exclusão em
+  dois toques apaga TODOS os dados do perfil via `armazenamento.chaves()`).
+  Troca de perfil continua SEM trava (spec 8.6).
+- **Imagens ilimitadas por livro**: tipo `ilustracao` renderiza SVG como é
+  (sem contorno); raster PNG/JPG entra por `arquivosImagens` no catálogo
+  (`import x from './assets/x.png?url'`). Guia atualizado.
+- **Vogais logo abaixo da tabela completa** nos livros de alfabeto (pedido
+  do Bruno).
+
 ## Rodada 4 (mesma data — pôsteres pintáveis + primeira historinha filosófica)
 
 - **Pôsteres pintáveis** nos livros de alfabeto (gerados em `alfabetos.ts`):

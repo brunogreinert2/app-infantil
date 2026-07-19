@@ -466,6 +466,188 @@ button {
   font-weight: 700;
 }
 
+/* ---------- imagens de ilustração e botões do cartão ---------- */
+.imagem-ilustracao {
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+.botoes-imagem {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* ---------- quebra-cabeça ---------- */
+.corpo-quebra {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 10px 16px 40px;
+}
+
+.titulo-quebra {
+  margin: 10px 0 0;
+}
+
+.grade-tamanhos {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.grade-quebra {
+  display: grid;
+  gap: 4px;
+  width: min(96vw, 760px);
+  background: var(--borda);
+  border-radius: 12px;
+  padding: 4px;
+}
+
+.peca {
+  padding: 0;
+  border: 0;
+  background: #ffffff;
+  border-radius: 6px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.peca svg {
+  width: 100%;
+  height: 100%;
+}
+
+.peca.selecionada {
+  outline: 4px solid var(--destaque);
+  outline-offset: -4px;
+  transform: scale(0.95);
+}
+
+.peca.encaixada {
+  border-radius: 0;
+}
+
+/* ---------- trava parental e ajustes ---------- */
+.tela-trava {
+  align-items: center;
+  justify-content: center;
+}
+
+.caixa-trava {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 30px 36px;
+  border-radius: 24px;
+  background: var(--cartao);
+  box-shadow: var(--sombra);
+}
+
+.campo-trava,
+.campo-nome,
+.campo-faixa {
+  font-family: inherit;
+  font-size: 1.1em;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid var(--borda);
+  background: var(--fundo);
+  color: var(--texto);
+  max-width: 220px;
+}
+
+.aviso-trava {
+  color: var(--destaque);
+  min-height: 1.2em;
+  margin: 0;
+}
+
+.botao-ajustes {
+  margin: 0 auto 26px;
+  padding: 10px 22px;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--texto-suave);
+  border: 2px solid var(--borda);
+  font-size: 0.95em;
+}
+
+.corpo-config {
+  width: 100%;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 20px 16px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.titulo-secao {
+  margin: 18px 0 4px;
+}
+
+.linha-perfil {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: var(--cartao);
+  box-shadow: var(--sombra);
+}
+
+.avatar-linha {
+  font-size: 1.8em;
+}
+
+.nome-linha {
+  flex: 1;
+  font-weight: 700;
+}
+
+.botao-perigo {
+  color: #b3213b;
+  font-weight: 700;
+}
+
+.form-perfil {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--cartao);
+  box-shadow: var(--sombra);
+}
+
+.grade-avatares {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+}
+
+.poco-avatar {
+  min-height: 46px;
+  font-size: 1.4em;
+  border-radius: 12px;
+  background: var(--fundo);
+  border: 3px solid transparent;
+}
+
+.poco-avatar.ativa {
+  border-color: var(--destaque);
+}
+
+.texto-sobre {
+  color: var(--texto-suave);
+  margin: 0;
+}
+
 /* ---------- confetes ---------- */
 .confete {
   position: fixed;

@@ -28,6 +28,16 @@ export const arquivosAssets: Record<string, string> = {
   ...Object.assign({}, ...gerados.map((g) => g.arquivos)),
 };
 
+// Imagens raster (PNG/JPG/WebP) — para ilustrações que não são SVG.
+// Adicionar depois do livro pronto é só: 1) colocar o arquivo em assets/,
+// 2) importar aqui com ?url, 3) registrar abaixo, 4) declarar no front
+// matter (tipo "ilustracao", arquivo: "nome.png") e ancorar {{img:id}}
+// em qualquer ponto do texto — quantas quiser por capítulo.
+// Ex.:  import foto01 from './assets/foto01.png?url';
+export const arquivosImagens: Record<string, string> = {
+  // 'foto01.png': foto01,
+};
+
 export function obterLivro(id: string): Livro | undefined {
   return livros.find((l) => l.id === id);
 }

@@ -8,6 +8,7 @@ import { el } from './comum';
 export async function montarTelaPerfis(
   raiz: HTMLElement,
   aoEscolher: (p: Perfil) => void,
+  aoAjustes: () => void,
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-perfis';
@@ -36,4 +37,9 @@ export async function montarTelaPerfis(
     grade.appendChild(botao);
   }
   raiz.appendChild(grade);
+
+  // ajustes: discreto, no rodapé — e sempre atrás da trava parental
+  const ajustes = el('button', 'botao-ajustes', '⚙️ Ajustes');
+  ajustes.addEventListener('click', aoAjustes);
+  raiz.appendChild(ajustes);
 }

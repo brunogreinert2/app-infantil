@@ -36,3 +36,43 @@ export function perfilAtivo(): Perfil {
 export function temPerfilAtivo(): boolean {
   return ativo !== null;
 }
+
+// ---------- gestão de perfis (tela de ajustes, atrás da trava parental) ----------
+
+export const AVATARES = [
+  '🦖', 'Ω', 'π', '🦉', '🚀', '🐢', '🦄', '⚽',
+  '🎨', '🐱', '🐶', '🌟', '🍉', '🤖', '🧸', '🎸',
+];
+
+export const FAIXAS = ['4-6', '6-8', '9-11', '12+'];
+
+export async function criarPerfil(nome: string, avatar: string, faixaEtaria: string): Promise<Perfil> {
+  const lista = await listarPerfis();
+  const novo: Perfil = {
+    id: Math.max(0, ...lista.map((p) => p.id)) + 1,
+    nome,
+    avatar,
+    faixaEtaria,
+  };
+  await armazenamento.definir('perfis', [...lista, novo]);
+  return novo;
+}
+
+export async function atualizarPerfil(perfil: Perfil): Promise<void> {
+  const lista = await listarPerfis();
+  await armazenamento.definir(
+    'perfis',
+    lista.map((p) => (p.id === perfil.id ? perfil : p)),
+  );
+  if (ativo?.id === perfil.id) ativo = perfil;
+}
+
+// Exclui o perfil E todos os dados dele (progresso, quiz, colorir, conquistas).
+export async function excluirPerfil(id: number): Promise<void> {
+  const lista = await listarPerfis();
+  await armazenamento.definir('perfis', lista.filter((p) => p.id !== id));
+  for (const chave of await armazenamento.chaves(`${id}:`)) {
+    await armazenamento.remover(chave);
+  }
+  if (ativo?.id === id) ativo = null;
+}

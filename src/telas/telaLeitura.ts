@@ -5,7 +5,7 @@
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { registrarLivroConcluido, listarConquistas } from '../conquistas/insignias';
-import { arquivosAssets } from '../conteudo/catalogo';
+import { arquivosAssets, arquivosImagens } from '../conteudo/catalogo';
 import { derivarContornoPB } from '../canvas/camadaBase';
 import { soltarConfetes } from '../efeitos/confete';
 import type { Livro, PerguntaQuiz } from '../motor/tipos';
@@ -26,6 +26,7 @@ export async function montarTelaLeitura(
     perfis: () => void;
     estante: () => void;
     colorir: (assetId: string) => void;
+    quebraCabeca: (assetId: string) => void;
   },
 ): Promise<void> {
   raiz.innerHTML = '';
@@ -76,7 +77,7 @@ export async function montarTelaLeitura(
       if (suportaTTS()) bloco.appendChild(botaoOuvir(no.texto));
       artigo.appendChild(bloco);
     } else {
-      artigo.appendChild(cartaoImagem(no.assetId, livro, nav.colorir));
+      artigo.appendChild(cartaoImagem(no.assetId, livro, nav));
     }
 
     // quiz ancorado neste nó — inline, logo após (spec 4)
@@ -144,7 +145,7 @@ function botaoOuvir(texto: string): HTMLElement {
 function cartaoImagem(
   assetId: string,
   livro: Livro,
-  irColorir: (assetId: string) => void,
+  nav: { colorir: (assetId: string) => void; quebraCabeca: (assetId: string) => void },
 ): HTMLElement {
   const asset = livro.metadados.assets?.find((a) => a.id === assetId);
   const cartao = el('div', 'cartao-imagem');
@@ -156,7 +157,9 @@ function cartaoImagem(
 
   const arquivo = asset.arquivo_interativo ?? asset.arquivo;
   const svg = arquivo ? arquivosAssets[arquivo] : undefined;
-  if (svg) {
+  const url = arquivo ? arquivosImagens[arquivo] : undefined;
+
+  if (asset.tipo === 'colorir' && svg) {
     const moldura = el('div', 'previa-svg');
     // preview = contorno + cores já pintadas pela criança (se houver).
     // Regiões não pintadas ficam BRANCAS (não transparentes): sem isso,
@@ -167,12 +170,25 @@ function cartaoImagem(
       .forEach((r) => r.setAttribute('fill', '#ffffff'));
     cartao.appendChild(moldura);
     aplicarCoresSalvas(moldura, livro.id, assetId);
-  }
 
-  if (asset.tipo === 'colorir') {
-    const pintar = el('button', 'botao-grande', '🎨 Pintar este desenho');
-    pintar.addEventListener('click', () => irColorir(assetId));
-    cartao.appendChild(pintar);
+    const botoes = el('div', 'botoes-imagem');
+    const pintar = el('button', 'botao-grande', '🎨 Pintar');
+    pintar.addEventListener('click', () => nav.colorir(assetId));
+    const montar = el('button', 'botao-grande', '🧩 Quebra-cabeça');
+    montar.addEventListener('click', () => nav.quebraCabeca(assetId));
+    botoes.append(pintar, montar);
+    cartao.appendChild(botoes);
+  } else if (svg) {
+    // ilustração/capa em SVG: mostra a arte como ela é, sem contorno
+    const moldura = el('div', 'previa-svg');
+    moldura.innerHTML = svg;
+    cartao.appendChild(moldura);
+  } else if (url) {
+    // ilustração raster (PNG/JPG) registrada em arquivosImagens
+    const img = el('img', 'imagem-ilustracao') as HTMLImageElement;
+    img.src = url;
+    img.alt = asset.id;
+    cartao.appendChild(img);
   }
   return cartao;
 }

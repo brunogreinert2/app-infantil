@@ -310,6 +310,15 @@ function gerarLivroAlfabeto(
   );
   corpo.push('## A tabela inteira para pintar', '', '{{img:tabela}}', '');
 
+  // vogais logo abaixo da tabela completa (pedido do Bruno na rodada 5)
+  arquivos[`${id}_vogais.svg`] = posters.vogaisSvg;
+  linhasAssets.push(
+    '  - id: "vogais"',
+    '    tipo: "colorir"',
+    `    arquivo_interativo: "${id}_vogais.svg"`,
+  );
+  corpo.push(`## ${posters.tituloVogais}`, '', '{{img:vogais}}', '');
+
   letras.forEach((l, i) => {
     const [mai, min, nome, dica] = l;
     const assetId = `letra${String(i + 1).padStart(2, '0')}`;
@@ -322,15 +331,6 @@ function gerarLivroAlfabeto(
     );
     corpo.push(`## ${mai} ${min} — ${nome}`, '', `${nome} ${dica}.`, '', `{{img:${assetId}}}`, '');
   });
-
-  // pôster de vogais (grego: ditongos; latino: encontros) — também pintável
-  arquivos[`${id}_vogais.svg`] = posters.vogaisSvg;
-  linhasAssets.push(
-    '  - id: "vogais"',
-    '    tipo: "colorir"',
-    `    arquivo_interativo: "${id}_vogais.svg"`,
-  );
-  corpo.push(`## ${posters.tituloVogais}`, '', '{{img:vogais}}', '');
 
   const md = [
     '---',

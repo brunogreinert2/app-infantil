@@ -22,6 +22,12 @@ modelo vivo — foi o primeiro do gênero filosófico e valida o pipeline inteir
      criar arquivo P&B separado.
 3. **Registrar no `src/conteudo/catalogo.ts`**: 2 imports + 1 entrada em
    `livros` + 1 entrada em `arquivosAssets`.
+   - **Imagem que não é de colorir** (ilustração pronta, capa): declare
+     `tipo: "ilustracao"` com `arquivo:` no front matter. SVG entra em
+     `arquivosAssets`; PNG/JPG entra em `arquivosImagens`
+     (`import foto from './assets/foto.png?url'`). Pode adicionar quantas
+     quiser, em qualquer ponto do texto, mesmo com o livro já pronto —
+     é só ancorar mais `{{img:id}}`.
 4. **Opcional — insígnia do livro** em `src/conquistas/insignias.ts`:
    uma entrada em `INSIGNIAS` + uma em `POR_LIVRO`. Regra da casa: fixa e
    previsível, nunca aleatória.

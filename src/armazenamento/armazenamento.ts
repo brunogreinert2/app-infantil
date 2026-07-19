@@ -8,6 +8,7 @@ export interface Armazenamento {
   obter<T>(chave: string): Promise<T | null>;
   definir<T>(chave: string, valor: T): Promise<void>;
   remover(chave: string): Promise<void>;
+  chaves(prefixo: string): Promise<string[]>; // p/ limpar dados de um perfil excluído
 }
 
 const PREFIXO = 'infantil:v1:';
@@ -29,6 +30,12 @@ class ArmazenamentoWeb implements Armazenamento {
 
   async remover(chave: string): Promise<void> {
     localStorage.removeItem(PREFIXO + chave);
+  }
+
+  async chaves(prefixo: string): Promise<string[]> {
+    return Object.keys(localStorage)
+      .filter((k) => k.startsWith(PREFIXO + prefixo))
+      .map((k) => k.slice(PREFIXO.length));
   }
 }
 

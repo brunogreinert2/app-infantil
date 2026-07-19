@@ -7,6 +7,8 @@ import { montarTelaPerfis } from './telas/telaPerfis';
 import { montarTelaEstante } from './telas/telaEstante';
 import { montarTelaLeitura } from './telas/telaLeitura';
 import { montarTelaColorir } from './telas/telaColorir';
+import { montarTelaQuebraCabeca } from './telas/telaQuebraCabeca';
+import { montarTelaConfiguracoes, montarTravaParental } from './telas/telaConfiguracoes';
 import { carregarPreferencias } from './telas/preferencias';
 import { pararFala } from './tts';
 
@@ -15,10 +17,23 @@ let livroAtual: Livro | null = null;
 
 function irPerfis(): void {
   pararFala();
-  montarTelaPerfis(raiz, async () => {
-    await carregarPreferencias();
-    irEstante();
-  });
+  montarTelaPerfis(
+    raiz,
+    async () => {
+      await carregarPreferencias();
+      irEstante();
+    },
+    irAjustes,
+  );
+}
+
+function irAjustes(): void {
+  // trava parental primeiro — sempre (spec 8.5)
+  montarTravaParental(
+    raiz,
+    () => montarTelaConfiguracoes(raiz, { perfis: irPerfis }),
+    irPerfis,
+  );
 }
 
 function irEstante(): void {
@@ -40,6 +55,17 @@ function irLeitura(): void {
     perfis: irPerfis,
     estante: irEstante,
     colorir: (assetId) => irColorir(assetId),
+    quebraCabeca: (assetId) => irQuebraCabeca(assetId),
+  });
+}
+
+function irQuebraCabeca(assetId: string): void {
+  if (!livroAtual) return irEstante();
+  pararFala();
+  window.scrollTo(0, 0);
+  montarTelaQuebraCabeca(raiz, livroAtual, assetId, {
+    perfis: irPerfis,
+    voltar: irLeitura,
   });
 }
 
