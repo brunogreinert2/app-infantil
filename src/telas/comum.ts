@@ -1,7 +1,7 @@
 // Peças de UI compartilhadas entre telas.
 
 import { perfilAtivo } from '../perfis/perfis';
-import { TEMAS, trocarTema, ajustarTamanho } from './preferencias';
+import { ajustarTamanho } from './preferencias';
 
 export function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -18,7 +18,7 @@ export interface OpcoesBarra {
   titulo: string;
   aoVoltar?: () => void;
   aoTrocarPerfil: () => void; // avatar fixo → volta à seleção (spec 8.6)
-  comAjustes?: boolean;
+  aoAparencia?: () => void; // 🎨 abre a tela de aparência (temas/fontes)
 }
 
 export function barraTopo(op: OpcoesBarra): HTMLElement {
@@ -40,7 +40,7 @@ export function barraTopo(op: OpcoesBarra): HTMLElement {
 
   barra.appendChild(el('h1', 'titulo-barra', op.titulo));
 
-  if (op.comAjustes !== false) {
+  if (op.aoAparencia) {
     const ajustes = el('div', 'ajustes');
     const menor = el('button', 'botao-icone', 'A−');
     menor.setAttribute('aria-label', 'Diminuir letra');
@@ -48,13 +48,10 @@ export function barraTopo(op: OpcoesBarra): HTMLElement {
     const maior = el('button', 'botao-icone', 'A+');
     maior.setAttribute('aria-label', 'Aumentar letra');
     maior.addEventListener('click', () => ajustarTamanho(2));
-    ajustes.append(menor, maior);
-    for (const t of TEMAS) {
-      const b = el('button', 'botao-icone', t.rotulo);
-      b.setAttribute('aria-label', `Tema ${t.id}`);
-      b.addEventListener('click', () => trocarTema(t.id));
-      ajustes.appendChild(b);
-    }
+    const aparencia = el('button', 'botao-icone', '🎨');
+    aparencia.setAttribute('aria-label', 'Mudar aparência');
+    aparencia.addEventListener('click', op.aoAparencia);
+    ajustes.append(menor, maior, aparencia);
     barra.appendChild(ajustes);
   }
 

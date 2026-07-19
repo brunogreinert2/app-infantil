@@ -6,7 +6,7 @@ export type No =
   | { tipo: 'paragrafo'; texto: string; id: string }
   | { tipo: 'imagem'; assetId: string; id: string };
 
-export type TipoAsset = 'capa' | 'ilustracao' | 'colorir';
+export type TipoAsset = 'capa' | 'ilustracao' | 'colorir' | 'audio' | 'video';
 
 export interface AssetDeclarado {
   id: string;

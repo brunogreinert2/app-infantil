@@ -29,13 +29,30 @@
 }
 
 [data-theme='floresta'] {
-  --fundo: #eef7e8;
-  --cartao: #ffffff;
-  --texto: #1c3a20;
-  --texto-suave: #3f5c42;
-  --destaque: #1c7a3d;
-  --borda: #cfe6c6;
-  --sombra: 0 4px 14px rgba(30, 90, 40, 0.12);
+  --fundo: #d5eabf;
+  --cartao: #f6fbee;
+  --texto: #16331a;
+  --texto-suave: #35543a;
+  --destaque: #14682e;
+  --borda: #aacd8e;
+  --sombra: 0 4px 14px rgba(30, 90, 40, 0.16);
+}
+
+/* alto contraste real (escala Perkins, herança Pedra Angular): fundo preto,
+   letra branca, destaque amarelo — contraste muito acima de 7:1 */
+[data-theme='alto-contraste'] {
+  --fundo: #000000;
+  --cartao: #141414;
+  --texto: #ffffff;
+  --texto-suave: #e0e0e0;
+  --destaque: #ffd400;
+  --borda: #5a5a5a;
+  --sombra: 0 0 0 1px #5a5a5a;
+}
+
+[data-theme='alto-contraste'] .selo-status,
+[data-theme='alto-contraste'] .botao-grande {
+  color: #000000;
 }
 
 * {
@@ -46,7 +63,7 @@ body {
   margin: 0;
   background: var(--fundo);
   color: var(--texto);
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: var(--fonte-corpo, 'Segoe UI', system-ui, -apple-system, sans-serif);
   font-size: var(--tamanho-base);
   line-height: 1.6;
   transition: background 0.3s;
@@ -255,6 +272,62 @@ button {
   background: var(--cartao);
   box-shadow: var(--sombra);
   font-size: 1.1em;
+}
+
+.cabecalho-bloco {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.cabecalho-bloco .cabecalho {
+  margin: 0.6em 0;
+}
+
+.midia-audio {
+  width: 100%;
+  max-width: 480px;
+}
+
+.midia-video {
+  width: 100%;
+  max-width: 560px;
+  border-radius: 12px;
+}
+
+/* ---------- tela de aparência ---------- */
+.grade-opcoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.botao-opcao {
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: 14px;
+  background: var(--cartao);
+  color: var(--texto);
+  border: 3px solid var(--borda);
+  box-shadow: var(--sombra);
+  font-size: 1em;
+  font-weight: 700;
+}
+
+.botao-opcao.ativa {
+  border-color: var(--destaque);
+}
+
+.rotulo-cores {
+  margin: 6px 0 0;
+  font-weight: 700;
+}
+
+.grade-cores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .cartao-imagem {

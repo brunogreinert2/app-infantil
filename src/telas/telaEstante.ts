@@ -16,13 +16,13 @@ const EMOJIS_CAPA: Record<string, string> = {
 
 export async function montarTelaEstante(
   raiz: HTMLElement,
-  nav: { perfis: () => void; leitura: (livro: Livro) => void },
+  nav: { perfis: () => void; aparencia: () => void; leitura: (livro: Livro) => void },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-estante';
 
   raiz.appendChild(
-    barraTopo({ titulo: 'Estante', aoTrocarPerfil: nav.perfis }),
+    barraTopo({ titulo: 'Estante', aoTrocarPerfil: nav.perfis, aoAparencia: nav.aparencia }),
   );
 
   const p = perfilAtivo();

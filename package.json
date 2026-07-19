@@ -11,7 +11,9 @@
     "gera:glifos": "node scripts/gera-glifos.mjs"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "js-yaml": "^4.1.0",
+    "open-dyslexic": "^1.0.3"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",

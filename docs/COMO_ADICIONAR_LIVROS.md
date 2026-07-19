@@ -28,6 +28,11 @@ modelo vivo — foi o primeiro do gênero filosófico e valida o pipeline inteir
      (`import foto from './assets/foto.png?url'`). Pode adicionar quantas
      quiser, em qualquer ponto do texto, mesmo com o livro já pronto —
      é só ancorar mais `{{img:id}}`.
+   - **Áudio e vídeo**: mesmíssimo caminho — `tipo: "audio"` (mp3/ogg) ou
+     `tipo: "video"` (mp4/webm), arquivo em `arquivosImagens` via `?url`,
+     âncora `{{img:id}}`. Player nativo com controles, sem autoplay.
+     Atenção ao peso: mídia entra no bundle do app (zero rede em runtime) —
+     preferir clipes curtos e comprimidos.
 4. **Opcional — insígnia do livro** em `src/conquistas/insignias.ts`:
    uma entrada em `INSIGNIAS` + uma em `POR_LIVRO`. Regra da casa: fixa e
    previsível, nunca aleatória.

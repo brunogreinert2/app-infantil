@@ -9,6 +9,27 @@
 > docs/CONTINUAR_AQUI.md e ESPECIFICACAO.md antes de qualquer coisa e siga
 > a lista de próximos passos na ordem."
 
+## Rodada 6 (mesma data — aparência, fontes de acessibilidade, mídia)
+
+- **TTS no Chrome do Bruno**: diagnóstico — o problema é do Chrome dele
+  (nem pedraangular.app.br toca; Edge funciona). Checar
+  chrome://settings/content/sound e vozes pt-BR no Windows. O código segue
+  com os 3 contornos da rodada 5.
+- **🔊 no cabeçalho lê o capítulo inteiro** (todos os parágrafos até o
+  próximo cabeçalho), além do 🔊 por parágrafo.
+- **Tela de Aparência** (`telaAparencia.ts`, botão 🎨 na barra, SEM trava —
+  é da criança): 4 temas prontos com foco acessibilidade (Claro, Floresta
+  agora bem distinta, Espaço, **Alto contraste** preto/branco/amarelo estilo
+  Perkins), fontes **Atkinson Hyperlegible** e **OpenDyslexic** (empacotadas
+  no bundle via @fontsource e open-dyslexic — zero CDN; OpenDyslexic é opção,
+  nunca padrão), tamanho, e **"Monte o seu"**: criança escolhe fundo (12) +
+  cor favorita (10); texto/cartão/borda são DERIVADOS por luminância
+  (`derivarPaleta` em preferencias.ts) — nunca fica ilegível. Tudo por perfil.
+- **Áudio e vídeo como assets**: tipos `audio`/`video` no front matter,
+  arquivo registrado em `arquivosImagens` (?url), `{{img:id}}` no texto →
+  player nativo com controles, sem autoplay. Mesmo pipeline das imagens.
+- Barra do topo enxuta: A− / A+ / 🎨 (os 3 botões de tema saíram de lá).
+
 ## Rodada 5 (mesma data — motores: TTS de vez, quebra-cabeça, ajustes/perfis)
 
 - **TTS reescrito de vez** (`src/tts.ts`): além do atraso pós-cancel, agora

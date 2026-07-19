@@ -43,7 +43,6 @@ export async function montarTelaQuebraCabeca(
       titulo: '🧩 ' + livro.metadados.titulo,
       aoVoltar: nav.voltar,
       aoTrocarPerfil: nav.perfis,
-      comAjustes: false,
     }),
   );
 

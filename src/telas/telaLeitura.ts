@@ -25,6 +25,7 @@ export async function montarTelaLeitura(
   nav: {
     perfis: () => void;
     estante: () => void;
+    aparencia: () => void;
     colorir: (assetId: string) => void;
     quebraCabeca: (assetId: string) => void;
   },
@@ -38,6 +39,7 @@ export async function montarTelaLeitura(
       titulo: livro.metadados.titulo,
       aoVoltar: nav.estante,
       aoTrocarPerfil: nav.perfis,
+      aoAparencia: nav.aparencia,
     }),
   );
 
@@ -61,6 +63,28 @@ export async function montarTelaLeitura(
   const artigo = el('article', 'leitura');
   const perguntas = livro.metadados.quiz ?? [];
 
+  // texto de cada capítulo (do cabeçalho até o próximo) p/ o 🔊 do cabeçalho
+  const textoDoCapitulo = new Map<string, string>();
+  {
+    let cabecalhoAberto: string | null = null;
+    let acumulado: string[] = [];
+    const fechar = () => {
+      if (cabecalhoAberto && acumulado.length > 0) {
+        textoDoCapitulo.set(cabecalhoAberto, acumulado.join(' '));
+      }
+      acumulado = [];
+    };
+    for (const no of livro.nos) {
+      if (no.tipo === 'cabecalho') {
+        fechar();
+        cabecalhoAberto = no.id;
+      } else if (no.tipo === 'paragrafo') {
+        acumulado.push(no.texto);
+      }
+    }
+    fechar();
+  }
+
   for (const no of livro.nos) {
     if (no.tipo === 'cabecalho') {
       // profundidade arbitrária preservada: nível vira atributo,
@@ -69,6 +93,14 @@ export async function montarTelaLeitura(
       const cab = el(tag, 'cabecalho', no.texto);
       cab.dataset.nivel = String(no.nivel);
       cab.id = `no-${no.id}`;
+      // 🔊 do capítulo: lê tudo até o próximo cabeçalho, sem clique por parágrafo
+      const textoCap = textoDoCapitulo.get(no.id);
+      if (textoCap && suportaTTS()) {
+        const bloco = el('div', 'cabecalho-bloco');
+        bloco.append(cab, botaoOuvir(`${no.texto}. ${textoCap}`));
+        artigo.appendChild(bloco);
+        continue;
+      }
       artigo.appendChild(cab);
     } else if (no.tipo === 'paragrafo') {
       const bloco = el('div', 'paragrafo');
@@ -183,6 +215,21 @@ function cartaoImagem(
     const moldura = el('div', 'previa-svg');
     moldura.innerHTML = svg;
     cartao.appendChild(moldura);
+  } else if (url && asset.tipo === 'audio') {
+    // áudio empacotado (mp3/ogg) — mesmo pipeline de asset das imagens
+    const audio = el('audio', 'midia-audio') as HTMLAudioElement;
+    audio.src = url;
+    audio.controls = true;
+    audio.preload = 'metadata';
+    cartao.appendChild(audio);
+  } else if (url && asset.tipo === 'video') {
+    // vídeo empacotado (mp4/webm) — controles nativos, sem autoplay
+    const video = el('video', 'midia-video') as HTMLVideoElement;
+    video.src = url;
+    video.controls = true;
+    video.playsInline = true;
+    video.preload = 'metadata';
+    cartao.appendChild(video);
   } else if (url) {
     // ilustração raster (PNG/JPG) registrada em arquivosImagens
     const img = el('img', 'imagem-ilustracao') as HTMLImageElement;

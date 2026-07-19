@@ -2,6 +2,8 @@
 // O app SEMPRE abre na seleção de perfil (spec 8.6) — nunca pula direto.
 
 import './estilos.css';
+import './fontes';
+import { montarTelaAparencia } from './telas/telaAparencia';
 import type { Livro } from './motor/tipos';
 import { montarTelaPerfis } from './telas/telaPerfis';
 import { montarTelaEstante } from './telas/telaEstante';
@@ -41,11 +43,17 @@ function irEstante(): void {
   window.scrollTo(0, 0);
   montarTelaEstante(raiz, {
     perfis: irPerfis,
+    aparencia: () => irAparencia(irEstante),
     leitura: (livro) => {
       livroAtual = livro;
       irLeitura();
     },
   });
+}
+
+function irAparencia(voltar: () => void): void {
+  window.scrollTo(0, 0);
+  montarTelaAparencia(raiz, { voltar });
 }
 
 function irLeitura(): void {
@@ -54,6 +62,7 @@ function irLeitura(): void {
   montarTelaLeitura(raiz, livroAtual, {
     perfis: irPerfis,
     estante: irEstante,
+    aparencia: () => irAparencia(irLeitura),
     colorir: (assetId) => irColorir(assetId),
     quebraCabeca: (assetId) => irQuebraCabeca(assetId),
   });
