@@ -10,17 +10,21 @@ import { gerarAlfabetos } from './alfabetos';
 
 import lebreMd from './livros/lebre-e-tartaruga.md?raw';
 import lebreColorirSvg from './assets/lebre_colorir.svg?raw';
+import ninaMd from './livros/o-que-depende-de-mim.md?raw';
+import ninaColorirSvg from './assets/nina_colorir.svg?raw';
 
 const gerados = gerarAlfabetos();
 
 export const livros: Livro[] = [
   carregarLivro('lebre-e-tartaruga', lebreMd),
+  carregarLivro('o-que-depende-de-mim', ninaMd),
   ...gerados.map((g) => g.livro),
 ];
 
 // arquivo declarado no front matter → conteúdo SVG
 export const arquivosAssets: Record<string, string> = {
   'lebre_colorir.svg': lebreColorirSvg,
+  'nina_colorir.svg': ninaColorirSvg,
   ...Object.assign({}, ...gerados.map((g) => g.arquivos)),
 };
 

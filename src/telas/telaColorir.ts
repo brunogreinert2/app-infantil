@@ -59,6 +59,14 @@ export async function montarTelaColorir(
   raiz.appendChild(tela);
 
   const base = new CamadaBase(tela, svgFonte);
+
+  // proporção da tela segue o viewBox da arte (pôsteres são retrato,
+  // cenas são paisagem) — o CSS fixo 4:3 vale só como fallback
+  const vb = base.svg.viewBox.baseVal;
+  if (vb && vb.width > 0 && vb.height > 0) {
+    tela.style.aspectRatio = `${vb.width} / ${vb.height}`;
+    if (vb.height > vb.width) tela.style.width = 'min(96vw, 600px)';
+  }
   let roteador: RoteadorFerramenta;
   const pincel = new CamadaPincel(tela, () => roteador.estiloPincel());
   roteador = new RoteadorFerramenta(pincel);

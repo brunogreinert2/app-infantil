@@ -9,6 +9,9 @@ import { barraTopo, el } from './comum';
 
 const EMOJIS_CAPA: Record<string, string> = {
   'lebre-e-tartaruga': '🐢🐇',
+  'o-que-depende-de-mim': '☔',
+  'alfabeto-grego': 'Ωα',
+  'alfabeto': '🔤',
 };
 
 export async function montarTelaEstante(

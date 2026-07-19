@@ -9,6 +9,22 @@
 > docs/CONTINUAR_AQUI.md e ESPECIFICACAO.md antes de qualquer coisa e siga
 > a lista de próximos passos na ordem."
 
+## Rodada 4 (mesma data — pôsteres pintáveis + primeira historinha filosófica)
+
+- **Pôsteres pintáveis** nos livros de alfabeto (gerados em `alfabetos.ts`):
+  "A tabela inteira para pintar" (todas as letras num SVG só, retrato) e
+  "Vogais e ditongos/encontros para pintar". Regiões podem ser `<g>` (grupo
+  inteiro = uma região). Tela de colorir e impressão agora respeitam o
+  viewBox (retrato → A4 portrait automático).
+- **Primeira historinha filosófica autoral**: "O Que Depende de Mim"
+  (`o-que-depende-de-mim.md`) — dicotomia do controle de Epicteto virou a
+  Nina e o piquenique na chuva. Cena de colorir própria (`nina_colorir.svg`),
+  quiz ancorado + de capítulo, insígnia 🏺 Pequeno Filósofo. Valida o
+  pipeline do gênero que o Bruno quer expandir ("tio Aristóteles").
+- **Guia de conteúdo**: `docs/COMO_ADICIONAR_LIVROS.md` — receita completa
+  com template, regras de domínio público (Pequeno Príncipe: tradução PRÓPRIA
+  do francês, nunca copiar edição comercial) e fila de ideias encomendadas.
+
 ## Rodada 3 (mesma data — Davi pintou o alfabeto grego INTEIRO; Theo ofereceu R$5 pelo app)
 
 - **Letras agora são caminhos vetoriais** (`src/conteudo/glifos.json`, gerado por

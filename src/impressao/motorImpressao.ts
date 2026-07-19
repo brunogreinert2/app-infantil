@@ -33,13 +33,16 @@ export function imprimirDocumento(titulo: string, corpoHtml: string, css: string
 }
 
 export function imprimirParaColorir(svgFonte: string, titulo: string): void {
+  // orientação segue a proporção da arte: cena paisagem / pôster retrato
+  const vb = svgFonte.match(/viewBox="0 0 (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)"/);
+  const retrato = vb ? Number(vb[2]) > Number(vb[1]) : false;
   imprimirDocumento(
     titulo,
     `<h1>${titulo}</h1>${derivarContornoPB(svgFonte)}`,
-    `@page { size: A4 landscape; margin: 10mm; }
+    `@page { size: A4 ${retrato ? 'portrait' : 'landscape'}; margin: 10mm; }
      html, body { margin: 0; padding: 0; }
      body { font-family: sans-serif; }
      h1 { font-size: 16px; text-align: center; margin: 0 0 5mm; }
-     svg { display: block; margin: 0 auto; height: 150mm; width: auto; max-width: 100%; page-break-inside: avoid; }`,
+     svg { display: block; margin: 0 auto; height: ${retrato ? '250mm' : '150mm'}; width: auto; max-width: 100%; page-break-inside: avoid; }`,
   );
 }

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Cena de "O Que Depende de Mim": Nina com guarda-chuva entre a nuvem
+       de chuva e o sol voltando. Mesmo padrão do lebre_colorir.svg:
+       regiões com id + class colorir-alvo, fill branco inicial. -->
+  <rect id="regiao-ceu" class="colorir-alvo" x="0" y="0" width="800" height="420" fill="#ffffff"/>
+  <circle id="regiao-sol" class="colorir-alvo" cx="705" cy="95" r="52" fill="#ffffff"/>
+  <path id="regiao-nuvem" class="colorir-alvo" fill="#ffffff"
+    d="M130,150 a42,36 0 0 1 54,-38 a48,43 0 0 1 91,-8 a38,34 0 0 1 48,46 a30,26 0 0 1 -26,28 l-138,0 a31,29 0 0 1 -29,-28 z"/>
+  <path id="regiao-gotas" class="colorir-alvo" fill="#ffffff"
+    d="M165,215 a8,11 0 1 0 0.1,0 Z M225,245 a8,11 0 1 0 0.1,0 Z M285,215 a8,11 0 1 0 0.1,0 Z M195,285 a8,11 0 1 0 0.1,0 Z M262,300 a8,11 0 1 0 0.1,0 Z"/>
+  <rect id="regiao-grama" class="colorir-alvo" x="0" y="420" width="800" height="180" fill="#ffffff"/>
+  <ellipse id="regiao-poca" class="colorir-alvo" cx="240" cy="520" rx="75" ry="20" fill="#ffffff"/>
+  <rect id="regiao-flor-caule" class="colorir-alvo" x="646" y="465" width="9" height="70" rx="4" fill="#ffffff"/>
+  <g id="regiao-flor-petalas" class="colorir-alvo" fill="#ffffff">
+    <circle cx="650" cy="435" r="14"/>
+    <circle cx="672" cy="452" r="14"/>
+    <circle cx="663" cy="478" r="14"/>
+    <circle cx="637" cy="478" r="14"/>
+    <circle cx="628" cy="452" r="14"/>
+  </g>
+  <circle id="regiao-flor-miolo" class="colorir-alvo" cx="650" cy="459" r="11" fill="#ffffff"/>
+  <rect id="regiao-cabo" class="colorir-alvo" x="466" y="295" width="9" height="80" rx="4" fill="#ffffff"/>
+  <path id="regiao-vestido" class="colorir-alvo" fill="#ffffff"
+    d="M470,362 L426,478 L514,478 Z"/>
+  <circle id="regiao-cabeca" class="colorir-alvo" cx="470" cy="335" r="30" fill="#ffffff"/>
+  <path id="regiao-guarda-chuva" class="colorir-alvo" fill="#ffffff"
+    d="M378,300 A95,75 0 0 1 562,300 Q539,286 516,300 Q493,286 470,300 Q447,286 424,300 Q401,286 378,300 Z"/>
+</svg>
