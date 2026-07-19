@@ -26,7 +26,7 @@ export async function montarTelaEstante(
   const grade = el('div', 'grade-livros');
 
   for (const livro of livros) {
-    const progresso = await armazenamento.obter<{ posicaoAtual: string }>(
+    const progresso = await armazenamento.obter<{ posicaoAtual?: string; status?: string }>(
       `${p.id}:progresso:${livro.id}`,
     );
 
@@ -36,9 +36,9 @@ export async function montarTelaEstante(
     if (livro.metadados.autor_original) {
       cartao.appendChild(el('span', 'autor-livro', livro.metadados.autor_original));
     }
-    cartao.appendChild(
-      el('span', 'selo-status', progresso ? '▶ Continuar' : '✨ Novo'),
-    );
+    const rotulo =
+      progresso?.status === 'concluido' ? '⭐ Lido' : progresso ? '▶ Continuar' : '✨ Novo';
+    cartao.appendChild(el('span', 'selo-status', rotulo));
     cartao.addEventListener('click', () => nav.leitura(livro));
     grade.appendChild(cartao);
   }

@@ -1,13 +1,22 @@
 // Tela de leitura: renderiza os nós do parser, quiz zero-gate inline
-// (spec 4 e 8.5), botão de ouvir por parágrafo, e salva a posição
-// de leitura por perfil para o "continuar de onde parou".
+// (spec 4 e 8.5), ouvir/parar por parágrafo, preview do desenho com as
+// cores que a criança já pintou, e conclusão explícita do livro
+// ("Terminei!") que concede insígnia fixa e previsível.
 
 import { armazenamento } from '../armazenamento/armazenamento';
+import { registrarLivroConcluido, listarConquistas } from '../conquistas/insignias';
 import { arquivosAssets } from '../conteudo/catalogo';
+import { derivarContornoPB } from '../canvas/camadaBase';
+import { soltarConfetes } from '../efeitos/confete';
 import type { Livro, PerguntaQuiz } from '../motor/tipos';
 import { perfilAtivo } from '../perfis/perfis';
-import { falar, pararFala, suportaTTS } from '../tts';
+import { falar, pararFala, suportaTTS, textoFalando } from '../tts';
 import { barraTopo, el } from './comum';
+
+interface Progresso {
+  posicaoAtual?: string;
+  status?: 'em_andamento' | 'concluido';
+}
 
 export async function montarTelaLeitura(
   raiz: HTMLElement,
@@ -30,8 +39,12 @@ export async function montarTelaLeitura(
     }),
   );
 
-  const artigo = el('article', 'leitura');
   const p = perfilAtivo();
+  const chaveProgresso = `${p.id}:progresso:${livro.id}`;
+  const progresso: Progresso =
+    (await armazenamento.obter<Progresso>(chaveProgresso)) ?? {};
+
+  const artigo = el('article', 'leitura');
   const perguntas = livro.metadados.quiz ?? [];
 
   for (const no of livro.nos) {
@@ -47,12 +60,7 @@ export async function montarTelaLeitura(
       const bloco = el('div', 'paragrafo');
       bloco.id = `no-${no.id}`;
       bloco.appendChild(el('p', undefined, no.texto));
-      if (suportaTTS()) {
-        const ouvir = el('button', 'botao-ouvir', '🔊');
-        ouvir.setAttribute('aria-label', 'Ouvir este parágrafo');
-        ouvir.addEventListener('click', () => falar(no.texto));
-        bloco.appendChild(ouvir);
-      }
+      if (suportaTTS()) bloco.appendChild(botaoOuvir(no.texto));
       artigo.appendChild(bloco);
     } else {
       artigo.appendChild(cartaoImagem(no.assetId, livro, nav.colorir));
@@ -70,18 +78,18 @@ export async function montarTelaLeitura(
     artigo.appendChild(el('h2', 'titulo-fim', 'Para pensar 💭'));
     deCapitulo.forEach((q) => artigo.appendChild(blocoQuiz(q, livro, perguntas.indexOf(q))));
   }
-  artigo.appendChild(el('p', 'fim-livro', 'Fim! 🎉'));
 
+  artigo.appendChild(await rodapeConclusao(livro, progresso, chaveProgresso));
   raiz.appendChild(artigo);
 
   // restaurar posição de leitura
-  const chaveProgresso = `${p.id}:progresso:${livro.id}`;
-  const progresso = await armazenamento.obter<{ posicaoAtual: string }>(chaveProgresso);
-  if (progresso?.posicaoAtual) {
-    document.getElementById(`no-${progresso.posicaoAtual}`)?.scrollIntoView({ block: 'start' });
+  if (progresso.posicaoAtual) {
+    document
+      .getElementById(`no-${progresso.posicaoAtual}`)
+      ?.scrollIntoView({ block: 'start' });
   }
 
-  // salvar posição conforme rola (debounce)
+  // salvar posição conforme rola (debounce), preservando o status
   let temporizador: number | undefined;
   const aoRolar = () => {
     clearTimeout(temporizador);
@@ -89,15 +97,35 @@ export async function montarTelaLeitura(
       const blocos = artigo.querySelectorAll<HTMLElement>('.paragrafo');
       for (const b of blocos) {
         if (b.getBoundingClientRect().bottom > 90) {
-          armazenamento.definir(chaveProgresso, {
-            posicaoAtual: b.id.replace('no-', ''),
-          });
+          progresso.posicaoAtual = b.id.replace('no-', '');
+          if (!progresso.status) progresso.status = 'em_andamento';
+          armazenamento.definir(chaveProgresso, progresso);
           break;
         }
       }
     }, 400);
   };
   window.addEventListener('scroll', aoRolar, { passive: true });
+}
+
+// 🔊 vira ⏹ enquanto fala — e volta sozinho quando a fala termina
+function botaoOuvir(texto: string): HTMLElement {
+  const botao = el('button', 'botao-ouvir', '🔊');
+  botao.setAttribute('aria-label', 'Ouvir este parágrafo');
+  botao.addEventListener('click', () => {
+    if (textoFalando() === texto) {
+      pararFala();
+      botao.textContent = '🔊';
+    } else {
+      // reseta qualquer outro botão que estivesse em modo ⏹
+      document
+        .querySelectorAll<HTMLButtonElement>('.botao-ouvir')
+        .forEach((b) => (b.textContent = '🔊'));
+      botao.textContent = '⏹';
+      falar(texto, () => (botao.textContent = '🔊'));
+    }
+  });
+  return botao;
 }
 
 function cartaoImagem(
@@ -117,8 +145,10 @@ function cartaoImagem(
   const svg = arquivo ? arquivosAssets[arquivo] : undefined;
   if (svg) {
     const moldura = el('div', 'previa-svg');
-    moldura.innerHTML = svg;
+    // preview = contorno + cores já pintadas pela criança (se houver)
+    moldura.innerHTML = derivarContornoPB(svg);
     cartao.appendChild(moldura);
+    aplicarCoresSalvas(moldura, livro.id, assetId);
   }
 
   if (asset.tipo === 'colorir') {
@@ -127,6 +157,61 @@ function cartaoImagem(
     cartao.appendChild(pintar);
   }
   return cartao;
+}
+
+async function aplicarCoresSalvas(
+  moldura: HTMLElement,
+  livroId: string,
+  assetId: string,
+): Promise<void> {
+  const chave = `${perfilAtivo().id}:colorir:${livroId}:${assetId}`;
+  const estado = await armazenamento.obter<{ regioes: Record<string, string> }>(chave);
+  if (!estado) return;
+  for (const [regiaoId, cor] of Object.entries(estado.regioes)) {
+    moldura.querySelector(`#${CSS.escape(regiaoId)}`)?.setAttribute('fill', cor);
+  }
+}
+
+// Encerramento explícito: a criança marca "Terminei!" — vira status
+// concluido, solta confetes e concede a insígnia fixa daquele livro.
+async function rodapeConclusao(
+  livro: Livro,
+  progresso: Progresso,
+  chaveProgresso: string,
+): Promise<HTMLElement> {
+  const rodape = el('div', 'rodape-livro');
+
+  if (progresso.status === 'concluido') {
+    const conquistas = await listarConquistas(perfilAtivo().id);
+    rodape.appendChild(el('p', 'fim-livro', '⭐ Você já leu este livro inteiro!'));
+    if (conquistas.length > 0) {
+      rodape.appendChild(
+        el('p', 'insignias-linha', conquistas.map((c) => c.emoji).join(' ')),
+      );
+    }
+    return rodape;
+  }
+
+  const botao = el('button', 'botao-grande botao-terminei', '✓ Terminei este livro!');
+  botao.addEventListener('click', async () => {
+    progresso.status = 'concluido';
+    await armazenamento.definir(chaveProgresso, progresso);
+
+    const r = botao.getBoundingClientRect();
+    soltarConfetes({ x: r.x + r.width / 2, y: r.y });
+
+    const novas = await registrarLivroConcluido(perfilAtivo().id, livro.id);
+    botao.remove();
+    rodape.appendChild(el('p', 'fim-livro', '🎉 Parabéns! Você leu o livro inteiro!'));
+    for (const insignia of novas) {
+      const cartao = el('div', 'cartao-insignia');
+      cartao.appendChild(el('span', 'insignia-emoji', insignia.emoji));
+      cartao.appendChild(el('span', 'insignia-titulo', `Você ganhou a insígnia "${insignia.titulo}"!`));
+      rodape.appendChild(cartao);
+    }
+  });
+  rodape.appendChild(botao);
+  return rodape;
 }
 
 // Quiz zero-gate (spec 8.5, decisão final): qualquer alternativa pode ser
@@ -151,6 +236,11 @@ function blocoQuiz(q: PerguntaQuiz, livro: Livro, indice: number): HTMLElement {
         if (j === q.correta) b.classList.add('correta');
         else if (j === i) b.classList.add('errada');
       });
+
+      if (i === q.correta) {
+        const r = botao.getBoundingClientRect();
+        soltarConfetes({ x: r.x + r.width / 2, y: r.y + r.height / 2 });
+      }
 
       if (q.explicacao) {
         caixa.appendChild(el('p', 'quiz-explicacao', `💡 ${q.explicacao}`));

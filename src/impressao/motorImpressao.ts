@@ -20,10 +20,13 @@ export function imprimirParaColorir(svgFonte: string, titulo: string): void {
   doc.write(`<!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><title>${titulo}</title>
 <style>
-  body { margin: 0; padding: 24px; font-family: sans-serif; }
-  h1 { font-size: 18px; text-align: center; }
-  svg { width: 100%; height: auto; }
-  @page { size: landscape; margin: 1cm; }
+  /* Sempre com A4 paisagem em mente (feedback de teste real: o desenho
+     quebrava em 3 páginas). Título + desenho cabem juntos numa página só. */
+  @page { size: A4 landscape; margin: 10mm; }
+  html, body { margin: 0; padding: 0; }
+  body { font-family: sans-serif; }
+  h1 { font-size: 16px; text-align: center; margin: 0 0 5mm; }
+  svg { display: block; margin: 0 auto; height: 150mm; width: auto; max-width: 100%; page-break-inside: avoid; }
 </style></head>
 <body><h1>${titulo}</h1>${derivarContornoPB(svgFonte)}</body></html>`);
   doc.close();

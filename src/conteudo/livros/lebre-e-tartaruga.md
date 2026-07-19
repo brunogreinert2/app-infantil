@@ -49,3 +49,5 @@ Enquanto isso, a tartaruga seguia em frente. Passo... a passo... a passo. Não p
 Quando a lebre acordou, o sol já estava baixo. Ela disparou na frente a toda velocidade — mas era tarde demais. A tartaruga estava cruzando a linha de chegada, e todos os bichos comemoravam.
 
 E foi assim que a tartaruga ensinou à lebre a lição que a floresta nunca esqueceu: devagar e sempre se chega na frente.
+
+Daí a tartaruga subiu no pódio, levantou o troféu de campeã bem alto e foi para casa descansar. Fim!

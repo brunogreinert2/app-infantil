@@ -3,6 +3,7 @@
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { CamadaBase, criarCamadaLinhas } from '../canvas/camadaBase';
+import { soltarConfetes } from '../efeitos/confete';
 import { CamadaPincel, type Traco } from '../canvas/camadaPincel';
 import { RoteadorFerramenta, type Ferramenta } from '../canvas/roteadorFerramenta';
 import { arquivosAssets } from '../conteudo/catalogo';
@@ -136,6 +137,14 @@ export async function montarTelaColorir(
   grupoFerr.appendChild(imprimir);
   barra.appendChild(grupoFerr);
 
+  // encerramento explícito do desenho: comemora e volta pra história
+  const pronto = el('button', 'botao-grande botao-terminei', '✓ Pronto!');
+  pronto.addEventListener('click', () => {
+    const r = pronto.getBoundingClientRect();
+    soltarConfetes({ x: r.x + r.width / 2, y: r.y });
+    setTimeout(nav.voltar, 900);
+  });
+
   const paleta = el('div', 'paleta');
   for (const cor of PALETA) {
     const b = el('button', 'poco-cor');
@@ -146,6 +155,7 @@ export async function montarTelaColorir(
     paleta.appendChild(b);
   }
   barra.appendChild(paleta);
+  barra.appendChild(pronto);
   raiz.appendChild(barra);
 
   const atualizarSelecao = () => {

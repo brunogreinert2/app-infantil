@@ -9,6 +9,31 @@
 > docs/CONTINUAR_AQUI.md e ESPECIFICACAO.md antes de qualquer coisa e siga
 > a lista de próximos passos na ordem."
 
+## Rodada 2 (mesma data, após teste real com Theo e Davi)
+
+Feedback aplicado e verificado no navegador:
+
+- **Insígnias** (`src/conquistas/insignias.ts`): fixas e previsíveis, inspiração
+  Pokémon SEM aleatoriedade. Livro concluído → insígnia certa (lebre 🏆, grego Ω,
+  ABC 🔤); marcos fixos: 3 livros → 🦉 Coruja Leitora, 5 → 🏛️ Grandes Clássicos.
+  Aparecem sob o nome na tela de perfis e no rodapé do livro lido.
+- **Botão "✓ Terminei este livro!"** no fim de cada livro → status `concluido`,
+  confetes, insígnia. Estante mostra "⭐ Lido". Tela de colorir tem "✓ Pronto!".
+- **Alfabetos gerados por código** (`src/conteudo/alfabetos.ts`): O Alfabeto
+  Grego (24 letras) e O Alfabeto (26 letras), uma página de colorir por letra
+  (letra = região SVG `<text>` preenchível), com nome + dica de som + TTS.
+  Pedido do Davi. Passam pelo pipeline normal (markdown gerado + carregarLivro).
+- **Confetes** (`src/efeitos/confete.ts`) ao acertar quiz e ao terminar.
+- **Preview colorido**: cartão de imagem na leitura usa `derivarContornoPB` +
+  aplica as cores salvas da criança (antes o preview era branco-no-branco).
+- **TTS consertado** (`src/tts.ts`): bug clássico Chrome/Windows — speak() logo
+  após cancel() trava a voz; agora há atraso de 80ms + resume() a cada 10s.
+  Botão 🔊 vira ⏹ enquanto fala (botão de parar).
+- **Impressão sempre A4 paisagem** (`@page size: A4 landscape`), título +
+  desenho numa página só (antes quebrava em 3).
+- **História da lebre ganhou o final do Theo e do Davi**: a tartaruga levanta
+  o troféu e vai para casa. Preservar — é a contribuição autoral deles.
+
 ## Estado em 2026-07-19 (o que JÁ FUNCIONA, verificado no navegador)
 
 - Fluxo completo: seleção de perfil (Theo/Davi semeados) → estante → leitura
@@ -35,9 +60,9 @@
    mais 1 fábula de Esopo + 1 conto de domínio público + 1 historinha filosófica
    autoral simplificando Aristóteles/Epicteto — o corpus adulto está acessível via
    MCP `pedra-angular`). Basta seguir "Adicionar um livro novo" no CLAUDE.md.
-3. **Figurinhas** (spec 8.4/8.5): catálogo estático em JSON empacotado (nome, arte,
-   curiosidade pro TTS); banco só guarda o que cada perfil desbloqueou. Recompensa
-   FIXA e previsível: terminar livro X sempre dá figurinha Y.
+3. **Figurinhas** (spec 8.4/8.5): a v1 já existe como insígnias
+   (`src/conquistas/insignias.ts`). Evoluir para figurinhas com arte própria e
+   curiosidade falada por TTS; manter a regra: fixa e previsível, nunca sorte.
 4. **Motor de impressão 8.3 completo**: se houver traços de pincel, compor base
    colorida + pincel em escala de cinza + linhas; toggle "imprimir em cores".
 5. **Capacitor** (spec 1 e 8.1): `npm i @capacitor/core @capacitor/cli`, `npx cap init`,

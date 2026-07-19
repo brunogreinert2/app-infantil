@@ -1,6 +1,7 @@
 // Tela de seleção de perfil — SEMPRE a primeira tela (spec 8.6).
 // Puramente visual: avatar grande + nome, um toque só, sem trava parental.
 
+import { listarConquistas } from '../conquistas/insignias';
 import { listarPerfis, definirPerfilAtivo, type Perfil } from '../perfis/perfis';
 import { el } from './comum';
 
@@ -19,6 +20,15 @@ export async function montarTelaPerfis(
     const avatar = el('span', 'avatar-grande', p.avatar);
     const nome = el('span', 'nome-perfil', p.nome);
     botao.append(avatar, nome);
+
+    // insígnias conquistadas — orgulho visível já na porta de entrada
+    const conquistas = await listarConquistas(p.id);
+    if (conquistas.length > 0) {
+      const linha = el('span', 'insignias-linha');
+      linha.textContent = conquistas.map((c) => c.emoji).join(' ');
+      linha.title = conquistas.map((c) => c.titulo).join(' · ');
+      botao.appendChild(linha);
+    }
     botao.addEventListener('click', () => {
       definirPerfilAtivo(p);
       aoEscolher(p);
