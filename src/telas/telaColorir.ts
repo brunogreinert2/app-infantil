@@ -22,11 +22,13 @@ type Acao = { tipo: 'balde'; regiaoId: string; corAnterior: string } | { tipo: '
 // Branco e preto incluídos de propósito (feedback de teste real):
 // nuvem branca, contorno preto — a criança precisa poder ESCOLHER branco,
 // não só "deixar sem pintar".
-const PALETA = [
-  '#e63946', '#f77f00', '#fcbf49', '#f9e547',
-  '#80b918', '#2a9d8f', '#219ebc', '#5064eb',
-  '#9b5de5', '#f06fb8', '#8d5a3a', '#495057',
-  '#ffffff', '#1a1a1a',
+// cor SEMPRE com nome (leitor de tela, e visão de cores como a protanomalia
+// do Bruno: vermelho/laranja/verde podem se confundir — o nome desambigua)
+const PALETA: Array<[string, string]> = [
+  ['#e63946', 'Vermelho'], ['#f77f00', 'Laranja'], ['#fcbf49', 'Amarelo-sol'], ['#f9e547', 'Amarelo'],
+  ['#80b918', 'Verde-claro'], ['#2a9d8f', 'Verde-mar'], ['#219ebc', 'Azul-céu'], ['#5064eb', 'Azul'],
+  ['#9b5de5', 'Roxo'], ['#f06fb8', 'Rosa'], ['#8d5a3a', 'Marrom'], ['#495057', 'Cinza'],
+  ['#ffffff', 'Branco'], ['#1a1a1a', 'Preto'],
 ];
 
 export async function montarTelaColorir(
@@ -157,11 +159,12 @@ export async function montarTelaColorir(
   });
 
   const paleta = el('div', 'paleta');
-  for (const cor of PALETA) {
+  for (const [cor, nome] of PALETA) {
     const b = el('button', 'poco-cor');
     b.style.background = cor;
     b.dataset.cor = cor;
-    b.setAttribute('aria-label', `Cor ${cor}`);
+    b.setAttribute('aria-label', nome);
+    b.title = nome;
     b.addEventListener('click', () => roteador.definirCor(cor));
     paleta.appendChild(b);
   }

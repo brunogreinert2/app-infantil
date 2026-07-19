@@ -85,7 +85,7 @@ export async function montarTelaAparencia(
 
   // ---------- monte o seu ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Monte o seu tema'));
-  corpo.appendChild(el('p', 'texto-sobre', 'Escolha um fundo e uma cor favorita — a letra se ajusta sozinha para dar pra ler.'));
+  corpo.appendChild(el('p', 'texto-sobre', 'Escolha um fundo e uma cor favorita — a cor favorita pinta os títulos e os botões, e a letra se ajusta sozinha para dar pra ler.'));
 
   const gradeFundos = el('div', 'grade-cores');
   for (const cor of FUNDOS_PERSONALIZADOS) {

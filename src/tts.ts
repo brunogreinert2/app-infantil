@@ -22,7 +22,8 @@ let atrasoPendente: number | undefined;
 let vozPt: SpeechSynthesisVoice | null = null;
 
 export function suportaTTS(): boolean {
-  return 'speechSynthesis' in window;
+  // guarda de typeof: este módulo também roda nos testes (Node, sem window)
+  return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }
 
 // vozes carregam de forma assíncrona no Chrome — escolher quando chegarem
@@ -39,7 +40,8 @@ if (suportaTTS()) {
 }
 
 // fatia por fim de frase e junta pedaços curtos até ~180 caracteres
-function fatiar(texto: string): string[] {
+// (exportada para a prova de fogo em tts.test.ts)
+export function fatiar(texto: string): string[] {
   const frases = texto.split(/(?<=[.!?…:])\s+/);
   const pedacos: string[] = [];
   let atual = '';

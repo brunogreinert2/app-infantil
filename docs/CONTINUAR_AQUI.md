@@ -9,6 +9,33 @@
 > docs/CONTINUAR_AQUI.md e ESPECIFICACAO.md antes de qualquer coisa e siga
 > a lista de próximos passos na ordem."
 
+## Rodada 7 (mesma data — prova de fogo, visão de cores, imagens vivas)
+
+- **Prova de Fogo do motor** (`npm test`, vitest): 19 testes — parser sem teto
+  (profundidade 1000), 200k linhas < 2s, parágrafo de 1MB, `{{img:}}`
+  malformado, YAML inválido NÃO derruba mais o app (guard novo em
+  frontmatter.ts), fatiador do TTS nunca passa de 240 chars. Rodar `npm test`
+  antes de qualquer mexida no motor.
+- **Decisão do Bruno (revoga a orientação da spec §5): OpenDyslexic é a fonte
+  PADRÃO.** Ele é profissional da óptica (14 anos), tem protanomalia, adorou a
+  cara infantil/legível. Continua trocável no 🎨 — padrão ≠ forçada.
+- **Visão de cores** (Bruno tem protanomalia — ver memória bruno-contexto):
+  quiz revela com ✓/✗ + cor (nunca cor sozinha); paleta de pintura com nome
+  falável em cada cor (aria-label + title). REGRA DA CASA daqui em diante:
+  nenhum estado comunicado só por cor.
+- **"Cor favorita" agora pinta os títulos** (`--titulo`), com
+  `garantirContraste()` no tema personalizado (mistura em direção ao texto
+  até ≥4.5 WCAG — verificado: vermelho em fundo azul-noite virou #e1707a).
+- **Papel de parede com marca d'água por tema** (ideia do Bruno): estrelas +
+  planeta no Espaço, folhinhas na Floresta, arcos no Claro; alto contraste
+  fica LIMPO de propósito. Data URIs em estilos.css (--papel).
+- **Imagens vivas ("jornal do Harry Potter")**: `nina_chuva_viva.svg` —
+  SVG animado por CSS puro (nuvem flutua, gotas caem, poça ondula), tipo
+  `ilustracao`. GIF também funciona (é raster comum via arquivosImagens).
+  Convenção: prefixar classes/keyframes com o nome do arquivo (ncv-*) para
+  não colidir. Direção de conteúdo do Bruno: qualidade das obras — imagens
+  bonitas, vídeos curtos lúdicos e "mágicos".
+
 ## Rodada 6 (mesma data — aparência, fontes de acessibilidade, mídia)
 
 - **TTS no Chrome do Bruno**: diagnóstico — o problema é do Chrome dele

@@ -33,6 +33,12 @@ modelo vivo — foi o primeiro do gênero filosófico e valida o pipeline inteir
      âncora `{{img:id}}`. Player nativo com controles, sem autoplay.
      Atenção ao peso: mídia entra no bundle do app (zero rede em runtime) —
      preferir clipes curtos e comprimidos.
+   - **Imagens que se mexem** (efeito "jornal do Harry Potter"): a forma
+     leve e nítida é SVG animado por CSS — `<style>` com `@keyframes` dentro
+     do próprio SVG, tipo `ilustracao`. Modelo vivo: `nina_chuva_viva.svg`.
+     Prefixe classes e keyframes com o nome do arquivo (ex: `ncv-`) para não
+     colidir com outras artes na mesma página. GIF animado também funciona
+     (entra como raster comum), mas pesa mais e serrilha ao ampliar.
 4. **Opcional — insígnia do livro** em `src/conquistas/insignias.ts`:
    uma entrada em `INSIGNIAS` + uma em `POR_LIVRO`. Regra da casa: fixa e
    previsível, nunca aleatória.

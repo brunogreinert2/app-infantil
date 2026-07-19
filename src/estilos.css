@@ -16,6 +16,8 @@
   --destaque: #d62839;
   --borda: #f3ddc8;
   --sombra: 0 4px 14px rgba(150, 90, 30, 0.12);
+  /* marca d'água: arcos de arco-íris e nuvens, bem discretos */
+  --papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cg fill='none' stroke-width='6' opacity='0.07'%3E%3Cpath d='M30,110 a50,50 0 0 1 100,0' stroke='%23d62839'/%3E%3Cpath d='M42,110 a38,38 0 0 1 76,0' stroke='%23f77f00'/%3E%3Cpath d='M54,110 a26,26 0 0 1 52,0' stroke='%23219ebc'/%3E%3C/g%3E%3Cg fill='%23c98a4b' opacity='0.08'%3E%3Cellipse cx='210' cy='210' rx='34' ry='16'/%3E%3Cellipse cx='236' cy='200' rx='24' ry='13'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 [data-theme='espaco'] {
@@ -26,6 +28,8 @@
   --destaque: #8fb3ff;
   --borda: #323a75;
   --sombra: 0 4px 14px rgba(0, 0, 10, 0.5);
+  /* marca d'água: estrelas e um planeta com anel (ideia do Bruno) */
+  --papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cg fill='%23aab8ff' opacity='0.14'%3E%3Ccircle cx='30' cy='44' r='2'/%3E%3Ccircle cx='120' cy='20' r='1.5'/%3E%3Ccircle cx='210' cy='70' r='2.5'/%3E%3Ccircle cx='270' cy='150' r='1.5'/%3E%3Ccircle cx='60' cy='190' r='2'/%3E%3Ccircle cx='160' cy='250' r='1.5'/%3E%3Cpath d='M250,30 l3,7 7,3 -7,3 -3,7 -3,-7 -7,-3 7,-3 z'/%3E%3C/g%3E%3Cg opacity='0.12'%3E%3Ccircle cx='100' cy='140' r='22' fill='%238fb3ff'/%3E%3Cellipse cx='100' cy='140' rx='38' ry='10' fill='none' stroke='%238fb3ff' stroke-width='4'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 [data-theme='floresta'] {
@@ -36,11 +40,15 @@
   --destaque: #14682e;
   --borda: #aacd8e;
   --sombra: 0 4px 14px rgba(30, 90, 40, 0.16);
+  /* marca d'água: folhinhas */
+  --papel: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='%23146b2e' opacity='0.09'%3E%3Cpath d='M40,60 q20,-30 44,-24 q4,26 -20,36 q-16,6 -24,-12 z'/%3E%3Cpath d='M200,180 q20,-30 44,-24 q4,26 -20,36 q-16,6 -24,-12 z'/%3E%3Cpath d='M130,230 q-16,-24 -36,-19 q-3,21 16,29 q13,5 20,-10 z'/%3E%3Ccircle cx='220' cy='60' r='5'/%3E%3Ccircle cx='90' cy='150' r='4'/%3E%3C/g%3E%3C/svg%3E");
 }
 
 /* alto contraste real (escala Perkins, herança Pedra Angular): fundo preto,
    letra branca, destaque amarelo — contraste muito acima de 7:1 */
 [data-theme='alto-contraste'] {
+  /* SEM papel de parede: nada compete com o texto em baixa visão */
+  --papel: none;
   --fundo: #000000;
   --cartao: #141414;
   --texto: #ffffff;
@@ -61,7 +69,8 @@
 
 body {
   margin: 0;
-  background: var(--fundo);
+  background-color: var(--fundo);
+  background-image: var(--papel, none);
   color: var(--texto);
   font-family: var(--fonte-corpo, 'Segoe UI', system-ui, -apple-system, sans-serif);
   font-size: var(--tamanho-base);
@@ -250,6 +259,9 @@ button {
 
 .cabecalho {
   text-align: center;
+  /* a "cor favorita" da criança pinta os títulos (com contraste garantido
+     em preferencias.ts para o tema personalizado) */
+  color: var(--titulo, var(--destaque));
 }
 
 .paragrafo {

@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340">
+  <!-- Ilustração ANIMADA (tipo "ilustracao", não colorível) — o efeito
+       "jornal do Harry Potter": CSS puro dentro do SVG, zero JavaScript,
+       zero GIF pesado, nítido em qualquer tela. Padrão para futuras
+       imagens vivas: prefixar classes/keyframes com o nome do arquivo. -->
+  <style>
+    .ncv-nuvem { animation: ncv-flutuar 5s ease-in-out infinite; }
+    .ncv-gota { animation: ncv-cair 1.4s linear infinite; }
+    .ncv-g2 { animation-delay: 0.35s; }
+    .ncv-g3 { animation-delay: 0.7s; }
+    .ncv-g4 { animation-delay: 1.05s; }
+    .ncv-onda { animation: ncv-ondular 2.8s ease-in-out infinite; transform-origin: center; transform-box: fill-box; }
+    @keyframes ncv-flutuar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(9px); }
+    }
+    @keyframes ncv-cair {
+      0% { transform: translateY(0); opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { transform: translateY(150px); opacity: 0; }
+    }
+    @keyframes ncv-ondular {
+      0%, 100% { transform: scaleX(1); opacity: 0.85; }
+      50% { transform: scaleX(1.12); opacity: 1; }
+    }
+  </style>
+  <rect x="0" y="0" width="800" height="340" fill="#dbeafe"/>
+  <g class="ncv-nuvem">
+    <path fill="#f1f5f9" stroke="#94a3b8" stroke-width="5"
+      d="M270,120 a48,42 0 0 1 62,-44 a56,50 0 0 1 106,-9 a44,40 0 0 1 55,53 a34,30 0 0 1 -30,33 l-160,0 a36,33 0 0 1 -33,-33 z"/>
+  </g>
+  <g fill="#3b82f6">
+    <path class="ncv-gota" d="M320,165 q9,16 0,24 q-10,-8 0,-24 z"/>
+    <path class="ncv-gota ncv-g2" d="M390,160 q9,16 0,24 q-10,-8 0,-24 z"/>
+    <path class="ncv-gota ncv-g3" d="M455,168 q9,16 0,24 q-10,-8 0,-24 z"/>
+    <path class="ncv-gota ncv-g4" d="M355,172 q9,16 0,24 q-10,-8 0,-24 z"/>
+  </g>
+  <ellipse class="ncv-onda" cx="400" cy="315" rx="120" ry="14" fill="#93c5fd"/>
+  <ellipse cx="400" cy="315" rx="70" ry="8" fill="#bfdbfe"/>
+</svg>

@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
+    "test": "vitest run",
     "gera:glifos": "node scripts/gera-glifos.mjs"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "dejavu-fonts-ttf": "^2.37.3",
     "opentype.js": "^2.0.0",
     "typescript": "^5.5.0",
-    "vite": "^5.4.0"
+    "vite": "^5.4.0",
+    "vitest": "^4.1.10"
   }
 }

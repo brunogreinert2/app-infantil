@@ -12,6 +12,9 @@ assets:
   - id: "il01"
     tipo: "colorir"
     arquivo_interativo: "nina_colorir.svg"
+  - id: "il02"
+    tipo: "ilustracao"
+    arquivo: "nina_chuva_viva.svg"
 
 quiz:
   - pergunta: "A chuva dependia da Nina?"
@@ -38,6 +41,8 @@ quiz:
 Nina passou a semana inteira planejando o piquenique de sábado: suco de uva, sanduíche de queijo, a toalha xadrez vermelha e o parque com o escorregador gigante. Estava tudo pronto!
 
 Mas no sábado de manhã o céu amanheceu cinza, escuro, carregado. E então... TUM! A chuva desabou de uma vez. Nina colou o nariz na janela e bufou: "Chuva boba! Você estragou TUDO!"
+
+{{img:il02}}
 
 A vovó sentou do lado dela e perguntou baixinho: "Nina, me conta uma coisa. Tem coisas que dependem de nós e coisas que não dependem. A chuva... depende de você?" Nina pensou e resmungou: "Não." A vovó sorriu: "E o que você vai fazer com a sua tarde, depende de quem?"
 

@@ -13,8 +13,16 @@ export function carregarLivro(id: string, conteudo: string): Livro {
   let corpo = conteudo;
 
   if (m) {
-    metadados = { titulo: id, ...(load(m[1]) as Partial<MetadadosLivro>) };
-    corpo = conteudo.slice(m[0].length);
+    try {
+      metadados = { titulo: id, ...(load(m[1]) as Partial<MetadadosLivro>) };
+      corpo = conteudo.slice(m[0].length);
+    } catch {
+      // YAML inválido não pode derrubar o app: trata como livro sem
+      // front matter (o bloco --- vira texto visível — erro fica evidente
+      // pro autor sem quebrar nada pra criança)
+      metadados = { titulo: id };
+      corpo = conteudo;
+    }
   }
 
   return { id, metadados, nos: analisar(corpo) };

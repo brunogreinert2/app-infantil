@@ -311,11 +311,18 @@ function blocoQuiz(q: PerguntaQuiz, livro: Livro, indice: number): HTMLElement {
       if (respondido) return;
       respondido = true;
 
+      // símbolo + cor, nunca cor sozinha (protanomalia/daltonismo — o
+      // verde-certo e o vermelho-errado podem ser indistinguíveis)
       const botoes = lista.querySelectorAll<HTMLButtonElement>('button');
       botoes.forEach((b, j) => {
         b.disabled = true;
-        if (j === q.correta) b.classList.add('correta');
-        else if (j === i) b.classList.add('errada');
+        if (j === q.correta) {
+          b.classList.add('correta');
+          b.textContent = `✓ ${q.alternativas[j]}`;
+        } else if (j === i) {
+          b.classList.add('errada');
+          b.textContent = `✗ ${q.alternativas[j]}`;
+        }
       });
 
       if (i === q.correta) {
