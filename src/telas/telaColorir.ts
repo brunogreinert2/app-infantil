@@ -19,10 +19,14 @@ interface EstadoColorir {
 
 type Acao = { tipo: 'balde'; regiaoId: string; corAnterior: string } | { tipo: 'traco' };
 
+// Branco e preto incluídos de propósito (feedback de teste real):
+// nuvem branca, contorno preto — a criança precisa poder ESCOLHER branco,
+// não só "deixar sem pintar".
 const PALETA = [
   '#e63946', '#f77f00', '#fcbf49', '#f9e547',
   '#80b918', '#2a9d8f', '#219ebc', '#5064eb',
   '#9b5de5', '#f06fb8', '#8d5a3a', '#495057',
+  '#ffffff', '#1a1a1a',
 ];
 
 export async function montarTelaColorir(

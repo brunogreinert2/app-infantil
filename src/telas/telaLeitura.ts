@@ -10,6 +10,7 @@ import { derivarContornoPB } from '../canvas/camadaBase';
 import { soltarConfetes } from '../efeitos/confete';
 import type { Livro, PerguntaQuiz } from '../motor/tipos';
 import { perfilAtivo } from '../perfis/perfis';
+import { botoesTabelas } from '../impressao/tabelas';
 import { falar, pararFala, suportaTTS, textoFalando } from '../tts';
 import { barraTopo, el } from './comum';
 
@@ -38,6 +39,18 @@ export async function montarTelaLeitura(
       aoTrocarPerfil: nav.perfis,
     }),
   );
+
+  // tabelas de referência imprimíveis (livros de alfabeto)
+  const extras = botoesTabelas(livro.id);
+  if (extras.length > 0) {
+    const barraExtras = el('div', 'barra-extras');
+    for (const b of extras) {
+      const botao = el('button', 'botao-extra', b.rotulo);
+      botao.addEventListener('click', b.acao);
+      barraExtras.appendChild(botao);
+    }
+    raiz.appendChild(barraExtras);
+  }
 
   const p = perfilAtivo();
   const chaveProgresso = `${p.id}:progresso:${livro.id}`;
@@ -145,8 +158,13 @@ function cartaoImagem(
   const svg = arquivo ? arquivosAssets[arquivo] : undefined;
   if (svg) {
     const moldura = el('div', 'previa-svg');
-    // preview = contorno + cores já pintadas pela criança (se houver)
+    // preview = contorno + cores já pintadas pela criança (se houver).
+    // Regiões não pintadas ficam BRANCAS (não transparentes): sem isso,
+    // a cor da região de trás vazava — nuvem branca aparecia azul-céu.
     moldura.innerHTML = derivarContornoPB(svg);
+    moldura
+      .querySelectorAll<SVGElement>('.colorir-alvo')
+      .forEach((r) => r.setAttribute('fill', '#ffffff'));
     cartao.appendChild(moldura);
     aplicarCoresSalvas(moldura, livro.id, assetId);
   }

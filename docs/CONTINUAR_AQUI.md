@@ -9,6 +9,25 @@
 > docs/CONTINUAR_AQUI.md e ESPECIFICACAO.md antes de qualquer coisa e siga
 > a lista de próximos passos na ordem."
 
+## Rodada 3 (mesma data — Davi pintou o alfabeto grego INTEIRO; Theo ofereceu R$5 pelo app)
+
+- **Letras agora são caminhos vetoriais** (`src/conteudo/glifos.json`, gerado por
+  `npm run gera:glifos` a partir da DejaVu Serif Bold via opentype.js, build-time).
+  Motivo: `<text>` no SVG captura cliques pela caixa retangular inteira do
+  caractere — o vão do A/O nunca deixaria o clique passar. Com caminho, o furo
+  é real: clique no vão pinta o AZULEJO local (regiao-quadro-*), novo em cada
+  página de letra. Bônus: glifo idêntico em qualquer aparelho/WebView.
+  Se mudar o conjunto de letras, rodar `npm run gera:glifos` de novo.
+- **Paleta ganhou branco e preto** (a criança escolhe branco em vez de "deixar
+  sem pintar"; poço branco tem borda cinza p/ não sumir).
+- **Preview não vaza mais cor**: regiões não pintadas ficam brancas opacas no
+  contorno do preview (antes a nuvem branca aparecia azul-céu).
+- **Tabelas de referência imprimíveis A4** (`src/impressao/tabelas.ts`), botões
+  no topo dos livros de alfabeto: grade completa (grego mostra o nome EM grego:
+  Αλφα, Βητα…; latino mostra a palavra-exemplo), "Vogais e Ditongos Gregos"
+  (espelho da tabela de estudo do Bruno) e "Vogais e Encontros" do português.
+- `motorImpressao.ts` refatorado: `imprimirDocumento(titulo, corpo, css)` genérico.
+
 ## Rodada 2 (mesma data, após teste real com Theo e Davi)
 
 Feedback aplicado e verificado no navegador:

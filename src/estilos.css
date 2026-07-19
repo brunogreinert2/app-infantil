@@ -440,6 +440,32 @@ button {
   border-color: var(--texto);
 }
 
+/* o poço branco precisa de borda visível para não sumir em fundo claro */
+.poco-cor[data-cor='#ffffff'] {
+  border-color: #b8b8b8;
+}
+
+/* ---------- botões de tabela imprimível (livros de alfabeto) ---------- */
+.barra-extras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 14px 16px 0;
+}
+
+.botao-extra {
+  min-height: 46px;
+  padding: 0 18px;
+  border-radius: 14px;
+  background: var(--cartao);
+  color: var(--texto);
+  border: 2px solid var(--borda);
+  box-shadow: var(--sombra);
+  font-size: 0.95em;
+  font-weight: 700;
+}
+
 /* ---------- confetes ---------- */
 .confete {
   position: fixed;

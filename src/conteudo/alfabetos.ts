@@ -8,38 +8,42 @@
 
 import { carregarLivro } from '../motor/frontmatter';
 import type { Livro } from '../motor/tipos';
+import glifos from './glifos.json';
 
-// [maiúscula, minúscula, nome, dica de som]
-type DadoLetra = [string, string, string, string];
+const GLIFOS = glifos as Record<string, { d: string; adv: number }>;
 
-const GREGO: DadoLetra[] = [
-  ['Α', 'α', 'Alfa', 'faz o som de "a", como em amigo'],
-  ['Β', 'β', 'Beta', 'faz o som de "b", como em bola'],
-  ['Γ', 'γ', 'Gama', 'faz o som de "g", como em gato'],
-  ['Δ', 'δ', 'Delta', 'faz o som de "d", como em dado'],
-  ['Ε', 'ε', 'Épsilon', 'faz o som de "é" bem curtinho'],
-  ['Ζ', 'ζ', 'Zeta', 'faz o som de "dz", como uma abelha: dzzz!'],
-  ['Η', 'η', 'Eta', 'faz o som de "ê" comprido'],
-  ['Θ', 'θ', 'Teta', 'faz um "t" soprado, com a língua entre os dentes'],
-  ['Ι', 'ι', 'Iota', 'faz o som de "i", como em ilha'],
-  ['Κ', 'κ', 'Capa', 'faz o som de "k", como em kiwi'],
-  ['Λ', 'λ', 'Lambda', 'faz o som de "l", como em leão'],
-  ['Μ', 'μ', 'Mi', 'faz o som de "m", como em macaco'],
-  ['Ν', 'ν', 'Ni', 'faz o som de "n", como em navio'],
-  ['Ξ', 'ξ', 'Csi', 'faz o som de "ks", como no fim de táxi'],
-  ['Ο', 'ο', 'Ômicron', 'faz o som de "ó" bem curtinho'],
-  ['Π', 'π', 'Pi', 'faz o som de "p" — é o famoso número π da matemática!'],
-  ['Ρ', 'ρ', 'Rô', 'faz o som de "r" vibrado, como em caRRo de corrida'],
-  ['Σ', 'σ', 'Sigma', 'faz o som de "s", como em sapo. No fim da palavra ele se veste diferente: ς'],
-  ['Τ', 'τ', 'Tau', 'faz o som de "t", como em tatu'],
-  ['Υ', 'υ', 'Úpsilon', 'faz o som de "u" com biquinho'],
-  ['Φ', 'φ', 'Fi', 'faz o som de "f", como em foca'],
-  ['Χ', 'χ', 'Qui', 'faz um "r" raspadinho lá na garganta'],
-  ['Ψ', 'ψ', 'Psi', 'faz o som de "ps", como em psiu!'],
-  ['Ω', 'ω', 'Ômega', 'faz o som de "ô" comprido — é a ÚLTIMA letra: do alfa ao ômega!'],
+// [maiúscula, minúscula, nome, dica de som, nome secundário p/ tabela impressa]
+// No grego, o 5º campo é o nome da letra escrito EM GREGO (Αλφα, Βητα...).
+export type DadoLetra = [string, string, string, string, string?];
+
+export const GREGO: DadoLetra[] = [
+  ['Α', 'α', 'Alfa', 'faz o som de "a", como em amigo', 'Αλφα'],
+  ['Β', 'β', 'Beta', 'faz o som de "b", como em bola', 'Βητα'],
+  ['Γ', 'γ', 'Gama', 'faz o som de "g", como em gato', 'Γαμμα'],
+  ['Δ', 'δ', 'Delta', 'faz o som de "d", como em dado', 'Δελτα'],
+  ['Ε', 'ε', 'Épsilon', 'faz o som de "é" bem curtinho', 'Εψιλον'],
+  ['Ζ', 'ζ', 'Zeta', 'faz o som de "dz", como uma abelha: dzzz!', 'Ζητα'],
+  ['Η', 'η', 'Eta', 'faz o som de "ê" comprido', 'Ητα'],
+  ['Θ', 'θ', 'Teta', 'faz um "t" soprado, com a língua entre os dentes', 'Θητα'],
+  ['Ι', 'ι', 'Iota', 'faz o som de "i", como em ilha', 'Ιωτα'],
+  ['Κ', 'κ', 'Capa', 'faz o som de "k", como em kiwi', 'Καππα'],
+  ['Λ', 'λ', 'Lambda', 'faz o som de "l", como em leão', 'Λαμβδα'],
+  ['Μ', 'μ', 'Mi', 'faz o som de "m", como em macaco', 'Μυ'],
+  ['Ν', 'ν', 'Ni', 'faz o som de "n", como em navio', 'Νυ'],
+  ['Ξ', 'ξ', 'Csi', 'faz o som de "ks", como no fim de táxi', 'Ξι'],
+  ['Ο', 'ο', 'Ômicron', 'faz o som de "ó" bem curtinho', 'Ομικρον'],
+  ['Π', 'π', 'Pi', 'faz o som de "p" — é o famoso número π da matemática!', 'Πι'],
+  ['Ρ', 'ρ', 'Rô', 'faz o som de "r" vibrado, como em caRRo de corrida', 'Ρω'],
+  ['Σ', 'σ', 'Sigma', 'faz o som de "s", como em sapo. No fim da palavra ele se veste diferente: ς', 'Σιγμα'],
+  ['Τ', 'τ', 'Tau', 'faz o som de "t", como em tatu', 'Ταυ'],
+  ['Υ', 'υ', 'Úpsilon', 'faz o som de "u" com biquinho', 'Υψιλον'],
+  ['Φ', 'φ', 'Fi', 'faz o som de "f", como em foca', 'Φι'],
+  ['Χ', 'χ', 'Qui', 'faz um "r" raspadinho lá na garganta', 'Χι'],
+  ['Ψ', 'ψ', 'Psi', 'faz o som de "ps", como em psiu!', 'Ψι'],
+  ['Ω', 'ω', 'Ômega', 'faz o som de "ô" comprido — é a ÚLTIMA letra: do alfa ao ômega!', 'Ωμεγα'],
 ];
 
-const LATINO: DadoLetra[] = [
+export const LATINO: DadoLetra[] = [
   ['A', 'a', 'A', 'de abelha'],
   ['B', 'b', 'B', 'de bola'],
   ['C', 'c', 'C', 'de casa'],
@@ -68,19 +72,33 @@ const LATINO: DadoLetra[] = [
   ['Z', 'z', 'Z', 'de zebra'],
 ];
 
+// Letra como CAMINHO vetorial (glifos.json, gerado por scripts/gera-glifos.mjs):
+// os furos do A e do O são furos de verdade, então o clique no vão atravessa
+// para o azulejo de trás — com <text> isso é impossível (a caixa retangular
+// do caractere engole o clique). Bônus: letra idêntica em qualquer aparelho.
+function caminhoLetra(id: string, letra: string, centroX: number, tamanho: number): string {
+  const g = GLIFOS[letra];
+  if (!g) return '';
+  const escala = tamanho / 1000;
+  const tx = centroX - (g.adv * escala) / 2;
+  return `<path id="${id}" class="colorir-alvo" fill="#ffffff" d="${g.d}"
+    transform="translate(${tx.toFixed(1)},400) scale(${escala})"/>`;
+}
+
 function svgLetra(l: DadoLetra): string {
   const [mai, min, nome] = l;
+  // Os "azulejos" (quadro-*) atrás de cada letra existem para que o vão
+  // interno de letras como A e O seja clicável SEM pintar o fundo inteiro
+  // (feedback de teste real: clicar no buraco do O mudava o fundo todo).
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
   <rect id="regiao-fundo" class="colorir-alvo" x="0" y="0" width="800" height="600" fill="#ffffff"/>
   <path id="regiao-moldura" class="colorir-alvo" fill="#ffffff" fill-rule="evenodd"
     d="M20,20 h760 v560 h-760 Z M56,56 h688 v488 h-688 Z"/>
-  <text id="regiao-maiuscula" class="colorir-alvo" x="300" y="400" font-size="320"
-    font-family="Georgia, 'Times New Roman', serif" font-weight="bold"
-    text-anchor="middle" fill="#ffffff">${mai}</text>
-  <text id="regiao-minuscula" class="colorir-alvo" x="590" y="400" font-size="210"
-    font-family="Georgia, 'Times New Roman', serif" font-weight="bold"
-    text-anchor="middle" fill="#ffffff">${min}</text>
-  <text x="400" y="512" font-size="42" text-anchor="middle"
+  <rect id="regiao-quadro-maiuscula" class="colorir-alvo" x="105" y="110" width="385" height="360" rx="26" fill="#ffffff"/>
+  <rect id="regiao-quadro-minuscula" class="colorir-alvo" x="505" y="155" width="215" height="315" rx="26" fill="#ffffff"/>
+  ${caminhoLetra('regiao-maiuscula', mai, 300, 320)}
+  ${caminhoLetra('regiao-minuscula', min, 612, 210)}
+  <text x="400" y="530" font-size="42" text-anchor="middle"
     font-family="'Segoe UI', sans-serif" fill="#1a1a1a">${nome}</text>
 </svg>`;
 }
