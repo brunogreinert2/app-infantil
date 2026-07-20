@@ -761,6 +761,41 @@ button {
   margin: 0;
 }
 
+/* ---------- abertura cênica do livro ---------- */
+.tela-abertura {
+  align-items: center;
+  justify-content: center;
+}
+
+.palco-abertura {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  width: 100%;
+  min-height: 100vh;
+  background: transparent;
+  padding: 24px;
+}
+
+.arte-abertura svg {
+  width: min(92vw, 680px);
+  height: auto;
+  filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.18));
+}
+
+.dica-abertura {
+  font-size: 1.25em;
+  font-weight: 800;
+  color: var(--texto);
+  animation: pulsar-dica 1.6s ease-in-out infinite;
+}
+
+@keyframes pulsar-dica {
+  0%, 100% { transform: scale(1); opacity: 0.75; }
+  50% { transform: scale(1.07); opacity: 1; }
+}
+
 /* ---------- confetes ---------- */
 .confete {
   position: fixed;

@@ -5,6 +5,7 @@
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { PILHAS_DE_FONTE } from '../fontes';
+import type { MetadadosLivro } from '../motor/tipos';
 import { perfilAtivo } from '../perfis/perfis';
 
 export const TEMAS = [
@@ -97,6 +98,18 @@ export function aplicarTamanho(px: number): void {
 }
 
 // ---------- persistência ----------
+
+// Imersão temática: o app veste o tema do LIVRO enquanto ele está aberto
+// (tema_livro com cores próprias, ou tema_padrao apontando para um pronto).
+// Ao voltar à estante/perfis, carregarPreferencias() restaura o tema da
+// criança — nada é persistido aqui.
+export function aplicarTemaDeLivro(md: MetadadosLivro): void {
+  if (md.tema_livro?.fundo && md.tema_livro?.destaque) {
+    aplicarTema('personalizado', md.tema_livro);
+  } else if (md.tema_padrao && TEMAS.some((t) => t.id === md.tema_padrao)) {
+    aplicarTema(md.tema_padrao);
+  }
+}
 
 export async function trocarTema(tema: string): Promise<void> {
   const prefs = await obterPreferencias();

@@ -10,8 +10,10 @@ import { montarTelaEstante } from './telas/telaEstante';
 import { montarTelaLeitura } from './telas/telaLeitura';
 import { montarTelaColorir } from './telas/telaColorir';
 import { montarTelaQuebraCabeca } from './telas/telaQuebraCabeca';
+import { montarTelaAbertura } from './telas/telaAbertura';
 import { montarTelaConfiguracoes, montarTravaParental } from './telas/telaConfiguracoes';
-import { carregarPreferencias } from './telas/preferencias';
+import { aplicarTemaDeLivro, carregarPreferencias } from './telas/preferencias';
+import { temPerfilAtivo } from './perfis/perfis';
 import { pararFala } from './tts';
 
 const raiz = document.getElementById('app')!;
@@ -19,6 +21,8 @@ let livroAtual: Livro | null = null;
 
 function irPerfis(): void {
   pararFala();
+  // saindo de um livro tematizado: devolve o tema da criança
+  if (temPerfilAtivo()) carregarPreferencias();
   montarTelaPerfis(
     raiz,
     async () => {
@@ -41,12 +45,14 @@ function irAjustes(): void {
 function irEstante(): void {
   pararFala();
   window.scrollTo(0, 0);
+  // saindo de um livro tematizado: devolve o tema da criança
+  carregarPreferencias();
   montarTelaEstante(raiz, {
     perfis: irPerfis,
     aparencia: () => irAparencia(irEstante),
     leitura: (livro) => {
       livroAtual = livro;
-      irLeitura();
+      irLeitura(true); // vindo da estante → abertura cênica (se o livro tiver)
     },
   });
 }
@@ -56,9 +62,15 @@ function irAparencia(voltar: () => void): void {
   montarTelaAparencia(raiz, { voltar });
 }
 
-function irLeitura(): void {
+function irLeitura(comAbertura = false): void {
   if (!livroAtual) return irEstante();
   window.scrollTo(0, 0);
+  // imersão: o app veste o tema do livro enquanto ele estiver aberto
+  aplicarTemaDeLivro(livroAtual.metadados);
+  if (comAbertura && livroAtual.metadados.abertura) {
+    montarTelaAbertura(raiz, livroAtual, () => irLeitura(false));
+    return;
+  }
   montarTelaLeitura(raiz, livroAtual, {
     perfis: irPerfis,
     estante: irEstante,

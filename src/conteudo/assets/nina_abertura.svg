@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <!-- Abertura cênica de "O Que Depende de Mim": uma carta desce da nuvem
+       balançando e pousa; estrelinhas piscam. CSS puro, prefixo nab-. -->
+  <style>
+    .nab-carta {
+      animation: nab-descer 1.8s cubic-bezier(0.3, 0.7, 0.4, 1) forwards,
+        nab-balancar 3.4s 1.9s ease-in-out infinite;
+      transform-origin: 400px 300px;
+    }
+    .nab-brilho { animation: nab-piscar 1.6s ease-in-out infinite; }
+    .nab-b2 { animation-delay: 0.5s; }
+    .nab-b3 { animation-delay: 1s; }
+    .nab-nuvem { animation: nab-flutuar 5s ease-in-out infinite; }
+    @keyframes nab-descer {
+      from { transform: translateY(-230px) rotate(-10deg); }
+      60% { transform: translateY(14px) rotate(5deg); }
+      to { transform: translateY(0) rotate(0deg); }
+    }
+    @keyframes nab-balancar {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(2.5deg); }
+    }
+    @keyframes nab-piscar {
+      0%, 100% { opacity: 0.15; }
+      50% { opacity: 0.9; }
+    }
+    @keyframes nab-flutuar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+  </style>
+  <rect x="0" y="0" width="800" height="500" fill="#dbeafe" rx="24"/>
+  <g class="nab-nuvem">
+    <path fill="#f1f5f9" stroke="#94a3b8" stroke-width="5"
+      d="M280,105 a44,38 0 0 1 56,-40 a52,46 0 0 1 98,-8 a40,36 0 0 1 50,48 a31,27 0 0 1 -27,30 l-148,0 a33,30 0 0 1 -30,-30 z"/>
+  </g>
+  <g fill="#fbbf24" class="nab-brilho">
+    <path d="M150,200 l5,12 12,5 -12,5 -5,12 -5,-12 -12,-5 12,-5 z"/>
+  </g>
+  <g fill="#fbbf24" class="nab-brilho nab-b2">
+    <path d="M640,160 l4,10 10,4 -10,4 -4,10 -4,-10 -10,-4 10,-4 z"/>
+  </g>
+  <g fill="#fbbf24" class="nab-brilho nab-b3">
+    <path d="M600,330 l4,10 10,4 -10,4 -4,10 -4,-10 -10,-4 10,-4 z"/>
+  </g>
+  <g class="nab-carta">
+    <rect x="300" y="240" width="200" height="130" rx="10" fill="#fffbeb" stroke="#b45309" stroke-width="5"/>
+    <path d="M300,250 L400,320 L500,250" fill="none" stroke="#b45309" stroke-width="5" stroke-linejoin="round"/>
+    <circle cx="400" cy="320" r="16" fill="#dc2626"/>
+    <path d="M400,313 q-7,-8 -13,0 q-3,6 13,15 q16,-9 13,-15 q-6,-8 -13,0 z" fill="#fecaca"/>
+  </g>
+  <text x="400" y="450" font-size="30" text-anchor="middle"
+    font-family="'Segoe UI', sans-serif" fill="#334155">Chegou uma carta para você...</text>
+</svg>

@@ -13,6 +13,7 @@ import lebreColorirSvg from './assets/lebre_colorir.svg?raw';
 import ninaMd from './livros/o-que-depende-de-mim.md?raw';
 import ninaColorirSvg from './assets/nina_colorir.svg?raw';
 import ninaChuvaVivaSvg from './assets/nina_chuva_viva.svg?raw';
+import ninaAberturaSvg from './assets/nina_abertura.svg?raw';
 
 const gerados = gerarAlfabetos();
 
@@ -27,6 +28,7 @@ export const arquivosAssets: Record<string, string> = {
   'lebre_colorir.svg': lebreColorirSvg,
   'nina_colorir.svg': ninaColorirSvg,
   'nina_chuva_viva.svg': ninaChuvaVivaSvg,
+  'nina_abertura.svg': ninaAberturaSvg,
   ...Object.assign({}, ...gerados.map((g) => g.arquivos)),
 };
 

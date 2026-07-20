@@ -1,5 +1,8 @@
 # Como adicionar um livro novo
 
+> Referência completa do formato (tema por livro, abertura cênica, todos os
+> tipos de asset): **`FORMATO_LIVRO.md`** — este arquivo aqui é o passo a passo.
+
 Receita completa. Funciona para qualquer história: fábula, conto de domínio
 público (ex: O Pequeno Príncipe, em tradução própria) ou historinha filosófica
 autoral (Epicteto, "tio Aristóteles"). Use `o-que-depende-de-mim.md` como

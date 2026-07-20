@@ -33,7 +33,9 @@ export interface MetadadosLivro {
   nivel_leitura?: string;
   licenca?: string;
   tradutor?: string;
-  tema_padrao?: string;
+  tema_padrao?: string; // id de tema pronto que o livro veste ao abrir
+  tema_livro?: { fundo: string; destaque: string }; // tema exclusivo do livro
+  abertura?: string; // id de asset (SVG animado) da cena de entrada do livro
   assets?: AssetDeclarado[];
   quiz?: PerguntaQuiz[];
 }

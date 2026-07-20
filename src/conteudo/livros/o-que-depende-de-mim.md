@@ -6,9 +6,15 @@ faixa_etaria: "6-9"
 nivel_leitura: "iniciante"
 licenca: "CC0"
 tradutor: "[selo infantil — nome em aberto, decisão 1 da spec]"
-tema_padrao: "arco-iris"
+tema_livro:
+  fundo: "#e8f2fc"
+  destaque: "#166b8a"
+abertura: "carta"
 
 assets:
+  - id: "carta"
+    tipo: "ilustracao"
+    arquivo: "nina_abertura.svg"
   - id: "il01"
     tipo: "colorir"
     arquivo_interativo: "nina_colorir.svg"

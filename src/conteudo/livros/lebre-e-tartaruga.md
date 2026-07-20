@@ -6,7 +6,7 @@ faixa_etaria: "6-9"
 nivel_leitura: "iniciante"
 licenca: "CC0"
 tradutor: "[selo infantil — nome em aberto, decisão 1 da spec]"
-tema_padrao: "arco-iris"
+tema_padrao: "floresta"
 
 assets:
   - id: "il01"

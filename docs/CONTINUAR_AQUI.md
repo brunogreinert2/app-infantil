@@ -9,6 +9,30 @@
 > docs/CONTINUAR_AQUI.md e ESPECIFICACAO.md antes de qualquer coisa e siga
 > a lista de próximos passos na ordem."
 
+## Rodada 8 — imersão temática por livro + a "linguagem universal"
+
+Visão do Bruno: cada livro é um mundinho (abertura cênica tipo "coruja
+entrega o pergaminho", tema próprio, enigmas). Implementado o motor:
+
+- **`docs/FORMATO_LIVRO.md` é a spec da linguagem universal** — leitura
+  obrigatória antes de criar livro rico. Front matter completo, 3 regras de
+  linha, o que cada tipo de asset ganha de graça, convenções.
+- **Tema por livro**: `tema_padrao` (tema pronto) ou `tema_livro`
+  (fundo+destaque exclusivos) no front matter → o app inteiro se veste do
+  livro ao abri-lo; ao voltar à estante/perfis o tema da criança volta
+  sozinho (main.ts chama carregarPreferencias na saída). Demo: Nina =
+  azul-chuva próprio; lebre = floresta; alfabeto grego = espaço.
+- **Abertura cênica**: `abertura: <assetId>` no front matter → telaAbertura
+  mostra o SVG animado em palco cheio (vindo da estante; voltar do colorir
+  NÃO repete). Demo: `nina_abertura.svg` (carta desce da nuvem balançando,
+  selo de coração, "Chegou uma carta para você..."). Genérico: livro novo
+  ganha abertura só declarando o asset.
+- **Regra registrada**: fases/gamificação avançam por PARTICIPAÇÃO (fez),
+  nunca por acerto — preserva o zero-gate. Enigmas: planejados na spec do
+  formato (alternativas em imagem, sem digitação), não implementados.
+- Harry Potter licenciado = inviável juridicamente; a riqueza vai toda para
+  domínio público (aquarelas do próprio Saint-Exupéry são PD no Brasil).
+
 ## Rodada 7.1 — prévia ao vivo na Aparência
 
 Feedback do Bruno: clicar na "cor favorita" parecia não fazer nada (ela só

@@ -338,7 +338,8 @@ function gerarLivroAlfabeto(
     `faixa_etaria: "${faixa}"`,
     'nivel_leitura: "iniciante"',
     'licenca: "CC0"',
-    'tema_padrao: "arco-iris"',
+    // grego veste o tema espaço (imersão: alfabeto antigo, céu estrelado)
+    `tema_padrao: "${id === 'alfabeto-grego' ? 'espaco' : 'arco-iris'}"`,
     'assets:',
     ...linhasAssets,
     quizYaml,
