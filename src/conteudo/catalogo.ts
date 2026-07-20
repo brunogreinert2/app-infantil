@@ -14,11 +14,15 @@ import ninaMd from './livros/o-que-depende-de-mim.md?raw';
 import ninaColorirSvg from './assets/nina_colorir.svg?raw';
 import ninaChuvaVivaSvg from './assets/nina_chuva_viva.svg?raw';
 import ninaAberturaSvg from './assets/nina_abertura.svg?raw';
+import ppMd from './livros/o-pequeno-principe.md?raw';
+import ppAberturaSvg from './assets/pp_abertura.svg?raw';
+import ppJiboiaSvg from './assets/pp_jiboia_colorir.svg?raw';
 
 const gerados = gerarAlfabetos();
 
 export const livros: Livro[] = [
   carregarLivro('lebre-e-tartaruga', lebreMd),
+  carregarLivro('o-pequeno-principe', ppMd),
   carregarLivro('o-que-depende-de-mim', ninaMd),
   ...gerados.map((g) => g.livro),
 ];
@@ -29,6 +33,8 @@ export const arquivosAssets: Record<string, string> = {
   'nina_colorir.svg': ninaColorirSvg,
   'nina_chuva_viva.svg': ninaChuvaVivaSvg,
   'nina_abertura.svg': ninaAberturaSvg,
+  'pp_abertura.svg': ppAberturaSvg,
+  'pp_jiboia_colorir.svg': ppJiboiaSvg,
   ...Object.assign({}, ...gerados.map((g) => g.arquivos)),
 };
 

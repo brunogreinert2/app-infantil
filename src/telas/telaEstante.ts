@@ -10,6 +10,7 @@ import { barraTopo, el } from './comum';
 const EMOJIS_CAPA: Record<string, string> = {
   'lebre-e-tartaruga': '🐢🐇',
   'o-que-depende-de-mim': '☔',
+  'o-pequeno-principe': '🌹',
   'alfabeto-grego': 'Ωα',
   'alfabeto': '🔤',
 };

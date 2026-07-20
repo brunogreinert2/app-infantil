@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- O desenho número 2: a jiboia ABERTA, com o elefante à mostra —
+       recriado como arte própria a partir da descrição do texto de 1943.
+       Mesmo padrão colorir: regiao-* + colorir-alvo, fill branco. -->
+  <rect id="regiao-fundo" class="colorir-alvo" x="0" y="0" width="800" height="600" fill="#ffffff"/>
+  <path id="regiao-jiboia" class="colorir-alvo" fill="#ffffff"
+    d="M60,470 C80,300 200,170 400,165 C570,162 650,290 700,400 C716,436 736,452 760,452
+       C772,452 772,470 758,470 Z"/>
+  <circle id="regiao-jiboia-olho" class="colorir-alvo" cx="726" cy="440" r="7" fill="#ffffff"/>
+  <ellipse id="regiao-elefante-corpo" class="colorir-alvo" cx="350" cy="360" rx="165" ry="115" fill="#ffffff"/>
+  <circle id="regiao-elefante-cabeca" class="colorir-alvo" cx="540" cy="330" r="72" fill="#ffffff"/>
+  <ellipse id="regiao-elefante-orelha" class="colorir-alvo" cx="505" cy="315" rx="34" ry="48" fill="#ffffff"/>
+  <path id="regiao-elefante-tromba" class="colorir-alvo" fill="#ffffff"
+    d="M600,355 C625,400 622,442 596,455 C580,463 570,450 580,440 C596,426 594,398 580,372 Z"/>
+  <path id="regiao-elefante-pernas" class="colorir-alvo" fill="#ffffff"
+    d="M270,455 h44 v-40 h-44 Z M400,455 h44 v-40 h-44 Z"/>
+  <circle id="regiao-elefante-olho" class="colorir-alvo" cx="558" cy="315" r="8" fill="#ffffff"/>
+</svg>

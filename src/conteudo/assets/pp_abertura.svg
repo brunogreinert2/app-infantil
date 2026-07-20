@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <!-- Abertura cênica de O Pequeno Príncipe: noite no deserto, uma estrela
+       pulsa lá no alto e um aviãozinho cruza o céu. CSS puro, prefixo ppa-. -->
+  <style>
+    .ppa-estrela { animation: ppa-pulsar 2.2s ease-in-out infinite; transform-origin: 620px 90px; }
+    .ppa-brilho { animation: ppa-piscar 1.8s ease-in-out infinite; }
+    .ppa-b2 { animation-delay: 0.6s; }
+    .ppa-b3 { animation-delay: 1.2s; }
+    .ppa-aviao { animation: ppa-voar 7s linear infinite; }
+    @keyframes ppa-pulsar {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+    }
+    @keyframes ppa-piscar {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.9; }
+    }
+    @keyframes ppa-voar {
+      from { transform: translateX(-180px) translateY(12px); }
+      50% { transform: translateX(340px) translateY(-14px); }
+      to { transform: translateX(880px) translateY(8px); }
+    }
+  </style>
+  <rect x="0" y="0" width="800" height="500" fill="#1b2450" rx="24"/>
+  <g fill="#f5e6a8" class="ppa-brilho"><circle cx="120" cy="80" r="3"/></g>
+  <g fill="#f5e6a8" class="ppa-brilho ppa-b2"><circle cx="300" cy="55" r="2.5"/></g>
+  <g fill="#f5e6a8" class="ppa-brilho ppa-b3"><circle cx="480" cy="120" r="3"/></g>
+  <g fill="#f5e6a8" class="ppa-brilho"><circle cx="710" cy="200" r="2.5"/></g>
+  <g class="ppa-estrela" fill="#ffd86b">
+    <path d="M620,58 l9,22 22,9 -22,9 -9,22 -9,-22 -22,-9 22,-9 z"/>
+  </g>
+  <g class="ppa-aviao">
+    <g transform="translate(0,180)">
+      <path d="M0,0 h64 l22,10 -22,10 h-64 l-14,-10 z" fill="#e8edf5"/>
+      <path d="M26,2 l16,-22 12,0 -12,22 z" fill="#e8edf5"/>
+      <path d="M26,18 l16,22 12,0 -12,-22 z" fill="#e8edf5"/>
+      <circle cx="86" cy="10" r="5" fill="#c9d4e4"/>
+    </g>
+  </g>
+  <path d="M0,420 C160,360 300,410 430,400 C580,388 700,420 800,395 L800,500 L0,500 Z" fill="#e8c476"/>
+  <path d="M0,460 C220,430 480,470 800,440 L800,500 L0,500 Z" fill="#d9ae55"/>
+  <text x="400" y="330" font-size="30" text-anchor="middle"
+    font-family="'Segoe UI', sans-serif" fill="#f5e6a8">Vinda de uma estrela bem pequena...</text>
+</svg>

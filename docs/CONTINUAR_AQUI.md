@@ -1,13 +1,61 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
-> Escrito por Claude Fable 5 em 2026-07-19, na última sessão do Bruno com esse
-> modelo. Qualquer Claude (Sonnet, Opus, Haiku) abre este arquivo + `CLAUDE.md`
-> + `ESPECIFICACAO.md` e continua sem precisar de contexto da conversa original.
->
-> **Prompt sugerido para retomar num chat novo (copie e cole):**
-> "Continue o app-infantil em C:\Claude\app-infantil. Leia CLAUDE.md,
-> docs/CONTINUAR_AQUI.md e ESPECIFICACAO.md antes de qualquer coisa e siga
-> a lista de próximos passos na ordem."
+> Escrito por Claude Fable 5 (últimas sessões do Bruno com esse modelo,
+> 2026-07-19/20). Qualquer Claude (Sonnet, Opus, Haiku) continua daqui
+> sem precisar de NENHUM contexto da conversa original.
+
+## 🔑 CHAVE DE RETOMADA — copie e cole num chat novo do Claude Code
+
+> **"Continue o app infantil em C:\Claude\app-infantil. Antes de qualquer
+> coisa, leia nesta ordem: CLAUDE.md, docs/CONTINUAR_AQUI.md,
+> docs/FORMATO_LIVRO.md e ESPECIFICACAO.md. Rode npm test e npm run build
+> para confirmar que está tudo verde. Depois siga a FILA DE TRABALHO do
+> CONTINUAR_AQUI.md, uma tarefa por vez, committando em português ao fim
+> de cada uma e atualizando o próprio CONTINUAR_AQUI.md antes de encerrar
+> a sessão."**
+
+Regras de sobrevivência para o próximo Claude:
+1. NUNCA começar do zero — tudo funciona e está testado (19 testes, build
+   limpo, 8 rodadas committadas no git local).
+2. Toda sessão TERMINA atualizando este arquivo + commit. Créditos do Bruno
+   são escassos; a sessão pode morrer a qualquer momento.
+3. Decisões do Bruno já tomadas não se rediscutem (zero-gate, recompensa
+   fixa, OpenDyslexic padrão, nunca estado só por cor, sempre A4).
+4. A memória persistente (MEMORY.md do diretório C:\Claude) tem o contexto
+   humano: Theo (7), Davi (9, ama grego), protanomalia do Bruno, os R$5.
+
+## 📋 FILA DE TRABALHO (em ordem)
+
+1. **Pequeno Príncipe, capítulos 2 em diante** (cap. 1 PRONTO, ver seção
+   Rodada 9). Cap. 2 = o encontro no deserto e o "desenha-me um carneiro"
+   — pede colorir do carneiro na caixa (a piada visual mais famosa do
+   livro: a caixa COM furos). Tradução PRÓPRIA do francês de 1943, tom do
+   cap. 1 (fluida, infantil, fiel). Um capítulo por sessão está ótimo.
+   São 27 capítulos; âncoras de quiz por capítulo; arte de colorir a cada
+   2-3 capítulos.
+2. **Fontes de acessibilidade já estão embutidas** — mas falta empacotar
+   Capacitor (passo antigo 5): `npx cap init` + `npx cap add android`,
+   trocar armazenamento.ts por Preferences+SQLite (schema na spec 8.4),
+   TTS nativo, lifecycle. É o passo "app de loja de verdade".
+3. **Figurinhas ricas** (evolução das insígnias): arte própria + curiosidade
+   falada por TTS ao tocar.
+4. **Enigmas** (FORMATO_LIVRO.md §4): alternativas em imagem, zero-gate.
+5. **Persistência do quebra-cabeça** (hoje não salva partida pela metade).
+6. **Mais historinhas filosóficas**: "a flecha já voou", "o papel no
+   teatro" (Epicteto); série tio Aristóteles (coragem como meio-termo,
+   amizade, hábito vira caráter). Corpus adulto via MCP pedra-angular.
+7. **Testar em Android de entrada** (checklist spec §6).
+
+## Rodada 9 — O Pequeno Príncipe começou (cap. 1 completo e verificado)
+
+- `src/conteudo/livros/o-pequeno-principe.md`: tradução própria do cap. 1
+  ("O desenho número 1"), tema dourado-deserto próprio (`tema_livro`),
+  abertura cênica `pp_abertura.svg` (noite no deserto, estrela pulsando,
+  aviãozinho cruzando o céu), colorir `pp_jiboia_colorir.svg` (o desenho
+  número 2: jiboia aberta com o elefante — recriação própria, não cópia
+  de edição), 2 quizzes zero-gate, insígnia 🌹 Amigo do Principezinho.
+- Padrão a seguir nos próximos capítulos: `## Capítulo N — título`, quiz
+  ancorado no parágrafo-chave + quiz de capítulo ao final do livro.
 
 ## Rodada 8 — imersão temática por livro + a "linguagem universal"
 
