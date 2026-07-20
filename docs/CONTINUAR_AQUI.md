@@ -9,6 +9,15 @@
 > docs/CONTINUAR_AQUI.md e ESPECIFICACAO.md antes de qualquer coisa e siga
 > a lista de próximos passos na ordem."
 
+## Rodada 7.1 — prévia ao vivo na Aparência
+
+Feedback do Bruno: clicar na "cor favorita" parecia não fazer nada (ela só
+aparecia lá na leitura). Agora a tela de Aparência tem um cartão de PRÉVIA
+("O título fica assim / E o botão fica assim") que reage na hora a qualquer
+escolha, as bolinhas de fundo/cor mostram anel de selecionada, e o rótulo
+explica: "Cor favorita (pinta títulos e botões)". Títulos de seção e
+"Para pensar 💭" também vestem a cor favorita.
+
 ## Rodada 7 (mesma data — prova de fogo, visão de cores, imagens vivas)
 
 - **Prova de Fogo do motor** (`npm test`, vitest): 19 testes — parser sem teto

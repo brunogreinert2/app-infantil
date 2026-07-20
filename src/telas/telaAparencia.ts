@@ -38,6 +38,17 @@ export async function montarTelaAparencia(
 
   const prefs = await obterPreferencias();
 
+  // prévia ao vivo: QUALQUER escolha (fundo, cor favorita, fonte, tamanho)
+  // muda algo visível aqui na hora — sem isso, a cor favorita parecia
+  // não fazer nada (feedback do Bruno: ela só aparecia lá na leitura)
+  const previa = el('div', 'cartao-previa');
+  previa.appendChild(el('h3', 'cabecalho previa-titulo', 'O título fica assim'));
+  previa.appendChild(
+    el('p', 'previa-texto', 'E o texto da história fica deste jeito, gostoso de ler.'),
+  );
+  previa.appendChild(el('button', 'botao-grande', '🎨 E o botão fica assim'));
+  corpo.appendChild(previa);
+
   // ---------- temas prontos ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Temas prontos'));
   const gradeTemas = el('div', 'grade-opcoes');
@@ -87,31 +98,52 @@ export async function montarTelaAparencia(
   corpo.appendChild(el('h2', 'titulo-secao', 'Monte o seu tema'));
   corpo.appendChild(el('p', 'texto-sobre', 'Escolha um fundo e uma cor favorita — a cor favorita pinta os títulos e os botões, e a letra se ajusta sozinha para dar pra ler.'));
 
+  let fundoAtual = prefs.personalizado?.fundo;
+  let destaqueAtual = prefs.personalizado?.destaque;
+
   const gradeFundos = el('div', 'grade-cores');
+  const gradeDestaques = el('div', 'grade-cores');
+
+  const marcarPocos = () => {
+    gradeFundos.querySelectorAll<HTMLButtonElement>('.poco-cor').forEach((p) => {
+      p.classList.toggle('ativa', p.dataset.cor === fundoAtual);
+    });
+    gradeDestaques.querySelectorAll<HTMLButtonElement>('.poco-cor').forEach((p) => {
+      p.classList.toggle('ativa', p.dataset.cor === destaqueAtual);
+    });
+  };
+
   for (const cor of FUNDOS_PERSONALIZADOS) {
     const poco = el('button', 'poco-cor');
     poco.style.background = cor;
+    poco.dataset.cor = cor;
     poco.setAttribute('aria-label', `Fundo ${cor}`);
     poco.addEventListener('click', async () => {
+      fundoAtual = cor;
       await definirPersonalizado({ fundo: cor });
       marcarTema('personalizado');
+      marcarPocos();
     });
     gradeFundos.appendChild(poco);
   }
   corpo.appendChild(el('p', 'rotulo-cores', 'Fundo:'));
   corpo.appendChild(gradeFundos);
 
-  const gradeDestaques = el('div', 'grade-cores');
   for (const cor of DESTAQUES_PERSONALIZADOS) {
     const poco = el('button', 'poco-cor');
     poco.style.background = cor;
+    poco.dataset.cor = cor;
     poco.setAttribute('aria-label', `Cor favorita ${cor}`);
     poco.addEventListener('click', async () => {
+      destaqueAtual = cor;
       await definirPersonalizado({ destaque: cor });
       marcarTema('personalizado');
+      marcarPocos();
     });
     gradeDestaques.appendChild(poco);
   }
-  corpo.appendChild(el('p', 'rotulo-cores', 'Cor favorita:'));
+  corpo.appendChild(el('p', 'rotulo-cores', 'Cor favorita (pinta títulos e botões):'));
   corpo.appendChild(gradeDestaques);
+
+  marcarPocos();
 }

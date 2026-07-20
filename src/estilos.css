@@ -336,6 +336,34 @@ button {
   font-weight: 700;
 }
 
+.cartao-previa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--cartao);
+  box-shadow: var(--sombra);
+  border: 2px dashed var(--borda);
+}
+
+.previa-titulo {
+  margin: 0;
+  font-size: 1.4em;
+}
+
+.previa-texto {
+  margin: 0;
+  text-align: center;
+}
+
+/* seções e fins de livro também vestem a cor favorita */
+.titulo-secao,
+.titulo-fim {
+  color: var(--titulo, var(--destaque));
+}
+
 .grade-cores {
   display: flex;
   flex-wrap: wrap;
