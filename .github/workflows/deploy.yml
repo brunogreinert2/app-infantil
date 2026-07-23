@@ -23,7 +23,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      # npm install (não ci): o lockfile gerado no Windows do Bruno omite
+      # binários opcionais de outras plataformas e o ci estrito recusa
+      - run: npm install --no-fund --no-audit
       - run: npm test
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
