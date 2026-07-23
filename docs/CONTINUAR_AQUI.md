@@ -54,6 +54,22 @@ Regras de sobrevivência para o próximo Claude:
   próprios, do simples ao luxo — contexto na memória bruno-contexto).
 - 7 livros na estante. PWA + Pages + workflow (ver OPERAÇÃO acima).
 
+## Rodada 12 — soberania do usuário sobre temas + plano Capacitor
+
+- **Tema do livro é convidado, nunca dono**: `aplicarTemaDeLivro` agora só
+  roda na ENTRADA pela estante (troca no 🎨 no meio da leitura fica valendo)
+  e é ignorado quando (a) o perfil marcou "🛡️ Manter sempre o MEU tema"
+  (novo controle na Aparência, `temaSoberano` por perfil) ou (b) o tema do
+  perfil é alto-contraste — acessibilidade vence decoração SEMPRE, sem
+  configuração. Verificado: alto contraste + Pequeno Príncipe = app preto.
+- **docs/CAPACITOR_PLANO.md**: o caminho PWA → app de loja explicado e
+  ordenado (8 passos, cada um cabe numa sessão). Decisão do Bruno:
+  pedraangular fica PWA leve; infantil vira app robusto (GBs ok, mídia
+  pesada via Filesystem, não no bundle). Passo 1 obrigatório: exportar/
+  importar dados.
+- Contexto novo na memória: Bruno cursa Filosofia na UFRGS e quer
+  apresentar o app a professores — polimento importa.
+
 ## Rodada 11 — polimento pós-família (v0.2.0)
 
 Família inteira usando (mãe do Bruno leu no ônibus até a praia!). Itens:

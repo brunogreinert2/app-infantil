@@ -103,12 +103,33 @@ export function aplicarTamanho(px: number): void {
 // (tema_livro com cores próprias, ou tema_padrao apontando para um pronto).
 // Ao voltar à estante/perfis, carregarPreferencias() restaura o tema da
 // criança — nada é persistido aqui.
-export function aplicarTemaDeLivro(md: MetadadosLivro): void {
+//
+// SOBERANIA DO USUÁRIO (decisão do Bruno, rodada 12): o tema do livro é
+// convidado, nunca dono. Ele NÃO se aplica quando:
+//   1. o perfil marcou "manter sempre o meu tema" (temaSoberano), OU
+//   2. o tema do perfil é alto-contraste — necessidade de acessibilidade
+//      vence decoração, sempre, sem depender de configuração.
+// E ele só é aplicado ao ENTRAR no livro pela estante — se a pessoa trocar
+// de tema no 🎨 no meio da leitura, a escolha dela fica valendo.
+export async function aplicarTemaDeLivro(md: MetadadosLivro): Promise<void> {
+  const p = perfilAtivo();
+  const soberano = (await armazenamento.obter<boolean>(`${p.id}:temaSoberano`)) ?? false;
+  const temaUsuario = (await armazenamento.obter<string>(`${p.id}:tema`)) ?? 'arco-iris';
+  if (soberano || temaUsuario === 'alto-contraste') return;
+
   if (md.tema_livro?.fundo && md.tema_livro?.destaque) {
     aplicarTema('personalizado', md.tema_livro);
   } else if (md.tema_padrao && TEMAS.some((t) => t.id === md.tema_padrao)) {
     aplicarTema(md.tema_padrao);
   }
+}
+
+export async function obterTemaSoberano(): Promise<boolean> {
+  return (await armazenamento.obter<boolean>(`${perfilAtivo().id}:temaSoberano`)) ?? false;
+}
+
+export async function definirTemaSoberano(valor: boolean): Promise<void> {
+  await armazenamento.definir(`${perfilAtivo().id}:temaSoberano`, valor);
 }
 
 export async function trocarTema(tema: string): Promise<void> {

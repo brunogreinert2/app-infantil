@@ -12,7 +12,9 @@ import {
   TEMAS,
   ajustarTamanho,
   definirPersonalizado,
+  definirTemaSoberano,
   obterPreferencias,
+  obterTemaSoberano,
   trocarFonte,
   trocarTema,
 } from './preferencias';
@@ -68,6 +70,31 @@ export async function montarTelaAparencia(
     botoesTema.forEach((b, tid) => b.classList.toggle('ativa', tid === id));
   };
   marcarTema(prefs.tema);
+
+  // ---------- soberania: quem manda no tema? ----------
+  corpo.appendChild(el('h2', 'titulo-secao', 'Temas dos livros'));
+  corpo.appendChild(
+    el('p', 'texto-sobre', 'Alguns livros chegam com um tema próprio (deserto, noite, Atenas...). Você decide se eles podem usar isso — e o alto contraste vence sempre, aconteça o que acontecer.'),
+  );
+  const gradeSoberania = el('div', 'grade-opcoes');
+  const opcoesSoberania: Array<[string, boolean]> = [
+    ['✨ O livro pode usar o tema dele', false],
+    ['🛡️ Manter sempre o MEU tema', true],
+  ];
+  const soberanoAtual = await obterTemaSoberano();
+  const botoesSoberania: HTMLButtonElement[] = [];
+  for (const [rotulo, valor] of opcoesSoberania) {
+    const botao = el('button', 'botao-opcao', rotulo);
+    if (valor === soberanoAtual) botao.classList.add('ativa');
+    botao.addEventListener('click', async () => {
+      await definirTemaSoberano(valor);
+      botoesSoberania.forEach((b) => b.classList.remove('ativa'));
+      botao.classList.add('ativa');
+    });
+    botoesSoberania.push(botao);
+    gradeSoberania.appendChild(botao);
+  }
+  corpo.appendChild(gradeSoberania);
 
   // ---------- letra ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Letra'));

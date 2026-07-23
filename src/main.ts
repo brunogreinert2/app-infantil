@@ -65,8 +65,9 @@ function irAparencia(voltar: () => void): void {
 function irLeitura(comAbertura = false): void {
   if (!livroAtual) return irEstante();
   window.scrollTo(0, 0);
-  // imersão: o app veste o tema do livro enquanto ele estiver aberto
-  aplicarTemaDeLivro(livroAtual.metadados);
+  // imersão: o tema do livro entra SÓ na chegada pela estante (comAbertura);
+  // trocas feitas pelo usuário no meio da leitura ficam soberanas
+  if (comAbertura) void aplicarTemaDeLivro(livroAtual.metadados);
   if (comAbertura && livroAtual.metadados.abertura) {
     montarTelaAbertura(raiz, livroAtual, () => irLeitura(false));
     return;
