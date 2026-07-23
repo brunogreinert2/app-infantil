@@ -19,6 +19,8 @@ export const INSIGNIAS: Insignia[] = [
   { id: 'mestre-abc', emoji: '🔤', titulo: 'Mestre do ABC', descricao: 'Terminou o Alfabeto' },
   { id: 'pequeno-filosofo', emoji: '🏺', titulo: 'Pequeno Filósofo', descricao: 'Terminou "O Que Depende de Mim"' },
   { id: 'amigo-principe', emoji: '🌹', titulo: 'Amigo do Principezinho', descricao: 'Leu O Pequeno Príncipe' },
+  { id: 'duas-cestas', emoji: '🧺', titulo: 'Guardião das Duas Cestas', descricao: 'Leu "Sócrates e as Duas Cestas"' },
+  { id: 'penso-logo-existo', emoji: '🕯️', titulo: 'Penso, Logo Existo', descricao: 'Leu "O Sonho do Menino Renê"' },
   { id: 'coruja-leitora', emoji: '🦉', titulo: 'Coruja Leitora', descricao: 'Leu 3 livros inteiros' },
   { id: 'grandes-classicos', emoji: '🏛️', titulo: 'Leitor de Grandes Clássicos', descricao: 'Leu 5 livros inteiros' },
 ];
@@ -30,6 +32,8 @@ const POR_LIVRO: Record<string, string> = {
   'alfabeto': 'mestre-abc',
   'o-que-depende-de-mim': 'pequeno-filosofo',
   'o-pequeno-principe': 'amigo-principe',
+  'socrates-e-as-duas-cestas': 'duas-cestas',
+  'o-sonho-do-menino-rene': 'penso-logo-existo',
 };
 
 // marcos fixos por total de livros lidos

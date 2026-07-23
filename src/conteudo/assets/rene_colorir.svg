@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Colorir: o menino Renê na cama, olhando o teto; lua na janela,
+       vela na mesinha. -->
+  <rect id="regiao-fundo" class="colorir-alvo" x="0" y="0" width="800" height="600" fill="#ffffff"/>
+  <rect id="regiao-janela" class="colorir-alvo" x="520" y="70" width="200" height="160" rx="10" fill="#ffffff"/>
+  <path id="regiao-lua" class="colorir-alvo" fill="#ffffff"
+    d="M660,100 a38,38 0 1 0 28,64 a30,30 0 1 1 -28,-64 z"/>
+  <path id="regiao-cama" class="colorir-alvo" fill="#ffffff"
+    d="M90,420 h520 v110 h-40 v-40 h-440 v40 h-40 z"/>
+  <path id="regiao-cobertor" class="colorir-alvo" fill="#ffffff"
+    d="M130,420 C240,380 480,380 610,420 L610,470 L130,470 Z"/>
+  <ellipse id="regiao-travesseiro" class="colorir-alvo" cx="185" cy="392" rx="72" ry="34" fill="#ffffff"/>
+  <circle id="regiao-cabeca" class="colorir-alvo" cx="200" cy="360" r="42" fill="#ffffff"/>
+  <path id="regiao-cabelo" class="colorir-alvo" fill="#ffffff"
+    d="M158,352 a42,42 0 0 1 84,0 q-10,-16 -42,-16 q-32,0 -42,16 z"/>
+  <rect id="regiao-mesinha" class="colorir-alvo" x="650" y="440" width="110" height="90" rx="10" fill="#ffffff"/>
+  <rect id="regiao-vela" class="colorir-alvo" x="686" y="380" width="34" height="60" rx="8" fill="#ffffff"/>
+  <path id="regiao-chama" class="colorir-alvo" fill="#ffffff"
+    d="M703,338 q15,20 0,38 q-15,-18 0,-38 z"/>
+</svg>

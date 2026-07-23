@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <!-- Abertura de "Sócrates e as Duas Cestas": a coruja de Atena plana
+       diante de uma coluna grega; pontos de interrogação sobem como
+       perguntas. CSS puro, prefixo soa-. -->
+  <style>
+    .soa-coruja { animation: soa-planar 3.6s ease-in-out infinite; }
+    .soa-pergunta { animation: soa-subir 4s linear infinite; opacity: 0; }
+    .soa-p2 { animation-delay: 1.3s; }
+    .soa-p3 { animation-delay: 2.6s; }
+    @keyframes soa-planar {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-16px); }
+    }
+    @keyframes soa-subir {
+      0% { transform: translateY(0); opacity: 0; }
+      15% { opacity: 0.85; }
+      80% { opacity: 0.5; }
+      100% { transform: translateY(-130px); opacity: 0; }
+    }
+  </style>
+  <rect x="0" y="0" width="800" height="500" fill="#f2e8d5" rx="24"/>
+  <!-- coluna grega -->
+  <g fill="#1c3a4a">
+    <rect x="120" y="120" width="110" height="26" rx="6"/>
+    <rect x="132" y="146" width="86" height="250"/>
+    <rect x="120" y="396" width="110" height="26" rx="6"/>
+    <rect x="104" y="422" width="142" height="22" rx="6"/>
+  </g>
+  <g fill="#f2e8d5">
+    <rect x="148" y="156" width="10" height="230"/>
+    <rect x="170" y="156" width="10" height="230"/>
+    <rect x="192" y="156" width="10" height="230"/>
+  </g>
+  <!-- coruja de Atena -->
+  <g class="soa-coruja">
+    <ellipse cx="520" cy="250" rx="95" ry="115" fill="#1c3a4a"/>
+    <path d="M445,165 l24,-34 18,26 z M595,165 l-24,-34 -18,26 z" fill="#1c3a4a"/>
+    <circle cx="482" cy="215" r="34" fill="#f2e8d5"/>
+    <circle cx="558" cy="215" r="34" fill="#f2e8d5"/>
+    <circle cx="482" cy="215" r="14" fill="#1c3a4a"/>
+    <circle cx="558" cy="215" r="14" fill="#1c3a4a"/>
+    <path d="M520,240 l-14,24 h28 z" fill="#e8a63d"/>
+    <path d="M462,300 a60,46 0 0 0 116,0" fill="none" stroke="#f2e8d5" stroke-width="7"/>
+    <path d="M470,330 a50,36 0 0 0 100,0" fill="none" stroke="#f2e8d5" stroke-width="7"/>
+  </g>
+  <g fill="#1c3a4a" font-family="Georgia, serif" font-weight="bold" font-size="46">
+    <text class="soa-pergunta" x="330" y="360">?</text>
+    <text class="soa-pergunta soa-p2" x="680" y="330">?</text>
+    <text class="soa-pergunta soa-p3" x="620" y="420">;</text>
+  </g>
+  <text x="400" y="470" font-size="29" text-anchor="middle"
+    font-family="'Segoe UI', sans-serif" fill="#1c3a4a">Uma pergunta chegou de Atenas...</text>
+</svg>

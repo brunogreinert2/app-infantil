@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <!-- Abertura de "O Sonho do Menino Renê": noite estrelada, uma vela
+       acesa na janela com a chama tremulando. Prefixo rna-. -->
+  <style>
+    .rna-chama { animation: rna-tremular 1.1s ease-in-out infinite; transform-origin: 400px 300px; }
+    .rna-halo { animation: rna-respirar 2.4s ease-in-out infinite; transform-origin: 400px 295px; }
+    .rna-estrela { animation: rna-piscar 2s ease-in-out infinite; }
+    .rna-e2 { animation-delay: 0.7s; }
+    .rna-e3 { animation-delay: 1.4s; }
+    @keyframes rna-tremular {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      35% { transform: scale(1.08, 1.16) rotate(-2deg); }
+      70% { transform: scale(0.95, 1.02) rotate(2deg); }
+    }
+    @keyframes rna-respirar {
+      0%, 100% { opacity: 0.25; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(1.15); }
+    }
+    @keyframes rna-piscar {
+      0%, 100% { opacity: 0.25; }
+      50% { opacity: 1; }
+    }
+  </style>
+  <rect x="0" y="0" width="800" height="500" fill="#0e1a2b" rx="24"/>
+  <g fill="#f0e6c8">
+    <circle class="rna-estrela" cx="120" cy="90" r="3"/>
+    <circle class="rna-estrela rna-e2" cx="300" cy="60" r="2.5"/>
+    <circle class="rna-estrela rna-e3" cx="620" cy="80" r="3"/>
+    <circle class="rna-estrela rna-e2" cx="700" cy="180" r="2.5"/>
+    <circle class="rna-estrela" cx="80" cy="220" r="2.5"/>
+  </g>
+  <path d="M660,60 a34,34 0 1 0 24,58 a28,28 0 1 1 -24,-58 z" fill="#f0e6c8" opacity="0.9"/>
+  <!-- janela -->
+  <rect x="250" y="150" width="300" height="240" rx="12" fill="none" stroke="#e8a63d" stroke-width="8"/>
+  <line x1="400" y1="150" x2="400" y2="390" stroke="#e8a63d" stroke-width="6"/>
+  <!-- vela no parapeito -->
+  <rect x="240" y="390" width="320" height="18" rx="8" fill="#e8a63d"/>
+  <rect x="382" y="316" width="36" height="74" rx="8" fill="#f4ead0"/>
+  <circle class="rna-halo" cx="400" cy="295" r="42" fill="#e8a63d"/>
+  <g class="rna-chama">
+    <path d="M400,262 q16,20 0,40 q-16,-20 0,-40 z" fill="#ffcf5e"/>
+    <path d="M400,274 q8,11 0,22 q-8,-11 0,-22 z" fill="#fff3c4"/>
+  </g>
+  <text x="400" y="462" font-size="29" text-anchor="middle"
+    font-family="'Segoe UI', sans-serif" fill="#f0e6c8">Uma ideia acendeu na noite...</text>
+</svg>

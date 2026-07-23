@@ -11,6 +11,8 @@ const EMOJIS_CAPA: Record<string, string> = {
   'lebre-e-tartaruga': '🐢🐇',
   'o-que-depende-de-mim': '☔',
   'o-pequeno-principe': '🌹',
+  'socrates-e-as-duas-cestas': '🏛️',
+  'o-sonho-do-menino-rene': '🌙',
   'alfabeto-grego': 'Ωα',
   'alfabeto': '🔤',
 };

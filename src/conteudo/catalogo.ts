@@ -17,6 +17,14 @@ import ninaAberturaSvg from './assets/nina_abertura.svg?raw';
 import ppMd from './livros/o-pequeno-principe.md?raw';
 import ppAberturaSvg from './assets/pp_abertura.svg?raw';
 import ppJiboiaSvg from './assets/pp_jiboia_colorir.svg?raw';
+import socratesMd from './livros/socrates-e-as-duas-cestas.md?raw';
+import socratesAberturaSvg from './assets/socrates_abertura.svg?raw';
+import socratesCestasSvg from './assets/socrates_cestas_colorir.svg?raw';
+import socratesParmenidesSvg from './assets/socrates_parmenides_viva.svg?raw';
+import reneMd from './livros/o-sonho-do-menino-rene.md?raw';
+import reneAberturaSvg from './assets/rene_abertura.svg?raw';
+import reneColorirSvg from './assets/rene_colorir.svg?raw';
+import reneMagoSvg from './assets/rene_mago_sonho.svg?raw';
 
 const gerados = gerarAlfabetos();
 
@@ -24,6 +32,8 @@ export const livros: Livro[] = [
   carregarLivro('lebre-e-tartaruga', lebreMd),
   carregarLivro('o-pequeno-principe', ppMd),
   carregarLivro('o-que-depende-de-mim', ninaMd),
+  carregarLivro('socrates-e-as-duas-cestas', socratesMd),
+  carregarLivro('o-sonho-do-menino-rene', reneMd),
   ...gerados.map((g) => g.livro),
 ];
 
@@ -35,6 +45,12 @@ export const arquivosAssets: Record<string, string> = {
   'nina_abertura.svg': ninaAberturaSvg,
   'pp_abertura.svg': ppAberturaSvg,
   'pp_jiboia_colorir.svg': ppJiboiaSvg,
+  'socrates_abertura.svg': socratesAberturaSvg,
+  'socrates_cestas_colorir.svg': socratesCestasSvg,
+  'socrates_parmenides_viva.svg': socratesParmenidesSvg,
+  'rene_abertura.svg': reneAberturaSvg,
+  'rene_colorir.svg': reneColorirSvg,
+  'rene_mago_sonho.svg': reneMagoSvg,
   ...Object.assign({}, ...gerados.map((g) => g.arquivos)),
 };
 

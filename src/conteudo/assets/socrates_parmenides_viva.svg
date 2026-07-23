@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340">
+  <!-- Ilustração viva: o velho Parmênides fala, o pequeno Sócrates ouve;
+       perguntas e ideias sobem da conversa. Prefixo spv-. -->
+  <style>
+    .spv-ideia { animation: spv-subir 3.6s linear infinite; opacity: 0; }
+    .spv-i2 { animation-delay: 1.2s; }
+    .spv-i3 { animation-delay: 2.4s; }
+    .spv-barba { animation: spv-falar 2.6s ease-in-out infinite; transform-origin: 570px 205px; }
+    @keyframes spv-subir {
+      0% { transform: translateY(0); opacity: 0; }
+      15% { opacity: 0.9; }
+      100% { transform: translateY(-95px); opacity: 0; }
+    }
+    @keyframes spv-falar {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.06); }
+    }
+  </style>
+  <rect x="0" y="0" width="800" height="340" fill="#efe3c8"/>
+  <rect x="0" y="290" width="800" height="50" fill="#d9c9a3"/>
+  <!-- Parmênides no degrau -->
+  <rect x="490" y="250" width="180" height="40" fill="#c4b28a"/>
+  <ellipse cx="570" cy="205" rx="52" ry="72" fill="#5b6f7d"/>
+  <circle cx="570" cy="120" r="34" fill="#e8d5b5"/>
+  <path class="spv-barba" d="M542,132 q28,44 56,0 q-6,40 -28,44 q-22,-4 -28,-44 z" fill="#f4f1ea"/>
+  <path d="M536,108 a34,34 0 0 1 68,0 q-14,-14 -34,-14 q-20,0 -34,14 z" fill="#f4f1ea"/>
+  <!-- pequeno Sócrates sentado -->
+  <ellipse cx="250" cy="262" rx="42" ry="34" fill="#8a5a3a"/>
+  <circle cx="250" cy="212" r="26" fill="#e8d5b5"/>
+  <path d="M224,206 a26,26 0 0 1 52,0 q-8,-12 -26,-12 q-18,0 -26,12 z" fill="#3a2b20"/>
+  <!-- ideias subindo -->
+  <g font-family="Georgia, serif" font-weight="bold" font-size="34" fill="#1c3a4a">
+    <text class="spv-ideia" x="420" y="150">?</text>
+    <text class="spv-ideia spv-i2" x="470" y="120">✶</text>
+    <text class="spv-ideia spv-i3" x="380" y="120">?</text>
+  </g>
+</svg>

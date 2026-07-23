@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340">
+  <!-- Ilustração viva: o mago trapaceiro e as bolhas de sonho subindo
+       e sumindo. Prefixo rms-. -->
+  <style>
+    .rms-bolha { animation: rms-flutuar 4.2s linear infinite; opacity: 0; }
+    .rms-b2 { animation-delay: 1.4s; }
+    .rms-b3 { animation-delay: 2.8s; }
+    .rms-capa { animation: rms-ondular 3.2s ease-in-out infinite; transform-origin: 250px 210px; }
+    .rms-estrela { animation: rms-piscar 1.9s ease-in-out infinite; }
+    @keyframes rms-flutuar {
+      0% { transform: translateY(0) translateX(0); opacity: 0; }
+      15% { opacity: 0.85; }
+      100% { transform: translateY(-110px) translateX(24px); opacity: 0; }
+    }
+    @keyframes rms-ondular {
+      0%, 100% { transform: skewX(0deg); }
+      50% { transform: skewX(-3deg); }
+    }
+    @keyframes rms-piscar {
+      0%, 100% { opacity: 0.25; }
+      50% { opacity: 1; }
+    }
+  </style>
+  <rect x="0" y="0" width="800" height="340" fill="#101d33"/>
+  <g fill="#f0e6c8">
+    <circle class="rms-estrela" cx="90" cy="60" r="3"/>
+    <circle class="rms-estrela rms-b2" cx="700" cy="50" r="2.5"/>
+    <circle class="rms-estrela rms-b3" cx="620" cy="150" r="2.5"/>
+  </g>
+  <!-- mago -->
+  <g class="rms-capa">
+    <path d="M250,110 L180,300 L320,300 Z" fill="#3d2b63"/>
+    <path d="M250,30 L215,110 L285,110 Z" fill="#3d2b63"/>
+    <circle cx="250" cy="128" r="26" fill="#e8d5b5"/>
+    <path d="M228,140 q22,30 44,0 q-4,26 -22,28 q-18,-2 -22,-28 z" fill="#d8d3e8"/>
+    <circle cx="250" cy="52" r="6" fill="#e8a63d"/>
+  </g>
+  <!-- varinha -->
+  <line x1="316" y1="200" x2="380" y2="150" stroke="#e8a63d" stroke-width="7" stroke-linecap="round"/>
+  <path class="rms-estrela" d="M388,132 l6,14 14,6 -14,6 -6,14 -6,-14 -14,-6 14,-6 z" fill="#ffd86b"/>
+  <!-- bolhas de sonho -->
+  <g stroke="#8fb3ff" stroke-width="4" fill="none">
+    <circle class="rms-bolha" cx="480" cy="230" r="34"/>
+    <circle class="rms-bolha rms-b2" cx="560" cy="250" r="24"/>
+    <circle class="rms-bolha rms-b3" cx="640" cy="235" r="30"/>
+  </g>
+</svg>

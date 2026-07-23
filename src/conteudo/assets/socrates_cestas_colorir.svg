@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <!-- Colorir: o menino Sócrates entre as duas cestas — a da doxa
+       transbordando de pergaminhos, a da episteme quase vazia. -->
+  <rect id="regiao-fundo" class="colorir-alvo" x="0" y="0" width="800" height="440" fill="#ffffff"/>
+  <circle id="regiao-sol" class="colorir-alvo" cx="700" cy="90" r="52" fill="#ffffff"/>
+  <rect id="regiao-chao" class="colorir-alvo" x="0" y="440" width="800" height="160" fill="#ffffff"/>
+  <g id="regiao-coluna" class="colorir-alvo" fill="#ffffff">
+    <rect x="70" y="120" width="96" height="22" rx="5"/>
+    <rect x="82" y="142" width="72" height="220"/>
+    <rect x="70" y="362" width="96" height="22" rx="5"/>
+  </g>
+  <ellipse id="regiao-tunica" class="colorir-alvo" cx="400" cy="400" rx="85" ry="110" fill="#ffffff"/>
+  <circle id="regiao-cabeca" class="colorir-alvo" cx="400" cy="265" r="48" fill="#ffffff"/>
+  <path id="regiao-cabelo" class="colorir-alvo" fill="#ffffff"
+    d="M352,255 a48,48 0 0 1 96,0 q-12,-18 -48,-18 q-36,0 -48,18 z"/>
+  <path id="regiao-cesta-doxa" class="colorir-alvo" fill="#ffffff"
+    d="M120,470 h150 l-20,90 h-110 z"/>
+  <g id="regiao-pergaminhos-doxa" class="colorir-alvo" fill="#ffffff">
+    <rect x="128" y="430" width="26" height="44" rx="12"/>
+    <rect x="160" y="418" width="26" height="56" rx="12"/>
+    <rect x="192" y="426" width="26" height="48" rx="12"/>
+    <rect x="224" y="436" width="26" height="38" rx="12"/>
+  </g>
+  <path id="regiao-cesta-episteme" class="colorir-alvo" fill="#ffffff"
+    d="M540,470 h150 l-20,90 h-110 z"/>
+  <rect id="regiao-pergaminho-episteme" class="colorir-alvo" x="596" y="440" width="28" height="40" rx="13" fill="#ffffff"/>
+</svg>
