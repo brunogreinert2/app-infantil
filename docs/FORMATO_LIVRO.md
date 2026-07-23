@@ -45,6 +45,13 @@ tema_livro:                    # OU cores exclusivas do livro (vence tema_padrao
 abertura: "carta"              # id de um asset (SVG animado); mostrado em
                                # palco cheio ao abrir da estante, toque entra
 
+# ---- NARRAÇÃO GRAVADA (voz humana no lugar do TTS robótico) ----
+narracao: "som01"              # id de um asset tipo "audio"; o botão
+                               # "Ouvir a história" toca a gravação em vez
+                               # do TTS. Gravar em mp3 comprimido (o áudio
+                               # entra no bundle). Sem este campo, o botão
+                               # usa TTS do texto inteiro.
+
 assets:
   - id: "carta"                # abertura (não precisa de âncora no texto)
     tipo: "ilustracao"

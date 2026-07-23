@@ -80,6 +80,9 @@ body {
 
 button {
   font-family: inherit;
+  /* botões NÃO herdam tamanho de fonte por padrão no HTML — sem isto,
+     o A+ não afetava os títulos da estante nem as alternativas do quiz */
+  font-size: inherit;
   cursor: pointer;
   border: none;
 }
@@ -635,9 +638,40 @@ button {
 }
 
 .peca.selecionada {
-  outline: 4px solid var(--destaque);
-  outline-offset: -4px;
-  transform: scale(0.95);
+  outline: 5px solid var(--destaque);
+  outline-offset: -5px;
+  animation: peca-dancando 0.7s ease-in-out infinite;
+  z-index: 2;
+}
+
+@keyframes peca-dancando {
+  0%, 100% { transform: scale(0.93) rotate(-1.5deg); }
+  50% { transform: scale(0.97) rotate(1.5deg); }
+}
+
+.instrucao-quebra {
+  margin: 0;
+  text-align: center;
+  color: var(--texto-suave);
+  max-width: 560px;
+}
+
+/* parágrafo retomado ("você parou aqui") pisca suave ao reabrir o livro */
+.retomada {
+  animation: pulso-retomada 2.4s ease-in-out 2;
+  border-radius: 12px;
+}
+
+@keyframes pulso-retomada {
+  0%, 100% { background: transparent; }
+  50% { background: color-mix(in srgb, var(--destaque) 18%, transparent); }
+}
+
+/* lente de zoom por pinça na tela de colorir */
+.lente-zoom {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
 }
 
 .peca.encaixada {

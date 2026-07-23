@@ -54,6 +54,28 @@ Regras de sobrevivência para o próximo Claude:
   próprios, do simples ao luxo — contexto na memória bruno-contexto).
 - 7 livros na estante. PWA + Pages + workflow (ver OPERAÇÃO acima).
 
+## Rodada 11 — polimento pós-família (v0.2.0)
+
+Família inteira usando (mãe do Bruno leu no ônibus até a praia!). Itens:
+
+- **A+ consertado na estante**: botões HTML não herdam font-size — regra
+  global `button { font-size: inherit }` resolveu estante + quiz.
+- **🔊 "Ouvir a história"** no topo de todo livro: TTS do texto inteiro
+  (para antes da seção dos adultos). **Campo `narracao` no front matter**
+  (FORMATO_LIVRO): aponta um asset de áudio e o botão vira 🎙️ tocando a
+  GRAVAÇÃO humana no lugar do TTS. Narração por parágrafo = futuro (fila).
+- **🔄 Procurar atualização** nos Ajustes (lição do pedraangular: PWA
+  segura cache) + aviso de que atualizar nunca apaga pinturas/insígnias
+  (localStorage sobrevive a qualquer deploy).
+- **Retomada visível**: ao reabrir livro, o parágrafo onde parou pisca
+  5s (classe .retomada) — a memória de posição já existia desde a rodada 1.
+- **Quebra-cabeça explicado**: instrução na escolha e no tabuleiro; peça
+  selecionada agora "dança" (animação) até a troca.
+- **Zoom de pinça no colorir** (`src/canvas/zoomPinca.ts`): dois dedos
+  ampliam 1x–4x e arrastam, um dedo pinta; botão 🔍 volta ao normal.
+  Camadas vivem numa `.lente-zoom` transformada; traço iniciado pelo 1º
+  dedo é cancelado quando vira pinça; clique fantasma engolido.
+
 ## 📋 FILA DE TRABALHO (em ordem)
 
 1. **Pequeno Príncipe, capítulos 2 em diante** (cap. 1 PRONTO, ver seção
@@ -75,6 +97,14 @@ Regras de sobrevivência para o próximo Claude:
    teatro" (Epicteto); série tio Aristóteles (coragem como meio-termo,
    amizade, hábito vira caráter). Corpus adulto via MCP pedra-angular.
 7. **Testar em Android de entrada** (checklist spec §6).
+8. **Narração gravada por parágrafo** (hoje é por livro via `narracao`).
+9. **Backup/exportar dados** (pinturas+insígnias) — essencial ANTES da
+   migração Capacitor, e útil para trocar de aparelho.
+10. **Seção infantil no Pedra Angular compartilhada com este app** (desejo
+    do Bruno): mesmo corpus .md servido nos dois — estudar servir os livros
+    daqui via catalogo.json como o pedraangular faz.
+11. **Importar textos próprios** no app (leituras mais maduras — o público
+    adulto da família adotou o app; a mãe do Bruno é usuária ativa).
 
 ## Rodada 9 — O Pequeno Príncipe começou (cap. 1 completo e verificado)
 

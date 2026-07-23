@@ -6,6 +6,7 @@ import { CamadaBase, criarCamadaLinhas } from '../canvas/camadaBase';
 import { soltarConfetes } from '../efeitos/confete';
 import { CamadaPincel, type Traco } from '../canvas/camadaPincel';
 import { RoteadorFerramenta, type Ferramenta } from '../canvas/roteadorFerramenta';
+import { instalarZoomPinca } from '../canvas/zoomPinca';
 import { arquivosAssets } from '../conteudo/catalogo';
 import { imprimirParaColorir } from '../impressao/motorImpressao';
 import type { Livro } from '../motor/tipos';
@@ -55,11 +56,14 @@ export async function montarTelaColorir(
     }),
   );
 
-  // --- camadas (ordem no DOM = ordem de empilhamento) ---
+  // --- camadas (ordem no DOM = ordem de empilhamento), dentro da lente
+  // de zoom: pinça com dois dedos amplia até 4x, um dedo pinta ---
   const tela = el('div', 'tela-colorir');
   raiz.appendChild(tela);
+  const lente = el('div', 'lente-zoom');
+  tela.appendChild(lente);
 
-  const base = new CamadaBase(tela, svgFonte);
+  const base = new CamadaBase(lente, svgFonte);
 
   // proporção da tela segue o viewBox da arte (pôsteres são retrato,
   // cenas são paisagem) — o CSS fixo 4:3 vale só como fallback
@@ -69,9 +73,10 @@ export async function montarTelaColorir(
     if (vb.height > vb.width) tela.style.width = 'min(96vw, 600px)';
   }
   let roteador: RoteadorFerramenta;
-  const pincel = new CamadaPincel(tela, () => roteador.estiloPincel());
+  const pincel = new CamadaPincel(lente, () => roteador.estiloPincel());
   roteador = new RoteadorFerramenta(pincel);
-  criarCamadaLinhas(tela, svgFonte);
+  criarCamadaLinhas(lente, svgFonte);
+  const zoom = instalarZoomPinca(tela, lente, () => pincel.cancelarTracoAtivo());
 
   // --- estado + persistência ---
   const chave = `${perfilAtivo().id}:colorir:${livro.id}:${assetId}`;
@@ -141,6 +146,12 @@ export async function montarTelaColorir(
   desf.setAttribute('aria-label', 'Desfazer');
   desf.addEventListener('click', desfazer);
   grupoFerr.appendChild(desf);
+
+  const verTudo = el('button', 'botao-ferramenta', '🔍');
+  verTudo.setAttribute('aria-label', 'Ver o desenho inteiro (tirar o zoom)');
+  verTudo.title = 'Dois dedos dão zoom; este botão volta ao normal';
+  verTudo.addEventListener('click', () => zoom.reiniciar());
+  grupoFerr.appendChild(verTudo);
 
   const imprimir = el('button', 'botao-ferramenta', '🖨️');
   imprimir.setAttribute('aria-label', 'Imprimir para colorir no papel');

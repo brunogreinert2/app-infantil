@@ -43,17 +43,16 @@ export async function montarTelaLeitura(
     }),
   );
 
-  // tabelas de referência imprimíveis (livros de alfabeto)
-  const extras = botoesTabelas(livro.id);
-  if (extras.length > 0) {
-    const barraExtras = el('div', 'barra-extras');
-    for (const b of extras) {
-      const botao = el('button', 'botao-extra', b.rotulo);
-      botao.addEventListener('click', b.acao);
-      barraExtras.appendChild(botao);
-    }
-    raiz.appendChild(barraExtras);
+  // barra de extras: ouvir a história inteira + tabelas imprimíveis
+  const barraExtras = el('div', 'barra-extras');
+  const botaoHistoria = botaoOuvirHistoria(livro);
+  if (botaoHistoria) barraExtras.appendChild(botaoHistoria);
+  for (const b of botoesTabelas(livro.id)) {
+    const botao = el('button', 'botao-extra', b.rotulo);
+    botao.addEventListener('click', b.acao);
+    barraExtras.appendChild(botao);
   }
+  if (barraExtras.childElementCount > 0) raiz.appendChild(barraExtras);
 
   const p = perfilAtivo();
   const chaveProgresso = `${p.id}:progresso:${livro.id}`;
@@ -128,11 +127,14 @@ export async function montarTelaLeitura(
   artigo.appendChild(await rodapeConclusao(livro, progresso, chaveProgresso));
   raiz.appendChild(artigo);
 
-  // restaurar posição de leitura
+  // restaurar posição de leitura + "você parou aqui" visível
   if (progresso.posicaoAtual) {
-    document
-      .getElementById(`no-${progresso.posicaoAtual}`)
-      ?.scrollIntoView({ block: 'start' });
+    const alvo = document.getElementById(`no-${progresso.posicaoAtual}`);
+    if (alvo) {
+      alvo.scrollIntoView({ block: 'start' });
+      alvo.classList.add('retomada');
+      setTimeout(() => alvo.classList.remove('retomada'), 5000);
+    }
   }
 
   // salvar posição conforme rola (debounce), preservando o status
@@ -152,6 +154,56 @@ export async function montarTelaLeitura(
     }, 400);
   };
   window.addEventListener('scroll', aoRolar, { passive: true });
+}
+
+// "Ouvir a história": narração GRAVADA (campo narracao no front matter)
+// quando o livro tiver uma; senão, TTS do texto inteiro (até a seção dos
+// adultos, que fica de fora da leitura corrida).
+function botaoOuvirHistoria(livro: Livro): HTMLElement | null {
+  const assetNarracao = livro.metadados.assets?.find((a) => a.id === livro.metadados.narracao);
+  const urlNarracao = assetNarracao?.arquivo ? arquivosImagens[assetNarracao.arquivo] : undefined;
+
+  if (urlNarracao) {
+    const audio = new Audio(urlNarracao);
+    const botao = el('button', 'botao-extra', '🎙️ Ouvir a história');
+    botao.addEventListener('click', () => {
+      if (audio.paused) {
+        pararFala();
+        audio.play();
+        botao.textContent = '⏸ Pausar a história';
+      } else {
+        audio.pause();
+        botao.textContent = '🎙️ Ouvir a história';
+      }
+    });
+    audio.addEventListener('ended', () => (botao.textContent = '🎙️ Ouvir a história'));
+    return botao;
+  }
+
+  if (!suportaTTS()) return null;
+  const partes: string[] = [];
+  for (const no of livro.nos) {
+    if (no.tipo === 'cabecalho') {
+      if (no.texto === 'Para os adultos que leem junto') break;
+      partes.push(`${no.texto}.`);
+    } else if (no.tipo === 'paragrafo') {
+      partes.push(no.texto);
+    }
+  }
+  if (partes.length === 0) return null;
+  const textoTodo = partes.join(' ');
+
+  const botao = el('button', 'botao-extra', '🔊 Ouvir a história');
+  botao.addEventListener('click', () => {
+    if (textoFalando() === textoTodo) {
+      pararFala();
+      botao.textContent = '🔊 Ouvir a história';
+    } else {
+      botao.textContent = '⏹ Parar a história';
+      falar(textoTodo, () => (botao.textContent = '🔊 Ouvir a história'));
+    }
+  });
+  return botao;
 }
 
 // 🔊 vira ⏹ enquanto fala — e volta sozinho quando a fala termina

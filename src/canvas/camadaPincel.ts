@@ -111,6 +111,14 @@ export class CamadaPincel {
     return this.tracos;
   }
 
+  // usado pelo zoom de pinça: o 1º dedo pode ter iniciado um traço
+  // antes do 2º dedo chegar — descarta sem gravar
+  cancelarTracoAtivo(): void {
+    if (!this.atual) return;
+    this.atual = null;
+    this.redesenhar();
+  }
+
   desfazerUltimo(): boolean {
     if (this.tracos.length === 0) return false;
     this.tracos.pop();

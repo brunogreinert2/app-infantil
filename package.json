@@ -1,7 +1,7 @@
 {
   "name": "app-infantil",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "App infantil de leitura, quiz e colorir — projeto-irmão do Pedra Angular",
   "type": "module",
   "scripts": {

@@ -72,6 +72,9 @@ export async function montarTelaQuebraCabeca(
   const escolherTamanho = () => {
     corpo.innerHTML = '';
     corpo.appendChild(el('h2', 'titulo-quebra', 'Quantas peças?'));
+    corpo.appendChild(
+      el('p', 'instrucao-quebra', 'As peças vêm embaralhadas. Toque numa peça e depois em outra: elas trocam de lugar até o desenho ficar montado!'),
+    );
     const grade = el('div', 'grade-tamanhos');
     for (const [rotulo, c, l] of TAMANHOS) {
       const botao = el('button', 'botao-grande', rotulo);
@@ -86,6 +89,9 @@ export async function montarTelaQuebraCabeca(
 
   const montarTabuleiro = (colunas: number, linhas: number) => {
     corpo.innerHTML = '';
+    corpo.appendChild(
+      el('p', 'instrucao-quebra', '👆 Toque numa peça (ela fica dançando) e depois na outra — elas trocam de lugar!'),
+    );
     const total = colunas * linhas;
     const larguraPeca = vb.width / colunas;
     const alturaPeca = vb.height / linhas;

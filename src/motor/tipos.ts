@@ -36,6 +36,8 @@ export interface MetadadosLivro {
   tema_padrao?: string; // id de tema pronto que o livro veste ao abrir
   tema_livro?: { fundo: string; destaque: string }; // tema exclusivo do livro
   abertura?: string; // id de asset (SVG animado) da cena de entrada do livro
+  narracao?: string; // id de asset de áudio: gravação humana que substitui
+                     // o TTS no botão "Ouvir a história"
   assets?: AssetDeclarado[];
   quiz?: PerguntaQuiz[];
 }

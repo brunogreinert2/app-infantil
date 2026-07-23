@@ -105,8 +105,28 @@ export async function montarTelaConfiguracoes(
   // ---------- sobre ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Sobre'));
   corpo.appendChild(
-    el('p', 'texto-sobre', 'Historinhas (nome provisório) — v0.1.0. App de leitura, pintura e quizzes feito em família. Conteúdo em domínio público com tradução própria.'),
+    el('p', 'texto-sobre', 'Historinhas (nome provisório) — v0.2.0. App de leitura, pintura e quizzes feito em família. Conteúdo em domínio público com tradução própria.'),
   );
+  corpo.appendChild(
+    el('p', 'texto-sobre', 'Atualizar o app NUNCA apaga as pinturas, insígnias e progresso — eles ficam guardados neste aparelho.'),
+  );
+
+  // PWA guarda tudo em cache pra funcionar offline; este botão força a
+  // busca de versão nova (lição aprendida no pedraangular.app.br)
+  const atualizar = el('button', 'botao-grande', '🔄 Procurar atualização');
+  atualizar.addEventListener('click', async () => {
+    atualizar.disabled = true;
+    atualizar.textContent = '🔄 Procurando...';
+    try {
+      if ('serviceWorker' in navigator) {
+        const registros = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registros.map((r) => r.update()));
+      }
+    } finally {
+      setTimeout(() => window.location.reload(), 800);
+    }
+  });
+  corpo.appendChild(atualizar);
 }
 
 function linhaPerfil(p: Perfil, totalPerfis: number, recarregar: () => void): HTMLElement {
