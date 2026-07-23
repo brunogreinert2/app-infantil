@@ -24,6 +24,36 @@ Regras de sobrevivência para o próximo Claude:
 4. A memória persistente (MEMORY.md do diretório C:\Claude) tem o contexto
    humano: Theo (7), Davi (9, ama grego), protanomalia do Bruno, os R$5.
 
+## 🌐 OPERAÇÃO — o app está PUBLICADO
+
+- **URL: https://brunogreinert2.github.io/app-infantil/** (repo público
+  `brunogreinert2/app-infantil`, GitHub Pages via Actions).
+- **Publicar atualização = `git push origin master`** — o workflow roda
+  `npm test` + `npm run build` e sobe sozinho (~1 min). Se falhar, ver
+  `gh run list` / `gh run view <id> --log-failed`.
+- É **PWA**: no tablet/celular, abrir a URL no navegador → "Adicionar à
+  tela inicial" → vira app com ícone 🌈, tela cheia e 100% offline após a
+  primeira visita (service worker precacheia tudo, ~340 KB).
+- Nota CI: o workflow usa `npm install` (não `npm ci`) porque o lockfile
+  gerado no Windows do Bruno omite binários opcionais de outras plataformas.
+- Domínio próprio (tipo historinhas.app.br) é opcional futuro — mesmo
+  fluxo do pedraangular.app.br (registro.br + CNAME no Pages).
+
+## Rodada 10 — livros do selo do Bruno + app publicado
+
+- **Sócrates e as Duas Cestas** 🏛️ e **O Sonho do Menino Renê** 🌙:
+  historinhas escritas pelo Bruno com Sonnet 5, seguindo FORMATO_LIVRO à
+  risca (temas próprios, aberturas, 4 quizzes cada). Fable criou as 6
+  artes (aberturas: coruja de Atena / vela na janela; colorir: duas
+  cestas / quarto do Renê; vivas: Parmênides / mago dos sonhos).
+  Insígnias 🧺 Guardião das Duas Cestas e 🕯️ Penso Logo Existo.
+- **Padrão novo**: seção final "# Para os adultos que leem junto" com
+  contexto histórico + sugestão de conversa — manter nos próximos livros.
+- **Colofão adulto (Ὁ Διαφορεύς) não entra no app** — o Bruno o reserva
+  para os FUTUROS LIVROS FÍSICOS do selo (ele quer fabricar livros
+  próprios, do simples ao luxo — contexto na memória bruno-contexto).
+- 7 livros na estante. PWA + Pages + workflow (ver OPERAÇÃO acima).
+
 ## 📋 FILA DE TRABALHO (em ordem)
 
 1. **Pequeno Príncipe, capítulos 2 em diante** (cap. 1 PRONTO, ver seção
