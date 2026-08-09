@@ -8,11 +8,12 @@
 //
 // Existem dois builds da mesma família, e nenhum dos dois serve sozinho:
 //
-//   opendyslexic-*.woff        build 2.001 · 233 glifos · SEM grego
-//                              letras mais justas e encorpadas — é o desenho
-//                              que este app usa e que o Bruno quer manter
-//   opendyslexic-grego-*.woff2 build 0.920 · 1927 glifos · COM grego
-//                              letras mais finas e bem mais espaçadas
+//   opendyslexic-*.woff             build 2.001 · 233 glifos · só latim
+//                                   letras justas e encorpadas — é o desenho
+//                                   que o ecossistema adota
+//   opendyslexic-suplemento-*.woff2 build 0.920 · 1927 glifos
+//                                   finas e bem mais espaçadas; entra apenas
+//                                   onde o 2.001 não tem o caractere
 //
 // O número engana: 0.920 é POSTERIOR a 2.001 (o projeto renumerou depois de
 // reescrever a fonte; dá para conferir pela ferramenta de build e pelo nome da
@@ -25,12 +26,12 @@
 // as letras que o livro existe para ensinar, e justo para o Davi.
 //
 // A saída é `unicode-range`: as duas faces se declaram sob a MESMA família, e o
-// navegador escolhe por caractere. Texto em português continua byte a byte com
-// o mesmo desenho de antes; só o grego passa a vir do build que o tem. E o
-// arquivo grego (115 KB) só é baixado quando aparece um caractere grego na
-// tela — ou seja, praticamente só no livro do alfabeto.
+// navegador escolhe por caractere. O texto do dia a dia continua com o mesmo
+// desenho de antes, caractere por caractere; só o que faltava passa a vir do
+// build que o tem.
 //
-// Se um dia entrar hebraico, medir antes: nenhum dos dois builds o cobre.
+// Mesma montagem no app-leitura, com a mesma lista de faixas (NORMAS.md N70).
+// Se um dia entrar hebraico ou árabe, medir antes: nenhum dos dois builds cobre.
 // ---------------------------------------------------------------------------
 
 import '@fontsource/atkinson-hyperlegible/400.css';
@@ -40,11 +41,28 @@ import odRegular from './fontes/opendyslexic-400.woff?url';
 import odBold from './fontes/opendyslexic-700.woff?url';
 import odItalic from './fontes/opendyslexic-400i.woff?url';
 import odBoldItalic from './fontes/opendyslexic-700i.woff?url';
-import odGregoRegular from './fontes/opendyslexic-grego-400.woff2?url';
-import odGregoBold from './fontes/opendyslexic-grego-700.woff2?url';
+import odSupRegular from './fontes/opendyslexic-suplemento-400.woff2?url';
+import odSupBold from './fontes/opendyslexic-suplemento-700.woff2?url';
 
-// Grego e copta (U+0370–03FF) + grego estendido/politônico (U+1F00–1FFF).
-const FAIXA_GREGA = 'U+0370-03FF, U+1F00-1FFF';
+// As faixas onde o build 2.001 NÃO tem o caractere e o 0.920 tem — medidas
+// com fontTools, não escolhidas a olho. São 868 caracteres. A lista é a mesma
+// no app-leitura e vale para toda superfície nova (NORMAS.md N70).
+//
+// Travessão, aspas curvas, reticências e apóstrofo ficam DE FORA de propósito:
+// o 2.001 os tem, e desviá-los trocaria o desenho no meio de uma frase em
+// português. Hebraico e árabe não estão em nenhum dos dois builds.
+const FAIXAS_SUPLEMENTO = [
+  'U+0100-024F', // latim estendido A/B — macrons do latim clássico
+  'U+0370-03FF', // grego e copta
+  'U+0400-052F', // cirílico e suplemento
+  'U+1F00-1FFF', // grego estendido (politônico)
+  'U+2020-2021', // † ‡ do aparato crítico
+  'U+2070-209F', // sobrescritos e subscritos
+  'U+2150-218F', // formas numéricas — algarismos romanos
+  'U+2190-21FF', // setas
+  'U+2200-22FF', // operadores matemáticos
+  'U+27E8-27E9', // ⟨ ⟩ colchetes editoriais
+].join(', ');
 
 const estilo = document.createElement('style');
 estilo.textContent = `
@@ -68,19 +86,19 @@ estilo.textContent = `
   src: url('${odBoldItalic}') format('woff');
   font-weight: 700; font-style: italic; font-display: swap;
 }
-/* Só grego, e declaradas por último: para um caractere grego as duas faces
-   casam, e o algoritmo do CSS fica com a última. */
+/* Suplemento, declarado por último: para um caractere dentro das faixas as
+   duas faces casam, e o algoritmo do CSS fica com a última. */
 @font-face {
   font-family: 'OpenDyslexic';
-  src: url('${odGregoRegular}') format('woff2');
+  src: url('${odSupRegular}') format('woff2');
   font-weight: 400; font-style: normal; font-display: swap;
-  unicode-range: ${FAIXA_GREGA};
+  unicode-range: ${FAIXAS_SUPLEMENTO};
 }
 @font-face {
   font-family: 'OpenDyslexic';
-  src: url('${odGregoBold}') format('woff2');
+  src: url('${odSupBold}') format('woff2');
   font-weight: 700; font-style: normal; font-display: swap;
-  unicode-range: ${FAIXA_GREGA};
+  unicode-range: ${FAIXAS_SUPLEMENTO};
 }`;
 document.head.appendChild(estilo);
 
