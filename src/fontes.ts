@@ -43,6 +43,23 @@ import odItalic from './fontes/opendyslexic-400i.woff?url';
 import odBoldItalic from './fontes/opendyslexic-700i.woff?url';
 import odSupRegular from './fontes/opendyslexic-suplemento-400.woff2?url';
 import odSupBold from './fontes/opendyslexic-suplemento-700.woff2?url';
+import cardoRegular from './fontes/cardo-regular.woff2?url';
+import cardoBold from './fontes/cardo-bold.woff2?url';
+
+// Cardo é o PISO do ecossistema (NORMAS.md N72): a serifada canônica, que
+// cobre latim com macrons, grego politônico e hebraico com niqud. Aqui ela
+// entra só no fim de cada pilha, para o que as fontes escolhidas não têm —
+// sem ela, o grego do livro do Davi na opção "Atkinson" (que também é só
+// latim) sairia numa fonte do aparelho, diferente em cada aparelho.
+//
+// Restrita por unicode-range para não pesar: os 143 KB só são baixados se
+// aparecer grego ou hebraico na tela.
+const FAIXAS_CARDO = [
+  'U+0370-03FF', // grego e copta
+  'U+1F00-1FFF', // grego estendido (politônico)
+  'U+0590-05FF', // hebraico com niqud
+  'U+FB1D-FB4F', // hebraico, formas de apresentação
+].join(', ');
 
 // As faixas onde o build 2.001 NÃO tem o caractere e o 0.920 tem — medidas
 // com fontTools, não escolhidas a olho. São 868 caracteres. A lista é a mesma
@@ -99,11 +116,26 @@ estilo.textContent = `
   src: url('${odSupBold}') format('woff2');
   font-weight: 700; font-style: normal; font-display: swap;
   unicode-range: ${FAIXAS_SUPLEMENTO};
+}
+@font-face {
+  font-family: 'Cardo';
+  src: url('${cardoRegular}') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
+  unicode-range: ${FAIXAS_CARDO};
+}
+@font-face {
+  font-family: 'Cardo';
+  src: url('${cardoBold}') format('woff2');
+  font-weight: 700; font-style: normal; font-display: swap;
+  unicode-range: ${FAIXAS_CARDO};
 }`;
 document.head.appendChild(estilo);
 
+// Toda pilha passa pelas fontes NOSSAS antes de chegar ao sistema operacional
+// (NORMAS.md N72). Em "padrão" a fonte do aparelho é a escolha explícita, então
+// ela vem primeiro; a Cardo entra logo atrás, para o que faltar.
 export const PILHAS_DE_FONTE: Record<string, string> = {
-  padrao: "'Segoe UI', system-ui, -apple-system, sans-serif",
-  hyperlegible: "'Atkinson Hyperlegible', 'Segoe UI', system-ui, sans-serif",
-  dyslexic: "'OpenDyslexic', 'Segoe UI', system-ui, sans-serif",
+  padrao: "'Segoe UI', system-ui, -apple-system, 'Cardo', sans-serif",
+  hyperlegible: "'Atkinson Hyperlegible', 'Cardo', 'Segoe UI', system-ui, sans-serif",
+  dyslexic: "'OpenDyslexic', 'Cardo', 'Segoe UI', system-ui, sans-serif",
 };
