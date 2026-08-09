@@ -6,6 +6,15 @@
 
 :root {
   --tamanho-base: 20px;
+
+  /* Anel de foco de teclado. Segue a cor de destaque do tema por herança —
+     e, no tema "Monte o seu", segue --titulo, que preferencias.ts já passa
+     por garantirContraste() contra o fundo escolhido pela criança. Assim o
+     anel nunca fica ilegível, mesmo em combinação inventada na hora.
+     Medido em 2026-08-08 nos quatro temas prontos: 4,65:1 (Claro) a 14,67:1
+     (Alto contraste) contra o fundo, e 4,97:1 a 12,87:1 contra o cartão;
+     o piso do WCAG 1.4.11 para elemento não textual é 3:1. */
+  --ui-foco: var(--titulo, var(--destaque));
 }
 
 [data-theme='arco-iris'] {
@@ -85,6 +94,39 @@ button {
   font-size: inherit;
   cursor: pointer;
   border: none;
+}
+
+/* Foco de teclado SEMPRE visível, em todos os temas (piso de acessibilidade).
+   Antes daqui, só .cartao-perfil e .cartao-livro reagiam ao foco, e reagiam
+   crescendo 4% — aumento de tamanho não é indicador de foco, e o resto do app
+   não tinha nada. O crescimento continua onde já existia; o anel é o sinal.
+   O offset joga o anel para fora do elemento, então ele aparece sobre o fundo
+   ou o cartão mesmo em botão de fundo colorido (.botao-grande). */
+:focus-visible {
+  outline: 3px solid var(--ui-foco);
+  outline-offset: 3px;
+}
+
+/* Movimento reduzido: preferência do sistema, respeitada sem exceção.
+   Este app tinha duas animações que nunca paravam — a peça do quebra-cabeça
+   dançando e a dica da abertura pulsando — e público de 7 anos.
+   Não usa `animation: none` porque isso impediria o disparo de animationend.
+   A peça selecionada não perde nada: o contorno de 5px continua marcando qual
+   é. O parágrafo retomado NÃO fica sem sinal: o pulso vira realce estático,
+   que o mesmo temporizador de 5 s da telaLeitura retira depois. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .retomada {
+    background: color-mix(in srgb, var(--destaque) 18%, transparent);
+  }
 }
 
 .tela {

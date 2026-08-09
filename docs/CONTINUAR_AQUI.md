@@ -54,6 +54,69 @@ Regras de sobrevivência para o próximo Claude:
   próprios, do simples ao luxo — contexto na memória bruno-contexto).
 - 7 livros na estante. PWA + Pages + workflow (ver OPERAÇÃO acima).
 
+## Rodada 13 — as NORMAS do ecossistema + piso de acessibilidade (2026-08-08)
+
+- **`C:\Claude\NORMAS.md` passa a valer acima deste arquivo.** Norma rígida
+  comum a app-infantil, app-leitura e Rolo_HTML: 7 leis + N1–N59, com tabela
+  de conformidade por app. Em conflito, NORMAS.md vence — relatar, não
+  resolver em silêncio. Ler o Anexo B ("Para agentes de IA") antes de mexer
+  em aparência.
+- **Vocabulário de token decidido pelo Bruno: prefixo `--ui-` + nome em
+  português** (`--ui-fundo`, `--ui-texto`, `--ui-acento`). Regra: token NOVO
+  já nasce com o nome novo; os antigos (`--fundo`, `--destaque`, `--cartao`)
+  trocam depois, numa passada mecânica única. Não renomear aos pedaços.
+- **Foco de teclado agora existe** (`estilos.css`): token `--ui-foco` +
+  `:focus-visible` global com anel de 3px e offset 3px. Antes só
+  `.cartao-perfil` e `.cartao-livro` reagiam, e reagiam crescendo 4% —
+  aumento de tamanho não é indicador de foco. O token segue `--titulo` no
+  tema "Monte o seu" (já passa por `garantirContraste`) e `--destaque` nos
+  quatro prontos. Medido: 4,65:1 (Claro) a 14,67:1 (Alto contraste) contra o
+  fundo; piso 3:1.
+- **`prefers-reduced-motion` agora existe.** Era a lacuna mais feia do app:
+  duas animações `infinite` (`peca-dancando`, `pulsar-dica`) e público de 7
+  anos. Usa duração de 0.01ms, **não** `animation: none` — `none` mataria o
+  `animationend`. O parágrafo retomado não fica sem sinal: o pulso vira fundo
+  estático, que o temporizador de 5s da telaLeitura retira igual.
+- Verificado ao vivo nos 4 temas prontos + no personalizado; `npm test` 19/19
+  e `npm run build` limpos; zero erro de console.
+- **Próximo item da fila do ecossistema (NORMAS.md, Anexo A):** tamanho de
+  fonte relativo — hoje `preferencias.ts` linha 97 grava `${px}px`, o que faz
+  o app ignorar a letra que a pessoa já configurou no aparelho. Tem migração
+  do valor salvo dos perfis; fazer com atenção, em sessão própria.
+- **Lacuna maior deste app (NORMAS.md N1):** não tem rolo estático. Os 7
+  livros só existem dentro do bundle — uma IA que receber o link vê casca
+  vazia. É a mesma dor que fez o rolo do Pedra Angular nascer.
+
+## Rodada 14 — OpenDyslexic: o grego que não existia (2026-08-09)
+
+- **Descoberto:** o pacote npm `open-dyslexic` distribui um build de mais de
+  dez anos (v2.001, 233 glifos) **sem alfabeto grego**. Como OpenDyslexic é a
+  fonte PADRÃO daqui e cada página do livro do alfabeto é `## Α α — Alfa` com
+  os caracteres gregos como TEXTO, as 24 letras gregas caíam numa serifada do
+  sistema enquanto o resto da página era OpenDyslexic. Justo as letras que o
+  livro existe para ensinar, e justo para o Davi.
+- **Não afetados:** os pôsteres de colorir (vêm de `glifos.json`, caminhos
+  vetoriais da DejaVu) e a tabela impressa (usa Georgia). Era só texto na tela.
+- **Resolvido sem mudar o desenho.** O Bruno gosta do build 2.001 e teme que
+  trocar deixe o app feio. Então as DUAS faces convivem sob a mesma família,
+  com `unicode-range`: a 2.001 para tudo, e a 0.920 (1927 glifos) restrita a
+  `U+0370-03FF, U+1F00-1FFF`. O navegador escolhe por caractere.
+  **Verificado: a largura do latim é idêntica à de antes (`Aa` = 85,4 px nos
+  dois casos); só o grego mudou.**
+- **Cuidado com o número da versão:** 0.920 é POSTERIOR a 2.001 — o projeto
+  renumerou depois de reescrever a fonte. Conferir a tabela `name` do arquivo
+  (ferramenta de build e nome da designer), nunca o número.
+- Fontes agora vendorizadas em `src/fontes/`, com a licença junto; a
+  dependência npm `open-dyslexic` saiu do `package.json`.
+- Custo: precache do PWA foi de 339 KB para 625 KB. O `unicode-range` faria o
+  arquivo grego baixar só quando aparecesse grego, mas o service worker
+  precacheia tudo — então o ganho de carga preguiçosa não se realiza aqui.
+- **Limite honesto:** nas páginas do alfabeto, a letra grega continua com
+  desenho diferente do texto latino ao redor (mais fina e mais espaçada), só
+  que agora é OpenDyslexic contra OpenDyslexic, não OpenDyslexic contra uma
+  serifada qualquer. Se incomodar, as saídas são: usar a 0.920 para tudo
+  (unifica, mas muda o app inteiro) ou aceitar.
+
 ## Rodada 12 — soberania do usuário sobre temas + plano Capacitor
 
 - **Tema do livro é convidado, nunca dono**: `aplicarTemaDeLivro` agora só
