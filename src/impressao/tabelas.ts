@@ -5,11 +5,24 @@
 
 import { GREGO, LATINO, type DadoLetra } from '../conteudo/alfabetos';
 import { imprimirDocumento } from './motorImpressao';
+import cardoRegular from '../fontes/cardo-regular.woff2?url';
+import cardoBold from '../fontes/cardo-bold.woff2?url';
 
-const CSS_BASE = `
+// A folha de impressão é um documento à parte: as @font-face do app não valem
+// dentro dela. Sem redeclarar, o Αλφα desta tabela saía com a fonte do
+// aparelho — no PAPEL, onde não há conserto depois. Cardo tem o grego
+// politônico inteiro (NORMAS.md N72).
+const CSS_FONTES = `
+  @font-face { font-family:'Cardo'; font-weight:400; font-style:normal;
+    src:url('${cardoRegular}') format('woff2'); }
+  @font-face { font-family:'Cardo'; font-weight:700; font-style:normal;
+    src:url('${cardoBold}') format('woff2'); }
+`;
+
+const CSS_BASE = CSS_FONTES + `
   @page { size: A4 portrait; margin: 12mm; }
   html, body { margin: 0; padding: 0; }
-  body { font-family: Georgia, 'Times New Roman', serif; color: #111; }
+  body { font-family: 'Cardo', serif; color: #111; }
   h1 { text-align: center; font-size: 26pt; margin: 0 0 8mm; }
   h2 { text-align: center; font-size: 15pt; margin: 6mm 0 3mm; }
   .grade { display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; }
