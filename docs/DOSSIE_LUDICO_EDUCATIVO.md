@@ -7,8 +7,9 @@ Este documento existe para dar nome ao que já estava feito. Nenhuma decisão
 listada aqui foi tomada para a disciplina: todas foram tomadas antes, por
 motivos práticos, e a disciplina só ofereceu o vocabulário.
 
-Reunido em 2026-08-14. Todos os números foram medidos nos arquivos e no app
-rodando, não estimados. Onde algo não está resolvido, está dito.
+Reunido em 2026-08-14, revisado em 2026-08-16. Todos os números foram medidos
+nos arquivos e no app rodando, não estimados. Onde algo não está resolvido,
+está dito — e onde já esteve errado e foi corrigido, o erro fica contado.
 
 ---
 
@@ -152,7 +153,47 @@ que a fonte não tem não some. Ele aparece com outro desenho, e quem está
 aprendendo aquele símbolo é justamente quem menos pode receber duas versões
 dele.
 
-### 3.6 Tamanho da letra: o leitor decide, até onde a tela aguenta
+### 3.6 A voz que lia grego com sotaque português — e o silêncio que ninguém ouvia
+
+Segundo erro achado medindo, e o mais instrutivo dos dois.
+
+**O sintoma.** No leitor, a leitura em voz alta do Evangelho de João "pulava e
+só lia 1, 2, 3" — apenas os números dos versículos. O texto grego não saía.
+
+**A causa.** O programa escolhia **uma voz para o documento inteiro**, e essa
+voz era de português. Texto grego mandado a uma voz portuguesa não produz som
+nenhum: o motor falha em silêncio, o programa entende que terminou e passa
+adiante. Sobravam os algarismos, que a voz portuguesa consegue falar.
+
+O detalhe cruel: **nada indicava erro.** Não havia mensagem, não havia travamento.
+Só um leitor ouvindo números soltos e não sabendo por quê.
+
+**A decisão.** A voz passa a ser escolhida **por trecho**, a partir da escrita
+detectada — grego, hebraico, cirílico ou português. E cada trecho em língua
+estrangeira ganha a etiqueta `lang` no próprio texto, que é o que permite a um
+**leitor de tela** (não só a esta leitura em voz alta) pronunciar corretamente.
+
+**A evidência.** Verificado no Evangelho de João: 310 trechos marcados como
+grego antigo, e a voz selecionada para cada parágrafo passa a ser a voz grega
+instalada no aparelho.
+
+**E quando não há voz?** O app **avisa e pula**, em vez de ler com a fonética
+errada fingindo que leu. Um aparelho sem voz grega não deve improvisar um
+grego com sotaque português: é pior que o silêncio, porque parece certo.
+
+**Por que interessa à disciplina.** A mesma lógica de detecção já existia em
+outra parte do projeto — e funcionava lá. O erro não foi de conhecimento, foi
+de **não ter levado o que já se sabia para todos os lugares**. Em material
+didático digital, é o tipo de falha mais comum: a acessibilidade existe numa
+tela e some na seguinte.
+
+**Marcar `lang` também é o que faz a fonte certa aparecer.** Descobriu-se, no
+mesmo trabalho, que a cópia estática dos livros marcava o idioma corretamente
+mas não tinha **fonte com grego embutida** — então as letras gregas eram
+desenhadas por qualquer fonte que o aparelho tivesse, diferente em cada um.
+Corrigido na mesma passagem.
+
+### 3.7 Tamanho da letra: o leitor decide, até onde a tela aguenta
 
 **A decisão.** O corpo da letra é ajustável pelo próprio leitor, com dois
 botões sempre visíveis — nunca escondidos em menu, porque quem precisa deles
@@ -169,7 +210,7 @@ não vira rolagem lateral.
 que a estante sai limpa até ali e vaza depois. Igualar aos 256 do leitor exige
 antes resolver o avatar do perfil, que a 256 px fica com 3,5 cm de altura.
 
-### 3.7 Alvo de toque: 44 pixels, e por quê
+### 3.8 Alvo de toque: 44 pixels, e por quê
 
 **A decisão.** Todo botão tem no mínimo 44 × 44 px, e os que mais importam
 são maiores — fechar uma nota, escolher tema, expandir capítulo.
@@ -178,7 +219,7 @@ são maiores — fechar uma nota, escolher tema, expandir capítulo.
 interno**, nunca por aumento da letra. Se o alvo crescesse aumentando a fonte,
 o texto dançaria a cada ajuste. O toque fica maior e a linha fica parada.
 
-### 3.8 Movimento: quem pediu para reduzir, tem reduzido
+### 3.9 Movimento: quem pediu para reduzir, tem reduzido
 
 **O problema.** Animação contínua atrapalha quem tem desordem vestibular,
 enxaqueca com aura ou dificuldade de atenção. Sistemas operacionais têm uma
@@ -192,7 +233,7 @@ e a dica da abertura pulsando.
 some — vira um sinal estático. O parágrafo onde a criança parou de ler
 continua marcado, sem piscar.
 
-### 3.9 Impressão: sempre A4, e o desenho cabe
+### 3.10 Impressão: sempre A4, e o desenho cabe
 
 Regra vinda de teste real com as crianças: **nada de desenho quebrando em três
 páginas.** A orientação sai da proporção da arte — retrato ou paisagem — e não
@@ -259,10 +300,6 @@ registrado como deles.
 
 Uma lista de pendências é parte do trabalho, não uma falha dele.
 
-- **Marcação de idioma por trecho.** O app não informa ao leitor de tela que
-  um trecho é grego ou hebraico. Consequência: a leitura em voz alta pronuncia
-  grego com fonética portuguesa. A lógica já existe em outra parte do projeto
-  e ainda não foi trazida para os apps. **É a maior pendência.**
 - **Hebraico e árabe** não estão em nenhuma das fontes embutidas; dependem do
   aparelho.
 - **Teto de letra do infantil** para em 180 px, não em 256.
@@ -285,8 +322,9 @@ Uma frase para o final da apresentação, se servir:
 
 O que separa este trabalho de uma boa intenção não é o tempo. É que cada
 afirmação tem um número atrás, e que os erros foram achados **medindo**, não
-supondo: o amarelo que colapsava sob tritanopia, o grego que caía numa fonte
-qualquer, o vão de 48,6 px entre parágrafos que fazia rolar por vazio.
+supondo: o amarelo que colapsava sob tritanopia, o grego que era lido em
+silêncio por uma voz portuguesa, o vão de 48,6 px entre parágrafos que fazia
+rolar por vazio.
 
 Todos os três estavam invisíveis a olho nu, no trabalho de alguém que já
 estava tentando acertar.
