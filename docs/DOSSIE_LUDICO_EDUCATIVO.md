@@ -7,9 +7,10 @@ Este documento existe para dar nome ao que já estava feito. Nenhuma decisão
 listada aqui foi tomada para a disciplina: todas foram tomadas antes, por
 motivos práticos, e a disciplina só ofereceu o vocabulário.
 
-Reunido em 2026-08-14, revisado em 2026-08-16. Todos os números foram medidos
-nos arquivos e no app rodando, não estimados. Onde algo não está resolvido,
-está dito — e onde já esteve errado e foi corrigido, o erro fica contado.
+Reunido e revisado em 2026-08-14, na semana em que o Historinhas foi
+publicado em `historinhas.app.br`. Todos os números foram medidos nos
+arquivos e no app rodando, não estimados. Onde algo não está resolvido, está
+dito — e onde já esteve errado e foi corrigido, o erro fica contado.
 
 ---
 
@@ -153,9 +154,16 @@ que a fonte não tem não some. Ele aparece com outro desenho, e quem está
 aprendendo aquele símbolo é justamente quem menos pode receber duas versões
 dele.
 
+**Levado até o fim depois.** A mesma pergunta foi então feita para todas as
+escritas do acervo, contando os caracteres de cada arquivo de fonte em vez de
+supor. Hoje as fontes embutidas cobrem grego, hebraico e árabe — Cardo traz 133
+caracteres hebraicos, e a DejaVu, que fecha todas as pilhas, traz 165 árabes.
+Nenhuma escrita do acervo depende mais do que o aparelho tenha instalado.
+
 ### 3.6 A voz que lia grego com sotaque português — e o silêncio que ninguém ouvia
 
-Segundo erro achado medindo, e o mais instrutivo dos dois.
+Segundo erro achado medindo, e o de consequência mais grave para quem depende
+da leitura em voz alta.
 
 **O sintoma.** No leitor, a leitura em voz alta do Evangelho de João "pulava e
 só lia 1, 2, 3" — apenas os números dos versículos. O texto grego não saía.
@@ -193,7 +201,67 @@ mas não tinha **fonte com grego embutida** — então as letras gregas eram
 desenhadas por qualquer fonte que o aparelho tivesse, diferente em cada um.
 Corrigido na mesma passagem.
 
-### 3.7 Tamanho da letra: o leitor decide, até onde a tela aguenta
+**Quando o programa não tem como adivinhar, quem escreve declara.** A detecção
+automática reconhece com certeza o grego, o hebraico e o cirílico, porque essas
+escritas têm letras próprias. Português, inglês e latim dividem o mesmo
+alfabeto: numa linha curta — um verso solto, um título de duas palavras, um
+texto interlinear que alterna as duas línguas a cada linha — não há sinal
+suficiente para decidir.
+
+Para esses casos foi criada uma marca que o autor do texto escreve no fim da
+linha, `^eng`, `^por`, `^lat`, `^grc`, `^heb`, `^rus`. Ela não aparece na
+leitura, e **o que está escrito vence o que o programa adivinharia**.
+
+Isso importa para material didático bilíngue, que é o caso do interlinear: sem
+uma forma de declarar a língua, um texto que alterna português e inglês linha a
+linha é lido inteiro com uma fonética só.
+
+### 3.7 O erro que nenhuma leitura de código encontraria
+
+Terceiro erro achado medindo, e o mais desconfortável dos três.
+
+**O sintoma.** Textos em grego antigo — Homero, o Evangelho de João, o corpo de
+Platão — apareciam marcados como **hebraico**, escritos da direita para a
+esquerda. Mas só os textos com acentos. Grego sem acentos saía correto, o que
+fazia o defeito parecer aleatório.
+
+**A causa.** O programa reconhece cada escrita por uma faixa de números: cada
+caractere do mundo tem um código, e o hebraico ocupa uma faixa conhecida. A
+faixa do hebraico estava escrita no programa com os **próprios caracteres
+hebraicos colados**, em vez dos números.
+
+Um desses caracteres se decompôs dentro do arquivo — virou dois caracteres
+diferentes, sem que nada mudasse na tela. A faixa deixou de descrever o
+hebraico e passou a descrever vinte e cinco mil códigos, entre eles todo o
+grego acentuado.
+
+**Por que é o mais instrutivo.** O texto errado e o texto certo são
+**visualmente idênticos**. Reler o código não encontraria: não há o que reler.
+Só se descobre executando e comparando o resultado com o esperado — foi o que
+aconteceu, ao testar a marcação de idioma com uma frase em grego de verdade.
+
+**A decisão.** Faixa de caracteres passa a ser escrita sempre pelo número, nunca
+pelo caractere. Virou norma escrita do projeto.
+
+**A lição para a disciplina.** Existe uma classe de erro em que revisar não
+adianta, porque o erro não é legível. A única defesa é **verificar o resultado**,
+não a intenção. É o mesmo princípio de avaliar o que o aluno faz em vez do que
+se supõe que ele entendeu.
+
+### 3.8 Uma letra grega não faz um texto grego
+
+Achado junto com o anterior, e mais simples de contar.
+
+O programa marcava a língua de uma linha se encontrasse **um** caractere daquela
+escrita. Só que os dois apps escrevem Φ e Ξ em português o tempo todo — são os
+nomes dos próprios botões. Resultado: a página de boas-vindas, escrita
+inteiramente em português, era marcada como grega e lida com voz grega, por
+causa da frase "o botão Φ (phi grega)".
+
+Agora a escrita precisa ser **30% das letras** da linha para mandar nela. Separa
+uma linha que *é* grega de uma linha que apenas *cita* uma letra grega.
+
+### 3.9 Tamanho da letra: o leitor decide, até onde a tela aguenta
 
 **A decisão.** O corpo da letra é ajustável pelo próprio leitor, com dois
 botões sempre visíveis — nunca escondidos em menu, porque quem precisa deles
@@ -210,7 +278,7 @@ não vira rolagem lateral.
 que a estante sai limpa até ali e vaza depois. Igualar aos 256 do leitor exige
 antes resolver o avatar do perfil, que a 256 px fica com 3,5 cm de altura.
 
-### 3.8 Alvo de toque: 44 pixels, e por quê
+### 3.10 Alvo de toque: 44 pixels, e por quê
 
 **A decisão.** Todo botão tem no mínimo 44 × 44 px, e os que mais importam
 são maiores — fechar uma nota, escolher tema, expandir capítulo.
@@ -219,7 +287,7 @@ são maiores — fechar uma nota, escolher tema, expandir capítulo.
 interno**, nunca por aumento da letra. Se o alvo crescesse aumentando a fonte,
 o texto dançaria a cada ajuste. O toque fica maior e a linha fica parada.
 
-### 3.9 Movimento: quem pediu para reduzir, tem reduzido
+### 3.11 Movimento: quem pediu para reduzir, tem reduzido
 
 **O problema.** Animação contínua atrapalha quem tem desordem vestibular,
 enxaqueca com aura ou dificuldade de atenção. Sistemas operacionais têm uma
@@ -233,7 +301,7 @@ e a dica da abertura pulsando.
 some — vira um sinal estático. O parágrafo onde a criança parou de ler
 continua marcado, sem piscar.
 
-### 3.10 Impressão: sempre A4, e o desenho cabe
+### 3.12 Impressão: sempre A4, e o desenho cabe
 
 Regra vinda de teste real com as crianças: **nada de desenho quebrando em três
 páginas.** A orientação sai da proporção da arte — retrato ou paisagem — e não
@@ -294,14 +362,46 @@ arquivo declara autor, idioma de origem, tradutor, licença e faixa etária.
 O final de *A Lebre e a Tartaruga* é **autoral dos dois meninos** — e está
 registrado como deles.
 
+### 4.6 Publicar mudou o que podia ficar na primeira tela
+
+Em agosto de 2026 o Historinhas saiu do tablet de casa para um endereço aberto,
+`historinhas.app.br`. A primeira tela pergunta "Quem vai ler hoje?" e mostrava
+os dois perfis existentes — com os **nomes reais das duas crianças**, porque o
+app tinha nascido para elas.
+
+Num app de família isso é natural. Num endereço público, deixa de ser: qualquer
+visitante encontraria o nome de duas crianças identificadas, e ainda teria de
+apagá-los para poder usar o programa.
+
+**A decisão.** A lista passa a começar vazia, e a primeira tela vira convite:
+*"Olá! Vamos começar?"*, com a criação do primeiro leitor ali mesmo — sem a
+trava parental, porque não há nada a proteger num app recém-aberto e a trava
+fecharia a única porta de entrada. Quem já usava não perde nada: os perfis
+estão gravados no aparelho, não no programa.
+
+Junto veio uma frase abaixo do formulário: *"O que você escrever fica só neste
+aparelho. O app não envia nada para a internet."* É verdade literal — o app não
+faz nenhuma chamada de rede depois de aberto — e responde à pergunta antes de
+ela ser feita.
+
+**Por que está no dossiê.** O dado da criança não é um detalhe jurídico
+acrescentado no fim. Publicar mudou quem é o usuário, e mudar o usuário mudou
+o que a interface pode mostrar. É a mesma lógica de qualquer material que sai
+da sala para a internet.
+
 ---
 
 ## 5. O que não está resolvido
 
 Uma lista de pendências é parte do trabalho, não uma falha dele.
 
-- **Hebraico e árabe** não estão em nenhuma das fontes embutidas; dependem do
-  aparelho.
+- **A voz por trecho existe no leitor de clássicos, mas ainda não no infantil.**
+  O Historinhas continua com voz de português fixa e sem marcar o idioma dos
+  trechos — inclusive no livro do alfabeto grego, que é o conteúdo mais usado
+  pelo leitor de 9 anos. A transliteração escrita ("Alfa", "Beta") faz o nome
+  falado sair certo, mas os caracteres gregos da tela seguem sem etiqueta de
+  idioma. **É a maior incoerência aberta entre os dois programas**, e está aqui
+  porque o item 3.6 poderia dar a impressão de que já vale para os dois.
 - **Teto de letra do infantil** para em 180 px, não em 256.
 - **Sem teste com usuário externo.** Os testes foram com dois leitores de 7 e
   9 anos e um leitor com baixa visão — não com uma criança cega, nem com
@@ -324,10 +424,13 @@ O que separa este trabalho de uma boa intenção não é o tempo. É que cada
 afirmação tem um número atrás, e que os erros foram achados **medindo**, não
 supondo: o amarelo que colapsava sob tritanopia, o grego que era lido em
 silêncio por uma voz portuguesa, o vão de 48,6 px entre parágrafos que fazia
-rolar por vazio.
+rolar por vazio, e a faixa de caracteres corrompida que fazia o grego antigo
+inteiro ser tratado como hebraico.
 
-Todos os três estavam invisíveis a olho nu, no trabalho de alguém que já
-estava tentando acertar.
+Todos os quatro estavam invisíveis a olho nu, no trabalho de alguém que já
+estava tentando acertar. O último era invisível **até relendo o código**, que
+é o argumento mais forte deste dossiê: há erro que só a verificação encontra,
+e nenhuma quantidade de cuidado substitui medir o resultado.
 
 ---
 
