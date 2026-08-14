@@ -10,18 +10,22 @@ export interface Perfil {
   faixaEtaria: string; // casa com faixa_etaria do front matter
 }
 
-const SEMENTE: Perfil[] = [
-  { id: 1, nome: 'Theo', avatar: '🦖', faixaEtaria: '6-8' },
-  { id: 2, nome: 'Davi', avatar: 'Ω', faixaEtaria: '9-11' },
-];
-
 let ativo: Perfil | null = null;
 
+/**
+ * Lista os leitores deste aparelho. Vem VAZIA na primeira visita.
+ *
+ * Já houve aqui uma semente com o Theo e o Davi, de quando o app rodava só na
+ * nossa casa. Com o app publicado em historinhas.app.br, quem chega encontraria
+ * os nomes de duas crianças reais na primeira tela — e ainda por cima teria de
+ * apagá-los para usar o app. A tela de perfis passou a tratar a lista vazia
+ * como o que ela é: um convite para criar o primeiro leitor.
+ *
+ * Quem já usava não perde nada: a lista deles está gravada no aparelho desde a
+ * primeira vez que abriram, e é ela que responde aqui.
+ */
 export async function listarPerfis(): Promise<Perfil[]> {
-  const salvos = await armazenamento.obter<Perfil[]>('perfis');
-  if (salvos && salvos.length > 0) return salvos;
-  await armazenamento.definir('perfis', SEMENTE);
-  return SEMENTE;
+  return (await armazenamento.obter<Perfil[]>('perfis')) ?? [];
 }
 
 export function definirPerfilAtivo(p: Perfil): void {

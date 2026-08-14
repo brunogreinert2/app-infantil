@@ -4,8 +4,6 @@
 // v1: gestão de perfis (criar/editar/excluir) + sobre o app.
 
 import {
-  AVATARES,
-  FAIXAS,
   atualizarPerfil,
   criarPerfil,
   excluirPerfil,
@@ -13,6 +11,7 @@ import {
   type Perfil,
 } from '../perfis/perfis';
 import { el } from './comum';
+import { formularioPerfil } from './formularioPerfil';
 
 // Desafio de multiplicação: uma criança de 7 anos não resolve de cabeça
 // na hora, um adulto sim. Proporcional ao risco (spec 8.5).
@@ -105,7 +104,7 @@ export async function montarTelaConfiguracoes(
   // ---------- sobre ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Sobre'));
   corpo.appendChild(
-    el('p', 'texto-sobre', 'Historinhas (nome provisório) — v0.2.0. App de leitura, pintura e quizzes feito em família. Conteúdo em domínio público com tradução própria.'),
+    el('p', 'texto-sobre', 'Historinhas — historinhas.app.br — v0.2.0. App de leitura, pintura e quizzes feito em família. Conteúdo em domínio público com tradução própria.'),
   );
   corpo.appendChild(
     el('p', 'texto-sobre', 'Atualizar o app NUNCA apaga as pinturas, insígnias e progresso — eles ficam guardados neste aparelho.'),
@@ -169,53 +168,3 @@ function linhaPerfil(p: Perfil, totalPerfis: number, recarregar: () => void): HT
   return linha;
 }
 
-function formularioPerfil(
-  existente: Perfil | null,
-  aoSalvar: (nome: string, avatar: string, faixa: string) => void,
-  aoCancelar: () => void,
-): HTMLElement {
-  const form = el('div', 'form-perfil');
-
-  const nome = el('input', 'campo-nome') as HTMLInputElement;
-  nome.placeholder = 'Nome';
-  nome.maxLength = 20;
-  nome.value = existente?.nome ?? '';
-  form.appendChild(nome);
-
-  let avatarEscolhido = existente?.avatar ?? AVATARES[0];
-  const grade = el('div', 'grade-avatares');
-  for (const av of AVATARES) {
-    const botao = el('button', 'poco-avatar', av);
-    if (av === avatarEscolhido) botao.classList.add('ativa');
-    botao.addEventListener('click', () => {
-      avatarEscolhido = av;
-      grade.querySelectorAll('.poco-avatar').forEach((x) => x.classList.remove('ativa'));
-      botao.classList.add('ativa');
-    });
-    grade.appendChild(botao);
-  }
-  form.appendChild(grade);
-
-  const faixa = el('select', 'campo-faixa') as HTMLSelectElement;
-  for (const f of FAIXAS) {
-    const opcao = document.createElement('option');
-    opcao.value = f;
-    opcao.textContent = `${f} anos`;
-    if (f === (existente?.faixaEtaria ?? '6-8')) opcao.selected = true;
-    faixa.appendChild(opcao);
-  }
-  form.appendChild(faixa);
-
-  const linha = el('div', 'botoes-imagem');
-  const salvar = el('button', 'botao-grande', 'Salvar');
-  salvar.addEventListener('click', () => {
-    const n = nome.value.trim();
-    if (n) aoSalvar(n, avatarEscolhido, faixa.value);
-  });
-  const cancelar = el('button', 'botao-extra', 'Cancelar');
-  cancelar.addEventListener('click', aoCancelar);
-  linha.append(salvar, cancelar);
-  form.appendChild(linha);
-
-  return form;
-}

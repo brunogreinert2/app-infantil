@@ -211,6 +211,38 @@ button {
   justify-content: center;
 }
 
+/* ---- primeira visita: nenhum leitor criado ainda ---- */
+/* O .tela-perfis já centraliza tudo com gap de 40px; estas peças só precisam
+   de largura de leitura e de não esticar na tela grande. */
+.texto-boas-vindas {
+  max-width: 32ch;
+  text-align: center;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.area-primeiro-perfil {
+  width: 100%;
+  max-width: 26rem;
+}
+
+.area-primeiro-perfil .botao-grande {
+  width: 100%;
+}
+
+/* Cor principal e diferença só pelo tamanho.
+   Medido nesta tela: `opacity: .75` dava 5,47:1 e `--texto-suave` dava 6,71:1
+   no tema arco-íris — os dois abaixo do piso de 7:1 do projeto. Texto de apoio
+   continua sendo texto: quem precisa dele é justamente quem enxerga pior. */
+.nota-privacidade {
+  max-width: 34ch;
+  text-align: center;
+  margin: 0;
+  font-size: 0.85em;
+  color: var(--texto);
+  line-height: 1.45;
+}
+
 .cartao-perfil {
   display: flex;
   flex-direction: column;
