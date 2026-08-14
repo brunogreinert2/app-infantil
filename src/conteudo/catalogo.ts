@@ -26,6 +26,13 @@ import reneAberturaSvg from './assets/rene_abertura.svg?raw';
 import reneColorirSvg from './assets/rene_colorir.svg?raw';
 import reneMagoSvg from './assets/rene_mago_sonho.svg?raw';
 
+// Fábulas de Esopo — enredo em domínio público, adaptação própria ao
+// vocabulário de hoje. Por ora só texto: sem página de pintar nem
+// quebra-cabeça, que entram depois se a história se firmar no uso.
+import leaoRatinhoMd from './livros/o-leao-e-o-ratinho.md?raw';
+import raposaUvasMd from './livros/a-raposa-e-as-uvas.md?raw';
+import ventoSolMd from './livros/o-vento-e-o-sol.md?raw';
+
 const gerados = gerarAlfabetos();
 
 export const livros: Livro[] = [
@@ -34,6 +41,9 @@ export const livros: Livro[] = [
   carregarLivro('o-que-depende-de-mim', ninaMd),
   carregarLivro('socrates-e-as-duas-cestas', socratesMd),
   carregarLivro('o-sonho-do-menino-rene', reneMd),
+  carregarLivro('o-leao-e-o-ratinho', leaoRatinhoMd),
+  carregarLivro('a-raposa-e-as-uvas', raposaUvasMd),
+  carregarLivro('o-vento-e-o-sol', ventoSolMd),
   ...gerados.map((g) => g.livro),
 ];
 
