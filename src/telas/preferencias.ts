@@ -37,9 +37,19 @@ export interface TemaPersonalizado {
   destaque: string;
 }
 
-const TAMANHO_MIN = 16;
-const TAMANHO_MAX = 30;
+// Mesma régua do app-leitura: passo MULTIPLICATIVO, não somar 2. Somar dá
+// passos que encolhem de importância conforme a letra cresce (de 16 para 18 é
+// muito; de 170 para 172 é nada). Multiplicar mantém o degrau proporcional.
+//
+// O teto é 180 e não 256 como no leitor: verificado em 2026-08-14, a estante
+// sai limpa até 180 px e vaza a partir daí — em 256 o avatar do perfil tem
+// 3,5 cm e a barra do topo não fecha. Subir o teto exige antes fazer o avatar
+// e os emojis pararem de crescer junto com o texto.
+const TAMANHO_MIN = 12;
+const TAMANHO_MAX = 180;
 const TAMANHO_PADRAO = 20;
+const PASSO = 1.125;
+export const PASSO_FONTE = PASSO;
 
 export interface Preferencias {
   tema: string; // id de TEMAS ou 'personalizado'
@@ -155,11 +165,12 @@ export async function definirPersonalizado(mudanca: Partial<TemaPersonalizado>):
   aplicarTema('personalizado', novo);
 }
 
-export async function ajustarTamanho(delta: number): Promise<void> {
+/** `fator > 1` aumenta, `fator < 1` diminui. Ver PASSO. */
+export async function ajustarTamanho(fator: number): Promise<void> {
   const atual =
     parseInt(getComputedStyle(document.documentElement).getPropertyValue('--tamanho-base'), 10) ||
     TAMANHO_PADRAO;
-  const novo = Math.min(TAMANHO_MAX, Math.max(TAMANHO_MIN, atual + delta));
+  const novo = Math.min(TAMANHO_MAX, Math.max(TAMANHO_MIN, Math.round(atual * fator)));
   aplicarTamanho(novo);
   await armazenamento.definir(`${perfilAtivo().id}:tamanhoFonte`, novo);
 }

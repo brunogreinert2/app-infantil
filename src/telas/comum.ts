@@ -1,7 +1,7 @@
 // Peças de UI compartilhadas entre telas.
 
 import { perfilAtivo } from '../perfis/perfis';
-import { ajustarTamanho } from './preferencias';
+import { ajustarTamanho, PASSO_FONTE } from './preferencias';
 
 export function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -44,10 +44,10 @@ export function barraTopo(op: OpcoesBarra): HTMLElement {
     const ajustes = el('div', 'ajustes');
     const menor = el('button', 'botao-icone', 'A−');
     menor.setAttribute('aria-label', 'Diminuir letra');
-    menor.addEventListener('click', () => ajustarTamanho(-2));
+    menor.addEventListener('click', () => ajustarTamanho(1 / PASSO_FONTE));
     const maior = el('button', 'botao-icone', 'A+');
     maior.setAttribute('aria-label', 'Aumentar letra');
-    maior.addEventListener('click', () => ajustarTamanho(2));
+    maior.addEventListener('click', () => ajustarTamanho(PASSO_FONTE));
     const aparencia = el('button', 'botao-icone', '🎨');
     aparencia.setAttribute('aria-label', 'Mudar aparência');
     aparencia.addEventListener('click', op.aoAparencia);

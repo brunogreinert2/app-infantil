@@ -11,6 +11,7 @@ import {
   FUNDOS_PERSONALIZADOS,
   TEMAS,
   ajustarTamanho,
+  PASSO_FONTE,
   definirPersonalizado,
   definirTemaSoberano,
   obterPreferencias,
@@ -115,9 +116,9 @@ export async function montarTelaAparencia(
 
   const linhaTamanho = el('div', 'grade-opcoes');
   const menor = el('button', 'botao-opcao', 'A− menor');
-  menor.addEventListener('click', () => ajustarTamanho(-2));
+  menor.addEventListener('click', () => ajustarTamanho(1 / PASSO_FONTE));
   const maior = el('button', 'botao-opcao', 'A+ maior');
-  maior.addEventListener('click', () => ajustarTamanho(2));
+  maior.addEventListener('click', () => ajustarTamanho(PASSO_FONTE));
   linhaTamanho.append(menor, maior);
   corpo.appendChild(linhaTamanho);
 

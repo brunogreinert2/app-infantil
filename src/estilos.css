@@ -142,6 +142,10 @@ button {
   z-index: 10;
   display: flex;
   align-items: center;
+  /* Quebra em linhas quando a letra cresce: o avatar e o título acompanham o
+     corpo da fonte, e numa barra de linha única eles se espremiam até vazar a
+     tela. Em corpo pequeno nada muda — só há quebra quando falta largura. */
+  flex-wrap: wrap;
   gap: 10px;
   padding: 10px 14px;
   background: var(--cartao);
@@ -255,7 +259,11 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  width: 230px;
+  /* Largura RELATIVA à letra, não fixa em pixel: 230px eram 11,5em no corpo
+     padrão de 20px, e a caixa parava de caber assim que alguém aumentava a
+     fonte — a 180px o título precisava de 667px numa caixa de 230. O `min`
+     com 100% evita que a caixa estoure a tela no celular. */
+  width: min(11.5em, 100%);
   padding: 26px 20px;
   border-radius: 24px;
   background: var(--cartao);
