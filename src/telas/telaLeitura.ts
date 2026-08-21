@@ -252,7 +252,22 @@ function cartaoImagem(
     moldura
       .querySelectorAll<SVGElement>('.colorir-alvo')
       .forEach((r) => r.setAttribute('fill', '#ffffff'));
-    cartao.appendChild(moldura);
+    /* A PRÓPRIA IMAGEM ABRE A PINTURA. A criança toca no desenho porque quer
+       o desenho — pedir que ela ache um botão embaixo é uma etapa que só
+       existia por causa de como o código foi escrito, não por causa dela.
+
+       Vira <button> de verdade, e não uma <div> com clique: assim ganha foco
+       por teclado, atalho por Enter e nome falado para leitor de tela — de
+       graça, sem escrever nada disso à mão. O botão "🎨 Pintar" continua
+       embaixo: ele é quem ENSINA que dá para pintar, e some o rótulo se ficar
+       só a imagem. */
+    const atalho = el('button', 'atalho-pintar');
+    /* O nome do livro, e não o id do asset: "il01" não é nome de coisa
+       nenhuma para quem ouve a tela. */
+    atalho.setAttribute('aria-label', `Pintar o desenho de ${livro.metadados.titulo}`);
+    atalho.appendChild(moldura);
+    atalho.addEventListener('click', () => nav.colorir(assetId));
+    cartao.appendChild(atalho);
     aplicarCoresSalvas(moldura, livro.id, assetId);
 
     const botoes = el('div', 'botoes-imagem');

@@ -12,6 +12,7 @@ export function montarTelaAbertura(
   raiz: HTMLElement,
   livro: Livro,
   aoEntrar: () => void,
+  aoVoltar?: () => void,
 ): void {
   const asset = livro.metadados.assets?.find((a) => a.id === livro.metadados.abertura);
   const svg = asset?.arquivo ? arquivosAssets[asset.arquivo] : undefined;
@@ -33,4 +34,19 @@ export function montarTelaAbertura(
 
   palco.addEventListener('click', aoEntrar, { once: true });
   raiz.appendChild(palco);
+
+  /* SAÍDA SEM ENTRAR. A cena inteira era um botão só, e o único caminho para
+     fora era atravessar o livro. Quem abriu por engano — ou só quis ver a
+     coruja — ficava sem volta. Fica POR CIMA do palco e para o clique antes
+     dele: sem o stopPropagation, o toque no ← contaria também como toque no
+     palco e abriria o livro. */
+  if (aoVoltar) {
+    const voltar = el('button', 'voltar-abertura', '←');
+    voltar.setAttribute('aria-label', 'Voltar para a estante');
+    voltar.addEventListener('click', (e) => {
+      e.stopPropagation();
+      aoVoltar();
+    });
+    raiz.appendChild(voltar);
+  }
 }

@@ -69,7 +69,7 @@ function irLeitura(comAbertura = false): void {
   // trocas feitas pelo usuário no meio da leitura ficam soberanas
   if (comAbertura) void aplicarTemaDeLivro(livroAtual.metadados);
   if (comAbertura && livroAtual.metadados.abertura) {
-    montarTelaAbertura(raiz, livroAtual, () => irLeitura(false));
+    montarTelaAbertura(raiz, livroAtual, () => irLeitura(false), irEstante);
     return;
   }
   montarTelaLeitura(raiz, livroAtual, {

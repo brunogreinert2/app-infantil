@@ -467,6 +467,54 @@ button {
   box-shadow: var(--sombra);
 }
 
+/* A imagem inteira é o botão de pintar. Sem moldura própria nem fundo: quem
+   dá a aparência é o SVG dentro dela, e um botão desenhado por cima roubaria a
+   atenção do desenho — que é o que a criança quer ver. */
+.atalho-pintar {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.atalho-pintar:focus-visible {
+  outline: 3px solid var(--destaque);
+  outline-offset: 3px;
+}
+
+/* Toque no desenho responde, para a criança saber que ele é tocável. */
+.atalho-pintar:active .previa-svg svg {
+  transform: scale(0.98);
+}
+
+.previa-svg svg {
+  transition: transform 0.12s ease;
+}
+
+/* Saída da cena de abertura. Por cima do palco, no canto de sempre. */
+.voltar-abertura {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+  min-width: 56px;
+  min-height: 56px;
+  font-size: 1.6em;
+  border-radius: 16px;
+  border: 2px solid var(--borda);
+  background: var(--cartao);
+  color: var(--texto);
+  cursor: pointer;
+}
+
+.voltar-abertura:focus-visible {
+  outline: 3px solid var(--destaque);
+  outline-offset: 2px;
+}
+
 .previa-svg svg {
   width: 100%;
   max-width: 480px;
