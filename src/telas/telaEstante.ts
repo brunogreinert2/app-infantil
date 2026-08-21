@@ -22,7 +22,12 @@ const EMOJIS_CAPA: Record<string, string> = {
 
 export async function montarTelaEstante(
   raiz: HTMLElement,
-  nav: { perfis: () => void; aparencia: () => void; leitura: (livro: Livro) => void },
+  nav: {
+    perfis: () => void;
+    aparencia: () => void;
+    leitura: (livro: Livro) => void;
+    anotacoes: () => void;
+  },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-estante';
@@ -51,6 +56,17 @@ export async function montarTelaEstante(
     cartao.addEventListener('click', () => nav.leitura(livro));
     grade.appendChild(cartao);
   }
+
+  /* O caderno entra na estante como mais um cartão, no fim da grade: é um
+     lugar para onde se vai, igual a um livro. Não leva selo de progresso —
+     anotação não se "conclui" —, e a classe própria dá a ele uma borda que o
+     separa dos livros sem tirá-lo do meio deles. */
+  const caderno = el('button', 'cartao-livro cartao-caderno');
+  caderno.appendChild(el('span', 'capa-emoji', '📝'));
+  caderno.appendChild(el('span', 'titulo-livro', 'Minhas anotações'));
+  caderno.appendChild(el('span', 'autor-livro', 'escreva o que quiser'));
+  caderno.addEventListener('click', nav.anotacoes);
+  grade.appendChild(caderno);
 
   raiz.appendChild(grade);
 }

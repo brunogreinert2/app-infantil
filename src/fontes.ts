@@ -45,6 +45,16 @@ import odSupRegular from './fontes/opendyslexic-suplemento-400.woff2?url';
 import odSupBold from './fontes/opendyslexic-suplemento-700.woff2?url';
 import cardoRegular from './fontes/cardo-regular.woff2?url';
 import cardoBold from './fontes/cardo-bold.woff2?url';
+// DejaVu Sans Mono (licença Bitstream Vera, livre): a monoespaçada do editor de
+// anotações. Código precisa de largura fixa — é ela que faz a indentação
+// alinhar e que separa l de 1 e O de 0, letras que num comando trocado custam
+// uma hora de tentativa.
+//
+// Subconjuntada dos 3322 glifos originais para 349: ASCII, acentos do
+// português, travessão e aspas curvas, setas, certo e errado. De 332 KB para
+// 19 KB. O que sobrou cobre comando de Minecraft e recado de criança; se um dia
+// faltar caractere, medir com fontTools antes de aumentar a faixa.
+import dejavuMono from './fontes/dejavu-mono.woff2?url';
 
 // Cardo é o PISO do ecossistema (NORMAS.md N72): a serifada canônica, que
 // cobre latim com macrons, grego politônico e hebraico com niqud. Aqui ela
@@ -128,6 +138,11 @@ estilo.textContent = `
   src: url('${cardoBold}') format('woff2');
   font-weight: 700; font-style: normal; font-display: swap;
   unicode-range: ${FAIXAS_CARDO};
+}
+@font-face {
+  font-family: 'DejaVu Mono';
+  src: url('${dejavuMono}') format('woff2');
+  font-weight: 400; font-style: normal; font-display: swap;
 }`;
 document.head.appendChild(estilo);
 
@@ -138,4 +153,8 @@ export const PILHAS_DE_FONTE: Record<string, string> = {
   padrao: "'Segoe UI', system-ui, -apple-system, 'Cardo', sans-serif",
   hyperlegible: "'Atkinson Hyperlegible', 'Cardo', 'Segoe UI', system-ui, sans-serif",
   dyslexic: "'OpenDyslexic', 'Cardo', 'Segoe UI', system-ui, sans-serif",
+  // Só do editor de anotações: a única pilha do app que começa monoespaçada.
+  // Termina em `monospace` do sistema por último recurso, mas a nossa vem
+  // primeiro — a N72 continua valendo.
+  codigo: "'DejaVu Mono', 'Cardo', ui-monospace, monospace",
 };

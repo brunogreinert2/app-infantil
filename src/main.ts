@@ -7,6 +7,7 @@ import { montarTelaAparencia } from './telas/telaAparencia';
 import type { Livro } from './motor/tipos';
 import { montarTelaPerfis } from './telas/telaPerfis';
 import { montarTelaEstante } from './telas/telaEstante';
+import { montarTelaAnotacoes } from './telas/telaAnotacoes';
 import { montarTelaLeitura } from './telas/telaLeitura';
 import { montarTelaColorir } from './telas/telaColorir';
 import { montarTelaQuebraCabeca } from './telas/telaQuebraCabeca';
@@ -54,6 +55,17 @@ function irEstante(): void {
       livroAtual = livro;
       irLeitura(true); // vindo da estante → abertura cênica (se o livro tiver)
     },
+    anotacoes: irAnotacoes,
+  });
+}
+
+function irAnotacoes(): void {
+  pararFala();
+  window.scrollTo(0, 0);
+  void montarTelaAnotacoes(raiz, {
+    perfis: irPerfis,
+    aparencia: () => irAparencia(irAnotacoes),
+    estante: irEstante,
   });
 }
 
