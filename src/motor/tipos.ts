@@ -1,10 +1,24 @@
 // Tipos centrais do motor de conteúdo.
 // Espelham a seção 3 da ESPECIFICACAO.md (front matter YAML estendido).
 
+import type { Element } from 'hast';
+
+/**
+ * Os blocos da leitura. O texto é lido pelo motor do ecossistema
+ * (src/motor/ecossistema, fonte em C:\Claude\parser) e montado aqui em blocos
+ * com NOME (p1, c1, img1): o quiz se ancora por ele (`ancora: "p3"`) e o
+ * "você parou aqui" o guarda no perfil — por isso a numeração é a mesma do
+ * parser de três regras de antes (parser.ts conta como ele contava).
+ *
+ * `texto` é o texto puro (o 🔊 lê este); `hast` é o desenho, com negrito,
+ * grego com lang, fórmula… quando houver.
+ */
 export type No =
   | { tipo: 'cabecalho'; nivel: number; texto: string; id: string }
-  | { tipo: 'paragrafo'; texto: string; id: string }
-  | { tipo: 'imagem'; assetId: string; id: string };
+  | { tipo: 'paragrafo'; texto: string; id: string; hast?: Element }
+  | { tipo: 'imagem'; assetId: string; id: string }
+  // citação, lista, tabela, caixa de nota, fórmula em bloco, código, notas…
+  | { tipo: 'bloco'; texto: string; id: string; hast: Element };
 
 export type TipoAsset = 'capa' | 'ilustracao' | 'colorir' | 'audio' | 'video';
 

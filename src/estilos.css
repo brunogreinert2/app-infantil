@@ -1124,3 +1124,58 @@ button {
   margin: 0;
   font-size: 0.9em;
 }
+
+/* ===== O que o motor do ecossistema desenha (passo 5 do parser) =====
+   Os livrinhos de hoje são só título, parágrafo e imagem; estes estilos ficam
+   prontos para quando um livrinho pedir citação, caixa de nota ou fórmula. */
+.paragrafo blockquote {
+  margin: 0;
+  padding: 0.2em 0 0.2em 1em;
+  border-left: 4px solid var(--destaque);
+}
+.paragrafo .callout {
+  padding: 0.6em 0.9em;
+  border-left: 5px solid var(--destaque);
+  border-radius: 12px;
+  background: var(--cartao);
+}
+.paragrafo .callout-titulo {
+  font-weight: bold;
+  margin-bottom: 0.3em;
+}
+.paragrafo details.callout > summary {
+  cursor: pointer;
+}
+.paragrafo .callout-conteudo > :first-child { margin-top: 0; }
+.paragrafo .callout-conteudo > :last-child { margin-bottom: 0; }
+.paragrafo ul,
+.paragrafo ol {
+  margin: 0;
+  padding-left: 1.4em;
+}
+.paragrafo math {
+  font-family: 'Cambria Math', 'STIX Two Math', 'Noto Sans Math', math;
+}
+.paragrafo math[display='block'] {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.2em 0;
+}
+.paragrafo .wikilink {
+  color: var(--destaque);
+  text-decoration: underline dotted;
+}
+.paragrafo .embed {
+  border: 1px dashed var(--borda);
+  border-radius: 6px;
+  padding: 0 0.3em;
+}
+
+/* Grego (o motor marca com class="grego" lang="grc"): a fonte de corpo das
+   crianças não tem o grego POLITÔNICO, e o navegador remendava letra a letra
+   com outra fonte — "σεαυτόν" saía desencontrado. A Cardo, piso do
+   ecossistema (NORMAS N72), tem tudo; e o Davi gosta do alfabeto grego. */
+.paragrafo .grego {
+  font-family: 'Cardo', serif;
+  font-size: 1.12em;
+}

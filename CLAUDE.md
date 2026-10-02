@@ -25,10 +25,19 @@ npm run build    # tsc --noEmit && vite build — precisa passar limpo antes de 
 
 ## Princípios inegociáveis (herdados da spec)
 
-1. Parser burro de propósito (`src/motor/parser.ts`): só cabeçalho `#{1,}` (profundidade
-   ARBITRÁRIA, sem teto de 6), linha de texto, e `{{img:id}}` em linha própria. Nada mais.
-2. Imagem nunca é sintaxe inline — todo asset é declarado no front matter e referenciado
-   por id (`src/conteudo/catalogo.ts` faz o lookup).
+1. **O formato é o do ecossistema, um só e generoso** (NORMAS N7 v3). Desde 2026-10-02 o
+   texto é lido pelo **motor do ecossistema**, o mesmo do Pedra Angular: CommonMark, `>`,
+   `[[wikilink]]`, grego/hebraico com `lang`, notas, caixa de nota, fórmula, tabela, HTML
+   filtrado — e o que ainda não se sabe desenhar aparece como texto, nunca some.
+   `src/motor/ecossistema/` é **CÓPIA, não se edita aqui**: a fonte é
+   `C:\Claude\parser\motor\` (`npm run espalhar` lá; `scripts/conferir-motor.mjs` barra
+   cópia editada à mão, e roda no `npm run build`). `src/motor/parser.ts` monta os
+   blocos com os MESMOS nomes do parser de três regras de antes (c1.., p1.., img1..):
+   o quiz (`ancora: "p3"`) e o "você parou aqui" dependem deles. Cabeçalho sem teto
+   (N10). Bloco novo (citação, lista, caixa…) conta como parágrafo. Mexeu no motor:
+   `npm run tortura` em `C:\Claude\parser`, e `npm test` aqui.
+2. Imagem: `{{img:id}}` sozinho na linha — todo asset é declarado no front matter
+   (`assets:`) e referenciado por id (`src/conteudo/catalogo.ts` faz o lookup).
 3. Zero rede em runtime: tudo via `import ?raw` no bundle.
 4. Quiz **zero-gate**: qualquer resposta revela a correta + explicação; nada trava o
    avanço; tentativas/acertos gravados em silêncio, NUNCA exibidos como nota à criança.
@@ -39,7 +48,8 @@ npm run build    # tsc --noEmit && vite build — precisa passar limpo antes de 
 ## Arquitetura (mapa rápido)
 
 ```
-src/motor/        parser.ts (3 regras de linha), frontmatter.ts, tipos.ts
+src/motor/        parser.ts (motor do ecossistema → blocos com nome), frontmatter.ts,
+                  tipos.ts; ecossistema/ = CÓPIA do motor (fonte: C:\Claude\parser)
 src/conteudo/     catalogo.ts (registro de livros+assets), livros/*.md, assets/*.svg
 src/canvas/       camadaBase (SVG fill por toque), camadaPincel (canvas traço livre,
                   coords normalizadas 0..1), roteadorFerramenta (pointer-events)

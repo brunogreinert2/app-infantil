@@ -25,5 +25,5 @@ export function carregarLivro(id: string, conteudo: string): Livro {
     }
   }
 
-  return { id, metadados, nos: analisar(corpo) };
+  return { id, metadados, nos: analisar(corpo, metadados) };
 }

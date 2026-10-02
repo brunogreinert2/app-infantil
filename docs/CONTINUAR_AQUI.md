@@ -15,7 +15,7 @@
 > a sessão."**
 
 Regras de sobrevivência para o próximo Claude:
-1. NUNCA começar do zero — tudo funciona e está testado (19 testes, build
+1. NUNCA começar do zero — tudo funciona e está testado (23 testes, build
    limpo, 8 rodadas committadas no git local).
 2. Toda sessão TERMINA atualizando este arquivo + commit. Créditos do Bruno
    são escassos; a sessão pode morrer a qualquer momento.
@@ -38,6 +38,38 @@ Regras de sobrevivência para o próximo Claude:
   gerado no Windows do Bruno omite binários opcionais de outras plataformas.
 - Domínio próprio (tipo historinhas.app.br) é opcional futuro — mesmo
   fluxo do pedraangular.app.br (registro.br + CNAME no Pages).
+
+## Rodada 15 — o motor do ecossistema (2026-10-02, Claude Opus 5.5)
+
+O Historinhas passou a ler pelo **mesmo motor do Pedra Angular** (passo 5 de
+`C:\Claude\parser\proposta.md`, opção (c): "os dois parsers são iguais mas
+moram cada um dentro do seu app").
+
+- `src/motor/ecossistema/` = **cópia carimbada** do motor; a fonte é
+  `C:\Claude\parser\motor\`. Nunca editar aqui: `npm run build` começa por
+  `scripts/conferir-motor.mjs`, que barra cópia editada à mão. Para mudar:
+  editar a fonte, `npm run espalhar` e `npm run tortura` em `C:\Claude\parser`,
+  depois `npm test` e `npm run build` aqui.
+- `src/motor/parser.ts` pede a leitura ao motor e monta os blocos com os
+  MESMOS nomes de antes (c1.., p1.., img1..). Tipo novo `bloco` (citação,
+  lista, caixa de nota, fórmula, tabela…) conta como parágrafo. O 🔊 lê o texto
+  puro (sem asteriscos; a fonte TeX de fórmula não é lida).
+- Prova: os 8 livrinhos dão os mesmos blocos, nomes e textos do parser antigo
+  (8/8 idênticos) — nenhum quiz se soltou, nenhum "parei aqui" se perdeu.
+- Testes: 23 (eram 19). Dois mudaram, com o motivo escrito neles: `#` sozinho
+  é título vazio (CommonMark); a pancada de stress passou a 50 mil linhas em
+  < 4 s (o motor é ~9× mais lento que as três regras; os 8 livrinhos juntos
+  levam 57 ms).
+- Estilos novos em `estilos.css` para citação, caixa de nota, lista, fórmula,
+  wikilink, embed; o grego (`.grego`, lang grc) usa a Cardo — a fonte das
+  crianças não tem o politônico e o navegador remendava letra a letra.
+- Pacote: 63 → 237 KB gzip (motor + fórmula + leitor de HTML).
+- `docs/FORMATO_LIVRO.md` virou v2 (o formato é o do ecossistema).
+- Configuração `infantil` (porta 5174) criada em `C:\Claude\.claude\launch.json`.
+
+Ainda NÃO feito: o caderno de anotações (`telaAnotacoes.ts`) continua fora do
+motor e guardando objeto, não `.md` — isso vem com o editor novo (passo 6 do
+parser: CodeMirror com modo Código para os comandos de Minecraft do Davi).
 
 ## Rodada 10 — livros do selo do Bruno + app publicado
 

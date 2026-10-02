@@ -1,26 +1,36 @@
-# FORMATO_LIVRO — a linguagem universal dos livros (v1)
+# FORMATO_LIVRO — a linguagem universal dos livros (v2)
 
 Todo livro do app é **um arquivo `.md`** com duas partes: um cabeçalho YAML
 (front matter) que declara TUDO que o livro tem — tema, abertura cênica,
-imagens, áudios, vídeos, quizzes — e o texto, com três regras de linha e
-nada mais. Qualquer livro escrito neste formato funciona igualmente: a
-mesma engrenagem serve uma fábula de Esopo, o Pequeno Príncipe ou uma
-experiência gamificada completa.
+imagens, áudios, vídeos, quizzes — e o texto. Qualquer livro escrito neste
+formato funciona igualmente: a mesma engrenagem serve uma fábula de Esopo, o
+Pequeno Príncipe ou uma experiência gamificada completa.
 
-Filosofia (herdada do Pedra Angular): **o texto é burro, o front matter é
-rico**. O parser nunca aprende sintaxe nova; toda riqueza (mídia, tema,
-abertura) entra por declaração + âncora `{{img:id}}`.
+Filosofia (herdada do Pedra Angular): **o texto é limpo, o front matter é
+rico** (NORMAS N8). Toda riqueza de mídia (tema, abertura, imagem, quiz) entra
+por declaração + âncora `{{img:id}}`.
 
-## 1. As três regras de linha do texto
+**v2 (2026-10-02): o formato é o do ecossistema, um só e generoso** (NORMAS
+N7). Até a v1 o texto tinha três regras de linha e nada mais; agora ele é lido
+pelo mesmo motor do Pedra Angular (`src/motor/ecossistema/`, fonte em
+`C:\Claude\parser`), e um livrinho pode pedir o que quiser do formato comum:
+**negrito**, *itálico*, `> citação`, lista, `[[wikilink]]`, grego e hebraico
+(com a voz certa), `> [!tip] caixa de nota`, `$fórmula$`, tabela. O que o app
+ainda não souber desenhar aparece como texto, nunca some. Os livrinhos que já
+existiam continuam exatamente iguais (provado bloco a bloco).
+
+## 1. As regras de linha do texto
 
 | Linha | Vira |
 |---|---|
 | `# Título` (`#` sem limite de profundidade) | cabeçalho (com 🔊 que lê o capítulo) |
 | `{{img:id}}` sozinha na linha | o asset `id` (imagem, colorir, áudio, vídeo...) |
 | qualquer outra linha não vazia | parágrafo (com 🔊 próprio); linhas consecutivas se juntam |
+| `> citação`, lista, caixa de nota, fórmula `$$`, tabela… | bloco (com 🔊), no lugar de um parágrafo |
 
-Âncoras automáticas: parágrafos são `p1, p2...` (na ordem, ignorando
-imagens e cabeçalhos) — é assim que o quiz se prende ao texto.
+Âncoras automáticas: parágrafos (e blocos) são `p1, p2...` (na ordem,
+ignorando imagens e cabeçalhos) — é assim que o quiz se prende ao texto. O 🔊
+lê o texto puro: um `**negrito**` é lido como palavra, sem os asteriscos.
 
 ## 2. Front matter — referência completa
 

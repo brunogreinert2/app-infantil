@@ -11,6 +11,8 @@ import { soltarConfetes } from '../efeitos/confete';
 import type { Livro, PerguntaQuiz } from '../motor/tipos';
 import { perfilAtivo } from '../perfis/perfis';
 import { botoesTabelas } from '../impressao/tabelas';
+import { toHtml } from 'hast-util-to-html';
+import type { Element } from 'hast';
 import { falar, pararFala, suportaTTS, textoFalando } from '../tts';
 import { barraTopo, el } from './comum';
 
@@ -77,7 +79,7 @@ export async function montarTelaLeitura(
       if (no.tipo === 'cabecalho') {
         fechar();
         cabecalhoAberto = no.id;
-      } else if (no.tipo === 'paragrafo') {
+      } else if (no.tipo === 'paragrafo' || no.tipo === 'bloco') {
         acumulado.push(no.texto);
       }
     }
@@ -101,11 +103,13 @@ export async function montarTelaLeitura(
         continue;
       }
       artigo.appendChild(cab);
-    } else if (no.tipo === 'paragrafo') {
+    } else if (no.tipo === 'paragrafo' || no.tipo === 'bloco') {
+      // `bloco` (citação, lista, caixa de nota, fórmula…) tem o mesmo lugar
+      // de um parágrafo: o mesmo nome (p1..), o mesmo 🔊, o mesmo "parei aqui"
       const bloco = el('div', 'paragrafo');
       bloco.id = `no-${no.id}`;
-      bloco.appendChild(el('p', undefined, no.texto));
-      if (suportaTTS()) bloco.appendChild(botaoOuvir(no.texto));
+      bloco.appendChild(no.hast ? desenhar(no.hast) : el('p', undefined, no.texto));
+      if (suportaTTS() && no.texto) bloco.appendChild(botaoOuvir(no.texto));
       artigo.appendChild(bloco);
     } else {
       artigo.appendChild(cartaoImagem(no.assetId, livro, nav));
@@ -186,7 +190,7 @@ function botaoOuvirHistoria(livro: Livro): HTMLElement | null {
     if (no.tipo === 'cabecalho') {
       if (no.texto === 'Para os adultos que leem junto') break;
       partes.push(`${no.texto}.`);
-    } else if (no.tipo === 'paragrafo') {
+    } else if (no.tipo === 'paragrafo' || no.tipo === 'bloco') {
       partes.push(no.texto);
     }
   }
@@ -204,6 +208,17 @@ function botaoOuvirHistoria(livro: Livro): HTMLElement | null {
     }
   });
   return botao;
+}
+
+// O desenho que o motor do ecossistema fez (negrito, grego com lang,
+// fórmula, caixa de nota…). Passa por HTML de propósito: é o próprio
+// navegador, lendo HTML, que põe a fórmula (MathML) no lugar certo — montar
+// <math> elemento por elemento o deixaria como HTML comum, sem desenho.
+// O texto vem dos livrinhos empacotados no app, e o motor já filtra HTML cru.
+function desenhar(hast: Element): HTMLElement {
+  const molde = document.createElement('template');
+  molde.innerHTML = toHtml(hast);
+  return (molde.content.firstElementChild as HTMLElement | null) ?? el('p');
 }
 
 // 🔊 vira ⏹ enquanto fala — e volta sozinho quando a fala termina

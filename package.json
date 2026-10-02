@@ -6,17 +6,31 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "node scripts/conferir-motor.mjs && tsc --noEmit && vite build && node scripts/conferir-surrogatas.mjs dist",
     "preview": "vite preview",
     "test": "vitest run",
     "gera:glifos": "node scripts/gera-glifos.mjs"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible": "^5.3.0",
-    "js-yaml": "^4.1.0"
+    "hast-util-from-html": "^2.0.3",
+    "hast-util-raw": "^9.1.0",
+    "hast-util-sanitize": "^5.0.2",
+    "hast-util-to-html": "^9.0.5",
+    "js-yaml": "^4.1.0",
+    "remark-gfm": "^4.0.1",
+    "remark-math": "^6.0.0",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "temml": "^0.13.5",
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0",
+    "vfile": "^6.0.3"
   },
   "devDependencies": {
+    "@types/hast": "^3.0.5",
     "@types/js-yaml": "^4.0.9",
+    "@types/mdast": "^4.0.4",
     "dejavu-fonts-ttf": "^2.37.3",
     "opentype.js": "^2.0.0",
     "typescript": "^5.5.0",
