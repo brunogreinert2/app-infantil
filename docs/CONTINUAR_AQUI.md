@@ -1,5 +1,17 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Publicação autorizada — 14/10/2026
+
+O usuário pediu explicitamente o push para atualizar o app. Essa autorização
+permite integrar `codex/alfabetos-a4-ludicos` na `master` e enviar a atualização
+ao GitHub Pages nesta entrega. O conjunto inclui `af228d0` e as três revisões
+do motor que já estavam na master local (`8db0b2a`, `1539175`, `de609d4`).
+Antes do envio, `npm test` passou com 30 testes e `npm run build` concluiu
+normalmente. Nenhum arquivo de `src/motor/` foi editado nesta tarefa.
+Consultar a última execução de “Publicar no GitHub Pages” e o bundle de
+https://historinhas.app.br para confirmar o estado da publicação.
+Novas alterações continuam exigindo branch própria e revisão conforme o escopo.
+
 ## Retomada lúdica — 14/10/2026 (Codex)
 
 Branch de trabalho: `codex/alfabetos-a4-ludicos`. **Nunca fazer commit,
