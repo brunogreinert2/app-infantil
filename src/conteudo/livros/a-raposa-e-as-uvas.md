@@ -8,6 +8,11 @@ licenca: "CC0"
 tradutor: "adaptação própria do enredo de Esopo, em domínio público"
 tema_padrao: "floresta"
 
+assets:
+  - id: "il01"
+    tipo: "colorir"
+    arquivo_interativo: "colecao01-uvas.svg"
+
 quiz:
   - pergunta: "Quantas vezes a raposa tentou alcançar as uvas?"
     alternativas:
@@ -43,3 +48,5 @@ Aí levantou, sacudiu a poeira e foi embora dizendo alto, para quem quisesse ouv
 — Nem queria mesmo. Aquelas uvas estão verdes.
 
 Só que ninguém tinha perguntado nada. E as uvas, roxas como estavam, com certeza não estavam verdes.
+
+{{img:il01}}

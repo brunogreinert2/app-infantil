@@ -3,11 +3,13 @@
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { livros } from '../conteudo/catalogo';
+import { capasPrimeirasAventuras } from '../conteudo/colecaoPrimeirasAventuras';
 import type { Livro } from '../motor/tipos';
 import { perfilAtivo } from '../perfis/perfis';
 import { barraTopo, el } from './comum';
 
 const EMOJIS_CAPA: Record<string, string> = {
+  ...capasPrimeirasAventuras,
   'lebre-e-tartaruga': '🐢🐇',
   'o-que-depende-de-mim': '☔',
   'o-pequeno-principe': '🌹',

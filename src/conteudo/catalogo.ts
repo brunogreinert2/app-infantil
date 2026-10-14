@@ -7,6 +7,7 @@
 import { carregarLivro } from '../motor/frontmatter';
 import type { Livro } from '../motor/tipos';
 import { gerarAlfabetos } from './alfabetos';
+import { livrosPrimeirasAventuras, assetsPrimeirasAventuras } from './colecaoPrimeirasAventuras';
 
 import lebreMd from './livros/lebre-e-tartaruga.md?raw';
 import lebreColorirSvg from './assets/lebre_colorir.svg?raw';
@@ -26,12 +27,13 @@ import reneAberturaSvg from './assets/rene_abertura.svg?raw';
 import reneColorirSvg from './assets/rene_colorir.svg?raw';
 import reneMagoSvg from './assets/rene_mago_sonho.svg?raw';
 
-// Fábulas de Esopo — enredo em domínio público, adaptação própria ao
-// vocabulário de hoje. Por ora só texto: sem página de pintar nem
-// quebra-cabeça, que entram depois se a história se firmar no uso.
+// Fábulas de Esopo — agora também com pintura e quebra-cabeça.
 import leaoRatinhoMd from './livros/o-leao-e-o-ratinho.md?raw';
 import raposaUvasMd from './livros/a-raposa-e-as-uvas.md?raw';
 import ventoSolMd from './livros/o-vento-e-o-sol.md?raw';
+import leaoSvg from './assets/colecao01-leao.svg?raw';
+import uvasSvg from './assets/colecao01-uvas.svg?raw';
+import ventoSolSvg from './assets/colecao01-vento-sol.svg?raw';
 
 const gerados = gerarAlfabetos();
 
@@ -44,6 +46,7 @@ export const livros: Livro[] = [
   carregarLivro('o-leao-e-o-ratinho', leaoRatinhoMd),
   carregarLivro('a-raposa-e-as-uvas', raposaUvasMd),
   carregarLivro('o-vento-e-o-sol', ventoSolMd),
+  ...livrosPrimeirasAventuras,
   ...gerados.map((g) => g.livro),
 ];
 
@@ -61,6 +64,10 @@ export const arquivosAssets: Record<string, string> = {
   'rene_abertura.svg': reneAberturaSvg,
   'rene_colorir.svg': reneColorirSvg,
   'rene_mago_sonho.svg': reneMagoSvg,
+  'colecao01-leao.svg': leaoSvg,
+  'colecao01-uvas.svg': uvasSvg,
+  'colecao01-vento-sol.svg': ventoSolSvg,
+  ...assetsPrimeirasAventuras,
   ...Object.assign({}, ...gerados.map((g) => g.arquivos)),
 };
 

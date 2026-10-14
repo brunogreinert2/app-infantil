@@ -8,6 +8,11 @@ licenca: "CC0"
 tradutor: "adaptação própria do enredo de Esopo, em domínio público"
 tema_padrao: "arco-iris"
 
+assets:
+  - id: "il01"
+    tipo: "colorir"
+    arquivo_interativo: "colecao01-vento-sol.svg"
+
 quiz:
   - pergunta: "O que aconteceu quando o vento soprou com toda a força?"
     alternativas:
@@ -47,3 +52,5 @@ Então foi a vez do sol. Ele não fez barulho nenhum. Só saiu de trás de uma n
 O viajante sentiu o calor no rosto. Afrouxou o casaco. Andou mais um pouco, sentiu mais calor, abriu o casaco todo. E logo adiante tirou o casaco, dobrou no braço e seguiu caminho assobiando.
 
 O vento não disse nada. Não tinha o que dizer.
+
+{{img:il01}}

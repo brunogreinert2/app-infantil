@@ -1,5 +1,53 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Coleção Primeiras Aventuras — 14/10/2026 (Codex)
+
+Branch: `codex/colecao-primeiras-aventuras`, criada da master publicada
+`1034e22`. O usuário pediu ampliar o acervo com histórias de domínio público,
+ilustrações para pintar e quebra-cabeças. Esta entrega grande fica na branch
+para revisão; não integrar nem publicar sem a próxima autorização.
+
+Entregues **12 histórias novas**: O Corvo e o Jarro; A Raposa e a Cegonha;
+O Rato do Campo e o Rato da Cidade; A Formiga e a Pomba; O Cachorro e o Reflexo;
+O Galo e a Pérola; O Carvalho e os Juncos; Os Ratinhos e o Sino; A Panela de
+Mingau; Os Duendes e o Sapateiro; A Roupa Nova do Imperador; O Patinho e Seu Lugar.
+São adaptações livres próprias de Esopo, Grimm e Andersen, com 204–243 palavras,
+dois capítulos, duas imagens e duas perguntas por história. Fontes históricas,
+licença e mudanças de enredo: `docs/COLECAO_PRIMEIRAS_AVENTURAS.md`.
+
+**27 SVGs novos**, somente contornos pretos e regiões brancas: 24 nas histórias
+novas e três para Leão/Ratinho, Raposa/Uvas e Vento/Sol. Esses três textos antigos
+permanecem idênticos; só receberam asset e imagem no final. Nenhum ID publicado,
+SVG antigo ou arquivo de `src/motor/` mudou. A estante tem 20 histórias e dois
+alfabetos. Registro isolado em `src/conteudo/colecaoPrimeirasAventuras.ts`.
+Gerador e pós-processador de máscaras em `scripts/primeiras-aventuras/`.
+Não remover máscaras: são necessárias para contornos limpos ao imprimir.
+
+Durante o teste mobile, os seis botões de ferramentas da pintura ultrapassavam
+a largura da tela. O grupo agora quebra em linhas e mantém todos acessíveis.
+
+Validação: `npm test` **36/36**; `npm run build` passou com TypeScript, carimbo
+do motor, PWA e checagem de surrogatas. Continua o aviso de chunk grande:
+bundle principal ~2,41 MB bruto / 429 KB gzip; precache ~3,12 MiB, abaixo do teto
+de 6 MiB por arquivo. Não esconder nem aumentar limites para calar o aviso.
+No Chromium, as 27 cenas passaram por leitura, pintura por toque, desfazer,
+persistência, montagem de quatro peças e vitória, em viewport 390×844 sem
+rolagem horizontal. Resposta incorreta não impediu concluir o Corvo.
+A versão de produção também abriu a segunda imagem do Patinho após recarga
+offline. A impressão real do app produziu uma folha A4 paisagem. O caderno
+externo tem 27 páginas A4 paisagem, todas renderizadas e conferidas.
+
+Pacote para revisão/professoras: `C:\CHATGPT\App-Infantil\colecao-primeiras-aventuras`:
+textos Markdown, SVGs, guia com fontes, HTML de leitura sem JavaScript/internet,
+e PDF para pintar. ZIP ao lado da pasta. Não confundir a leitura estática dessa
+coleção com o rolo geral do app, que continua pendente.
+
+Pendentes: revisão do usuário antes de publicar; novas coleções de Lobato,
+continuação do Pequeno Príncipe e contos populares; avaliar divisão do catálogo
+em módulos conforme crescer, preservando o acesso offline. A validação com
+crianças/professoras e auditoria geral de acessibilidade continuam importantes;
+esta entrega não pretende substituí-las.
+
 ## Publicação autorizada — 14/10/2026
 
 O usuário pediu explicitamente o push para atualizar o app. Essa autorização

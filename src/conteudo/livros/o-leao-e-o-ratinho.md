@@ -8,6 +8,11 @@ licenca: "CC0"
 tradutor: "adaptação própria do enredo de Esopo, em domínio público"
 tema_padrao: "floresta"
 
+assets:
+  - id: "il01"
+    tipo: "colorir"
+    arquivo_interativo: "colecao01-leao.svg"
+
 quiz:
   - pergunta: "Por que o leão soltou o ratinho?"
     alternativas:
@@ -47,3 +52,5 @@ A rede foi afrouxando até abrir de vez, e o leão saiu, livre.
 — Você riu quando eu prometi — disse o ratinho. — Mas eu falava sério.
 
 O leão baixou a cabeçona e agradeceu. E nunca mais na vida ele mediu ninguém pelo tamanho.
+
+{{img:il01}}

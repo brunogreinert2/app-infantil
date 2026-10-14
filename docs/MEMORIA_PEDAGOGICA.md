@@ -15,5 +15,6 @@ Registro das decisões de Bruno em 13/10/2026.
 - Git: branch própria, sem commit/merge/push na master nesta tarefa. Autoria Diaphoreus; mensagens de commit em português. Testes e build precisam passar antes de cada commit. Revisar esta entrega grande antes de integrar/publicar.
 - Não prometer resultados clínicos ou adaptação universal. O material é um recurso pedagógico que a professora pode selecionar e adaptar.
 - Pasta de colaboração e entregas: `C:\CHATGPT\App-Infantil`. Código do app: `C:\Claude\app-infantil`.
+- Pedido de 14/10/2026: ampliar bastante a biblioteca com adaptações próprias de histórias em domínio público, incluindo Esopo e, em próximas seleções, Monteiro Lobato e continuação de O Pequeno Príncipe. Cada história deve chegar com SVGs para pintar, montar e imprimir em A4. A primeira coleção acrescenta 12 histórias; fontes e escolhas editoriais ficam documentadas, sem transformar o texto infantil em orientação para adultos.
 
 Este é um registro persistente em arquivo do projeto, não uma confirmação de gravação na memória global do ChatGPT.
