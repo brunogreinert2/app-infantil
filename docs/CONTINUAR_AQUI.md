@@ -2,6 +2,13 @@
 
 ## Coleção Primeiras Aventuras — 14/10/2026 (Codex)
 
+Revisão visual após feedback do usuário: as cegonhas das páginas 03/27 e 04/27
+e os cisnes de 24/27 tinham corpos muito finos. O contorno foi refeito sem
+cruzamentos internos, com peito/barriga arredondados e asas maiores. A ave da
+página 23/27 recebeu o mesmo ajuste para manter consistência. Foram preservados
+todos os IDs e a ordem das regiões pintáveis nas quatro cenas. PDF e pacote
+de colaboração atualizados. A coleção continua em revisão, sem publicação.
+
 Branch: `codex/colecao-primeiras-aventuras`, criada da master publicada
 `1034e22`. O usuário pediu ampliar o acervo com histórias de domínio público,
 ilustrações para pintar e quebra-cabeças. Esta entrega grande fica na branch
