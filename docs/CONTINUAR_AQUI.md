@@ -1,5 +1,57 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Retomada lúdica — 14/10/2026 (Codex)
+
+Branch de trabalho: `codex/alfabetos-a4-ludicos`. **Nunca fazer commit,
+merge ou push na master nesta tarefa.** O conjunto A4 e esta revisão ficam
+na branch para revisão antes de qualquer publicação. Identidade Git já
+configurada: Diaphoreus; não atribuir autoria/coautoria ao nome do usuário.
+Não editar `src/motor/` nem renomear IDs publicados.
+
+Pedido mais recente: o app continua sendo uma brincadeira para a criança
+de 7 a 9 anos em casa. O material de professoras é apoio, não deve tornar
+a leitura do app uma aula dirigida ao adulto. As 24 dicas gregas e as 26
+letras portuguesas ganharam convites para imaginar, sons e pequenas cenas.
+`src/conteudo/alfabetoBrincadeiras.ts` contém os textos infantis. A convenção
+de grego antigo permanece; Zeta continua ZD, θ/φ/χ continuam aspiradas.
+Ômega volta a dizer “Do alfa ao ômega!”. Orientações de mediação ficaram
+nas fichas A4 e no guia; o bloco final para adultos foi retirado da leitura.
+Os SVGs de sala de aula continuam iguais aos já conferidos.
+
+Validação final desta revisão: `npm test` passou com 30 testes;
+`npm run build` passou no próprio repositório com a configuração normal,
+incluindo carimbo do motor, TypeScript, PWA e surrogatas. Permanece apenas
+o aviso de tamanho de chunk do Vite. Os bloqueios do ambiente e a oscilação
+do teste de tempo registrados na entrega anterior não se repetiram nessa
+execução. Sem alteração do limite de tempo e sem modificação do motor.
+
+## Entrega A4 — 14/10/2026 (Codex)
+
+Bruno confirmou o nome **Historinhas**, https://historinhas.app.br.
+Apresentação na UFRGS, disciplina **Intervenção Pedagógica e Necessidades
+Educativas Especiais**, em **01/12/2026 ou 08/12/2026**, ainda a definir.
+Essas decisões estão em `docs/MEMORIA_PEDAGOGICA.md`; não perguntar novamente
+o nome, a preferência por contornos pretos nem qual variedade de grego usar.
+
+Alfabetos refeitos em A4: 46 folhas de português e 39 de **grego antigo**,
+com convenção ática explicitada. Tabela inteira em uma folha, uma por letra,
+ditongos, dígrafos e complementos. Os botões de impressão usam as mesmas
+artes do app e incluem caderno completo. IDs publicados preservados.
+Os cinco desenhos de histórias aprovados por Bruno também foram integrados.
+
+Pacote em `C:\CHATGPT\App-Infantil\alfabetos-a4`: 85 SVGs, cadernos PDF,
+guia de professoras e cinco cenas em A4 paisagem. Detalhes, fontes,
+comandos, validação e limites: `docs/ALFABETOS_A4.md`.
+
+Conferidos pintura, desfazer, persistência, impressão, mobile e offline.
+O conversor de glifos agora fecha explicitamente os contornos: a otimização
+anterior apagava segmentos em letras como L quando usadas sem fill.
+Não houve push/publicação. As pendências de rolo sem JavaScript e de
+auditoria geral dos temas estão documentadas; não dizer que foram resolvidas.
+
+Os registros abaixo são históricos; números de testes/tamanhos e a indicação
+de que o domínio próprio é futuro estão desatualizados.
+
 > Escrito por Claude Fable 5 (últimas sessões do Bruno com esse modelo,
 > 2026-07-19/20). Qualquer Claude (Sonnet, Opus, Haiku) continua daqui
 > sem precisar de NENHUM contexto da conversa original.

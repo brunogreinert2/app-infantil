@@ -1,3 +1,6 @@
 node_modules/
 dist/
 *.local
+
+# Gerado por pretest/prebuild a partir da DejaVu licenciada
+src/conteudo/glifos-legendas.json

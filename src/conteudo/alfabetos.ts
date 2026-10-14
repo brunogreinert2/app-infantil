@@ -1,5 +1,5 @@
 // Livros de alfabeto (grego e latino) GERADOS por código: uma página de
-// colorir por letra, a partir de dados — 50 páginas sem desenhar 50 SVGs.
+// colorir por letra e fichas complementares, a partir dos mesmos dados.
 // Idealizado pelo Davi (9): "bastante coisa para pintar e aprender grego".
 //
 // Importante: a geração produz markdown + assets normais e passa pelo MESMO
@@ -8,9 +8,9 @@
 
 import { carregarLivro } from '../motor/frontmatter';
 import type { Livro } from '../motor/tipos';
-import glifos from './glifos.json';
-
-const GLIFOS = glifos as Record<string, { d: string; adv: number }>;
+import { svgLetraA4, svgTabelaA4, svgQuadrosA4, svgComplementoA4 } from './alfabetoArte';
+import { DIGRAFOS, DITONGOS_GREGOS, DITONGOS_PORTUGUES, EXTRAS_GREGOS, EXTRAS_PORTUGUES } from './alfabetoComplementos';
+import { DICAS_GREGO, BRINCADEIRAS_PORTUGUES } from './alfabetoBrincadeiras';
 
 // [maiúscula, minúscula, nome, dica de som, nome secundário p/ tabela impressa]
 // No grego, o 5º campo é o nome da letra escrito EM GREGO (Αλφα, Βητα...).
@@ -22,25 +22,25 @@ export const GREGO: DadoLetra[] = [
   ['Γ', 'γ', 'Gama', 'faz o som de "g", como em gato', 'Γαμμα'],
   ['Δ', 'δ', 'Delta', 'faz o som de "d", como em dado', 'Δελτα'],
   ['Ε', 'ε', 'Épsilon', 'faz o som de "é" bem curtinho', 'Εψιλον'],
-  ['Ζ', 'ζ', 'Zeta', 'faz o som de "dz", como uma abelha: dzzz!', 'Ζητα'],
-  ['Η', 'η', 'Eta', 'faz o som de "ê" comprido', 'Ητα'],
-  ['Θ', 'θ', 'Teta', 'faz um "t" soprado, com a língua entre os dentes', 'Θητα'],
+  ['Ζ', 'ζ', 'Zeta', 'é lido aqui como a sequência "zd"; outras tradições usam "dz"', 'Ζητα'],
+  ['Η', 'η', 'Eta', 'representa um "é" longo nesta leitura', 'Ητα'],
+  ['Θ', 'θ', 'Teta', 'é lido como "t" seguido de uma pequena saída de ar', 'Θητα'],
   ['Ι', 'ι', 'Iota', 'faz o som de "i", como em ilha', 'Ιωτα'],
   ['Κ', 'κ', 'Capa', 'faz o som de "k", como em kiwi', 'Καππα'],
   ['Λ', 'λ', 'Lambda', 'faz o som de "l", como em leão', 'Λαμβδα'],
   ['Μ', 'μ', 'Mi', 'faz o som de "m", como em macaco', 'Μυ'],
   ['Ν', 'ν', 'Ni', 'faz o som de "n", como em navio', 'Νυ'],
-  ['Ξ', 'ξ', 'Csi', 'faz o som de "ks", como no fim de táxi', 'Ξι'],
+  ['Ξ', 'ξ', 'Csi', 'faz a sequência "ks", como em táxi', 'Ξι'],
   ['Ο', 'ο', 'Ômicron', 'faz o som de "ó" bem curtinho', 'Ομικρον'],
   ['Π', 'π', 'Pi', 'faz o som de "p" — é o famoso número π da matemática!', 'Πι'],
-  ['Ρ', 'ρ', 'Rô', 'faz o som de "r" vibrado, como em caRRo de corrida', 'Ρω'],
+  ['Ρ', 'ρ', 'Rô', 'é lido com a ponta da língua vibrando; escute o modelo da professora', 'Ρω'],
   ['Σ', 'σ', 'Sigma', 'faz o som de "s", como em sapo. No fim da palavra ele se veste diferente: ς', 'Σιγμα'],
   ['Τ', 'τ', 'Tau', 'faz o som de "t", como em tatu', 'Ταυ'],
-  ['Υ', 'υ', 'Úpsilon', 'faz o som de "u" com biquinho', 'Υψιλον'],
-  ['Φ', 'φ', 'Fi', 'faz o som de "f", como em foca', 'Φι'],
-  ['Χ', 'χ', 'Qui', 'faz um "r" raspadinho lá na garganta', 'Χι'],
+  ['Υ', 'υ', 'Úpsilon', 'é lido como um "i" com os lábios arredondados', 'Υψιλον'],
+  ['Φ', 'φ', 'Fi', 'é lido como "p" seguido de uma pequena saída de ar', 'Φι'],
+  ['Χ', 'χ', 'Qui', 'é lido como "k" seguido de uma pequena saída de ar', 'Χι'],
   ['Ψ', 'ψ', 'Psi', 'faz o som de "ps", como em psiu!', 'Ψι'],
-  ['Ω', 'ω', 'Ômega', 'faz o som de "ô" comprido — é a ÚLTIMA letra: do alfa ao ômega!', 'Ωμεγα'],
+  ['Ω', 'ω', 'Ômega', 'representa um "ó" longo nesta leitura e é a última letra do alfabeto', 'Ωμεγα'],
 ];
 
 export const LATINO: DadoLetra[] = [
@@ -72,324 +72,68 @@ export const LATINO: DadoLetra[] = [
   ['Z', 'z', 'Z', 'de zebra'],
 ];
 
-// Letra como CAMINHO vetorial (glifos.json, gerado por scripts/gera-glifos.mjs):
-// os furos do A e do O são furos de verdade, então o clique no vão atravessa
-// para o azulejo de trás — com <text> isso é impossível (a caixa retangular
-// do caractere engole o clique). Bônus: letra idêntica em qualquer aparelho.
-function glifo(letra: string, centroX: number, linhaBase: number, tamanho: number): string {
-  const g = GLIFOS[letra];
-  if (!g) return '';
-  const escala = tamanho / 1000;
-  const tx = centroX - (g.adv * escala) / 2;
-  return `<path d="${g.d}" transform="translate(${tx.toFixed(1)},${linhaBase}) scale(${escala.toFixed(4)})"/>`;
-}
+// IDs de livros, assets e regiões publicados são preservados.
+export interface FichaAlfabeto { id: string; arquivo: string; titulo: string; svg: string; grupo: string; }
 
-// Grupo <g> como região de pintura: o clique num filho sobe até o grupo
-// (closest('.colorir-alvo') na camadaBase) e o fill aplicado ao grupo
-// é herdado pelos caminhos internos.
-function regiao(id: string, conteudo: string): string {
-  return `<g id="${id}" class="colorir-alvo" fill="#ffffff">${conteudo}</g>`;
-}
-
-function caminhoLetra(id: string, letra: string, centroX: number, tamanho: number): string {
-  return regiao(id, glifo(letra, centroX, 400, tamanho));
-}
-
-function legenda(x: number, y: number, texto: string, tamanho = 24): string {
-  return `<text x="${x}" y="${y}" font-size="${tamanho}" text-anchor="middle"
-    font-family="'Segoe UI', sans-serif" fill="#1a1a1a">${texto}</text>`;
-}
-
-// ---------- pôsteres pintáveis (todas as letras num arquivo só) ----------
-
-function svgTabelaAlfabeto(titulo: string, letras: DadoLetra[]): string {
-  const colunas = 4;
-  const larguraCel = 200;
-  const alturaCel = 170;
-  const topo = 70;
-  const linhas = Math.ceil(letras.length / colunas);
-  const L = colunas * larguraCel;
-  const A = topo + linhas * alturaCel + 16;
-
-  let corpo = '';
-  letras.forEach((l, i) => {
-    const x0 = (i % colunas) * larguraCel;
-    const y0 = topo + Math.floor(i / colunas) * alturaCel;
-    corpo += `<rect id="regiao-quadro-${i + 1}" class="colorir-alvo" x="${x0 + 6}" y="${y0 + 6}"
-      width="${larguraCel - 12}" height="${alturaCel - 12}" rx="12" fill="#ffffff"/>`;
-    corpo += regiao(
-      `regiao-letra-${i + 1}`,
-      glifo(l[0], x0 + 72, y0 + 108, 92) + glifo(l[1], x0 + 142, y0 + 108, 66),
-    );
-    corpo += legenda(x0 + 100, y0 + 144, l[2], 22);
-  });
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${L} ${A}">
-  <rect id="regiao-fundo" class="colorir-alvo" x="0" y="0" width="${L}" height="${A}" fill="#ffffff"/>
-  ${legenda(L / 2, 46, titulo, 40)}
-  ${corpo}
-</svg>`;
-}
-
-interface CaixaPoster {
-  simbolos: string; // letras desenhadas como glifos, ex: "αι"
-  rotulo: string;
-}
-
-function fileiraCaixas(
-  caixas: CaixaPoster[],
-  y0: number,
-  idBase: number,
-  largura = 180,
-): string {
-  const vao = 15;
-  const total = caixas.length * largura + (caixas.length - 1) * vao;
-  const x0 = (800 - total) / 2;
-  let corpo = '';
-  caixas.forEach((c, i) => {
-    const x = x0 + i * (largura + vao);
-    const cx = x + largura / 2;
-    const n = idBase + i;
-    corpo += `<rect id="regiao-quadro-${n}" class="colorir-alvo" x="${x}" y="${y0}"
-      width="${largura}" height="180" rx="14" fill="#ffffff"/>`;
-    const letras = [...c.simbolos];
-    const tamanho = letras.length > 1 ? 95 : 115;
-    const passo = 64;
-    const inicioX = cx - ((letras.length - 1) * passo) / 2;
-    corpo += regiao(
-      `regiao-letra-${n}`,
-      letras.map((s, j) => glifo(s, inicioX + j * passo, y0 + 118, tamanho)).join(''),
-    );
-    corpo += legenda(cx, y0 + 165, c.rotulo, 19);
-  });
-  return corpo;
-}
-
-function svgVogaisGrego(): string {
-  const corpo = [
-    legenda(400, 48, 'Vogais e Ditongos Gregos', 40),
-    legenda(400, 102, 'As Breves e As Longas', 28),
-    fileiraCaixas(
-      [
-        { simbolos: 'ε', rotulo: 'Épsilon — breve' },
-        { simbolos: 'ο', rotulo: 'Ômicron — breve' },
-        { simbolos: 'η', rotulo: 'Eta — longa' },
-        { simbolos: 'ω', rotulo: 'Ômega — longa' },
-      ],
-      122,
-      1,
-    ),
-    legenda(400, 360, 'As Ambivalentes (breves ou longas)', 28),
-    fileiraCaixas(
-      [
-        { simbolos: 'α', rotulo: 'Alfa' },
-        { simbolos: 'ι', rotulo: 'Iota' },
-        { simbolos: 'υ', rotulo: 'Ípsilon' },
-      ],
-      380,
-      5,
-    ),
-    legenda(400, 618, 'Os Ditongos', 28),
-    fileiraCaixas(
-      [
-        { simbolos: 'αι', rotulo: 'α + ι (αιθερ)' },
-        { simbolos: 'ει', rotulo: 'ε + ι (εις)' },
-        { simbolos: 'οι', rotulo: 'ο + ι (οινος)' },
-      ],
-      638,
-      8,
-    ),
-    fileiraCaixas(
-      [
-        { simbolos: 'αυ', rotulo: 'α + υ (αυτος)' },
-        { simbolos: 'ευ', rotulo: 'ε + υ (ευ)' },
-        { simbolos: 'ου', rotulo: 'ο + υ (ου)' },
-      ],
-      838,
-      11,
-    ),
-  ].join('');
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1040">
-  <rect id="regiao-fundo" class="colorir-alvo" x="0" y="0" width="800" height="1040" fill="#ffffff"/>
-  ${corpo}
-</svg>`;
-}
-
-function svgVogaisLatino(): string {
-  const corpo = [
-    legenda(400, 48, 'Vogais e Encontros', 40),
-    legenda(400, 102, 'As Vogais', 28),
-    fileiraCaixas(
-      [
-        { simbolos: 'Aa', rotulo: 'abelha' },
-        { simbolos: 'Ee', rotulo: 'elefante' },
-        { simbolos: 'Ii', rotulo: 'ilha' },
-      ],
-      122,
-      1,
-    ),
-    fileiraCaixas(
-      [
-        { simbolos: 'Oo', rotulo: 'ovo' },
-        { simbolos: 'Uu', rotulo: 'uva' },
-      ],
-      322,
-      4,
-    ),
-    legenda(400, 560, 'Encontros de letras (duas letras, um som)', 28),
-    fileiraCaixas(
-      [
-        { simbolos: 'ch', rotulo: 'chave, chuva' },
-        { simbolos: 'lh', rotulo: 'palhaço, ilha' },
-        { simbolos: 'nh', rotulo: 'ninho, sonho' },
-      ],
-      580,
-      6,
-    ),
-    fileiraCaixas(
-      [
-        { simbolos: 'rr', rotulo: 'carro, cachorro' },
-        { simbolos: 'ss', rotulo: 'pássaro, osso' },
-        { simbolos: 'qu', rotulo: 'queijo, quintal' },
-      ],
-      780,
-      9,
-    ),
-  ].join('');
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 990">
-  <rect id="regiao-fundo" class="colorir-alvo" x="0" y="0" width="800" height="990" fill="#ffffff"/>
-  ${corpo}
-</svg>`;
-}
-
-function svgLetra(l: DadoLetra): string {
-  const [mai, min, nome] = l;
-  // Os "azulejos" (quadro-*) atrás de cada letra existem para que o vão
-  // interno de letras como A e O seja clicável SEM pintar o fundo inteiro
-  // (feedback de teste real: clicar no buraco do O mudava o fundo todo).
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
-  <rect id="regiao-fundo" class="colorir-alvo" x="0" y="0" width="800" height="600" fill="#ffffff"/>
-  <path id="regiao-moldura" class="colorir-alvo" fill="#ffffff" fill-rule="evenodd"
-    d="M20,20 h760 v560 h-760 Z M56,56 h688 v488 h-688 Z"/>
-  <rect id="regiao-quadro-maiuscula" class="colorir-alvo" x="105" y="110" width="385" height="360" rx="26" fill="#ffffff"/>
-  <rect id="regiao-quadro-minuscula" class="colorir-alvo" x="505" y="155" width="215" height="315" rx="26" fill="#ffffff"/>
-  ${caminhoLetra('regiao-maiuscula', mai, 300, 320)}
-  ${caminhoLetra('regiao-minuscula', min, 612, 210)}
-  <text x="400" y="530" font-size="42" text-anchor="middle"
-    font-family="'Segoe UI', sans-serif" fill="#1a1a1a">${nome}</text>
-</svg>`;
-}
-
-interface LivroGerado {
-  livro: Livro;
-  arquivos: Record<string, string>;
-}
-
-function gerarLivroAlfabeto(
-  id: string,
-  titulo: string,
-  intro: string,
-  letras: DadoLetra[],
-  faixa: string,
-  quizYaml: string,
-  posters: { vogaisSvg: string; tituloVogais: string },
-): LivroGerado {
-  const arquivos: Record<string, string> = {};
-  const linhasAssets: string[] = [];
-  const corpo: string[] = [`# ${titulo}`, '', intro, ''];
-
-  // pôster da tabela completa — todas as letras num arquivo só, pintável;
-  // o botão de imprimir já deriva o contorno P&B (vira folha de colorir A4)
-  arquivos[`${id}_tabela.svg`] = svgTabelaAlfabeto(titulo, letras);
-  linhasAssets.push(
-    '  - id: "tabela"',
-    '    tipo: "colorir"',
-    `    arquivo_interativo: "${id}_tabela.svg"`,
-  );
-  corpo.push('## A tabela inteira para pintar', '', '{{img:tabela}}', '');
-
-  // vogais logo abaixo da tabela completa (pedido do Bruno na rodada 5)
-  arquivos[`${id}_vogais.svg`] = posters.vogaisSvg;
-  linhasAssets.push(
-    '  - id: "vogais"',
-    '    tipo: "colorir"',
-    `    arquivo_interativo: "${id}_vogais.svg"`,
-  );
-  corpo.push(`## ${posters.tituloVogais}`, '', '{{img:vogais}}', '');
-
-  letras.forEach((l, i) => {
-    const [mai, min, nome, dica] = l;
-    const assetId = `letra${String(i + 1).padStart(2, '0')}`;
-    const arquivo = `${id}_${assetId}.svg`;
-    arquivos[arquivo] = svgLetra(l);
-    linhasAssets.push(
-      `  - id: "${assetId}"`,
-      `    tipo: "colorir"`,
-      `    arquivo_interativo: "${arquivo}"`,
-    );
-    corpo.push(`## ${mai} ${min} — ${nome}`, '', `${nome} ${dica}.`, '', `{{img:${assetId}}}`, '');
-  });
-
-  const md = [
-    '---',
-    `titulo: "${titulo}"`,
-    `faixa_etaria: "${faixa}"`,
-    'nivel_leitura: "iniciante"',
-    'licenca: "CC0"',
-    // grego veste o tema espaço (imersão: alfabeto antigo, céu estrelado)
-    `tema_padrao: "${id === 'alfabeto-grego' ? 'espaco' : 'arco-iris'}"`,
-    'assets:',
-    ...linhasAssets,
-    quizYaml,
-    '---',
-    '',
-    ...corpo,
-  ].join('\n');
-
-  return { livro: carregarLivro(id, md), arquivos };
-}
-
-export function gerarAlfabetos(): LivroGerado[] {
-  return [
-    gerarLivroAlfabeto(
-      'alfabeto-grego',
-      'O Alfabeto Grego',
-      'O alfabeto grego tem 24 letras e existe há quase três mil anos. Pinte cada letra e aprenda o nome dela!',
-      GREGO,
-      '8-12',
-      [
-        'quiz:',
-        '  - pergunta: "Qual é a ÚLTIMA letra do alfabeto grego?"',
-        '    alternativas:',
-        '      - "Alfa"',
-        '      - "Ômega"',
-        '      - "Beta"',
-        '    correta: 1',
-        '    nivel: "capitulo"',
-        '    explicacao: "Ômega (Ω) é a última! Por isso dizemos \'do alfa ao ômega\' — do começo ao fim."',
-      ].join('\n'),
-      { vogaisSvg: svgVogaisGrego(), tituloVogais: 'Vogais e ditongos para pintar' },
-    ),
-    gerarLivroAlfabeto(
-      'alfabeto',
-      'O Alfabeto',
-      'Nosso alfabeto tem 26 letras. Pinte cada uma e descubra uma palavra que começa com ela!',
-      LATINO,
-      '5-8',
-      [
-        'quiz:',
-        '  - pergunta: "Quantas letras tem o nosso alfabeto?"',
-        '    alternativas:',
-        '      - "26"',
-        '      - "20"',
-        '      - "30"',
-        '    correta: 0',
-        '    nivel: "capitulo"',
-        '    explicacao: "São 26 letras, de A até Z!"',
-      ].join('\n'),
-      { vogaisSvg: svgVogaisLatino(), tituloVogais: 'Vogais e encontros para pintar' },
-    ),
+export function gerarCadernoAlfabeto(id: string): FichaAlfabeto[] {
+  if (id !== 'alfabeto' && id !== 'alfabeto-grego') return [];
+  const grego = id === 'alfabeto-grego', dados = grego ? GREGO : LATINO;
+  const titulo = grego ? 'O Alfabeto Grego' : 'O Alfabeto';
+  const fichas: FichaAlfabeto[] = [];
+  const add = (assetId: string, nome: string, svg: string, grupo: string) => fichas.push({id:assetId,arquivo:`${id}_${assetId}.svg`,titulo:nome,svg,grupo});
+  add('tabela', titulo, svgTabelaA4(titulo,dados,grego), 'Alfabeto completo');
+  const grupos = grego ? [
+    { titulo:'Vogais: observe a duração', itens:[
+      {simbolos:'ε',rotulo:'breve',id:1},{simbolos:'ο',rotulo:'breve',id:2},
+      {simbolos:'η',rotulo:'longa',id:3},{simbolos:'ω',rotulo:'longa',id:4},
+      {simbolos:'α',rotulo:'breve ou longa',id:5},{simbolos:'ι',rotulo:'breve ou longa',id:6},{simbolos:'υ',rotulo:'breve ou longa',id:7},
+    ]},
+    { titulo:'Combinações estudadas como ditongos',itens:DITONGOS_GREGOS.map((c,i)=>({simbolos:c.simbolos,rotulo:[...c.simbolos].join(' + '),id:i+8}))},
+  ] : [
+    { titulo:'As cinco letras vogais',itens:LATINO.filter(l=>'AEIOU'.includes(l[0])).map((l,i)=>({simbolos:l[0]+l[1],rotulo:l[3].slice(3),id:i+1}))},
+    { titulo:'Dígrafos: duas letras para um som',itens:DIGRAFOS.map((c,i)=>({simbolos:c.simbolos,rotulo:c.exemplo.split(',')[0],id:i+6}))},
   ];
+  add('vogais', grego?'Vogais e ditongos gregos':'Vogais e dígrafos', svgQuadrosA4(grego?'Vogais e ditongos gregos':'Vogais e dígrafos',grego?'Grego antigo · consulta':'Português · consulta',grupos,
+    grego?'Leitura de base ática: ει e ου podem representar vogais longas. A duração é diferente da intensidade da voz.':'Nos exemplos QUEIJO e GUERRA, o U não é pronunciado. Dígrafos e ditongos são grupos diferentes.'),'Consulta');
+  dados.forEach((l,i)=>add(`letra${String(i+1).padStart(2,'0')}`,grego?l[2]:`${l[0]} ${l[3]}`,svgLetraA4(l,i,dados,grego),'Letras'));
+  if(!grego) add('ditongos','Ditongos do português',svgQuadrosA4('Ditongos do português','Português · consulta',[
+    {titulo:'Vogal e semivogal na mesma sílaba',itens:DITONGOS_PORTUGUES.map(c=>({simbolos:c.simbolos,rotulo:c.exemplo}))}
+  ],'São exemplos para começar. A fala varia: OU pode soar como O. Ouça as palavras com a professora.'),'Consulta');
+  const complementos = grego ? [...DITONGOS_GREGOS,...EXTRAS_GREGOS] : [...DIGRAFOS,...DITONGOS_PORTUGUES,...EXTRAS_PORTUGUES];
+  complementos.forEach(c=>add(c.id,c.titulo,svgComplementoA4(c),c.categoria));
+  return fichas;
 }
+
+interface LivroGerado { livro: Livro; arquivos: Record<string,string>; }
+function gerarLivro(id: string): LivroGerado {
+  const grego=id==='alfabeto-grego',titulo=grego?'O Alfabeto Grego':'O Alfabeto';
+  const fichas=gerarCadernoAlfabeto(id), arquivos=Object.fromEntries(fichas.map(f=>[f.arquivo,f.svg]));
+  const linhas=['---',`titulo: "${titulo}"`,`faixa_etaria: "${grego?'8-12':'5-8'}"`,'nivel_leitura: "iniciante"','licenca: "CC0"',`tema_padrao: "${grego?'espaco':'arco-iris'}"`,'assets:'];
+  for(const f of fichas) linhas.push(`  - id: "${f.id}"`,'    tipo: "colorir"',`    arquivo_interativo: "${f.arquivo}"`);
+  linhas.push('quiz:',`  - pergunta: "${grego?'Qual é a ÚLTIMA letra do alfabeto grego?':'Quantas letras tem o nosso alfabeto?'}"`,
+    `    alternativas: ${grego?'["Alfa", "Ômega", "Beta"]':'["26", "20", "30"]'}`,
+    `    correta: ${grego?1:0}`,'    nivel: "capitulo"',
+    `    explicacao: "${grego?'Ômega é a última letra. Do alfa ao ômega, do começo ao fim!':'São 26 letras, de A até Z!'}"`,'---','',`# ${titulo}`,'',
+    grego?'Vamos passear por 24 letras do grego antigo! Algumas parecem nossas conhecidas; outras vieram de roupa diferente. Escolha uma, brinque com o som e invente suas cores. Do alfa ao ômega, a aventura é sua!':'Temos 26 letras e um montão de histórias para inventar! Tem abelha, gato, navio e até um ovo misterioso. Escolha uma letra para pintar, dizer em voz alta ou transformar num desenho.','');
+  const dados = grego ? GREGO : LATINO;
+  const complementos = grego ? [...DITONGOS_GREGOS,...EXTRAS_GREGOS] : [...DIGRAFOS,...DITONGOS_PORTUGUES,...EXTRAS_PORTUGUES];
+  fichas.forEach(f=>{
+    linhas.push(`## ${f.titulo}`,'');
+    // O texto continua disponível para a leitura em voz alta do app.
+    if (f.grupo === 'Letras') {
+      const l = dados[Number(f.id.slice(5))-1];
+      linhas.push(grego ? DICAS_GREGO[l[0]] : `${l[2]} ${l[3]}. ${BRINCADEIRAS_PORTUGUES[l[0]]}`,'');
+    } else {
+      const c = complementos.find(c=>c.id===f.id);
+      if(c) {
+        const convite = grego && f.id.startsWith('ditongo-')
+          ? `${c.explicacao} Duas letras saíram juntas para passear! ${f.id==='ditongo-ei'?'Aqui, ει faz um e fechado comprido: eeee!':f.id==='ditongo-ou'?'Aqui, ου faz um u comprido: uuuu!':'Que tal encontrar cada uma na tabela?'} Escolha uma cor para cada letra.`
+          : `${c.explicacao} ${c.exemplo} Que tal pintar, contornar ou inventar um desenho para lembrar?`;
+        linhas.push(convite,'');
+      }
+    }
+    linhas.push(`{{img:${f.id}}}`,'');
+  });
+  return {livro:carregarLivro(id,linhas.join('\n')),arquivos};
+}
+export function gerarAlfabetos(): LivroGerado[] { return [gerarLivro('alfabeto-grego'),gerarLivro('alfabeto')]; }

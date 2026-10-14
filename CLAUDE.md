@@ -1,4 +1,4 @@
-# App Infantil — "Historinhas" (nome provisório)
+# App Infantil — Historinhas (historinhas.app.br)
 
 App educativo de leitura + quiz + colorir para crianças, projeto-irmão do
 Pedra Angular (`C:\Claude\app-leitura`). Público inicial: Theo (7) e Davi (9),
@@ -72,6 +72,15 @@ da mesma arte-fonte em runtime (`camadaBase.ts`) — uma arte, três papéis.
 3. Registrar ambos em `src/conteudo/catalogo.ts` (2 imports + 2 entradas).
 
 ## Convenções
+
+- Regra confirmada em 14/10/2026: trabalhar numa branch própria; nunca
+  fazer commit, merge ou push na `master` sem uma nova instrução explícita.
+  Nesta entrega, a branch é `codex/alfabetos-a4-ludicos` e deve passar por
+  revisão antes de integrar/publicar. Autoria Git: Diaphoreus, já configurada.
+- Não editar `src/motor/` nem renomear IDs publicados de livros, assets ou
+  regiões pintáveis. Antes de cada commit: `npm test` e `npm run build`.
+- A leitura do app fala com a criança de 7 a 9 anos e preserva o lúdico.
+  Orientações à professora ficam nas fichas de sala de aula e no guia.
 
 - UI, identificadores e commits em português (o código-fonte é bilíngue de propósito:
   módulos seguem os nomes da spec — camadaBase, roteadorFerramenta, etc.).

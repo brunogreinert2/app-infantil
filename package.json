@@ -9,7 +9,10 @@
     "build": "node scripts/conferir-motor.mjs && tsc --noEmit && vite build && node scripts/conferir-surrogatas.mjs dist",
     "preview": "vite preview",
     "test": "vitest run",
-    "gera:glifos": "node scripts/gera-glifos.mjs"
+    "gera:glifos": "node scripts/gera-glifos.mjs",
+    "prebuild": "npm run gera:glifos",
+    "pretest": "npm run gera:glifos",
+    "exportar:fichas": "npm run gera:glifos && node scripts/exportar-fichas.mjs"
   },
   "dependencies": {
     "@fontsource/atkinson-hyperlegible": "^5.3.0",
