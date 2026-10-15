@@ -1,5 +1,61 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Segunda coleção: Entre Bosques e Castelos — 15/10/2026 (Codex)
+
+Branch `codex/segunda-colecao`, criada de `d87df7c` (primeira coleção e fontes).
+O usuário pediu uma segunda coleção completa. Nenhum merge ou push na master;
+o conteúdo desta branch inclui também a entrega anterior ainda em revisão.
+
+Oito novos recontos: **Os Músicos de Bremen; A Rainha das Abelhas; O Ganso de
+Ouro; O Rouxinol e o Imperador; A Princesa e a Ervilha; Os Três Porquinhos;
+Cachinhos e os Três Ursos; João e o Pé de Feijão**. Cada um tem 459–508 palavras,
+três capítulos, três cenas e três perguntas com explicação. São adaptações livres
+com desfecho, não traduções integrais; indicação presente também na leitura.
+Fontes históricas, alterações de enredo e sugestões pedagógicas documentadas em
+`docs/COLECAO_BOSQUES_CASTELOS.md`. Sem tradução portuguesa contemporânea copiada.
+
+24 SVGs novos `colecao02-*`, regiões brancas e linhas pretas, máscaras de oclusão
+para impressão limpa. Sem texto nem dependência de fonte dentro das cenas.
+Registro isolado em `src/conteudo/colecaoBosquesCastelos.ts`; estante com 28
+histórias e dois alfabetos (31 cartões contando o caderno de anotações).
+Geradores reproduzíveis em `scripts/bosques-castelos/`. Nenhum arquivo do motor,
+ID anterior, texto anterior ou imagem de coleção anterior foi modificado.
+O teste da primeira coleção agora aceita crescimento da estante sem exigir
+exatamente 22 livros. Quatro novos testes cobrem registro, cenas, quiz e SVGs.
+
+Validação: **41 testes passaram**, build com TypeScript, carimbo do motor,
+PWA e surrogatas passou. Bundle principal ~4,84 MB bruto / 850 KB gzip;
+precache ~5,34 MiB. Continua o aviso conhecido de chunk grande. O teto de 6 MiB
+por arquivo foi preservado. Uma repetição acidental de formas no desenho do
+gigante foi detectada pelo build e corrigida antes da entrega; teste limita o
+tamanho de cada novo SVG para evitar recorrência. A próxima coleção merece
+avaliar divisão do bundle preservando o precache offline.
+
+No Chromium, todas as 24 cenas passaram por leitura, toque para pintar,
+desfazer, persistência, montagem de quatro peças e vitória. Viewport 390×844
+sem rolagem horizontal; zero erros de página e zero pedidos externos.
+Uma resposta errada em Bremen revelou a explicação e permitiu concluir.
+Após recarregar offline, João e sua terceira cena continuaram disponíveis.
+A impressão real do app produziu uma página A4 paisagem.
+
+Pacote: `C:\CHATGPT\App-Infantil\colecao-bosques-castelos`, ZIP ao lado.
+Inclui 8 Markdown, 24 SVGs, HTML de leitura sem JavaScript, guia, licenças,
+**PDF de leitura com 34 páginas A4 retrato** e **caderno com 24 páginas A4
+paisagem**. Todas as páginas renderizadas e inspecionadas; margens, dimensões
+e presença integral dos 72 parágrafos conferidas. Fontes realmente presentes
+no PDF de leitura: somente Cardo, Atkinson Hyperlegible e OpenDyslexic.
+
+Prévia local: `http://127.0.0.1:4176/` servindo o build atual. Pode ser reiniciada
+com `npm run preview -- --host 127.0.0.1 --port 4176`.
+Materiais de revisão/QA e exportação também permanecem na pasta desta conversa,
+em `work/segunda` e `outputs/colecao-bosques-castelos`.
+
+Pendentes: revisão do usuário e autorização antes de integrar/publicar;
+Lobato e continuação do Pequeno Príncipe ficam para outra entrega. Validação
+com crianças/professoras, rolo geral sem JS e auditoria ampla de acessibilidade
+continuam pendentes. A apresentação UFRGS segue prevista para 01/12/2026 ou
+08/12/2026, ainda sem data escolhida.
+
 ## Identidade tipográfica — 14/10/2026 (Codex)
 
 Escolha expressa do usuário: Cardo nas letras grandes de pintar, inclusive

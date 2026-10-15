@@ -6,6 +6,7 @@
 
 import { carregarLivro } from '../motor/frontmatter';
 import type { Livro } from '../motor/tipos';
+import { livrosBosquesCastelos, assetsBosquesCastelos } from './colecaoBosquesCastelos';
 import { gerarAlfabetos } from './alfabetos';
 import { livrosPrimeirasAventuras, assetsPrimeirasAventuras } from './colecaoPrimeirasAventuras';
 
@@ -47,6 +48,7 @@ export const livros: Livro[] = [
   carregarLivro('a-raposa-e-as-uvas', raposaUvasMd),
   carregarLivro('o-vento-e-o-sol', ventoSolMd),
   ...livrosPrimeirasAventuras,
+  ...livrosBosquesCastelos,
   ...gerados.map((g) => g.livro),
 ];
 
@@ -68,6 +70,7 @@ export const arquivosAssets: Record<string, string> = {
   'colecao01-uvas.svg': uvasSvg,
   'colecao01-vento-sol.svg': ventoSolSvg,
   ...assetsPrimeirasAventuras,
+  ...assetsBosquesCastelos,
   ...Object.assign({}, ...gerados.map((g) => g.arquivos)),
 };
 

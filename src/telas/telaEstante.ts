@@ -2,6 +2,7 @@
 // (continuar de onde parou — posicao_atual, spec 8.4/8.6).
 
 import { armazenamento } from '../armazenamento/armazenamento';
+import { capasBosquesCastelos } from '../conteudo/colecaoBosquesCastelos';
 import { livros } from '../conteudo/catalogo';
 import { capasPrimeirasAventuras } from '../conteudo/colecaoPrimeirasAventuras';
 import type { Livro } from '../motor/tipos';
@@ -10,6 +11,7 @@ import { barraTopo, el } from './comum';
 
 const EMOJIS_CAPA: Record<string, string> = {
   ...capasPrimeirasAventuras,
+  ...capasBosquesCastelos,
   'lebre-e-tartaruga': '🐢🐇',
   'o-que-depende-de-mim': '☔',
   'o-pequeno-principe': '🌹',

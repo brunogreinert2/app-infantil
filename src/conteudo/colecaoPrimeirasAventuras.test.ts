@@ -5,7 +5,7 @@ import { livrosPrimeirasAventuras, assetsPrimeirasAventuras } from './colecaoPri
 describe('coleção Primeiras Aventuras', () => {
   it('acrescenta doze livros distintos e preserva a estante anterior', () => {
     expect(livrosPrimeirasAventuras).toHaveLength(12);
-    expect(livros).toHaveLength(22);
+    expect(livros.length).toBeGreaterThanOrEqual(22);
     expect(new Set(livros.map(l => l.id)).size).toBe(livros.length);
     for (const id of ['lebre-e-tartaruga', 'o-pequeno-principe', 'o-que-depende-de-mim',
       'socrates-e-as-duas-cestas', 'o-sonho-do-menino-rene', 'o-leao-e-o-ratinho',
