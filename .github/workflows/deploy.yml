@@ -21,12 +21,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version-file: .nvmrc
           cache: npm
       # npm install (não ci): o lockfile gerado no Windows do Bruno omite
       # binários opcionais de outras plataformas e o ci estrito recusa
       - run: npm install --no-fund --no-audit
-      - run: npm test
+      # Evita que o teste de desempenho dispute CPU com as outras suítes.
+      - run: npm test -- --maxWorkers=1
       - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:

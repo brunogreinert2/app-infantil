@@ -18,6 +18,9 @@ recompensa previsível (nunca aleatória), zero pressão de nota.
 
 ## Rodar
 
+Use Node.js 24 LTS (`.nvmrc`), também utilizado na publicação. Para executar
+as suítes sem concorrência de CPU: `npm test -- --maxWorkers=1`.
+
 ```bash
 npm run dev      # localhost:5173 (ou 5174 via launch.json da raiz C:\Claude)
 npm run build    # tsc --noEmit && vite build — precisa passar limpo antes de concluir

@@ -1,5 +1,29 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Publicação das coleções autorizada — 15/10/2026
+
+O usuário autorizou expressamente: “Pode publicar no site por favor”.
+A autorização abrange a versão revisada na prévia: primeira e segunda coleções,
+correção das aves e identidade tipográfica. A integração de
+`codex/segunda-colecao` na master está autorizada para esta publicação.
+As indicações de “aguarda autorização” abaixo são registros históricos e ficam
+superadas por esta entrada. O fluxo de publicação executa testes e build no
+GitHub Actions antes de atualizar o GitHub Pages.
+
+Conteúdo final previsto: 28 histórias e dois alfabetos, com as 24 cenas de
+Entre Bosques e Castelos e as 27 cenas da primeira entrega. PDFs e ZIPs continuam
+na pasta de colaboração; não fazem parte do pacote web desta publicação.
+As pendências pedagógicas e técnicas descritas abaixo permanecem válidas.
+
+A master recebeu `fdc9b79`, mas a primeira publicação (Actions 38798916802)
+foi corretamente interrompida pelo teste de 50 mil linhas: 4,81 s no servidor
+com Node 20, acima do limite de 4 s. Localmente, Node 20 também excedeu o limite;
+os outros 40 testes passaram e o build passou. A mesma suíte, sem alterar o
+motor nem o teste, passou integralmente com Node 24 e um worker. O workflow
+passa a ler Node 24 de `.nvmrc` e usa `npm test -- --maxWorkers=1` para não
+disputar CPU entre suítes. Node 24 consta como LTS na
+[tabela oficial](https://nodejs.org/en/about/previous-releases).
+
 ## Segunda coleção: Entre Bosques e Castelos — 15/10/2026 (Codex)
 
 Branch `codex/segunda-colecao`, criada de `d87df7c` (primeira coleção e fontes).
