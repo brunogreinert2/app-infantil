@@ -95,5 +95,6 @@ linhas atravessando personagens na impressão e no quebra-cabeça.
 
 Branch `codex/segunda-colecao`, criada a partir de `d87df7c` da primeira coleção.
 Inclui, portanto, a primeira coleção e a padronização tipográfica ainda em revisão.
-Nenhuma publicação foi feita nesta tarefa. Para integrar, revisar o conjunto de
-mudanças acumuladas antes de autorizar a master.
+Publicação autorizada e concluída em 15/10/2026, com a versão `5312b3f` na master.
+Inclui as duas coleções e a identidade tipográfica. Testes, build e deploy
+passaram; leitura, pintura, quebra-cabeça e acesso offline conferidos no site.

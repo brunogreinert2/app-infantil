@@ -24,6 +24,16 @@ passa a ler Node 24 de `.nvmrc` e usa `npm test -- --maxWorkers=1` para não
 disputar CPU entre suítes. Node 24 consta como LTS na
 [tabela oficial](https://nodejs.org/en/about/previous-releases).
 
+**Publicação confirmada:** `5312b3f` integrado e enviado à master. O
+[Actions 38822990290](https://github.com/brunogreinert2/app-infantil/actions/runs/38822990290)
+concluiu testes, build e deploy com sucesso. Em `https://historinhas.app.br/`,
+Chromium confirmou os 30 livros (28 histórias e dois alfabetos), as oito novas
+histórias com três cenas cada, pintura por toque, cores persistidas, montagem
+do quebra-cabeça e recarga offline. Viewport 390×844 sem transbordamento nas
+leituras verificadas; nenhum erro JavaScript. A publicação está concluída.
+Este registro final é documental, mantido na branch de trabalho para evitar
+disparar outra publicação idêntica só pela atualização do relatório.
+
 ## Segunda coleção: Entre Bosques e Castelos — 15/10/2026 (Codex)
 
 Branch `codex/segunda-colecao`, criada de `d87df7c` (primeira coleção e fontes).
