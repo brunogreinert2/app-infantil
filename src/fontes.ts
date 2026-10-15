@@ -30,7 +30,8 @@
 // desenho de antes, caractere por caractere; só o que faltava passa a vir do
 // build que o tem.
 //
-// Mesma montagem no app-leitura, com a mesma lista de faixas (NORMAS.md N70).
+// Revisão de identidade: grego sai do suplemento e usa Cardo, conforme escolha
+// do usuário. O restante do suplemento segue a montagem do ecossistema.
 // Se um dia entrar hebraico ou árabe, medir antes: nenhum dos dois builds cobre.
 // ---------------------------------------------------------------------------
 
@@ -45,31 +46,8 @@ import odSupRegular from './fontes/opendyslexic-suplemento-400.woff2?url';
 import odSupBold from './fontes/opendyslexic-suplemento-700.woff2?url';
 import cardoRegular from './fontes/cardo-regular.woff2?url';
 import cardoBold from './fontes/cardo-bold.woff2?url';
-// DejaVu Sans Mono (licença Bitstream Vera, livre): a monoespaçada do editor de
-// anotações. Código precisa de largura fixa — é ela que faz a indentação
-// alinhar e que separa l de 1 e O de 0, letras que num comando trocado custam
-// uma hora de tentativa.
-//
-// Subconjuntada dos 3322 glifos originais para 349: ASCII, acentos do
-// português, travessão e aspas curvas, setas, certo e errado. De 332 KB para
-// 19 KB. O que sobrou cobre comando de Minecraft e recado de criança; se um dia
-// faltar caractere, medir com fontTools antes de aumentar a faixa.
-import dejavuMono from './fontes/dejavu-mono.woff2?url';
-
-// Cardo é o PISO do ecossistema (NORMAS.md N72): a serifada canônica, que
-// cobre latim com macrons, grego politônico e hebraico com niqud. Aqui ela
-// entra só no fim de cada pilha, para o que as fontes escolhidas não têm —
-// sem ela, o grego do livro do Davi na opção "Atkinson" (que também é só
-// latim) sairia numa fonte do aparelho, diferente em cada aparelho.
-//
-// Restrita por unicode-range para não pesar: os 143 KB só são baixados se
-// aparecer grego ou hebraico na tela.
-const FAIXAS_CARDO = [
-  'U+0370-03FF', // grego e copta
-  'U+1F00-1FFF', // grego estendido (politônico)
-  'U+0590-05FF', // hebraico com niqud
-  'U+FB1D-FB4F', // hebraico, formas de apresentação
-].join(', ');
+// Cardo cobre também o latim: a opção antiga "padrao" passa a ser Cardo.
+// Sem unicode-range nesta família, para que títulos e leitura latina funcionem.
 
 // As faixas onde o build 2.001 NÃO tem o caractere e o 0.920 tem — medidas
 // com fontTools, não escolhidas a olho. São 868 caracteres. A lista é a mesma
@@ -80,9 +58,7 @@ const FAIXAS_CARDO = [
 // português. Hebraico e árabe não estão em nenhum dos dois builds.
 const FAIXAS_SUPLEMENTO = [
   'U+0100-024F', // latim estendido A/B — macrons do latim clássico
-  'U+0370-03FF', // grego e copta
   'U+0400-052F', // cirílico e suplemento
-  'U+1F00-1FFF', // grego estendido (politônico)
   'U+2020-2021', // † ‡ do aparato crítico
   'U+2070-209F', // sobrescritos e subscritos
   'U+2150-218F', // formas numéricas — algarismos romanos
@@ -96,65 +72,55 @@ estilo.textContent = `
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('${odRegular}') format('woff');
-  font-weight: 400; font-style: normal; font-display: swap;
+  font-weight: 400; font-style: normal; font-display: block;
 }
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('${odBold}') format('woff');
-  font-weight: 700; font-style: normal; font-display: swap;
+  font-weight: 700; font-style: normal; font-display: block;
 }
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('${odItalic}') format('woff');
-  font-weight: 400; font-style: italic; font-display: swap;
+  font-weight: 400; font-style: italic; font-display: block;
 }
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('${odBoldItalic}') format('woff');
-  font-weight: 700; font-style: italic; font-display: swap;
+  font-weight: 700; font-style: italic; font-display: block;
 }
 /* Suplemento, declarado por último: para um caractere dentro das faixas as
    duas faces casam, e o algoritmo do CSS fica com a última. */
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('${odSupRegular}') format('woff2');
-  font-weight: 400; font-style: normal; font-display: swap;
+  font-weight: 400; font-style: normal; font-display: block;
   unicode-range: ${FAIXAS_SUPLEMENTO};
 }
 @font-face {
   font-family: 'OpenDyslexic';
   src: url('${odSupBold}') format('woff2');
-  font-weight: 700; font-style: normal; font-display: swap;
+  font-weight: 700; font-style: normal; font-display: block;
   unicode-range: ${FAIXAS_SUPLEMENTO};
 }
 @font-face {
   font-family: 'Cardo';
   src: url('${cardoRegular}') format('woff2');
-  font-weight: 400; font-style: normal; font-display: swap;
-  unicode-range: ${FAIXAS_CARDO};
+  font-weight: 400; font-style: normal; font-display: block;
 }
 @font-face {
   font-family: 'Cardo';
   src: url('${cardoBold}') format('woff2');
-  font-weight: 700; font-style: normal; font-display: swap;
-  unicode-range: ${FAIXAS_CARDO};
+  font-weight: 700; font-style: normal; font-display: block;
 }
-@font-face {
-  font-family: 'DejaVu Mono';
-  src: url('${dejavuMono}') format('woff2');
-  font-weight: 400; font-style: normal; font-display: swap;
-}`;
+`;
 document.head.appendChild(estilo);
 
-// Toda pilha passa pelas fontes NOSSAS antes de chegar ao sistema operacional
-// (NORMAS.md N72). Em "padrão" a fonte do aparelho é a escolha explícita, então
-// ela vem primeiro; a Cardo entra logo atrás, para o que faltar.
+// Chaves persistidas preservadas. A antiga opção do sistema agora usa Cardo.
+// "codigo" mantém os dados das anotações e usa Atkinson; não é monoespaçada.
 export const PILHAS_DE_FONTE: Record<string, string> = {
-  padrao: "'Segoe UI', system-ui, -apple-system, 'Cardo', sans-serif",
-  hyperlegible: "'Atkinson Hyperlegible', 'Cardo', 'Segoe UI', system-ui, sans-serif",
-  dyslexic: "'OpenDyslexic', 'Cardo', 'Segoe UI', system-ui, sans-serif",
-  // Só do editor de anotações: a única pilha do app que começa monoespaçada.
-  // Termina em `monospace` do sistema por último recurso, mas a nossa vem
-  // primeiro — a N72 continua valendo.
-  codigo: "'DejaVu Mono', 'Cardo', ui-monospace, monospace",
+  padrao: "'Cardo', 'Atkinson Hyperlegible', 'OpenDyslexic'",
+  hyperlegible: "'Atkinson Hyperlegible', 'Cardo', 'OpenDyslexic'",
+  dyslexic: "'OpenDyslexic', 'Cardo', 'Atkinson Hyperlegible'",
+  codigo: "'Atkinson Hyperlegible', 'Cardo', 'OpenDyslexic'",
 };

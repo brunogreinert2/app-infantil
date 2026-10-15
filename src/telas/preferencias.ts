@@ -16,7 +16,7 @@ export const TEMAS = [
 ] as const;
 
 export const FONTES = [
-  { id: 'padrao', rotulo: 'Padrão' },
+  { id: 'padrao', rotulo: 'Cardo' },
   { id: 'hyperlegible', rotulo: 'Atkinson Hyperlegible' },
   { id: 'dyslexic', rotulo: 'OpenDyslexic' },
 ] as const;

@@ -66,13 +66,29 @@ npm run build
 conteúdo adicional; `alfabetos.ts` registra livros e arquivos pelo pipeline
 normal. `glifos-legendas.json` é gerado, ignorado pelo Git e reconstruído
 nos hooks prebuild/pretest. `glifos.json` continua versionado como antes.
-DejaVu é usado para contornos; a licença acompanha o pacote exportado.
+Cardo Bold é usada nos contornos de todas as letras pintáveis (português e
+grego). Atkinson Hyperlegible Regular fornece as legendas latinas; Cardo Regular
+fornece os caracteres gregos das legendas. As licenças acompanham o pacote.
+Os TTF em `scripts/fontes/` são descompactados dos WOFF2 locais de Cardo, sem
+alteração dos glifos, para leitura por opentype.js; só são usados na compilação.
+O gerador acusa erro se um caractere necessário não existir nas fontes locais.
 
 No livro, os botões imprimem o alfabeto em uma folha, a tabela de consulta
 ou o caderno inteiro. Na tela de pintura, imprimir gera apenas aquela ficha
 sem as cores salvas. A4 retrato, margem externa de 10 mm, uma folha por
 página. Histórias usam A4 paisagem. Desativar cabeçalhos/rodapés do navegador
 e usar 100% ou tamanho real.
+
+O app prepara HTML/SVG em um iframe e abre `window.print()`. A janela do navegador
+oferece imprimir em papel ou salvar em PDF (incluindo Microsoft Print to PDF no
+Windows). O botão de caderno prepara todas as folhas; o de pintura prepara uma.
+Os PDFs distribuídos no pacote são versões já reunidas, geradas com a mesma arte.
+
+Revisão tipográfica de 14/10/2026: 85 fichas regeneradas, mantendo todos os IDs
+e sua ordem; 37 testes passaram. Impressão individual, caderno completo,
+pintura, desfazer, persistência, mobile e offline conferidos no Chromium.
+Fontes dos PDFs de apoio inspecionadas: apenas Cardo/Atkinson/OpenDyslexic;
+alfabetos são caminhos vetoriais, sem fontes a resolver durante a impressão.
 
 ## Leitura infantil e validação final
 

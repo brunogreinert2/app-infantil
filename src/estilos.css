@@ -1,8 +1,7 @@
 /* Sistema de temas por variável CSS — mesmo mecanismo do Pedra Angular
    (spec 5). Temas decorativos escolhidos pela criança; texto sempre
    com contraste ≥ 7:1 sobre o fundo do próprio tema.
-   Fontes: por ora pilha de sistema; Atkinson Hyperlegible / OpenDyslexic
-   embutidas via @font-face data: URI é tarefa pendente (CONTINUAR_AQUI.md). */
+   Fontes locais: Cardo, Atkinson Hyperlegible e OpenDyslexic (fontes.ts). */
 
 :root {
   --tamanho-base: 20px;
@@ -81,7 +80,7 @@ body {
   background-color: var(--fundo);
   background-image: var(--papel, none);
   color: var(--texto);
-  font-family: var(--fonte-corpo, 'Segoe UI', system-ui, -apple-system, sans-serif);
+  font-family: var(--fonte-corpo, 'OpenDyslexic', 'Atkinson Hyperlegible', 'Cardo');
   font-size: var(--tamanho-base);
   line-height: 1.6;
   transition: background 0.3s;
@@ -1157,7 +1156,7 @@ button {
   padding-left: 1.4em;
 }
 .paragrafo math {
-  font-family: 'Cambria Math', 'STIX Two Math', 'Noto Sans Math', math;
+  font-family: 'Cardo', 'Atkinson Hyperlegible', 'OpenDyslexic';
 }
 .paragrafo math[display='block'] {
   overflow-x: auto;
@@ -1179,6 +1178,6 @@ button {
    com outra fonte — "σεαυτόν" saía desencontrado. A Cardo, piso do
    ecossistema (NORMAS N72), tem tudo; e o Davi gosta do alfabeto grego. */
 .paragrafo .grego {
-  font-family: 'Cardo', serif;
+  font-family: 'Cardo';
   font-size: 1.12em;
 }

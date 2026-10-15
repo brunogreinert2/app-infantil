@@ -41,8 +41,8 @@ export interface Anotacao {
 }
 
 const FONTES_OFERECIDAS = [
-  { id: 'codigo', rotulo: '⌨️ Código' },
-  { id: 'padrao', rotulo: '✏️ Normal' },
+  { id: 'codigo', rotulo: '⌨️ Atkinson' },
+  { id: 'padrao', rotulo: '✏️ Cardo' },
   { id: 'hyperlegible', rotulo: '👓 Bem legível' },
   { id: 'dyslexic', rotulo: '🔤 OpenDyslexic' },
 ];

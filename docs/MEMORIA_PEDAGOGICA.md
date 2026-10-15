@@ -7,6 +7,7 @@ Registro das decisões de Bruno em 13/10/2026.
 - Data prevista: **01/12/2026 ou 08/12/2026**, ainda a definir. Não tratar nenhuma das duas como confirmada.
 - Objetivo: deixar o aplicativo bonito e fácil de usar por crianças, professoras e futuras professoras; preparar materiais que também funcionem em sala de aula.
 - Desenhos de pintura: estilo de livro infantil, somente contornos pretos e preenchimento inicial branco. A criança escolhe as cores no aplicativo ou no papel.
+- Identidade tipográfica confirmada em 14/10/2026: somente **Cardo, Atkinson Hyperlegible e OpenDyslexic** nos textos. **Cardo em todas as letras de colorir, latinas e gregas**, e no grego; Atkinson nas legendas e textos latinos das fichas; OpenDyslexic na leitura. Fontes incorporadas ou convertidas em contornos nos materiais exportados, sem depender de fontes instaladas. O seletor Aparência troca a leitura; não redesenha as letras fixas de pintar.
 - Impressão: **A4 desde a concepção**, com margens, sem cortes nem uma ficha dividida entre páginas. Vale para histórias e alfabetos.
 - Alfabetos: uma folha com o alfabeto completo, fichas individuais por letra e por ditongo e complementos pedagógicos necessários. Distinguir vogais, ditongos, hiatos e dígrafos.
 - Grego: **grego antigo**, com a convenção de leitura explicitada; não misturar silenciosamente pronúncias modernas e antigas.

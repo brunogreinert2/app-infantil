@@ -1,5 +1,5 @@
 // Gera src/conteudo/glifos.json: cada letra dos alfabetos vira um caminho
-// SVG real (com furos de verdade), extraído da DejaVu Serif Bold em BUILD.
+// SVG real (com furos de verdade), extraído da Cardo Bold em BUILD.
 //
 // Por que caminhos e não <text>: no SVG, <text> captura cliques pela caixa
 // retangular inteira do caractere — o vão do "O" nunca deixaria o clique
@@ -13,7 +13,8 @@ import { createRequire } from 'node:module';
 import opentype from 'opentype.js';
 
 const require = createRequire(import.meta.url);
-const caminhoFonte = require.resolve('dejavu-fonts-ttf/ttf/DejaVuSerif-Bold.ttf');
+// Mesmos glifos dos WOFF2 locais, descompactados em TTF para opentype.js.
+const caminhoFonte = new URL('./fontes/cardo-bold.ttf', import.meta.url);
 
 const GREGAS = 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψως';
 const LATINAS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -28,8 +29,10 @@ const fonte = lerFonte(caminhoFonte);
 // tamanho de referência 1000; o app aplica scale() para o tamanho final
 const glifos = {};
 for (const letra of TODAS) {
+  if (!fonte.charToGlyphIndex(letra)) throw new Error(`Cardo sem glifo: ${letra}`);
   const caminho = fonte.getPath(letra, 0, 0, 1000);
   glifos[letra] = {
+    fonte: 'Cardo',
     // A otimização da opentype remove o último segmento de alguns contornos
     // porque o fill fecha implicitamente. Para letras vazadas precisamos de
     // todos os segmentos e fechamento explícito em cada subcaminho.
@@ -46,19 +49,27 @@ console.log(`ok: ${Object.keys(glifos).length} glifos → src/conteudo/glifos.js
 
 // Legendas também são vetoriais: um SVG exportado não depende da fonte do aparelho.
 // Derivado ignorado pelo git; pretest/prebuild o regeneram a partir da fonte licenciada.
-const fonteLegendas = lerFonte(require.resolve('dejavu-fonts-ttf/ttf/DejaVuSans.ttf'));
+const atkinson = ['latin', 'latin-ext'].map(sub => lerFonte(require.resolve(
+  `@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-${sub}-400-normal.woff`)));
+const cardo = lerFonte(new URL('./fontes/cardo-regular.ttf', import.meta.url));
+const fontePara = c => {
+  if (/[\u0370-\u03ff\u1f00-\u1fff]/u.test(c)) return cardo;
+  return atkinson.find(f => f.charToGlyphIndex(c)) ?? cardo;
+};
 const caracteres = new Set();
 for (const [inicio, fim] of [[32, 126], [160, 383], [0x370, 0x3ff], [0x1f00, 0x1fff]]) {
   for (let n = inicio; n <= fim; n++) {
     const c = String.fromCodePoint(n);
-    if (fonteLegendas.charToGlyphIndex(c)) caracteres.add(c);
+    if (fontePara(c).charToGlyphIndex(c)) caracteres.add(c);
   }
 }
 for (const c of '–—“”‘’…•→') caracteres.add(c);
 const legendas = {};
 for (const c of caracteres) {
+  const fonteLegendas = fontePara(c);
+  if (!fonteLegendas.charToGlyphIndex(c)) throw new Error(`Sem glifo nas fontes da identidade: ${c}`);
   const p = fonteLegendas.getPath(c, 0, 0, 1000);
-  legendas[c] = { d: p.toPathData(1), adv: fonteLegendas.getAdvanceWidth(c, 1000) };
+  legendas[c] = { fonte: fonteLegendas === cardo ? 'Cardo' : 'Atkinson Hyperlegible', d: p.toPathData(1), adv: fonteLegendas.getAdvanceWidth(c, 1000) };
 }
 writeFileSync(new URL('../src/conteudo/glifos-legendas.json', import.meta.url), JSON.stringify(legendas));
 console.log(`ok: ${Object.keys(legendas).length} caracteres para legendas vetoriais`);

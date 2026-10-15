@@ -9,8 +9,12 @@
 
 import { derivarContornoPB } from '../canvas/camadaBase';
 import fonteImpressao from '../fontes/opendyslexic-400.woff?url';
+import fonteCardo from '../fontes/cardo-regular.woff2?url';
 
-const FONTES_IMPRESSAO = `@font-face { font-family: 'Historinhas Impresso'; src: url('${fonteImpressao}') format('woff'); }`;
+const FONTES_IMPRESSAO = `
+  @font-face { font-family: 'Historinhas Impresso'; src: url('${fonteImpressao}') format('woff'); }
+  @font-face { font-family: 'Cardo'; src: url('${fonteCardo}') format('woff2'); }
+`;
 export const CSS_CADERNO_A4 = `
   @page { size: A4 portrait; margin: 10mm; }
   :root { --ui-impressao-tinta: #000000; --ui-impressao-papel: #ffffff; }
@@ -69,7 +73,7 @@ export function imprimirParaColorir(svgFonte: string, titulo: string): void {
     `${FONTES_IMPRESSAO}
      @page { size: A4 ${retrato ? 'portrait' : 'landscape'}; margin: 10mm; }
      html, body { margin: 0; padding: 0; }
-     body { font-family: 'Historinhas Impresso', sans-serif; }
+     body { font-family: 'Historinhas Impresso', 'Cardo'; }
      h1 { font-size: 12pt; text-align: center; margin: 0 0 5mm; }
      svg { display: block; margin: 0 auto; height: ${retrato ? '250mm' : '150mm'}; width: auto; max-width: 100%; page-break-inside: avoid; }`,
   );

@@ -2,9 +2,19 @@ import { describe, it, expect } from 'vitest';
 import { gerarAlfabetos, gerarCadernoAlfabeto, GREGO, LATINO } from './alfabetos';
 import { DIGRAFOS, DITONGOS_GREGOS } from './alfabetoComplementos';
 import glifos from './glifos.json';
+import legendas from './glifos-legendas.json';
 import { DICAS_GREGO, BRINCADEIRAS_PORTUGUES } from './alfabetoBrincadeiras';
 
 describe('cadernos A4 de alfabetos', () => {
+  it('usa Cardo para pintar e grego, e Atkinson para legendas latinas', () => {
+    for (const g of Object.values(glifos)) expect(g.fonte).toBe('Cardo');
+    for (const c of 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyzÁáÇçÃãÉéÕõ0123456789') {
+      expect((legendas as Record<string, {fonte: string}>)[c].fonte).toBe('Atkinson Hyperlegible');
+    }
+    for (const c of 'ΑαΩωΣσςᾳῃῳἀἁ') {
+      expect((legendas as Record<string, {fonte: string}>)[c].fonte).toBe('Cardo');
+    }
+  });
   it('oferece dicas infantis para todas as letras sem narrar orientações à professora', () => {
     expect(Object.keys(DICAS_GREGO)).toEqual(GREGO.map(l=>l[0]));
     expect(Object.keys(BRINCADEIRAS_PORTUGUES)).toEqual(LATINO.map(l=>l[0]));

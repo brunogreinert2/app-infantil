@@ -1,5 +1,42 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Identidade tipográfica — 14/10/2026 (Codex)
+
+Escolha expressa do usuário: Cardo nas letras grandes de pintar, inclusive
+latinas; Cardo no grego, Atkinson nas legendas e OpenDyslexic na leitura.
+Branch continua `codex/colecao-primeiras-aventuras`, sem publicação autorizada.
+
+`gera-glifos.mjs` agora usa Cardo Bold para os 122 glifos de pintura e
+Atkinson/Cardo para legendas. Cardo TTF descompactada dos WOFF2 locais em
+`scripts/fontes/` permite geração via Node, sem depender de Python no build.
+85 fichas exportadas novamente; todos os IDs de regiões e sua ordem preservados.
+A mudança de forma da letra não apaga cores salvas; traços livres anteriores
+continuam nas coordenadas originais e podem não acompanhar o novo contorno.
+
+As cinco ilustrações antigas que continham `<text>` passaram a incorporar
+Atkinson no próprio SVG. Aparência oferece Cardo/Atkinson/OpenDyslexic: a chave
+persistida `padrao` foi mantida e agora significa Cardo. O grego usa Cardo
+também na leitura. A chave `codigo` das anotações usa Atkinson, por solicitação
+de limitar a identidade às três famílias; não é mais fonte monoespaçada.
+Não foram alterados o texto das notas, a preservação de espaços nem o teclado.
+Ícones/emoji continuam como símbolos da interface, fora da tipografia editorial.
+
+Materiais das pastas de colaboração atualizados: alfabetos, guia, caderno das
+cinco cenas antigas, coleção de 27 cenas e HTML de leitura. PDFs/HTML incorporam
+as fontes; legendas de SVG são vetores. Licenças acompanham os pacotes.
+
+Validação: 37 testes; build com carimbo do motor/TypeScript/PWA/surrogatas passou.
+Aviso de chunk grande permanece (~3 MB bruto / 717 KB gzip), precache ~3,68 MiB.
+IDs das 85 fichas comparados antes/depois; margens verificadas e folhas renderizadas.
+Pintura, desfazer, persistência, impressão individual e caderno completo passaram;
+mobile 390px sem rolagem horizontal, offline e zero pedidos externos conferidos.
+Inspeção das fontes realmente renderizadas via Chromium confirmou somente as
+famílias locais nos textos latinos/gregos testados e nas cinco aberturas SVG.
+
+Impressão: o app prepara HTML/SVG e chama `window.print()`; salvar em PDF é uma
+opção da janela do navegador/Windows. PDFs do pacote são cadernos pré-gerados.
+Não há necessidade de implementar uma biblioteca de PDF no app para esse fluxo.
+
 ## Coleção Primeiras Aventuras — 14/10/2026 (Codex)
 
 Revisão visual após feedback do usuário: as cegonhas das páginas 03/27 e 04/27
