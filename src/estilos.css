@@ -960,9 +960,10 @@ button {
 }
 
 /* ---------- cores de pintar: nome escrito, tons, grade fixa ----------
-   Grade de colunas FIXAS (5 no celular, 10 em tela larga) e não flex-wrap:
-   a ordem das cores foi medida para que nenhuma encoste numa parecida, e
-   isso só vale se a vizinhança for sempre a mesma (canvas/cores.ts). */
+   Grade de 5 colunas FIXAS, em toda tela, e não flex-wrap: as cores formam
+   um xadrez (quente/fria) para que nenhuma encoste numa parecida, e o xadrez
+   só existe se a vizinhança for sempre a mesma (canvas/cores.ts). De quebra,
+   cada cor fica no mesmo lugar no celular e no computador. */
 .paleta,
 .paleta-tons {
   display: grid;
@@ -970,12 +971,6 @@ button {
   gap: 12px;
   justify-content: center;
   max-width: none;
-}
-
-@media (min-width: 700px) {
-  .paleta {
-    grid-template-columns: repeat(10, 52px);
-  }
 }
 
 /* Borda na cor do texto em TODO poço: amarelo-claro, bege e branco somem

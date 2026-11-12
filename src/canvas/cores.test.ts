@@ -82,20 +82,47 @@ describe('visão de cores (simulação de Machado et al., 2009)', () => {
     expect(diferenca('#e63946', '#2f9e44', 'deuteranopia')).toBeLessThan(15);
   });
 
-  // Vizinhas = ao lado, acima ou abaixo, na grade de 5 e na de 10 colunas.
-  // Piso 25: bem acima do ponto em que duas cores lado a lado se confundem.
-  it('na paleta, nenhuma cor encosta em outra parecida — em nenhuma das visões', () => {
-    const PISO = 25;
-    const problemas: string[] = [];
+  const C = COLUNAS_PALETA;
+  const pares = (passos: (i: number) => number[]) => {
+    const lista: [number, number][] = [];
     for (let i = 0; i < MATIZES.length; i++) {
-      for (const passo of [1, ...COLUNAS_PALETA]) {
-        const j = i + passo;
-        if (j >= MATIZES.length) continue;
-        const d = piorDiferenca(MATIZES[i].base, MATIZES[j].base);
-        if (d < PISO) problemas.push(`${MATIZES[i].nome} / ${MATIZES[j].nome}: ${d.toFixed(1)}`);
-      }
+      for (const j of passos(i)) if (j < MATIZES.length) lista.push([i, j]);
     }
-    expect(problemas).toEqual([]);
+    return lista;
+  };
+  // encostadas: ao lado (na mesma fileira) e embaixo
+  const encostadas = pares((i) => [...(i % C < C - 1 ? [i + 1] : []), i + C]);
+  // na diagonal: tocam só pelo canto
+  const diagonais = pares((i) => [
+    ...(i % C < C - 1 ? [i + C + 1] : []),
+    ...(i % C > 0 ? [i + C - 1] : []),
+  ]);
+
+  it('a paleta é um xadrez: cor quente só encosta em cor fria', () => {
+    expect(C % 2).toBe(1); // com número par de colunas o xadrez não fecha
+    for (const [i, j] of encostadas) {
+      expect(MATIZES[i].lado, `${MATIZES[i].nome} / ${MATIZES[j].nome}`).not.toBe(MATIZES[j].lado);
+    }
+  });
+
+  it('a família que o daltonismo vermelho-verde confunde está toda do lado quente', () => {
+    const quentes = MATIZES.filter((m) => m.lado === 'quente').map((m) => m.nome).sort();
+    expect(quentes).toEqual(
+      ['Amarelo', 'Amarelo-sol', 'Bege', 'Laranja', 'Marrom', 'Verde', 'Verde-limão', 'Verde-oliva', 'Vermelho', 'Vinho'].sort(),
+    );
+  });
+
+  // Piso 30 para as encostadas e 20 para as diagonais (ΔE na PIOR das quatro
+  // visões). A ordem antiga, sem xadrez, tinha piso 25 e mesmo assim punha
+  // Vermelho ao lado de Amarelo-sol — por isso o xadrez vem antes do número.
+  it('nenhuma cor encosta em outra parecida — em nenhuma das visões', () => {
+    const fracas = (lista: [number, number][], piso: number) =>
+      lista
+        .map(([i, j]) => [MATIZES[i].nome, MATIZES[j].nome, piorDiferenca(MATIZES[i].base, MATIZES[j].base)] as const)
+        .filter(([, , d]) => d < piso)
+        .map(([a, b, d]) => `${a} / ${b}: ${d.toFixed(1)}`);
+    expect(fracas(encostadas, 30)).toEqual([]);
+    expect(fracas(diagonais, 20)).toEqual([]);
   });
 
   // Dentro de um matiz os tons diferem pela CLAREZA, que nenhuma das

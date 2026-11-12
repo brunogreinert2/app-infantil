@@ -5,13 +5,29 @@
 // hex publicado não muda: as 14 cores que já existiam continuam aqui com o
 // mesmo valor. O NOME é só o que se mostra e se fala — pode melhorar.
 //
-// A ORDEM não é a do arco-íris de propósito. No arco-íris ficam lado a lado
-// justamente as cores que a protanopia e a deuteranopia confundem (vermelho,
-// laranja, verde, marrom). A ordem abaixo foi escolhida medindo: na grade de
-// 5 colunas (celular) e na de 10 (tela larga), nenhuma cor encosta — ao lado,
-// acima ou abaixo — em outra que fique parecida para algum dos três tipos de
-// dicromacia. A medida e o piso estão em cores.test.ts; quem mexer na ordem
-// ou acrescentar cor roda o teste.
+// A ORDEM é um XADREZ, e não o arco-íris, de propósito.
+//
+// Quem tem daltonismo vermelho-verde (protanopia, deuteranopia e as formas
+// brandas, como a protanomalia do Bruno) perde a diferença entre vermelho,
+// laranja, amarelo, verde e marrom — mas continua vendo bem a diferença entre
+// o lado "amarelado" e o lado "azulado" das cores, e entre claro e escuro.
+// Então cada cor tem um LADO: quente (a família que se confunde entre si) ou
+// frio (azuis, roxos, rosa, turquesa, cinza, branco, preto). Na grade de 5
+// colunas, quente e frio se alternam como casas de xadrez: toda cor quente
+// tem cores frias em cima, embaixo e dos dois lados, nunca outra quente.
+// Dentro do xadrez, a posição de cada cor foi escolhida medindo (simulação
+// em visaoDeCores.ts) para afastar ao máximo as parecidas, inclusive na
+// diagonal. Não faz sentido de arco-íris, e não precisa: o nome está escrito.
+//
+// A primeira ordem (2026-11-11) só media "diferença de cor" entre vizinhas e
+// deixava Vermelho ao lado de Amarelo-sol e Verde perto de Amarelo — o Bruno
+// olhou e continuou vendo cores parecidas encostadas. O número passava; o
+// olho, não. Daí o xadrez (2026-11-12).
+//
+// A medida e os pisos estão em cores.test.ts; quem mexer na ordem, nas cores
+// ou nas colunas da grade roda o teste.
+
+export type Lado = 'quente' | 'frio';
 
 export interface Tom {
   cor: string;
@@ -24,33 +40,38 @@ export interface Matiz {
   base: string;
   /** do mais claro ao mais escuro; branco e preto têm um só */
   tons: Tom[];
+  /** de que lado do xadrez a cor fica (ver o comentário lá em cima) */
+  lado: Lado;
 }
 
-/** colunas da grade da paleta: 5 no celular, 10 em tela larga (estilos.css) */
-export const COLUNAS_PALETA = [5, 10] as const;
+/** colunas da grade da paleta, em toda tela (estilos.css). O xadrez só fecha com número ímpar. */
+export const COLUNAS_PALETA = 5;
 
-// [hex, nome, tem tons?]
-const BASES: Array<[string, string, boolean]> = [
-  ['#e63946', 'Vermelho', true],
-  ['#fcbf49', 'Amarelo-sol', true],
-  ['#2a9d8f', 'Verde-mar', true],
-  ['#9b5de5', 'Roxo', true],
-  ['#8a1538', 'Vinho', true],
-  ['#c8a2e8', 'Lilás', true],
-  ['#495057', 'Cinza', true],
-  ['#f9e547', 'Amarelo', true],
-  ['#2f9e44', 'Verde', true],
-  ['#e8d5b0', 'Bege', true],
-  ['#5064eb', 'Azul', true],
-  ['#17bebb', 'Turquesa', true],
-  ['#7a7a2a', 'Verde-oliva', true],
-  ['#f06fb8', 'Rosa', true],
-  ['#80b918', 'Verde-limão', true],
-  ['#8d5a3a', 'Marrom', true],
-  ['#f77f00', 'Laranja', true],
-  ['#219ebc', 'Azul-céu', true],
-  ['#ffffff', 'Branco', false],
-  ['#1a1a1a', 'Preto', false],
+// [hex, nome, tem tons?, lado] — uma linha em branco a cada fileira da grade
+const BASES: Array<[string, string, boolean, Lado]> = [
+  ['#8d5a3a', 'Marrom', true, 'quente'],
+  ['#219ebc', 'Azul-céu', true, 'frio'],
+  ['#e8d5b0', 'Bege', true, 'quente'],
+  ['#f06fb8', 'Rosa', true, 'frio'],
+  ['#80b918', 'Verde-limão', true, 'quente'],
+
+  ['#ffffff', 'Branco', false, 'frio'],
+  ['#f77f00', 'Laranja', true, 'quente'],
+  ['#495057', 'Cinza', true, 'frio'],
+  ['#2f9e44', 'Verde', true, 'quente'],
+  ['#9b5de5', 'Roxo', true, 'frio'],
+
+  ['#e63946', 'Vermelho', true, 'quente'],
+  ['#5064eb', 'Azul', true, 'frio'],
+  ['#f9e547', 'Amarelo', true, 'quente'],
+  ['#1a1a1a', 'Preto', false, 'frio'],
+  ['#fcbf49', 'Amarelo-sol', true, 'quente'],
+
+  ['#c8a2e8', 'Lilás', true, 'frio'],
+  ['#8a1538', 'Vinho', true, 'quente'],
+  ['#17bebb', 'Turquesa', true, 'frio'],
+  ['#7a7a2a', 'Verde-oliva', true, 'quente'],
+  ['#2a9d8f', 'Verde-mar', true, 'frio'],
 ];
 
 // quanto de branco (claros) ou de preto (escuros) entra em cada tom
@@ -79,9 +100,10 @@ function misturar(hexA: string, hexB: string, pesoB: number): string {
   );
 }
 
-export const MATIZES: Matiz[] = BASES.map(([base, nome, temTons]) => ({
+export const MATIZES: Matiz[] = BASES.map(([base, nome, temTons, lado]) => ({
   nome,
   base,
+  lado,
   tons: temTons
     ? RECEITA.map(([sufixo, com, peso]) => ({
         cor: peso === 0 ? base : misturar(base, com, peso),
