@@ -16,7 +16,8 @@ import { montarTelaConfiguracoes, montarTravaParental } from './telas/telaConfig
 import { aplicarTemaDeLivro, carregarPreferencias } from './telas/preferencias';
 import { perfilAtivo, temPerfilAtivo } from './perfis/perfis';
 import { armazenamento } from './armazenamento/armazenamento';
-import { PASTA_PADRAO, acharPasta, pastaDoLivro } from './conteudo/pastas';
+import { obterLivro } from './conteudo/catalogo';
+import { PASTA_PADRAO, acharPasta } from './conteudo/pastas';
 import {
   LOCAL_ANOTACOES,
   configurarPainel,
@@ -79,7 +80,7 @@ async function abrirEstante(idPasta?: unknown): Promise<void> {
     aparencia: () => irAparencia(irEstante),
     leitura: (livro) => {
       livroAtual = livro;
-      marcarLocal(pastaDoLivro(livro.id).id); // no menu, a pasta do livro aberto
+      marcarLocal(livro.id); // no menu: o livro aberto, com o caminho até ele
       irLeitura(true); // vindo da estante → abertura cênica (se o livro tiver)
     },
     anotacoes: irAnotacoes,
@@ -145,7 +146,14 @@ function irColorir(assetId: string): void {
 
 // o menu lateral alcança estes três lugares de qualquer tela
 configurarPainel({
-  pasta: irEstante,
+  livro: (id) => {
+    const livro = obterLivro(id);
+    if (!livro) return;
+    pararFala();
+    livroAtual = livro;
+    marcarLocal(id);
+    irLeitura(true);
+  },
   anotacoes: irAnotacoes,
   perfis: irPerfis,
 });

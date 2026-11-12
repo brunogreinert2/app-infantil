@@ -1,6 +1,10 @@
 // Painel lateral — o "Φ" do Historinhas. Abre ao tocar no avatar da barra do
-// topo, em QUALQUER tela (leitura, pintura, anotações…), e leva em dois toques
-// a qualquer pasta da estante, ao caderno de anotações ou à troca de perfil.
+// topo, em QUALQUER tela (leitura, pintura, anotações…).
+//
+// É uma árvore de pastas de verdade, como a do Pedra Angular (pedido do
+// Bruno, 2026-11-11): tocar numa pasta a ABRE ALI MESMO, para baixo, e a
+// recolhe de novo; vai-se descendo até chegar no livro, e tocar no livro é
+// que abre. Histórias → Primeiras Aventuras → O Corvo e o Jarro.
 //
 // Mora fora do #app (que é esvaziado a cada troca de tela), direto no <body>.
 //
@@ -15,12 +19,13 @@
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { livros } from '../conteudo/catalogo';
-import { PASTAS, contarLivros, type Pasta } from '../conteudo/pastas';
+import { EMOJIS_CAPA } from '../conteudo/capas';
+import { PASTAS, contarLivros, secoesDaPasta, type Pasta } from '../conteudo/pastas';
 import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
 import { el } from './comum';
 
 export interface NavPainel {
-  pasta: (id: string) => void;
+  livro: (id: string) => void;
   anotacoes: () => void;
   perfis: () => void;
 }
@@ -37,6 +42,8 @@ let fixo = false;
 let painel: HTMLElement | null = null;
 let fundo: HTMLElement | null = null;
 let origem: HTMLElement | null = null; // quem abriu: recebe o foco de volta
+// pastas abertas no menu; vale enquanto o app estiver aberto
+const abertas = new Set<string>();
 
 const telaLarga = () => window.matchMedia(TELA_LARGA).matches;
 const fixadoAgora = () => fixo && telaLarga();
@@ -50,9 +57,26 @@ export function painelConfigurado(): boolean {
   return nav !== null;
 }
 
-/** Onde a criança está (id de pasta, LOCAL_ANOTACOES, ou null num livro). */
+// as pastas que levam até um lugar (livro ou pasta), de fora para dentro
+function caminhoAte(id: string): string[] {
+  const descer = (pastas: Pasta[], trilha: string[]): string[] | null => {
+    for (const p of pastas) {
+      const aqui = [...trilha, p.id];
+      if (p.id === id) return trilha;
+      if (p.livros.includes(id)) return aqui;
+      const dentro = descer(p.filhas, aqui);
+      if (dentro) return dentro;
+    }
+    return null;
+  };
+  return descer(PASTAS, []) ?? [];
+}
+
+/** Onde a criança está: id de livro, id de pasta, LOCAL_ANOTACOES ou null. */
 export function marcarLocal(id: string | null): void {
   local = id;
+  // o caminho até onde ela está fica aberto: o menu sempre mostra "você está aqui"
+  if (id) for (const pasta of caminhoAte(id)) abertas.add(pasta);
   if (painel) desenhar(painel.classList.contains('aberto'));
 }
 
@@ -123,46 +147,71 @@ function ir(acao: () => void): void {
   acao();
 }
 
-function itemDaArvore(
+function item(
   rotulo: string,
   emoji: string,
   id: string,
   nivel: number,
   aoTocar: () => void,
-  quantos?: number,
-): HTMLLIElement {
+): { li: HTMLLIElement; botao: HTMLButtonElement } {
   const li = el('li');
   li.setAttribute('role', 'none');
-  const b = el('button', 'item-painel');
-  b.setAttribute('role', 'treeitem');
-  b.setAttribute('aria-level', String(nivel));
-  if (id === local) b.setAttribute('aria-current', 'page');
+  const botao = el('button', 'item-painel');
+  botao.dataset.foco = id;
+  botao.setAttribute('role', 'treeitem');
+  botao.setAttribute('aria-level', String(nivel));
+  if (id === local) botao.setAttribute('aria-current', 'page');
   const marca = el('span', 'emoji-painel', emoji);
   marca.setAttribute('aria-hidden', 'true');
-  b.append(marca, el('span', 'rotulo-painel', rotulo));
-  if (quantos !== undefined) {
-    const n = el('span', 'conta-painel', String(quantos));
-    n.setAttribute('aria-label', quantos === 1 ? '1 livro' : `${quantos} livros`);
-    b.appendChild(n);
-  }
-  b.addEventListener('click', aoTocar);
-  li.appendChild(b);
-  return li;
+  botao.append(marca, el('span', 'rotulo-painel', rotulo));
+  botao.addEventListener('click', aoTocar);
+  li.appendChild(botao);
+  return { li, botao };
 }
 
+function alternarPasta(id: string, abrir?: boolean): void {
+  const vaiAbrir = abrir ?? !abertas.has(id);
+  if (vaiAbrir) abertas.add(id);
+  else abertas.delete(id);
+  if (!painel) return;
+  desenhar(painel.classList.contains('aberto'));
+  // o foco fica na pasta tocada. Explícito, porque no Safari tocar num botão
+  // não o foca — e sem isto o leitor de tela perderia o lugar a cada abertura
+  painel.querySelector<HTMLElement>(`[data-pasta="${id}"]`)?.focus();
+}
+
+// uma pasta: toca, abre ali mesmo; toca de novo, recolhe
 function ramo(pasta: Pasta, nivel: number): HTMLLIElement {
-  const li = itemDaArvore(
-    pasta.rotulo,
-    pasta.emoji,
-    pasta.id,
-    nivel,
-    () => ir(() => nav?.pasta(pasta.id)),
-    contarLivros(pasta, idsDosLivros()),
+  const aberta = abertas.has(pasta.id);
+  const { li, botao } = item(pasta.rotulo, pasta.emoji, pasta.id, nivel, () =>
+    alternarPasta(pasta.id),
   );
-  if (pasta.filhas.length) {
+  botao.classList.add('item-pasta');
+  botao.dataset.pasta = pasta.id;
+  botao.setAttribute('aria-expanded', String(aberta));
+
+  const quantos = contarLivros(pasta, idsDosLivros());
+  const conta = el('span', 'conta-painel', String(quantos));
+  conta.setAttribute('aria-label', quantos === 1 ? '1 livro' : `${quantos} livros`);
+  // ▸ fechada, ▾ aberta: a seta diz o estado sem depender de cor
+  const seta = el('span', 'seta-painel', aberta ? '▾' : '▸');
+  seta.setAttribute('aria-hidden', 'true');
+  botao.append(conta, seta);
+
+  if (aberta) {
     const ul = el('ul');
     ul.setAttribute('role', 'group');
     for (const f of pasta.filhas) ul.appendChild(ramo(f, nivel + 1));
+    // os livros que moram nesta pasta (não os das pastas de dentro)
+    const daqui = secoesDaPasta(pasta, idsDosLivros()).find((s) => s.pasta === pasta);
+    for (const id of daqui?.livros ?? []) {
+      const livro = livros.find((l) => l.id === id)!;
+      ul.appendChild(
+        item(livro.metadados.titulo, EMOJIS_CAPA[id] ?? '📖', id, nivel + 1, () =>
+          ir(() => nav?.livro(id)),
+        ).li,
+      );
+    }
     li.appendChild(ul);
   }
   return li;
@@ -221,7 +270,7 @@ function desenhar(comoGaveta: boolean): void {
   arvore.setAttribute('aria-label', 'Estante');
   for (const pasta of PASTAS) arvore.appendChild(ramo(pasta, 1));
   arvore.appendChild(
-    itemDaArvore('Minhas anotações', '📝', LOCAL_ANOTACOES, 1, () => ir(() => nav?.anotacoes())),
+    item('Minhas anotações', '📝', LOCAL_ANOTACOES, 1, () => ir(() => nav?.anotacoes())).li,
   );
   novo.appendChild(arvore);
 
@@ -242,6 +291,18 @@ function desenhar(comoGaveta: boolean): void {
       ev.preventDefault();
       ev.stopPropagation(); // na tela de pintar as setas também andam pelo desenho
       itens[(i + (ev.key === 'ArrowDown' ? 1 : -1) + itens.length) % itens.length].focus();
+    } else if (i >= 0 && (ev.key === 'ArrowRight' || ev.key === 'ArrowLeft')) {
+      // → abre a pasta, ← recolhe (ou sobe para a pasta de fora)
+      const atual = itens[i];
+      const pasta = atual.dataset.pasta;
+      const abrir = ev.key === 'ArrowRight';
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (pasta && abertas.has(pasta) !== abrir) alternarPasta(pasta, abrir);
+      else if (!abrir) {
+        const deFora = atual.closest('ul[role="group"]')?.parentElement;
+        deFora?.querySelector<HTMLElement>(':scope > [role="treeitem"]')?.focus();
+      }
     } else if (i >= 0 && (ev.key === 'Home' || ev.key === 'End')) {
       ev.preventDefault();
       itens[ev.key === 'Home' ? 0 : itens.length - 1].focus();

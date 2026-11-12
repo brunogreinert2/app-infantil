@@ -2,28 +2,13 @@
 // (continuar de onde parou — posicao_atual, spec 8.4/8.6).
 
 import { armazenamento } from '../armazenamento/armazenamento';
-import { capasBosquesCastelos } from '../conteudo/colecaoBosquesCastelos';
+import { EMOJIS_CAPA } from '../conteudo/capas';
 import { livros } from '../conteudo/catalogo';
 import { PASTAS, PASTA_PADRAO, acharPasta, secoesDaPasta, todasAsPastas } from '../conteudo/pastas';
-import { capasPrimeirasAventuras } from '../conteudo/colecaoPrimeirasAventuras';
 import type { Livro } from '../motor/tipos';
 import { perfilAtivo } from '../perfis/perfis';
 import { barraTopo, el } from './comum';
 
-const EMOJIS_CAPA: Record<string, string> = {
-  ...capasPrimeirasAventuras,
-  ...capasBosquesCastelos,
-  'lebre-e-tartaruga': '🐢🐇',
-  'o-que-depende-de-mim': '☔',
-  'o-pequeno-principe': '🌹',
-  'socrates-e-as-duas-cestas': '🏛️',
-  'o-sonho-do-menino-rene': '🌙',
-  'o-leao-e-o-ratinho': '🦁🐭',
-  'a-raposa-e-as-uvas': '🦊🍇',
-  'o-vento-e-o-sol': '🌬️☀️',
-  'alfabeto-grego': 'Ωα',
-  'alfabeto': '🔤',
-};
 
 export async function montarTelaEstante(
   raiz: HTMLElement,

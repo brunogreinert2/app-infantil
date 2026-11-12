@@ -32,6 +32,17 @@ Registro de acessibilidade, com o que NÃO foi verificado: `docs/ACESSIBILIDADE.
 - O iOS ignora a orientação do `@page`: a folha vem "Vertical". Não tem
   conserto por CSS; a cena em paisagem cabe em pé, menor.
 
+### Segundo retorno do Bruno (2026-11-11, mais tarde)
+
+- Imprimir no iPhone: **o desenho já sai** (a correção `c4b17bb` funcionou).
+  Faltava caber: cena em pé quebrava em duas páginas; ficha de alfabeto
+  transbordava (a 87% cabia). Feito: `fatorDoPapel()` (86% no iOS) +
+  `cssCadernoA4()` e `cssDesenhoA4()` em `motorImpressao.ts`; a constante
+  `CSS_CADERNO_A4` deixou de existir. **Falta ele confirmar no aparelho.**
+- Menu lateral: pediu árvore recolhível como no app-leitura, descendo até o
+  livro. Feito em `painelLateral.ts` (pasta abre ali mesmo; livro abre o
+  livro). As capas-emoji foram para `src/conteudo/capas.ts`.
+
 ### F3, o que ficou feito
 
 - `src/conteudo/pastas.ts`: a árvore. **Histórias** (Primeiras Aventuras ·

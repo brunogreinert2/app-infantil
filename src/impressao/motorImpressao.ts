@@ -31,14 +31,53 @@ const FONTES_IMPRESSAO = `
 // exact: sem isto o navegador "economiza tinta" e a pintura sai desbotada
 const COR_FIEL = '-webkit-print-color-adjust: exact; print-color-adjust: exact;';
 
-export const CSS_CADERNO_A4 = `
+// O PAPEL DO IPHONE É MENOR DO QUE O CSS PEDE (teste do Bruno, 2026-11-11).
+// O iOS ignora o `@page`: nem a margem de 10mm nem a orientação valem — ele
+// usa as margens dele, maiores, e a orientação que a pessoa escolher na folha
+// de impressão. A ficha de 190×269mm, que no computador ocupa a página
+// certinha, no iPhone transbordava para uma segunda página; reduzindo para
+// 87% na mão, coube. Então, no iOS, tudo o que tem medida fixa em mm sai a
+// 86% (um ponto de folga). No computador nada muda.
+export function fatorDoPapel(agente: string, pontosDeToque: number): number {
+  const ios = /iPad|iPhone|iPod/.test(agente) || (/Macintosh/.test(agente) && pontosDeToque > 1);
+  return ios ? 0.86 : 1;
+}
+
+function fatorAqui(): number {
+  return typeof navigator === 'undefined'
+    ? 1
+    : fatorDoPapel(navigator.userAgent, navigator.maxTouchPoints ?? 0);
+}
+
+const mm = (medida: number, fator: number) => `${+(medida * fator).toFixed(2)}mm`;
+
+export function cssCadernoA4(fator = fatorAqui()): string {
+  return `
   @page { size: A4 portrait; margin: 10mm; }
   :root { --ui-impressao-tinta: #000000; --ui-impressao-papel: #ffffff; }
   html, body { margin: 0; padding: 0; color: var(--ui-impressao-tinta); background: var(--ui-impressao-papel); }
-  .folha-a4 { width: 190mm; height: 269mm; margin: 0; padding: 0; break-after: page; break-inside: avoid; line-height: 0; ${COR_FIEL} }
+  .folha-a4 { width: ${mm(190, fator)}; height: ${mm(269, fator)}; margin: 0 auto; padding: 0; break-after: page; break-inside: avoid; line-height: 0; ${COR_FIEL} }
   .folha-a4:last-child { break-after: auto; }
-  .folha-a4 > svg { display: block; width: 190mm; height: 268.6125mm; }
+  .folha-a4 > svg { display: block; width: ${mm(190, fator)}; height: ${mm(268.6125, fator)}; }
 `;
+}
+
+// A cena deitada (paisagem) precisa caber TAMBÉM numa folha em pé, porque no
+// iPhone a folha vem em pé e só a pessoa pode deitar. Por isso a largura é a
+// da página e a altura acompanha (com teto): em pé o desenho sai menor, numa
+// página só; deitado, do tamanho de sempre. O pôster em pé tem altura fixa.
+export function cssDesenhoA4(retrato: boolean, fator = fatorAqui()): string {
+  const desenho = retrato
+    ? `height: ${mm(250, fator)}; width: auto; max-width: 100%;`
+    : `width: 100%; height: auto; max-height: ${mm(150, fator)};`;
+  return `
+     @page { size: A4 ${retrato ? 'portrait' : 'landscape'}; margin: 10mm; }
+     html, body { margin: 0; padding: 0; }
+     body { font-family: 'Historinhas Impresso', 'Cardo'; }
+     h1 { font-size: 12pt; text-align: center; margin: 0 0 5mm; color: #000000; }
+     .desenho { break-inside: avoid; page-break-inside: avoid; }
+     .desenho > svg { display: block; margin: 0 auto; ${desenho} }`;
+}
 
 const escaparHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 
@@ -194,7 +233,7 @@ export function imprimirDocumento(titulo: string, corpoHtml: string, css: string
  */
 export function imprimirParaColorir(svgFonte: string, titulo: string, pintura?: Pintura): void {
   if (svgFonte.includes('data-folha-a4="true"')) {
-    imprimirDocumento(titulo, corpoCadernoA4([{ titulo, svg: svgFonte }], pintura), CSS_CADERNO_A4);
+    imprimirDocumento(titulo, corpoCadernoA4([{ titulo, svg: svgFonte }], pintura), cssCadernoA4());
     return;
   }
   // orientação segue a proporção da arte: cena paisagem / pôster retrato
@@ -203,11 +242,6 @@ export function imprimirParaColorir(svgFonte: string, titulo: string, pintura?: 
   imprimirDocumento(
     titulo,
     `<h1>${escaparHtml(titulo)}</h1><div class="desenho">${desenhoParaPapel(svgFonte, pintura)}</div>`,
-    `${FONTES_IMPRESSAO}
-     @page { size: A4 ${retrato ? 'portrait' : 'landscape'}; margin: 10mm; }
-     html, body { margin: 0; padding: 0; }
-     body { font-family: 'Historinhas Impresso', 'Cardo'; }
-     h1 { font-size: 12pt; text-align: center; margin: 0 0 5mm; color: #000000; }
-     .desenho > svg { display: block; margin: 0 auto; height: ${retrato ? '250mm' : '150mm'}; width: auto; max-width: 100%; page-break-inside: avoid; }`,
+    FONTES_IMPRESSAO + cssDesenhoA4(retrato),
   );
 }

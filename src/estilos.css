@@ -820,10 +820,6 @@ button {
   padding: 0;
 }
 
-.arvore-painel ul {
-  padding-left: 22px;
-}
-
 .item-painel {
   display: flex;
   align-items: center;
@@ -861,6 +857,23 @@ button {
   font-size: 0.85em;
   font-weight: 400;
   color: var(--texto-suave);
+}
+
+.item-pasta {
+  font-weight: 800;
+}
+
+.seta-painel {
+  width: 1em;
+  text-align: center;
+  color: var(--texto);
+}
+
+/* dentro de uma pasta: linha guia à esquerda, para ver quem é filho de quem */
+.arvore-painel ul {
+  margin-left: 18px;
+  padding-left: 6px;
+  border-left: 2px solid var(--borda);
 }
 
 .item-trocar-perfil {

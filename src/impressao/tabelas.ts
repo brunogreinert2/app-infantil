@@ -1,12 +1,12 @@
 // A tabela, a ficha individual e o caderno completo usam a MESMA arte A4.
 import { gerarCadernoAlfabeto } from '../conteudo/alfabetos';
-import { CSS_CADERNO_A4, corpoCadernoA4, imprimirDocumento } from './motorImpressao';
+import { cssCadernoA4, corpoCadernoA4, imprimirDocumento } from './motorImpressao';
 
 function imprimirFichas(idLivro: string, ids?: string[]): void {
   const todas = gerarCadernoAlfabeto(idLivro);
   const fichas = ids ? todas.filter(f => ids.includes(f.id)) : todas;
   if (!fichas.length) return;
-  imprimirDocumento(idLivro === 'alfabeto-grego' ? 'Historinhas - grego antigo' : 'Historinhas - alfabeto e encontros', corpoCadernoA4(fichas), CSS_CADERNO_A4);
+  imprimirDocumento(idLivro === 'alfabeto-grego' ? 'Historinhas - grego antigo' : 'Historinhas - alfabeto e encontros', corpoCadernoA4(fichas), cssCadernoA4());
 }
 
 export function imprimirTabelaAlfabeto(idLivro: string): void { imprimirFichas(idLivro, ['tabela']); }

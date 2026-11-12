@@ -248,9 +248,16 @@ Menor alvo de toque entre ferramentas, setas e opções de impressão: 52 px
   removia a folha cedo demais. Nenhum teste meu pegou isso: no Chromium o
   `print()` espera o diálogo fechar. Corrigido (a folha agora fica até a
   próxima impressão) — **e esse conserto também ainda não voltou ao iPhone.**
-- O iOS ignora o `@page { size: A4 landscape }`: a orientação fica a que a
-  pessoa escolher na folha de impressão (veio "Vertical"). A cena em paisagem
-  cabe numa folha em pé, menor. Não tem conserto por CSS.
+- O iOS ignora o `@page` inteiro: nem orientação nem margem. A folha vem
+  em pé e com as margens do iOS, maiores. Segundo teste do Bruno (após a
+  correção acima, o desenho já saía): a cena deitada quebrava em duas páginas
+  com a folha em pé, e a ficha de alfabeto transbordava — reduzindo a 87% na
+  mão, cabia. Corrigido: no iOS as medidas fixas saem a 86%
+  (`fatorDoPapel`), e a cena deitada passa a ter a largura da página, cabendo
+  em pé (menor) ou deitada. Conferido em PDF no computador **imitando** o
+  papel do iPhone (margens de 30mm): cena em pé 1 página, cena deitada 1
+  página, 2 fichas 2 páginas. As margens reais do iOS eu não sei: os 86% vêm
+  só da observação dos 87%. **Falta voltar ao iPhone.**
 
 **Limites, sem enfeite:**
 - Os PDFs saíram de uma página de teste que chama as mesmas funções do app,
@@ -314,6 +321,16 @@ e seções com título, em vez de 31 cartões sem ordem aparente.
 | Árvore: `role="tree"`/`treeitem`, `aria-level`, setas ↑ ↓ Home End | sim | medido (DOM) |
 | Onde estou: `aria-current="page"` + borda + barra à esquerda | sim (forma, não só cor) | medido |
 | Menu fixo (📌): só em tela ≥ 1200 px; conteúdo abre espaço; o desenho de pintar continua inteiro (860 px) | sim | medido em 1280 px |
+
+**Refeito no mesmo dia, a pedido do Bruno:** o menu virou árvore de pastas
+de verdade, como a do Pedra Angular. Tocar numa pasta a abre ali mesmo (▸
+vira ▾, `aria-expanded`), tocar de novo recolhe; desce-se até o livro, e é o
+toque no livro que abre. O caminho até onde a criança está fica aberto e
+marcado. Teclado: ↑ ↓ andam, → abre, ← recolhe ou sobe, Home/End. Medido
+(DOM): Alfabetos → O Alfabeto Grego abre o livro em 3 toques a partir de
+qualquer tela; o foco fica na pasta tocada. Custo assumido: pelo menu, um
+livro fica a 3 ou 4 toques (avatar → pasta → coleção → livro), não 2 — as
+pastas da estante continuam a 1 toque pelos botões do alto.
 
 **Limites, sem enfeite:**
 - Nenhum leitor de tela real. Uma árvore (`role="tree"`) é dos padrões que
