@@ -9,12 +9,60 @@ Registro de acessibilidade, com o que NÃO foi verificado: `docs/ACESSIBILIDADE.
 
 - [x] **F0** — branch criada; 41 testes e build verdes antes de começar.
 - [x] **F1 — cores com nome, tons e voz** (2026-11-11). Ver abaixo.
-- [ ] **F5 — espaçamento como no app-leitura** (entrelinha, espaço entre
-      letras, grade de pixels, coluna em `ch`). É a PRÓXIMA.
-- [ ] F2 — imprimir no iPhone, "do jeito que pintei", lupa de verdade.
+- [x] **F5 — espaçamento como no app-leitura** (2026-11-11). Ver abaixo.
+- [ ] **F2 — imprimir no iPhone, "do jeito que pintei", lupa de verdade.**
+      É a PRÓXIMA.
 - [ ] F3 — estante em pastas + painel lateral.
 - [ ] F4 — números arábicos, romanos e operações.
 - F6 (triagem de SVGs e histórias) não é para Fable: ver o plano.
+
+### F5, o que ficou feito
+
+- `src/telas/espacamento.ts`: `ENTRELINHAS` (1,2 · 1,4 · **1,7 padrão** · 2,2)
+  e `ESPACAMENTOS` (0 · 0,06em · 0,12em; palavra = 3× a letra), com os
+  **mesmos ids e valores do app-leitura**, e `naGrade()`.
+- `preferencias.ts`: corpo e entrelinha encaixados em pixel inteiro do
+  aparelho (`--tamanho-base`, `--reading-entrelinha-px`), refeitos no `resize`;
+  `--reading-line-height`, `--reading-letter-spacing`, `--reading-word-spacing`;
+  chaves por perfil `<perfil>:entrelinha` e `<perfil>:espacamento`;
+  `comAncoraDeLeitura()` — o A−/A+ não perde mais o lugar da leitura.
+- Aparência: "Espaço entre as linhas" e "Espaço entre as letras", com texto de
+  ajuda na voz da criança (o próprio texto de ajuda muda junto, porque a
+  prévia fica fora da vista lá no alto).
+- CSS: bloco "prosa" (história, quiz, anotações, prévia); coluna em `52ch`
+  no lugar de 760px; margem do parágrafo `1em`; palavra longa quebra em vez de
+  rolar a página de lado; o grego tem piso próprio de entrelinha.
+- 57 testes (5 novos em `espacamento.test.ts`); build verde.
+
+### F5, o que mudou para quem já usa
+
+- A entrelinha padrão subiu de 1,6 para **1,7**. Theo e Davi vão ver as linhas
+  um pouco mais afastadas sem terem pedido. O Bruno decide se o padrão das
+  crianças fica 1,7.
+- A coluna de leitura em tela larga passou de 760px para ~770px (OpenDyslexic)
+  ou ~630px (Cardo): varia com a fonte, de propósito.
+
+### F5, o que não foi feito ou não foi provado
+
+- Grade de pixels vista só em densidade 1 (conta testada para as outras;
+  ninguém olhou num iPhone). Detalhe em `docs/ACESSIBILIDADE.md`.
+- Peso do traço (Fina/Média/Grossa) não foi portado.
+- O guia da professora ainda não tem a explicação clínica do espaçamento
+  (ceratocone, astigmatismo, dislexia) — o plano manda pôr lá, não na tela.
+
+### Proposta de norma para o Bruno avaliar (NÃO editei o NORMAS.md)
+
+> **N80 — Espaço de leitura.** Todo app do ecossistema que mostra prosa
+> oferece ao leitor, por perfil ou por aparelho: (a) entrelinha em múltiplos
+> do corpo, com os ids e valores `minima` 1,2 · `compacta` 1,4 · `normal` 1,7
+> (padrão) · `ampla` 2,2 — 1,2 é piso por causa do grego politônico e do
+> hebraico vocalizado; (b) espaço entre letras em `em`, com `normal` 0 ·
+> `amplo` 0,06 · `muito-amplo` 0,12, e o espaço entre palavras sempre 3× o de
+> letras; (c) corpo e entrelinha arredondados a pixel inteiro do aparelho
+> antes de irem para a tela, guardando o valor pedido; (d) coluna medida em
+> `ch`, entre 45 e 75 letras por linha no espaço normal. As variáveis CSS têm
+> os mesmos nomes em todos os apps: `--reading-line-height`,
+> `--reading-entrelinha-px`, `--reading-letter-spacing`, `--reading-word-spacing`.
 
 ### F1, o que ficou feito
 

@@ -128,13 +128,82 @@ nesse modo.
 
 ---
 
+## Espaço entre linhas e entre letras (F5 — 2026-11-11)
+
+Onde: `src/telas/espacamento.ts` (tabela e conta), `preferencias.ts`
+(aplicação), `telaAparencia.ts` (controles), `estilos.css` (bloco "prosa").
+
+### Por quê
+
+Quem tem **ceratocone** vê a mesma letra duplicada, e o fantasma de uma linha
+cai sobre a linha de baixo: o espaço entre linhas é o que separa uma linha da
+outra. Vale também para astigmatismo, baixa visão e dislexia. O app tinha
+entrelinha fixa de 1,6, sem escolha, e nenhum controle de espaço entre letras.
+Agora tem o mesmo modelo do app-leitura — mesmos ids, mesmos valores.
+
+| Escolha (por perfil) | Opções | Padrão |
+|---|---|---|
+| Espaço entre as linhas | Bem juntas 1,2 · Juntas 1,4 · Normal 1,7 · Afastadas 2,2 | Normal 1,7 |
+| Espaço entre as letras | Normal 0 · Afastadas 0,06em (palavra 0,18em) · Bem afastadas 0,12em (palavra 0,36em) | Normal |
+
+Vale em toda prosa que a criança lê: história, pergunta/respostas/explicação
+do quiz, o caderno de anotações e a prévia. Títulos e botões de comando não.
+
+### O que foi medido
+
+| Item | Resultado | Prova |
+|---|---|---|
+| As quatro entrelinhas chegam à tela | corpo 20px → 24 / 28 / 34 / 44px | medido (`getComputedStyle`, Chromium) |
+| Os três espaços chegam à tela | corpo 20px → letra 0 / 1,2 / 2,4px; palavra 0 / 3,6 / 7,2px | medido |
+| Quiz usa a mesma entrelinha da história | pergunta e alternativa: 20px / 34px | medido |
+| Corpo e entrelinha em pixel inteiro do aparelho | todos os corpos de 12 a 180px × 4 entrelinhas × densidades 1 · 1,25 · 1,5 · 2 · 2,625 · 3; desvio máximo de meio pixel do aparelho | teste (`espacamento.test.ts`) |
+| O encaixe reage à troca de densidade | com densidade forçada a 1,25 a entrelinha foi a 34,4px (= 43 pixels do aparelho) | medido, com `devicePixelRatio` simulado |
+| Letras por linha, tela larga, espaço normal | OpenDyslexic 56–63 · Cardo 56–63 · Atkinson 69–75 | medido (contando caractere por linha) |
+| Idem, "bem afastadas" | OpenDyslexic 41–47 · Atkinson 46–54 · Cardo 37–44 | medido |
+| Sem rolagem de lado em 390px, "bem afastadas" | limpo até corpo 47px (235% do padrão) | medido |
+| Mudar a letra no meio da leitura não perde o lugar | 3 toques no A+ (20 → 29px): o bloco do alto ficou a 1px de onde estava | medido |
+| Grego politônico na entrelinha "bem juntas" | sinais de cima e de baixo não se encostam | olhado numa captura, com texto de teste |
+| Escolhas persistem por perfil | chaves `<perfil>:entrelinha` e `<perfil>:espacamento` | medido |
+
+A coluna de leitura deixou de ser 760px fixos: é `52ch`, medida em letras,
+com piso de 30rem. Antes, com a letra grande, a linha encolhia para poucas
+palavras; agora o número de letras por linha fica estável.
+
+**Limites, sem enfeite:**
+- **A grade de pixels só foi vista em densidade 1.** O teste prova a conta
+  para as outras densidades e a simulação prova que o código reage; mas
+  ninguém olhou um iPhone (densidade 3) para ver se as faixas de linhas mais
+  grossas e mais finas sumiram. O plano pedia Chromium em densidade 1, 2 e 3:
+  não havia Playwright instalado no projeto, e não baixei.
+- O `ch` mede o zero de cada fonte, e as três têm zeros de largura diferente
+  para letras de largura diferente: por isso a Atkinson chega a 75 letras por
+  linha e a Cardo com letras bem afastadas cai para 37 (abaixo dos 45 que se
+  costuma recomendar). É o preço de uma régua só para três fontes.
+- Acima de corpo 68px (340%) a página rola de lado em 390px — por causa de
+  títulos e botões, não da prosa. Já era assim.
+- A linha que tem grego abre um pouco mais que as outras na entrelinha "bem
+  juntas" (o grego é 12% maior e ganhou piso próprio de 1,2). Nessa
+  combinação o ritmo de linhas não é perfeitamente igual. Escolha consciente:
+  sinal legível vale mais que grade perfeita.
+- **Ninguém com ceratocone, astigmatismo ou dislexia testou.** Os valores
+  vêm do app-leitura e do que o Bruno defende; a adequação para crianças de 7
+  anos não foi medida com crianças.
+- Peso do traço (Fina/Média/Grossa do app-leitura) não foi portado.
+- O texto justificado: não há nenhum no app (lido no CSS).
+
+### Só um iPhone de verdade confirma
+
+1. Linhas de um parágrafo longo com a mesma espessura de traço (sem faixas).
+2. A+ no meio da leitura mantém o lugar com a barra do Safari aparecendo e
+   sumindo.
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e
 ajustes não foram auditados nesta rodada. Pendências já conhecidas:
 
-- **Entrelinha e espaço entre letras** fixos (fase F5 do plano) — é o item
-  que o Bruno defende para ceratocone, e o app ainda não tem.
 - Poços de cor da tela Aparência ("Monte o seu") têm o código hex como nome
   para leitor de tela ("Fundo #fff6ec").
 - Nenhuma auditoria automática (axe-core) foi rodada ainda.

@@ -1,0 +1,37 @@
+// Espaço entre linhas e entre letras: a tabela e a conta, sem tocar na tela
+// (por isso mora fora de preferencias.ts — dá para testar sem navegador).
+
+// MESMOS ids e MESMOS valores do app-leitura (ThemeDialog.tsx: ENTRELINHAS e
+// ESPACAMENTOS) — é um ecossistema só; quem aprendeu num app acha no outro.
+// Só o rótulo muda: aqui quem lê tem 7 anos.
+//
+// ENTRELINHA. Quem tem ceratocone vê a mesma letra duplicada, e o fantasma de
+// uma linha cai sobre a linha de baixo: para essa vista o espaço entre linhas
+// é o que separa uma linha da outra, não um conforto. Vale também para
+// astigmatismo, baixa visão e dislexia. 1,7 é o padrão que o Bruno defende.
+// O piso é 1,2 por causa do alfabeto grego: sinais acima e abaixo da letra
+// encostam nos da linha vizinha se fechar mais.
+export const ENTRELINHAS = [
+  { id: 'minima', rotulo: 'Bem juntas', mult: 1.2 },
+  { id: 'compacta', rotulo: 'Juntas', mult: 1.4 },
+  { id: 'normal', rotulo: 'Normal', mult: 1.7 },
+  { id: 'ampla', rotulo: 'Afastadas', mult: 2.2 },
+] as const;
+
+// ESPAÇO ENTRE LETRAS, em `em` (acompanha o tamanho da letra). A palavra
+// anda junto e ~3x mais depressa: afastar só as letras desmancha a fronteira
+// entre uma palavra e outra, e o texto vira uma fileira de letras soltas.
+export const ESPACAMENTOS = [
+  { id: 'normal', rotulo: 'Normal', letra: 0, palavra: 0 },
+  { id: 'amplo', rotulo: 'Afastadas', letra: 0.06, palavra: 0.18 },
+  { id: 'muito-amplo', rotulo: 'Bem afastadas', letra: 0.12, palavra: 0.36 },
+] as const;
+
+export const ENTRELINHA_PADRAO = 'normal';
+export const ESPACAMENTO_PADRAO = 'normal';
+
+/** Arredonda para um número inteiro de pixels DO APARELHO (1/dpr). */
+export function naGrade(valor: number, dpr: number): number {
+  const d = dpr > 0 ? dpr : 1;
+  return Math.round(valor * d) / d;
+}

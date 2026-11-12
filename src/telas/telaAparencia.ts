@@ -7,6 +7,8 @@
 import { PILHAS_DE_FONTE } from '../fontes';
 import {
   DESTAQUES_PERSONALIZADOS,
+  ENTRELINHAS,
+  ESPACAMENTOS,
   FONTES,
   FUNDOS_PERSONALIZADOS,
   TEMAS,
@@ -18,6 +20,8 @@ import {
   obterFalarCores,
   obterPreferencias,
   obterTemaSoberano,
+  trocarEntrelinha,
+  trocarEspacamento,
   trocarFonte,
   trocarTema,
 } from './preferencias';
@@ -49,7 +53,13 @@ export async function montarTelaAparencia(
   const previa = el('div', 'cartao-previa');
   previa.appendChild(el('h3', 'cabecalho previa-titulo', 'O título fica assim'));
   previa.appendChild(
-    el('p', 'previa-texto', 'E o texto da história fica deste jeito, gostoso de ler.'),
+    el(
+      'p',
+      'previa-texto',
+      // comprida de propósito: precisa de várias linhas para a criança VER o
+      // espaço entre as linhas mudar
+      'E o texto da história fica deste jeito, gostoso de ler. Cada linha no seu lugar, cada letra no seu cantinho, para ninguém se perder no caminho.',
+    ),
   );
   previa.appendChild(el('button', 'botao-grande', '🎨 E o botão fica assim'));
   corpo.appendChild(previa);
@@ -123,6 +133,54 @@ export async function montarTelaAparencia(
   maior.addEventListener('click', () => ajustarTamanho(PASSO_FONTE));
   linhaTamanho.append(menor, maior);
   corpo.appendChild(linhaTamanho);
+
+  // ---------- espaço entre linhas e entre letras ----------
+  // A explicação clínica (ceratocone, astigmatismo, dislexia) mora no guia da
+  // professora; aqui a conversa é com a criança.
+  const grupoDeEscolha = (
+    titulo: string,
+    ajuda: string,
+    opcoes: ReadonlyArray<{ id: string; rotulo: string }>,
+    atual: string,
+    aoEscolher: (id: string) => Promise<void>,
+  ) => {
+    corpo.appendChild(el('h2', 'titulo-secao', titulo));
+    corpo.appendChild(el('p', 'texto-sobre', ajuda));
+    const grade = el('div', 'grade-opcoes');
+    grade.setAttribute('role', 'group');
+    grade.setAttribute('aria-label', titulo);
+    const botoes: HTMLButtonElement[] = [];
+    for (const o of opcoes) {
+      const botao = el('button', 'botao-opcao', o.rotulo);
+      const marcar = (b: HTMLButtonElement, ativa: boolean) => {
+        b.classList.toggle('ativa', ativa);
+        b.setAttribute('aria-pressed', String(ativa));
+      };
+      marcar(botao, o.id === atual);
+      botao.addEventListener('click', async () => {
+        await aoEscolher(o.id);
+        botoes.forEach((b) => marcar(b, b === botao));
+      });
+      botoes.push(botao);
+      grade.appendChild(botao);
+    }
+    corpo.appendChild(grade);
+  };
+
+  grupoDeEscolha(
+    'Espaço entre as linhas',
+    'Linhas mais afastadas: cada linha fica sozinha, mais fácil de seguir com os olhos.',
+    ENTRELINHAS,
+    prefs.entrelinha,
+    trocarEntrelinha,
+  );
+  grupoDeEscolha(
+    'Espaço entre as letras',
+    'Letras mais afastadas: cada letra fica no seu lugar, sem encostar na vizinha.',
+    ESPACAMENTOS,
+    prefs.espacamento,
+    trocarEspacamento,
+  );
 
   // ---------- cores de pintar ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Cores de pintar'));

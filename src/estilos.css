@@ -5,6 +5,10 @@
 
 :root {
   --tamanho-base: 20px;
+  /* espaço entre linhas e entre letras: mesmos nomes do app-leitura */
+  --reading-line-height: 1.7;
+  --reading-letter-spacing: 0em;
+  --reading-word-spacing: 0em;
 
   /* Anel de foco de teclado. Segue a cor de destaque do tema por herança —
      e, no tema "Monte o seu", segue --titulo, que preferencias.ts já passa
@@ -336,7 +340,15 @@ button {
 /* ---------- leitura ---------- */
 .leitura {
   width: 100%;
-  max-width: 760px;
+  /* Coluna medida em LETRAS, não em pixels: cresce junto com o corpo e a
+     linha fica sempre com mais ou menos o mesmo número de caracteres. Linha
+     comprida demais faz a vista errar o começo da linha seguinte. Os 94px são
+     o que não é texto: 20+20 de margem e 54 do botão 🔊. O `ch` mede o zero
+     da fonte; quantas letras cabem de verdade está em docs/ACESSIBILIDADE.md. */
+  max-width: max(30rem, calc(52ch + 94px));
+  /* letra muito grande + letras afastadas: uma palavra sozinha pode não caber
+     na linha. Quebrar a palavra é feio; rolar a página de lado para ler é pior. */
+  overflow-wrap: break-word;
   margin: 0 auto;
   padding: 24px 20px 80px;
 }
@@ -351,7 +363,29 @@ button {
 .paragrafo {
   position: relative;
   padding-right: 54px;
-  margin: 1.1em 0;
+  /* 1em e não 1,1em: o corpo da letra é inteiro em pixels do aparelho, então
+     1em também é — e cada parágrafo começa no mesmo ponto da grade */
+  margin: 1em 0;
+  line-height: var(--reading-line-height);
+}
+
+/* ---------- prosa: espaço entre linhas e entre letras ----------
+   Tudo o que a criança LÊ (história, pergunta e respostas do quiz, o que ela
+   escreve). Títulos e botões de comando ficam de fora. Estes blocos têm o
+   mesmo corpo do texto, por isso podem usar a entrelinha em pixels encaixada
+   na grade (preferencias.ts); o multiplicador é o plano B. */
+.paragrafo p,
+.paragrafo li,
+.paragrafo blockquote,
+.paragrafo dd,
+.quiz-pergunta,
+.quiz-alternativa,
+.quiz-explicacao,
+.previa-texto,
+.area-anotacao {
+  line-height: var(--reading-entrelinha-px, var(--reading-line-height));
+  letter-spacing: var(--reading-letter-spacing, 0);
+  word-spacing: var(--reading-word-spacing, 0);
 }
 
 .paragrafo p {
@@ -691,6 +725,16 @@ button {
 /* o poço branco precisa de borda visível para não sumir em fundo claro */
 .poco-cor[data-cor='#ffffff'] {
   border-color: #b8b8b8;
+}
+
+/* Na tela Aparência a prévia fica lá no alto, fora da vista de quem está
+   apertando os botões de espaço cá embaixo. Então o próprio texto de ajuda,
+   que está colado nos botões, muda junto: a criança vê o efeito onde olha.
+   Multiplicador, não px: este texto não tem o corpo do texto de leitura. */
+.tela-aparencia .texto-sobre {
+  line-height: var(--reading-line-height);
+  letter-spacing: var(--reading-letter-spacing, 0);
+  word-spacing: var(--reading-word-spacing, 0);
 }
 
 /* ---------- cores de pintar: nome escrito, tons, grade fixa ----------
@@ -1215,7 +1259,6 @@ button {
   min-height: 40vh;
   padding: 14px;
   font-size: 1em;
-  line-height: 1.5;
   tab-size: 2;
   border-radius: 14px;
   border: 2px solid var(--borda);
@@ -1321,4 +1364,10 @@ button {
 .paragrafo .grego {
   font-family: 'Cardo';
   font-size: 1.12em;
+  /* O grego é 12% maior que o texto em volta, então a entrelinha "bem juntas"
+     (1,2 do texto) seria só 1,07 para ele — e os sinais de cima de uma linha
+     encostariam nos de baixo da outra. Aqui o piso de 1,2 vale para o
+     tamanho DELE: a linha que tem grego abre o que precisar. Nas outras
+     entrelinhas isto não muda nada (cabe dentro da linha). */
+  line-height: 1.2;
 }

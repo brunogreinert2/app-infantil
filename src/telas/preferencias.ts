@@ -6,6 +6,15 @@
 import { armazenamento } from '../armazenamento/armazenamento';
 import { PILHAS_DE_FONTE } from '../fontes';
 import type { MetadadosLivro } from '../motor/tipos';
+import {
+  ENTRELINHAS,
+  ENTRELINHA_PADRAO,
+  ESPACAMENTOS,
+  ESPACAMENTO_PADRAO,
+  naGrade,
+} from './espacamento';
+
+export { ENTRELINHAS, ESPACAMENTOS } from './espacamento';
 import { perfilAtivo } from '../perfis/perfis';
 
 export const TEMAS = [
@@ -55,6 +64,8 @@ export interface Preferencias {
   tema: string; // id de TEMAS ou 'personalizado'
   fonte: string;
   tamanho: number;
+  entrelinha: string; // id de ENTRELINHAS
+  espacamento: string; // id de ESPACAMENTOS
   personalizado: TemaPersonalizado | null;
 }
 
@@ -67,6 +78,8 @@ export async function obterPreferencias(): Promise<Preferencias> {
     // Continua trocável a qualquer momento no 🎨 — padrão ≠ forçada.
     fonte: (await armazenamento.obter<string>(`${p.id}:fonte`)) ?? 'dyslexic',
     tamanho: (await armazenamento.obter<number>(`${p.id}:tamanhoFonte`)) ?? TAMANHO_PADRAO,
+    entrelinha: (await armazenamento.obter<string>(`${p.id}:entrelinha`)) ?? ENTRELINHA_PADRAO,
+    espacamento: (await armazenamento.obter<string>(`${p.id}:espacamento`)) ?? ESPACAMENTO_PADRAO,
     personalizado: await armazenamento.obter<TemaPersonalizado>(`${p.id}:temaPersonalizado`),
   };
 }
@@ -75,6 +88,8 @@ export async function carregarPreferencias(): Promise<void> {
   const prefs = await obterPreferencias();
   aplicarTema(prefs.tema, prefs.personalizado);
   aplicarFonte(prefs.fonte);
+  aplicarEntrelinha(prefs.entrelinha);
+  aplicarEspacamento(prefs.espacamento);
   aplicarTamanho(prefs.tamanho);
 }
 
@@ -103,8 +118,82 @@ export function aplicarFonte(fonte: string): void {
   );
 }
 
+// O tamanho PEDIDO e a entrelinha PEDIDA ficam aqui; o que vai para a tela é
+// o valor encaixado na grade de pixels (abaixo). Guardar o encaixado faria o
+// A+ emperrar, arredondando sempre para o mesmo número.
+let tamanhoAtual = TAMANHO_PADRAO;
+let multEntrelinha = 1.7;
+
+/**
+ * Encaixa o corpo da letra e a entrelinha na grade de pixels do aparelho.
+ *
+ * `line-height: 1.7` num corpo de 18px dá 30,6px. A primeira linha cai num
+ * ponto da grade, a segunda 0,6px adiante, a terceira 0,2px… cada linha é
+ * desenhada num ponto DIFERENTE da grade, e traço fino desenhado em pontos
+ * diferentes sai ora mais grosso, ora mais fino, em faixas. Com a entrelinha
+ * inteira em pixels do aparelho, todas as linhas caem no mesmo ponto. E com o
+ * corpo também inteiro, a margem `1em` dos parágrafos sai inteira de graça —
+ * senão cada parágrafo começaria numa fase diferente da grade.
+ * (A explicação longa está no app-leitura, FontControls.tsx.)
+ *
+ * A entrelinha em px vai numa variável SEPARADA, usada só nos blocos de prosa
+ * que têm o mesmo corpo do texto: px herda como valor fixo, e num elemento de
+ * outro tamanho ficaria errada — esses usam o multiplicador.
+ */
+function encaixarNaGradeDePixels(): void {
+  const dpr = window.devicePixelRatio || 1;
+  const raiz = document.documentElement.style;
+  raiz.setProperty('--tamanho-base', `${naGrade(tamanhoAtual, dpr)}px`);
+  raiz.setProperty('--reading-line-height', String(multEntrelinha));
+  raiz.setProperty('--reading-entrelinha-px', `${naGrade(tamanhoAtual * multEntrelinha, dpr)}px`);
+}
+
+// a grade muda quando a janela vai para um monitor de outra densidade ou o
+// navegador troca de zoom
+if (typeof window !== 'undefined') {
+  window.addEventListener('resize', encaixarNaGradeDePixels);
+}
+
 export function aplicarTamanho(px: number): void {
-  document.documentElement.style.setProperty('--tamanho-base', `${px}px`);
+  tamanhoAtual = px;
+  encaixarNaGradeDePixels();
+}
+
+export function aplicarEntrelinha(id: string): void {
+  const def = ENTRELINHAS.find((e) => e.id === id) ?? ENTRELINHAS.find((e) => e.id === ENTRELINHA_PADRAO)!;
+  multEntrelinha = def.mult;
+  encaixarNaGradeDePixels();
+}
+
+export function aplicarEspacamento(id: string): void {
+  const def = ESPACAMENTOS.find((e) => e.id === id) ?? ESPACAMENTOS[0];
+  const raiz = document.documentElement.style;
+  raiz.setProperty('--reading-letter-spacing', `${def.letra}em`);
+  raiz.setProperty('--reading-word-spacing', `${def.palavra}em`);
+}
+
+/**
+ * Mudar a letra refaz as linhas e empurraria o ponto de leitura para longe.
+ * Ancora o bloco que está no alto da tela e o devolve ao mesmo lugar depois:
+ * a criança continua exatamente onde estava.
+ */
+export function comAncoraDeLeitura(mudar: () => void): void {
+  const y = Math.min(160, window.innerHeight / 3);
+  let ancora: Element | null = null;
+  for (const e of document.elementsFromPoint(window.innerWidth / 2, y)) {
+    const bloco = e.closest('.leitura > *');
+    if (bloco) {
+      ancora = bloco;
+      break;
+    }
+  }
+  if (!ancora) {
+    mudar();
+    return;
+  }
+  const antes = ancora.getBoundingClientRect().top;
+  mudar();
+  window.scrollBy({ top: ancora.getBoundingClientRect().top - antes, behavior: 'instant' });
 }
 
 // ---------- persistência ----------
@@ -163,6 +252,16 @@ export async function trocarFonte(fonte: string): Promise<void> {
   await armazenamento.definir(`${perfilAtivo().id}:fonte`, fonte);
 }
 
+export async function trocarEntrelinha(id: string): Promise<void> {
+  aplicarEntrelinha(id);
+  await armazenamento.definir(`${perfilAtivo().id}:entrelinha`, id);
+}
+
+export async function trocarEspacamento(id: string): Promise<void> {
+  aplicarEspacamento(id);
+  await armazenamento.definir(`${perfilAtivo().id}:espacamento`, id);
+}
+
 export async function definirPersonalizado(mudanca: Partial<TemaPersonalizado>): Promise<void> {
   const p = perfilAtivo();
   const atual = (await armazenamento.obter<TemaPersonalizado>(`${p.id}:temaPersonalizado`)) ?? {
@@ -177,11 +276,8 @@ export async function definirPersonalizado(mudanca: Partial<TemaPersonalizado>):
 
 /** `fator > 1` aumenta, `fator < 1` diminui. Ver PASSO. */
 export async function ajustarTamanho(fator: number): Promise<void> {
-  const atual =
-    parseInt(getComputedStyle(document.documentElement).getPropertyValue('--tamanho-base'), 10) ||
-    TAMANHO_PADRAO;
-  const novo = Math.min(TAMANHO_MAX, Math.max(TAMANHO_MIN, Math.round(atual * fator)));
-  aplicarTamanho(novo);
+  const novo = Math.min(TAMANHO_MAX, Math.max(TAMANHO_MIN, Math.round(tamanhoAtual * fator)));
+  comAncoraDeLeitura(() => aplicarTamanho(novo));
   await armazenamento.definir(`${perfilAtivo().id}:tamanhoFonte`, novo);
 }
 
