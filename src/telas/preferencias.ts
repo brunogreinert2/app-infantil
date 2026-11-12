@@ -18,6 +18,7 @@ import {
 
 export { ENTRELINHAS, ESPACAMENTOS, PESOS } from './espacamento';
 import { perfilAtivo } from '../perfis/perfis';
+import { derivarPaleta } from './temaDerivado';
 
 export const TEMAS = [
   { id: 'arco-iris', rotulo: '🌈 Claro' },
@@ -297,68 +298,4 @@ export async function ajustarTamanho(fator: number): Promise<void> {
   const novo = Math.min(TAMANHO_MAX, Math.max(TAMANHO_MIN, Math.round(tamanhoAtual * fator)));
   comAncoraDeLeitura(() => aplicarTamanho(novo));
   await armazenamento.definir(`${perfilAtivo().id}:tamanhoFonte`, novo);
-}
-
-// ---------- derivação de paleta do tema personalizado ----------
-// A criança escolhe FUNDO e DESTAQUE; texto/cartão/borda são derivados
-// garantindo legibilidade (texto escuro em fundo claro e vice-versa).
-
-function derivarPaleta(t: TemaPersonalizado): Record<string, string> {
-  const claro = luminancia(t.fundo) > 0.45;
-  const texto = claro ? '#241d18' : '#f4f2ee';
-  return {
-    '--fundo': t.fundo,
-    // cartão "eleva": mais claro que o fundo nos dois modos
-    '--cartao': misturar(t.fundo, '#ffffff', claro ? 0.55 : 0.12),
-    '--texto': texto,
-    '--texto-suave': misturar(texto, t.fundo, 0.3),
-    '--destaque': t.destaque,
-    // cor favorita pinta os TÍTULOS — escurecida/clareada até ler bem
-    '--titulo': garantirContraste(t.destaque, t.fundo, texto),
-    '--borda': misturar(t.fundo, texto, 0.18),
-    '--sombra': claro ? '0 4px 14px rgba(60, 40, 20, 0.14)' : '0 4px 14px rgba(0, 0, 0, 0.5)',
-  };
-}
-
-// razão de contraste WCAG entre duas cores
-function contraste(hexA: string, hexB: string): number {
-  const la = luminanciaRelativa(hexA);
-  const lb = luminanciaRelativa(hexB);
-  const [maior, menor] = la > lb ? [la, lb] : [lb, la];
-  return (maior + 0.05) / (menor + 0.05);
-}
-
-function luminanciaRelativa(hex: string): number {
-  const canais = hexParaRgb(hex).map((v) => {
-    const c = v / 255;
-    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-  });
-  return 0.2126 * canais[0] + 0.7152 * canais[1] + 0.0722 * canais[2];
-}
-
-// aproxima a cor do texto-base até atingir contraste ≥ 4.5 com o fundo
-// (títulos são grandes e em negrito; o corpo do texto segue na régua ≥ 7)
-function garantirContraste(cor: string, fundo: string, alvoTexto: string): string {
-  let atual = cor;
-  for (let passo = 0; passo < 10 && contraste(atual, fundo) < 4.5; passo++) {
-    atual = misturar(atual, alvoTexto, 0.2);
-  }
-  return atual;
-}
-
-function hexParaRgb(hex: string): [number, number, number] {
-  const n = parseInt(hex.slice(1), 16);
-  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
-}
-
-function luminancia(hex: string): number {
-  const [r, g, b] = hexParaRgb(hex);
-  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-}
-
-function misturar(hexA: string, hexB: string, pesoB: number): string {
-  const a = hexParaRgb(hexA);
-  const b = hexParaRgb(hexB);
-  const c = a.map((v, i) => Math.round(v * (1 - pesoB) + b[i] * pesoB));
-  return `#${c.map((v) => v.toString(16).padStart(2, '0')).join('')}`;
 }

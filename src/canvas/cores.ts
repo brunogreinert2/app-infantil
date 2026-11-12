@@ -155,3 +155,33 @@ export function tintaSobre(hex: string): string {
   // o ponto em que preto e branco empatam (contraste 4,58 com os dois)
   return l > 0.179 ? '#000000' : '#ffffff';
 }
+
+// ---------- cor como FUNDO de texto (o "Monte o seu tema") ----------
+
+function luminancia(hex: string): number {
+  const [r, g, b] = canais(hex).map((v) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** Razão de contraste (WCAG) entre duas cores: de 1 a 21. */
+export function contraste(hexA: string, hexB: string): number {
+  const [maior, menor] = [luminancia(hexA), luminancia(hexB)].sort((x, y) => y - x);
+  return (maior + 0.05) / (menor + 0.05);
+}
+
+/** as duas tintas de texto do app: a escura e a clara */
+export const TEXTO_ESCURO = '#241d18';
+export const TEXTO_CLARO = '#f4f2ee';
+
+/** A tinta que se lê melhor em cima deste fundo. */
+export function textoParaFundo(fundo: string): string {
+  return contraste(fundo, TEXTO_ESCURO) >= contraste(fundo, TEXTO_CLARO) ? TEXTO_ESCURO : TEXTO_CLARO;
+}
+
+/** Serve como fundo de leitura? Só se a letra tiver contraste ≥ 7:1 (LEI 4/5). */
+export function fundoLegivel(fundo: string): boolean {
+  return contraste(fundo, textoParaFundo(fundo)) >= 7;
+}

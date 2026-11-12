@@ -960,6 +960,70 @@ button {
   }
 }
 
+/* ---------- títulos que abrem e recolhem ---------- */
+.botao-secao {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  min-height: 48px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+}
+
+.botao-secao:hover {
+  background: var(--cartao);
+}
+
+.seta-secao {
+  flex: none;
+  width: 1em;
+  color: var(--texto);
+}
+
+.secao-corpo[hidden] {
+  display: none;
+}
+
+.botao-recolher {
+  display: block;
+  min-height: 48px;
+  margin: 0.6em auto 1.6em;
+  padding: 0 18px;
+  border-radius: 14px;
+  border: 2px solid var(--borda);
+  background: var(--cartao);
+  color: var(--texto);
+}
+
+/* no guia os títulos fechados ficam um embaixo do outro, como um sumário */
+.tela-guia .cabecalho {
+  margin: 0.1em 0;
+  /* menor que um título de história: fechados, os treze cabem como sumário */
+  font-size: 1.15em;
+  text-align: left;
+}
+
+.tela-guia .botao-secao {
+  width: 100%;
+}
+
+/* ---------- Monte o seu: os dois seletores de cor ---------- */
+.seletor-de-cor {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.4em;
+}
+
+.paleta .poco-cor:disabled {
+  opacity: 0.25;
+}
+
 /* ---------- minhas pinturas ---------- */
 .conta-pinturas {
   margin: 20px 16px 0;
@@ -1065,28 +1129,6 @@ button {
 }
 
 /* ---------- guia de quem ensina ---------- */
-.indice-guia ul {
-  margin: 0 0 1.5em;
-  padding: 0;
-  list-style: none;
-}
-
-.indice-guia li {
-  margin: 0.2em 0;
-}
-
-.indice-guia a {
-  display: inline-block;
-  padding: 0.35em 0;
-  color: var(--texto);
-  text-decoration: underline;
-}
-
-.tela-guia .cabecalho {
-  text-align: left;
-  margin-top: 1.6em;
-}
-
 /* no guia não há botão 🔊 ao lado do parágrafo: a coluna inteira é texto */
 .paragrafo-guia {
   padding-right: 0;

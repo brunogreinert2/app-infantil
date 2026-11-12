@@ -39,7 +39,7 @@ describe('folhas de números', () => {
   it('o número procurado aparece duas vezes entre os seis escondidos', () => {
     for (let n = 0; n <= 10; n++) {
       const svg = svgNumeroA4(n);
-      const escondidos = [...svg.matchAll(/id="regiao-busca-numero-\d"[^>]*><g lang="pt-BR" aria-label="(\d+)"/g)].map((m) => m[1]);
+      const escondidos = [...svg.matchAll(/id="regiao-busca-numero-\d"[^>]*><g role="img" lang="pt-BR" aria-label="(\d+)"/g)].map((m) => m[1]);
       expect(escondidos).toHaveLength(6);
       expect(escondidos.filter((s) => s === String(n)), `folha ${n}`).toHaveLength(2);
     }

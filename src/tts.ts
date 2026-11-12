@@ -72,14 +72,20 @@ export function textoFalando(): string | null {
   return window.speechSynthesis.speaking || atrasoPendente !== undefined ? textoAtual : null;
 }
 
-export function falar(texto: string, aoTerminar?: () => void): void {
+/**
+ * `partes` (opcional): o mesmo texto já dividido em blocos — título, parágrafo,
+ * parágrafo… A voz nunca junta num pedaço só o fim de um bloco com o começo
+ * do outro. Sem isso, em "Ouvir a história" uma fala atravessava dois
+ * parágrafos e o realce da leitura não tinha onde marcá-la.
+ */
+export function falar(texto: string, aoTerminar?: () => void, partes?: string[]): void {
   if (!suportaTTS()) return;
   const sintese = window.speechSynthesis;
 
   limparEstado();
   sintese.cancel();
   textoAtual = texto;
-  fila = fatiar(texto);
+  fila = partes ? partes.filter((x) => x.trim()).flatMap(fatiar) : fatiar(texto);
   indice = 0;
   aoTerminarAtual = aoTerminar;
 

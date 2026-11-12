@@ -4,22 +4,51 @@
 // de linha ou se perde no meio do parágrafo.
 //
 // A faixa fica PARADA na tela (a um terço da altura) e é o texto que anda:
-// no celular o dedo que rola taparia uma faixa que o seguisse. Com mouse ela
-// acompanha o ponteiro. Não recebe toque: tudo o que está por baixo continua
-// funcionando.
+// no celular o dedo que rola taparia uma faixa que o seguisse. Quem usa mouse
+// pode escolher que ela acompanhe o ponteiro. Não recebe toque: tudo o que
+// está por baixo continua funcionando.
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { perfilAtivo } from '../perfis/perfis';
 
+/**
+ * Três jeitos: sem régua; PARADA a um terço da tela (o texto anda por ela);
+ * ou SEGUINDO o ponteiro do mouse. Seguir o mouse era automático e o Bruno
+ * pediu para poder desligar: a faixa correndo atrás do ponteiro incomoda
+ * quem só quer rolar o texto. Em tela de toque não existe ponteiro, então lá
+ * só há dois jeitos.
+ */
+export type ModoDaRegua = 'desligada' | 'parada' | 'mouse';
+
 const chave = () => `${perfilAtivo().id}:reguaLeitura`;
 
-export async function reguaLigada(): Promise<boolean> {
-  return (await armazenamento.obter<boolean>(chave())) ?? false;
+/** Tem mouse (ou outro ponteiro que paira)? */
+export const temPonteiro = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+export async function modoDaRegua(): Promise<ModoDaRegua> {
+  const salvo = await armazenamento.obter<ModoDaRegua | boolean>(chave());
+  // a primeira versão guardava só ligada/desligada
+  if (salvo === true) return 'parada';
+  if (salvo === 'parada' || salvo === 'mouse') return salvo === 'mouse' && !temPonteiro() ? 'parada' : salvo;
+  return 'desligada';
 }
 
-export async function definirRegua(ligada: boolean): Promise<void> {
-  await armazenamento.definir(chave(), ligada);
+export async function definirRegua(modo: ModoDaRegua): Promise<void> {
+  await armazenamento.definir(chave(), modo);
 }
+
+/** O próximo jeito, na ordem em que o botão anda. */
+export function proximoModo(atual: ModoDaRegua, comPonteiro: boolean): ModoDaRegua {
+  if (atual === 'desligada') return 'parada';
+  if (atual === 'parada') return comPonteiro ? 'mouse' : 'desligada';
+  return 'desligada';
+}
+
+export const ROTULO_DA_REGUA: Record<ModoDaRegua, string> = {
+  desligada: '📏 Régua',
+  parada: '📏 Régua: parada',
+  mouse: '📏 Régua: segue o mouse',
+};
 
 /** Altura da faixa: duas linhas e meia do texto, do tamanho que a criança escolheu. */
 function alturaDaFaixa(): number {
@@ -32,9 +61,9 @@ function alturaDaFaixa(): number {
  * Põe (ou tira) a régua dentro de `raiz`. Como mora dentro da tela de
  * leitura, some sozinha quando a criança sai do livro.
  */
-export function mostrarRegua(raiz: HTMLElement, ligada: boolean): void {
+export function mostrarRegua(raiz: HTMLElement, modo: ModoDaRegua): void {
   raiz.querySelector('.regua-leitura')?.remove();
-  if (!ligada) return;
+  if (modo === 'desligada') return;
 
   const regua = document.createElement('div');
   regua.className = 'regua-leitura';
@@ -60,7 +89,7 @@ export function mostrarRegua(raiz: HTMLElement, ligada: boolean): void {
     baixo.style.top = `${Math.round(c + meia)}px`;
   };
   const seguirMouse = (ev: PointerEvent) => {
-    if (ev.pointerType !== 'mouse') return;
+    if (modo !== 'mouse' || ev.pointerType !== 'mouse') return;
     centro = ev.clientY;
     arrumar();
   };

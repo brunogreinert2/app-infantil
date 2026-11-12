@@ -13,6 +13,7 @@
 // Sem animação: o realce pula de um trecho para o outro.
 
 import { ouvirPedacos } from '../tts';
+import { abrirSecaoDe } from './secoesRecolhiveis';
 
 const NOME = 'lendo';
 const BLOCOS = '.paragrafo, .cabecalho, .quiz-pergunta, .quiz-explicacao';
@@ -23,12 +24,13 @@ const realces = (): RegistroDeRealces | undefined =>
 const CriarRealce = (): (new (...r: Range[]) => unknown) | undefined =>
   (globalThis as unknown as { Highlight?: new (...r: Range[]) => unknown }).Highlight;
 
-// o texto de um bloco como a criança vê, sem o que está dentro de botões (🔊)
+// o texto de um bloco como a criança vê, sem os botões de comando (🔊, recolher).
+// O título recolhível É um botão — esse texto conta.
 function nosDeTexto(bloco: Element): Text[] {
   const nos: Text[] = [];
   const andar = document.createTreeWalker(bloco, NodeFilter.SHOW_TEXT);
   for (let n = andar.nextNode(); n; n = andar.nextNode()) {
-    if (!(n.parentElement?.closest('button'))) nos.push(n as Text);
+    if (!n.parentElement?.closest('.botao-ouvir, .botao-recolher, .seta-secao')) nos.push(n as Text);
   }
   return nos;
 }
@@ -83,6 +85,7 @@ export function ligarRealce(artigo: HTMLElement): () => void {
         const onde = acharTrecho(nos.map((n) => n.data).join(''), trecho);
         if (onde < 0) continue;
         cursor = i;
+        abrirSecaoDe(blocos[i]); // a voz chegou a um capítulo recolhido: ele abre
         // o parágrafo tem a barra no bloco de fora (.paragrafo); o resto, em si mesmo
         blocos[i].classList.add('lendo-agora');
         const Realce = CriarRealce();

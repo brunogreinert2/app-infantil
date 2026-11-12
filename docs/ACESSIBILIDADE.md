@@ -661,12 +661,74 @@ Anotar onde travou, onde o que se ouve não diz o que é, e onde o foco some.
 
 ---
 
+## Títulos recolhíveis, régua em três jeitos, cores do "Monte o seu" (2026-11-12)
+
+Pedidos do Bruno depois de usar a branch.
+
+### Títulos `##` que abrem e recolhem
+
+Como no Pedra Angular: o título de nível 2 é um botão (▸ fechado, ▾ aberto,
+`aria-expanded`); o conteúdo recolhido some também para o leitor de tela e
+para o Tab; no fim da seção aberta há um "▴ Recolher", que devolve o foco ao
+título. Nos livros as seções começam abertas; **o Guia de quem ensina começa
+todo fechado** — a lista de títulos é o sumário, e saiu o índice que rolava a
+página. Medido: 40 seções em Os Números, 13 no guia; perguntas finais e
+rodapé ficam fora das seções; o "você parou aqui" e a voz abrem a seção
+fechada em que caem. Limites: livros sem `##` (A Lebre e a Tartaruga) não
+mudam; não há "abrir tudo / fechar tudo"; o estado não é lembrado ao voltar.
+
+### Realce em "Ouvir a história"
+
+O realce só funcionava no 🔊 de cada parágrafo. No "Ouvir a história" a voz
+juntava o fim de um parágrafo com o começo do seguinte numa fala só, e o
+realce não tinha onde marcá-la. Agora a voz recebe o texto em blocos e nunca
+atravessa de um para outro. Medido com a voz simulada: 12 falas na Lebre, 12
+realçadas, do título ao último parágrafo. **Não ouvido com voz de verdade.**
+
+### Régua de leitura: três jeitos
+
+O botão 📏 anda por: sem régua → parada (a um terço da tela) → seguindo o
+mouse → sem régua. Seguir o mouse era automático e incomodava; agora é
+escolha. Em tela de toque só há os dois primeiros. Prova: teste da ordem dos
+jeitos; a régua parada medida no navegador. O "segue o mouse" depois da
+mudança não foi exercitado com mouse de verdade (o painel de teste estava
+como celular).
+
+### "Monte o seu": fundo e cor favorita com nome, xadrez e tons
+
+Eram bolinhas sem nome (para o leitor de tela, "Fundo #fff6ec"), com cores
+parecidas lado a lado — o mesmo defeito que a pintura tinha. Agora usam o
+mesmo seletor: nome escrito, grade em xadrez, botão "Tons", ✓ na escolhida,
+e a voz das cores, se o perfil a ligou.
+
+| Item | Resultado | Prova |
+|---|---|---|
+| No FUNDO só entram tons em que a letra tem contraste ≥ 7:1 | 59 dos 98 tons; toda cor tem pelo menos um | teste (`cores.test.ts`) |
+| Nenhuma combinação oferecida fica ilegível: texto ≥ 7, título ≥ 4,5, letra do botão ≥ 4,5, texto suave ≥ 4,5 | todas as 5.782 combinações de fundo × favorita | teste (`temaDerivado.test.ts`) |
+| Temas feitos com as cores antigas continuam legíveis | as 120 combinações antigas | teste |
+| axe-core na Aparência, com tons abertos | nenhuma violação | medido |
+
+O que mudou para quem já tinha tema próprio: a cor favorita pode sair um
+pouco mais escura ou mais clara nos BOTÕES do que a escolhida, porque agora é
+ajustada até a letra do botão se ler (antes só o título era ajustado). A
+conta do tema foi para `src/telas/temaDerivado.ts`.
+
+Limites: ao tocar numa cor para fundo, o app escolhe sozinho o tom dela que
+serve (um vermelho vira "Vermelho muito claro" ou "muito escuro") — pode
+surpreender; o nome escrito diz o que ficou. A tela de pintar e a Aparência
+têm cada uma a sua montagem do seletor (mesmos dados, código repetido).
+
+Outros dois achados do axe nesta rodada, consertados: o texto de ajuda
+"suave" podia cair abaixo de 4,5:1 num tema próprio; e as letras e números
+das folhas tinham `aria-label` num `<g>` sem papel (291 ocorrências numa
+tela) — ganharam `role="img"`.
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e
 ajustes não foram auditados nesta rodada. Pendências já conhecidas:
 
-- Poços de cor da tela Aparência ("Monte o seu") têm o código hex como nome
-  para leitor de tela ("Fundo #fff6ec").
 - Feedback do quiz (✓/✗) não foi conferido em simulação de daltonismo.
 - Tamanho da letra é gravado em px (ignora a letra configurada no aparelho).

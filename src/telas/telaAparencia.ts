@@ -4,14 +4,15 @@
 // e o "Monte o seu": fundo + cor favorita, com legibilidade derivada
 // automaticamente (nunca combinação ilegível).
 
+import { fundoLegivel } from '../canvas/cores';
 import { PILHAS_DE_FONTE } from '../fontes';
+import { falar } from '../tts';
+import { criarSeletorDeCor } from './seletorDeCor';
 import {
-  DESTAQUES_PERSONALIZADOS,
   ENTRELINHAS,
   ESPACAMENTOS,
   PESOS,
   FONTES,
-  FUNDOS_PERSONALIZADOS,
   TEMAS,
   ajustarTamanho,
   PASSO_FONTE,
@@ -224,52 +225,36 @@ export async function montarTelaAparencia(
   corpo.appendChild(el('h2', 'titulo-secao', 'Monte o seu tema'));
   corpo.appendChild(el('p', 'texto-sobre', 'Escolha um fundo e uma cor favorita — a cor favorita pinta os títulos e os botões, e a letra se ajusta sozinha para dar pra ler.'));
 
-  let fundoAtual = prefs.personalizado?.fundo;
-  let destaqueAtual = prefs.personalizado?.destaque;
-
-  const gradeFundos = el('div', 'grade-cores');
-  const gradeDestaques = el('div', 'grade-cores');
-
-  const marcarPocos = () => {
-    gradeFundos.querySelectorAll<HTMLButtonElement>('.poco-cor').forEach((p) => {
-      p.classList.toggle('ativa', p.dataset.cor === fundoAtual);
-    });
-    gradeDestaques.querySelectorAll<HTMLButtonElement>('.poco-cor').forEach((p) => {
-      p.classList.toggle('ativa', p.dataset.cor === destaqueAtual);
-    });
+  // Fundo e cor favorita com as mesmas soluções da tela de pintar: nome
+  // escrito, xadrez, tons. No FUNDO só entram os tons em que a letra se lê
+  // bem (contraste ≥ 7:1) — por isso alguns tons do meio não aparecem lá.
+  const falar_ = await obterFalarCores();
+  const dizer = (nome: string) => {
+    if (falar_) falar(nome);
   };
-
-  for (const cor of FUNDOS_PERSONALIZADOS) {
-    const poco = el('button', 'poco-cor');
-    poco.style.background = cor;
-    poco.dataset.cor = cor;
-    poco.setAttribute('aria-label', `Fundo ${cor}`);
-    poco.addEventListener('click', async () => {
-      fundoAtual = cor;
-      await definirPersonalizado({ fundo: cor });
-      marcarTema('personalizado');
-      marcarPocos();
-    });
-    gradeFundos.appendChild(poco);
-  }
-  corpo.appendChild(el('p', 'rotulo-cores', 'Fundo:'));
-  corpo.appendChild(gradeFundos);
-
-  for (const cor of DESTAQUES_PERSONALIZADOS) {
-    const poco = el('button', 'poco-cor');
-    poco.style.background = cor;
-    poco.dataset.cor = cor;
-    poco.setAttribute('aria-label', `Cor favorita ${cor}`);
-    poco.addEventListener('click', async () => {
-      destaqueAtual = cor;
-      await definirPersonalizado({ destaque: cor });
-      marcarTema('personalizado');
-      marcarPocos();
-    });
-    gradeDestaques.appendChild(poco);
-  }
-  corpo.appendChild(el('p', 'rotulo-cores', 'Cor favorita (pinta títulos e botões):'));
-  corpo.appendChild(gradeDestaques);
-
-  marcarPocos();
+  corpo.appendChild(el('p', 'rotulo-cores', 'Fundo'));
+  corpo.appendChild(
+    criarSeletorDeCor({
+      rotulo: 'Fundo',
+      atual: prefs.personalizado?.fundo,
+      serve: fundoLegivel,
+      aoEscolher: async (cor, nome) => {
+        await definirPersonalizado({ fundo: cor });
+        marcarTema('personalizado');
+        dizer(nome);
+      },
+    }),
+  );
+  corpo.appendChild(el('p', 'rotulo-cores', 'Cor favorita (pinta títulos e botões)'));
+  corpo.appendChild(
+    criarSeletorDeCor({
+      rotulo: 'Cor favorita',
+      atual: prefs.personalizado?.destaque,
+      aoEscolher: async (cor, nome) => {
+        await definirPersonalizado({ destaque: cor });
+        marcarTema('personalizado');
+        dizer(nome);
+      },
+    }),
+  );
 }

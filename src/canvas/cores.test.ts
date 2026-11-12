@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { COLUNAS_PALETA, MATIZES, matizDe, nomeDaCor, tintaSobre } from './cores';
+import {
+  COLUNAS_PALETA,
+  MATIZES,
+  contraste,
+  fundoLegivel,
+  matizDe,
+  nomeDaCor,
+  textoParaFundo,
+  tintaSobre,
+} from './cores';
 import { diferenca, piorDiferenca } from './visaoDeCores';
 
 const TODAS = MATIZES.flatMap((m) => m.tons);
@@ -139,3 +148,30 @@ describe('visão de cores (simulação de Machado et al., 2009)', () => {
     }
   });
 });
+
+describe('cor como fundo de leitura (Monte o seu tema)', () => {
+  it('contraste: preto e branco dão 21; cor consigo mesma dá 1', () => {
+    expect(contraste('#000000', '#ffffff')).toBeCloseTo(21, 5);
+    expect(contraste('#5064eb', '#5064eb')).toBeCloseTo(1, 5);
+  });
+
+  it('todo fundo oferecido tem letra com contraste ≥ 7', () => {
+    for (const t of TODAS) {
+      if (!fundoLegivel(t.cor)) continue;
+      expect(contraste(t.cor, textoParaFundo(t.cor)), t.nome).toBeGreaterThanOrEqual(7);
+    }
+  });
+
+  it('toda cor da paleta tem pelo menos um tom que serve de fundo', () => {
+    for (const m of MATIZES) {
+      expect(m.tons.some((t) => fundoLegivel(t.cor)), m.nome).toBe(true);
+    }
+  });
+
+  it('cores de claridade média NÃO servem de fundo (a letra não chegaria a 7:1)', () => {
+    expect(fundoLegivel('#e63946')).toBe(false); // Vermelho
+    expect(fundoLegivel('#ffffff')).toBe(true);
+    expect(fundoLegivel('#1a1a1a')).toBe(true);
+  });
+});
+

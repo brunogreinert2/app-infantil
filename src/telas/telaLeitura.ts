@@ -4,7 +4,15 @@
 // ("Terminei!") que concede insígnia fixa e previsível.
 
 import { ligarRealce } from './realceLeitura';
-import { definirRegua, mostrarRegua, reguaLigada } from './reguaLeitura';
+import {
+  ROTULO_DA_REGUA,
+  definirRegua,
+  modoDaRegua,
+  mostrarRegua,
+  proximoModo,
+  temPonteiro,
+} from './reguaLeitura';
+import { abrirSecaoDe, tornarRecolhivel } from './secoesRecolhiveis';
 import { armazenamento } from '../armazenamento/armazenamento';
 import { registrarLivroConcluido, listarConquistas } from '../conquistas/insignias';
 import { arquivosAssets, arquivosImagens } from '../conteudo/catalogo';
@@ -57,17 +65,18 @@ export async function montarTelaLeitura(
     barraExtras.appendChild(botao);
   }
   // 📏 régua de leitura: liga e desliga aqui mesmo, e fica guardada por perfil
-  let comRegua = await reguaLigada();
-  const botaoRegua = el('button', 'botao-extra', '📏 Régua');
+  let regua = await modoDaRegua();
+  const botaoRegua = el('button', 'botao-extra');
   const marcarRegua = () => {
-    botaoRegua.setAttribute('aria-pressed', String(comRegua));
-    botaoRegua.classList.toggle('ativa', comRegua);
-    botaoRegua.setAttribute('aria-label', 'Régua de leitura: uma faixa clara mostra a linha que você está lendo');
-    mostrarRegua(raiz, comRegua);
+    botaoRegua.textContent = ROTULO_DA_REGUA[regua];
+    botaoRegua.setAttribute('aria-pressed', String(regua !== 'desligada'));
+    botaoRegua.classList.toggle('ativa', regua !== 'desligada');
+    botaoRegua.title = 'Uma faixa clara mostra a linha que você está lendo. Tocar muda o jeito.';
+    mostrarRegua(raiz, regua);
   };
   botaoRegua.addEventListener('click', async () => {
-    comRegua = !comRegua;
-    await definirRegua(comRegua);
+    regua = proximoModo(regua, temPonteiro());
+    await definirRegua(regua);
     marcarRegua();
   });
   barraExtras.appendChild(botaoRegua);
@@ -83,13 +92,13 @@ export async function montarTelaLeitura(
   const perguntas = livro.metadados.quiz ?? [];
 
   // texto de cada capítulo (do cabeçalho até o próximo) p/ o 🔊 do cabeçalho
-  const textoDoCapitulo = new Map<string, string>();
+  const textoDoCapitulo = new Map<string, string[]>();
   {
     let cabecalhoAberto: string | null = null;
     let acumulado: string[] = [];
     const fechar = () => {
       if (cabecalhoAberto && acumulado.length > 0) {
-        textoDoCapitulo.set(cabecalhoAberto, acumulado.join(' '));
+        textoDoCapitulo.set(cabecalhoAberto, acumulado);
       }
       acumulado = [];
     };
@@ -116,7 +125,10 @@ export async function montarTelaLeitura(
       const textoCap = textoDoCapitulo.get(no.id);
       if (textoCap && suportaTTS()) {
         const bloco = el('div', 'cabecalho-bloco');
-        bloco.append(cab, botaoOuvir(`${no.texto}. ${textoCap}`));
+        bloco.append(
+          cab,
+          botaoOuvir(`${no.texto}. ${textoCap.join(' ')}`, 'Ouvir este capítulo', [no.texto, ...textoCap]),
+        );
         artigo.appendChild(bloco);
         continue;
       }
@@ -148,6 +160,8 @@ export async function montarTelaLeitura(
 
   artigo.appendChild(await rodapeConclusao(livro, progresso, chaveProgresso));
   raiz.appendChild(artigo);
+  // títulos `##` abrem e recolhem o capítulo (começam abertos nos livros)
+  tornarRecolhivel(artigo, { fechadas: false });
   // o trecho que a voz está lendo fica marcado na tela
   ligarRealce(artigo);
 
@@ -156,6 +170,7 @@ export async function montarTelaLeitura(
     const alvo = document.getElementById(`no-${progresso.posicaoAtual}`);
     if (alvo) {
       alvo.scrollIntoView({ block: 'start' });
+      abrirSecaoDe(alvo);
       alvo.classList.add('retomada');
       setTimeout(() => alvo.classList.remove('retomada'), 5000);
     }
@@ -209,7 +224,7 @@ function botaoOuvirHistoria(livro: Livro): HTMLElement | null {
   for (const no of livro.nos) {
     if (no.tipo === 'cabecalho') {
       if (no.texto === 'Para os adultos que leem junto') break;
-      partes.push(`${no.texto}.`);
+      partes.push(no.texto);
     } else if (no.tipo === 'paragrafo' || no.tipo === 'bloco') {
       partes.push(no.texto);
     }
@@ -224,7 +239,7 @@ function botaoOuvirHistoria(livro: Livro): HTMLElement | null {
       botao.textContent = '🔊 Ouvir a história';
     } else {
       botao.textContent = '⏹ Parar a história';
-      falar(textoTodo, () => (botao.textContent = '🔊 Ouvir a história'));
+      falar(textoTodo, () => (botao.textContent = '🔊 Ouvir a história'), partes);
     }
   });
   return botao;
@@ -242,7 +257,7 @@ function desenhar(hast: Element): HTMLElement {
 }
 
 // 🔊 vira ⏹ enquanto fala — e volta sozinho quando a fala termina
-function botaoOuvir(texto: string, nome = 'Ouvir este parágrafo'): HTMLElement {
+function botaoOuvir(texto: string, nome = 'Ouvir este parágrafo', partes?: string[]): HTMLElement {
   const botao = el('button', 'botao-ouvir', '🔊');
   botao.setAttribute('aria-label', nome);
   botao.addEventListener('click', () => {
@@ -255,7 +270,7 @@ function botaoOuvir(texto: string, nome = 'Ouvir este parágrafo'): HTMLElement 
         .querySelectorAll<HTMLButtonElement>('.botao-ouvir')
         .forEach((b) => (b.textContent = '🔊'));
       botao.textContent = '⏹';
-      falar(texto, () => (botao.textContent = '🔊'));
+      falar(texto, () => (botao.textContent = '🔊'), partes);
     }
   });
   return botao;

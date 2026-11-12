@@ -39,6 +39,18 @@ Os retoques anteriores (`fable/retoques-pos-publicacao`) JÁ estão no site
       com LEITOR DE TELA DE VERDADE não foi feita e não é coisa que uma IA
       faça: o roteiro para o Bruno está no fim de `docs/ACESSIBILIDADE.md`.
 
+- [x] **Pedidos do Bruno ao usar a branch (2026-11-12, tarde):**
+      títulos `##` recolhíveis (`src/telas/secoesRecolhiveis.ts`; guia começa
+      fechado, livros abertos); régua em três jeitos (`ModoDaRegua`); realce
+      também em "Ouvir a história" (`falar(texto, cb, partes)` em `tts.ts`);
+      "Monte o seu" com o seletor de cor da pintura
+      (`src/telas/seletorDeCor.ts`, `src/telas/temaDerivado.ts`).
+      O Bruno leu o guia por alto e aprovou; ajustes de texto ficam para
+      depois e podem ser feitos por um modelo menor (`src/conteudo/guia.ts`).
+
+**Publicação autorizada em 2026-11-12** ("Depois disso pode publicar"):
+a branch `fable/sugestoes` vai inteira para a master.
+
 **As oito sugestões estão entregues, menos: traçado de algarismos, nomes das
 regiões das 51 cenas, e o teste com leitor de tela.** Tudo na branch
 `fable/sugestoes`, sem publicar.

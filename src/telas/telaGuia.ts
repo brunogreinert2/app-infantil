@@ -4,6 +4,7 @@
 import { GUIA, TITULO_DO_GUIA } from '../conteudo/guia';
 import { imprimirDocumento } from '../impressao/motorImpressao';
 import { el } from './comum';
+import { tornarRecolhivel } from './secoesRecolhiveis';
 
 const escapar = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
@@ -45,31 +46,13 @@ export function montarTelaGuia(raiz: HTMLElement, nav: { voltar: () => void }): 
   raiz.appendChild(extras);
 
   const artigo = el('article', 'leitura');
-  // índice: o guia é comprido, e quem volta procura um assunto
-  const indice = el('nav', 'indice-guia');
-  indice.setAttribute('aria-label', 'Assuntos do guia');
-  const lista = el('ul');
-  GUIA.forEach((secao, i) => {
-    const item = el('li');
-    const link = el('a', undefined, secao.titulo);
-    link.href = `#guia-${i + 1}`;
-    link.addEventListener('click', (ev) => {
-      ev.preventDefault();
-      const alvo = document.getElementById(`guia-${i + 1}`);
-      alvo?.scrollIntoView({ block: 'start', behavior: 'instant' });
-      window.scrollBy(0, -90); // a barra do alto fica por cima
-      alvo?.focus();
-    });
-    item.appendChild(link);
-    lista.appendChild(item);
-  });
-  indice.appendChild(lista);
-  artigo.appendChild(indice);
-
+  // O guia abre todo recolhido: a lista de títulos É o sumário. Tocar abre o
+  // assunto ali mesmo, e no fim dele há um botão de recolher — sem rolar a
+  // página de volta para achar o índice.
   GUIA.forEach((secao, i) => {
     const titulo = el('h2', 'cabecalho', secao.titulo);
     titulo.id = `guia-${i + 1}`;
-    titulo.tabIndex = -1;
+    titulo.dataset.nivel = '2';
     artigo.appendChild(titulo);
     for (const texto of secao.paragrafos) {
       const bloco = el('div', 'paragrafo paragrafo-guia');
@@ -78,4 +61,5 @@ export function montarTelaGuia(raiz: HTMLElement, nav: { voltar: () => void }): 
     }
   });
   raiz.appendChild(artigo);
+  tornarRecolhivel(artigo, { fechadas: true });
 }

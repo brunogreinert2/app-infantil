@@ -57,7 +57,8 @@ function formas(s: string, x: number, y: number, w: number, h: number): string {
   }).join('');
 }
 export function letras(id: string, s: string, x: number, y: number, w: number, h: number): string {
-  return regiao(id,`<g lang="${idioma(s)}" aria-label="${esc(s)}">${formas(s,x,y,w,h)}</g>`);
+  // role="img": sem papel, um <g> não pode ter aria-label (o leitor de tela o ignoraria)
+  return regiao(id,`<g role="img" lang="${idioma(s)}" aria-label="${esc(s)}">${formas(s,x,y,w,h)}</g>`);
 }
 export function base(titulo: string, categoria: string, corpo: string, identificacao = true): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1131" data-folha-a4="true" role="img" aria-label="${esc(titulo)}" stroke-linecap="round" stroke-linejoin="round">
