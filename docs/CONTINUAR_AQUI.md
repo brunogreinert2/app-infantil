@@ -3,7 +3,7 @@
 ## Retoques depois da publicação — 2026-11-12 (Fable 5.2)
 
 Branch `fable/retoques-pos-publicacao`, saída de `fable/novas-ideias`.
-**NÃO publicada: espera autorização nova do Bruno.** Ele relatou quatro
+**Publicação autorizada em 2026-11-12** ("Pode publicar") e enviada à master. Ele relatou quatro
 coisas usando o site no iPhone:
 
 1. **Imprimir no app instalado não abria nada** (no Safari funciona, numa
