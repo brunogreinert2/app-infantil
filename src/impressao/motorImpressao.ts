@@ -105,15 +105,36 @@ export function corpoCadernoA4(
 // redesenhados aqui com a mesma função da tela. 2480px = largura do A4 a 300dpi.
 const LARGURA_TRACOS = 2480;
 
-function imagemDosTracos(tracos: Traco[], largura: number, altura: number): string | undefined {
+function imagemDosTracos(
+  tracos: Traco[],
+  largura: number,
+  altura: number,
+  larguraEmPixels = LARGURA_TRACOS,
+): string | undefined {
   if (!tracos.length) return undefined;
   const canvas = document.createElement('canvas');
-  canvas.width = LARGURA_TRACOS;
-  canvas.height = Math.round((LARGURA_TRACOS * altura) / largura);
+  canvas.width = larguraEmPixels;
+  canvas.height = Math.round((larguraEmPixels * altura) / largura);
   const ctx = canvas.getContext('2d');
   if (!ctx) return undefined;
   desenharTracos(ctx, canvas.width, canvas.height, tracos);
   return canvas.toDataURL('image/png');
+}
+
+/**
+ * O desenho do jeito que a criança pintou, para MOSTRAR na tela (miniatura da
+ * galeria). É a mesma pilha da impressão, com os traços em resolução baixa.
+ */
+export function desenhoPintadoParaTela(svgFonte: string, pintura: Pintura, larguraDosTracos = 640): string {
+  const caixa = caixaDeVisao(svgFonte);
+  const folha =
+    caixa &&
+    montarFolhaPintada(
+      svgFonte,
+      pintura.regioes,
+      imagemDosTracos(pintura.tracos, caixa.largura, caixa.altura, larguraDosTracos),
+    );
+  return folha ?? derivarContornoPB(svgFonte);
 }
 
 // contorno P&B (para pintar no papel) ou, com `pintura`, do jeito que pintou

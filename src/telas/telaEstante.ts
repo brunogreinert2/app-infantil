@@ -18,6 +18,7 @@ export async function montarTelaEstante(
     aparencia: () => void;
     leitura: (livro: Livro) => void;
     anotacoes: () => void;
+    pinturas: () => void;
     pasta: (id: string) => void;
   },
 ): Promise<void> {
@@ -49,6 +50,7 @@ export async function montarTelaEstante(
     abas.appendChild(b);
   };
   for (const f of PASTAS) aba(`${f.emoji} ${f.rotulo}`, f === deFora, () => nav.pasta(f.id));
+  aba('🖼️ Pinturas', false, nav.pinturas);
   aba('📝 Anotações', false, nav.anotacoes);
   raiz.appendChild(abas);
 

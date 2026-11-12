@@ -27,11 +27,14 @@ import { el } from './comum';
 export interface NavPainel {
   livro: (id: string) => void;
   anotacoes: () => void;
+  pinturas: () => void;
   perfis: () => void;
 }
 
 /** id do item "Minhas anotações" (não é pasta: é um lugar) */
 export const LOCAL_ANOTACOES = 'anotacoes';
+/** id do item "Minhas pinturas" */
+export const LOCAL_PINTURAS = 'pinturas';
 
 // igual ao @media de estilos.css: abaixo disto não cabe painel + desenho
 const TELA_LARGA = '(min-width: 1200px)';
@@ -269,6 +272,9 @@ function desenhar(comoGaveta: boolean): void {
   arvore.setAttribute('role', 'tree');
   arvore.setAttribute('aria-label', 'Estante');
   for (const pasta of PASTAS) arvore.appendChild(ramo(pasta, 1));
+  arvore.appendChild(
+    item('Minhas pinturas', '🖼️', LOCAL_PINTURAS, 1, () => ir(() => nav?.pinturas())).li,
+  );
   arvore.appendChild(
     item('Minhas anotações', '📝', LOCAL_ANOTACOES, 1, () => ir(() => nav?.anotacoes())).li,
   );

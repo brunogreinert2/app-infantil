@@ -14,6 +14,7 @@ import { montarTelaQuebraCabeca } from './telas/telaQuebraCabeca';
 import { montarTelaAbertura } from './telas/telaAbertura';
 import { montarTelaConfiguracoes, montarTravaParental } from './telas/telaConfiguracoes';
 import { montarTelaGuia } from './telas/telaGuia';
+import { montarTelaPinturas } from './telas/telaPinturas';
 import { aplicarTemaDeLivro, carregarPreferencias } from './telas/preferencias';
 import { perfilAtivo, temPerfilAtivo } from './perfis/perfis';
 import { armazenamento } from './armazenamento/armazenamento';
@@ -21,6 +22,7 @@ import { obterLivro } from './conteudo/catalogo';
 import { PASTA_PADRAO, acharPasta } from './conteudo/pastas';
 import {
   LOCAL_ANOTACOES,
+  LOCAL_PINTURAS,
   configurarPainel,
   marcarLocal,
   prepararPainel,
@@ -94,6 +96,7 @@ async function abrirEstante(idPasta?: unknown): Promise<void> {
       irLeitura(true); // vindo da estante → abertura cênica (se o livro tiver)
     },
     anotacoes: irAnotacoes,
+    pinturas: irPinturas,
     pasta: irEstante,
   });
 }
@@ -107,6 +110,22 @@ function irAnotacoes(): void {
     perfis: irPerfis,
     aparencia: () => irAparencia(irAnotacoes),
     estante: irEstante,
+  });
+}
+
+function irPinturas(): void {
+  pararFala();
+  window.scrollTo(0, 0);
+  carregarPreferencias(); // pode ter vindo de um livro tematizado, pelo menu
+  marcarLocal(LOCAL_PINTURAS);
+  void montarTelaPinturas(raiz, {
+    perfis: irPerfis,
+    aparencia: () => irAparencia(irPinturas),
+    estante: irEstante,
+    pintar: (livro, assetId) => {
+      livroAtual = livro;
+      irColorir(assetId, irPinturas); // "voltar" devolve à galeria, não ao livro
+    },
   });
 }
 
@@ -144,13 +163,13 @@ function irQuebraCabeca(assetId: string): void {
   });
 }
 
-function irColorir(assetId: string): void {
+function irColorir(assetId: string, voltar: () => void = irLeitura): void {
   if (!livroAtual) return irEstante();
   pararFala();
   window.scrollTo(0, 0);
   montarTelaColorir(raiz, livroAtual, assetId, {
     perfis: irPerfis,
-    voltar: irLeitura,
+    voltar,
   });
 }
 
@@ -165,6 +184,7 @@ configurarPainel({
     irLeitura(true);
   },
   anotacoes: irAnotacoes,
+  pinturas: irPinturas,
   perfis: irPerfis,
 });
 
