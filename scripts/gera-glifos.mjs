@@ -18,7 +18,9 @@ const caminhoFonte = new URL('./fontes/cardo-bold.ttf', import.meta.url);
 
 const GREGAS = 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθικλμνξοπρστυφχψως';
 const LATINAS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-const TODAS = GREGAS + LATINAS + 'çÇãõáéíóúâêôàᾳῃῳἀἁάὰᾶ';
+// algarismos: as folhas de Números (src/conteudo/numeroArte.ts)
+const ALGARISMOS = '0123456789';
+const TODAS = GREGAS + LATINAS + 'çÇãõáéíóúâêôàᾳῃῳἀἁάὰᾶ' + ALGARISMOS;
 
 function lerFonte(caminho) {
   const bytes = readFileSync(caminho);

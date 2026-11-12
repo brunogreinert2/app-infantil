@@ -29,6 +29,36 @@ Simulador: `src/canvas/visaoDeCores.ts` (só entra nos testes, fora do pacote).
 | Cor escolhida = poço um pouco maior. | Cor escolhida = maior + borda grossa + marca ✓. |
 | Sem voz. | Voz opcional por perfil ("Falar o nome das cores"), desligada por padrão. |
 
+### A ordem da paleta foi refeita (2026-11-12) — a medida não bastou
+
+A primeira ordem passava no teste (nenhuma vizinha com ΔE abaixo de 25, em
+nenhuma das visões simuladas) e mesmo assim o Bruno, que tem protanomalia,
+olhou no iPhone e viu **Amarelo-sol ao lado de Vermelho e Verde perto de
+Amarelo**. O número estava certo e o resultado, errado: ΔE mede "quão
+diferentes são duas cores", mas boa parte dessa diferença era de claridade,
+e duas cores da mesma família continuam parecendo da mesma família.
+
+A ordem nova é um **xadrez**. Cada cor tem um lado: *quente* (vermelho,
+laranja, os amarelos, os verdes, marrom, bege, vinho — a família que o
+daltonismo vermelho-verde confunde entre si) ou *frio* (azuis, roxo, lilás,
+rosa, turquesa, verde-mar, cinza, branco, preto). Quente e frio se alternam
+como casas de xadrez: nenhuma cor quente encosta em outra quente. É o eixo
+amarelado/azulado, que essas visões preservam. A grade passou a ter 5 colunas
+em toda tela (com 10 o xadrez não fecha).
+
+| Item | Resultado | Prova |
+|---|---|---|
+| Cor quente só encosta em cor fria (lado, em cima, embaixo) | sim, nas 31 vizinhanças | teste |
+| Menor diferença entre cores encostadas, na pior visão | ΔE 35,8 (piso do teste: 30) | teste |
+| Menor diferença na diagonal (mesma família, tocam pelo canto) | ΔE 21,7 (piso: 20) | teste |
+
+Limites: na **diagonal** ficam cores do mesmo lado — Vermelho toca Laranja e
+Vinho pelo canto; Amarelo toca Laranja, Verde, Vinho e Verde-oliva. Com dez
+cores de cada lado não há como evitar. A classificação quente/frio é minha,
+por raciocínio, não por medida; o Verde-mar (frio) é o caso mais discutível.
+E, de novo, **só o olho do Bruno diz se melhorou**: da outra vez o teste
+também passava. A tabela abaixo é a da primeira ordem, mantida como registro.
+
 ### Visão de cores (N29)
 
 | Item | Resultado | Prova |
@@ -349,6 +379,22 @@ pastas da estante continuam a 1 toque pelos botões do alto.
   cartão, medido na F1 entre 12:1 e 18:1); o texto suave do contador de
   livros não foi medido.
 - Tema "Monte o seu" e temas de livro: não conferidos no menu.
+
+---
+
+## Folhas de Números (F4 — começada em 2026-11-12)
+
+Só a primeira folha existe (`src/conteudo/numeroArte.ts`, `svgNumeroA4(n)`,
+de 0 a 10), ainda **fora do app**: espera o Bruno aprovar o estilo.
+
+- **Zero sem corte.** A fonte das legendas (Atkinson Hyperlegible) desenha o
+  zero com um risco no meio, para não confundir com a letra O — bom em código,
+  ruim numa folha que ensina o zero a uma criança de 7 anos. Nas folhas de
+  Números todo algarismo vem da Cardo; o título vai por extenso.
+- Sem certo e errado na folha: contar, pintar, apontar ou escrever.
+- Regiões grandes (a menor é a bolinha, 38 de 800 unidades da folha).
+- Conferido: as folhas do 3, do 0 e do 10 renderizadas em PNG e olhadas.
+  Não conferido: as outras oito, nenhuma impressa em papel, nenhuma criança.
 
 ---
 

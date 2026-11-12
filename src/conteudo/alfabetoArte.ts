@@ -12,16 +12,16 @@ export const FOLHA = { largura: 800, altura: 1131, margem: 48 };
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 const idioma = (s: string) => /[\u0370-\u03ff\u1f00-\u1fff]/u.test(s) ? 'grc' : 'pt-BR';
 
-function regiao(id: string, corpo: string): string {
+export function regiao(id: string, corpo: string): string {
   return `<g id="${id}" class="colorir-alvo" fill="${PAPEL}" stroke="${TINTA}" stroke-width="3">${corpo}</g>`;
 }
-function quadro(id: string, x: number, y: number, w: number, h: number, r = 12): string {
+export function quadro(id: string, x: number, y: number, w: number, h: number, r = 12): string {
   return regiao(id, `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>`);
 }
-function linha(x1: number, y1: number, x2: number, y2: number): string {
+export function linha(x1: number, y1: number, x2: number, y2: number): string {
   return `<path d="M${x1} ${y1} H${x2}" transform="translate(0 ${y2-y1})" stroke="${TINTA}" stroke-width="1.5" fill="none" pointer-events="none"/>`;
 }
-function largura(s: string, size: number): number {
+export function largura(s: string, size: number): number {
   return [...s].reduce((n,c) => n + (L[c]?.adv ?? 0) * size / 1000, 0);
 }
 export function texto(s: string, x: number, y: number, size = 22, anchor: 'start'|'middle'|'end' = 'start'): string {
@@ -35,7 +35,7 @@ export function texto(s: string, x: number, y: number, size = 22, anchor: 'start
   }).join('');
   return `<g role="img" aria-label="${esc(s)}" lang="${idioma(s)}" fill="${TINTA}" stroke="none" pointer-events="none">${paths}</g>`;
 }
-function linhasTexto(s: string, x: number, y: number, max = 704, size = 21, entrelinha = 31): string {
+export function linhasTexto(s: string, x: number, y: number, max = 704, size = 21, entrelinha = 31): string {
   const linhas: string[] = []; let atual = '';
   for (const palavra of s.split(' ')) {
     const teste = atual ? `${atual} ${palavra}` : palavra;
@@ -56,10 +56,10 @@ function formas(s: string, x: number, y: number, w: number, h: number): string {
     dx+=g.adv*scale;return p;
   }).join('');
 }
-function letras(id: string, s: string, x: number, y: number, w: number, h: number): string {
+export function letras(id: string, s: string, x: number, y: number, w: number, h: number): string {
   return regiao(id,`<g lang="${idioma(s)}" aria-label="${esc(s)}">${formas(s,x,y,w,h)}</g>`);
 }
-function base(titulo: string, categoria: string, corpo: string, identificacao = true): string {
+export function base(titulo: string, categoria: string, corpo: string, identificacao = true): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1131" data-folha-a4="true" role="img" aria-label="${esc(titulo)}" stroke-linecap="round" stroke-linejoin="round">
   <!-- Gerado por src/conteudo/alfabetoArte.ts a partir dos dados de alfabetos.ts e alfabetoComplementos.ts. -->
   <title>${esc(titulo)}</title><desc>Folha A4 de Historinhas. ${esc(categoria)}. Pinte, aponte, fale ou escreva com a mediação da professora.</desc>

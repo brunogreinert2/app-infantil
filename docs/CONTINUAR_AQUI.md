@@ -14,9 +14,13 @@ Registro de acessibilidade, com o que NÃO foi verificado: `docs/ACESSIBILIDADE.
       Ver abaixo. No iPhone a folha ABRE; a correção de "sai a tela do app"
       (`c4b17bb`) ainda precisa voltar ao aparelho.
 - [x] **F3 — estante em pastas + painel lateral** (2026-11-11). Ver abaixo.
-- [ ] **F4 — números arábicos, romanos e operações.** É a PRÓXIMA. O escopo
-      é do Bruno: mostrar a PRIMEIRA folha e esperar o sim antes de fazer as
-      outras (o plano manda renderizar em PNG e olhar cada folha).
+- [ ] **F4 — números arábicos, romanos e operações.** COMEÇADA: existe a
+      primeira folha (`svgNumeroA4(n)`, 0 a 10, em `src/conteudo/numeroArte.ts`),
+      fora do app, **esperando o sim do Bruno para o estilo**. Depois do sim:
+      `numeros.ts` espelhando `alfabetos.ts` (livro "Os Números" no catálogo,
+      pasta "Números" em `pastas.ts`), folha única de 0 a 10, romanos I–X com
+      a regra do IV/IX e o relógio, operações (reta, quadro de dez, grupos).
+      Renderizar cada folha nova em PNG e OLHAR (ver "Como olhar uma folha").
 - F6 (triagem de SVGs e histórias) não é para Fable: ver o plano.
 
 ### Teste do Bruno no iPhone (2026-11-11, 22h) e o que ele mudou
@@ -31,6 +35,25 @@ Registro de acessibilidade, com o que NÃO foi verificado: `docs/ACESSIBILIDADE.
   construir o plano B (abrir a folha em aba nova).
 - O iOS ignora a orientação do `@page`: a folha vem "Vertical". Não tem
   conserto por CSS; a cena em paisagem cabe em pé, menor.
+
+### Terceiro retorno do Bruno (2026-11-12): a paleta
+
+Ele ainda via Amarelo-sol ao lado de Vermelho e Verde perto de Amarelo. A
+ordem "medida" passava no teste e não resolvia. Refeita como **xadrez
+quente/frio** (`lado` em `cores.ts`), grade de 5 colunas em toda tela
+(`COLUNAS_PALETA = 5`). "Pode ser aleatório, pensado para o daltonismo" —
+palavra dele. Detalhe e limites em `docs/ACESSIBILIDADE.md`. **Falta ele olhar.**
+
+### Como olhar uma folha (F4)
+
+Não há Playwright no projeto, mas há um Chromium sem janela em
+`%LOCALAPPDATA%\ms-playwright\chromium_headless_shell-*`. Gravar o SVG num
+arquivo (um teste temporário do vitest com `writeFileSync` serve) e:
+`chrome-headless-shell.exe --headless --hide-scrollbars --window-size=800,1131
+--screenshot=saida.png file:///caminho/folha.svg`. Para impressão de verdade:
+`--print-to-pdf=saida.pdf` numa página temporária na raiz do projeto, servida
+pelo dev server, que importa `motorImpressao.ts` e troca `window.print` por
+uma função vazia. Apagar a página depois.
 
 ### Segundo retorno do Bruno (2026-11-11, mais tarde)
 
