@@ -11,10 +11,59 @@ Registro de acessibilidade, com o que NÃO foi verificado: `docs/ACESSIBILIDADE.
 - [x] **F1 — cores com nome, tons e voz** (2026-11-11). Ver abaixo.
 - [x] **F5 — espaçamento como no app-leitura** (2026-11-11). Ver abaixo.
 - [x] **F2 — imprimir, "do jeito que pintei", lupa de verdade** (2026-11-11).
-      Ver abaixo. O conserto do iPhone é HIPÓTESE até o Bruno testar.
-- [ ] **F3 — estante em pastas + painel lateral.** É a PRÓXIMA.
-- [ ] F4 — números arábicos, romanos e operações.
+      Ver abaixo. No iPhone a folha ABRE; a correção de "sai a tela do app"
+      (`c4b17bb`) ainda precisa voltar ao aparelho.
+- [x] **F3 — estante em pastas + painel lateral** (2026-11-11). Ver abaixo.
+- [ ] **F4 — números arábicos, romanos e operações.** É a PRÓXIMA. O escopo
+      é do Bruno: mostrar a PRIMEIRA folha e esperar o sim antes de fazer as
+      outras (o plano manda renderizar em PNG e olhar cada folha).
 - F6 (triagem de SVGs e histórias) não é para Fable: ver o plano.
+
+### Teste do Bruno no iPhone (2026-11-11, 22h) e o que ele mudou
+
+- Tons e cores: aprovados ("ficou muito legal").
+- Imprimir: a folha do iOS abre, mas saía **a tela do app** em vez do
+  desenho. Causa provável: no iOS o `afterprint` dispara antes de a prévia ser
+  desenhada, e a limpeza removia a folha. Corrigido em `c4b17bb`: a folha fica
+  no documento (invisível na tela) até a próxima impressão ou por 10 minutos.
+  **Falta ele testar de novo.** Se ainda sair a tela do app, a causa é outra:
+  olhar se o Safari aplica `@media print` a regras postas na hora, e aí
+  construir o plano B (abrir a folha em aba nova).
+- O iOS ignora a orientação do `@page`: a folha vem "Vertical". Não tem
+  conserto por CSS; a cena em paisagem cabe em pé, menor.
+
+### F3, o que ficou feito
+
+- `src/conteudo/pastas.ts`: a árvore. **Histórias** (Primeiras Aventuras ·
+  Entre Bosques e Castelos · Clássicos · Para pensar) e **Alfabetos**. Livro
+  novo: pôr o id na pasta; sem pasta, cai em Clássicos e o teste avisa.
+  Ids de pasta ficam salvos por perfil — não renomear (o rótulo pode).
+- `telaEstante.ts`: mostra a pasta escolhida, em seções; três botões de
+  pasta no alto (Histórias · Alfabetos · Anotações). A última pasta fica em
+  `<perfil>:pastaEstante`. O cartão "Minhas anotações" saiu da grade (virou
+  botão no alto e item do menu).
+- `painelLateral.ts`: o avatar da barra abre o menu em qualquer tela.
+  Gaveta com foco preso, Esc/✕/toque fora; 📌 fixa em tela ≥ 1200 px
+  (`<perfil>:painelFixo`). "Trocar de perfil" está no pé do menu, sem trava.
+  `main.ts` liga tudo com `configurarPainel` e `marcarLocal`.
+- A barra do topo não mudou de altura nem ganhou botão.
+- 71 testes (6 novos em `pastas.test.ts`); build verde.
+
+### F3, decisões minhas que o Bruno pode desfazer
+
+- Os nomes e emojis das pastas, e onde cada livro mora: a Lebre e as três
+  fábulas de Esopo antigas foram para **Clássicos**, junto do Pequeno
+  Príncipe; Nina, Sócrates e Renê para **Para pensar**.
+- O avatar deixou de trocar de perfil num toque (agora são dois).
+- A estante abre em "Histórias" inteira, com as quatro coleções em seções.
+- Não existe pasta "Ferramentas": as anotações são um item solto do menu.
+- A pasta "Números" não existe ainda — nasce com a F4.
+
+### F3, o que ficou de fora
+
+- Animação da gaveta (de propósito; ver ACESSIBILIDADE.md).
+- A tela Aparência monta a própria barra (sem avatar): de lá não se abre o
+  menu. Voltar um passo resolve.
 
 ### F2, o que ficou feito
 

@@ -239,10 +239,20 @@ Menor alvo de toque entre ferramentas, setas e opções de impressão: 52 px
 | Sem rolagem de lado em 390 px com tudo aberto | sim | medido |
 | Leitor de tela | lupa diz o aumento; impressão tem `aria-expanded`, foco vai à primeira opção, `Esc` fecha e devolve o foco | medido (DOM) |
 
+**O que o iPhone do Bruno mostrou (2026-11-11, à noite):**
+- A folha de impressão do iOS **abre** — a troca do iframe pelo documento
+  principal funcionou.
+- Mas o que saía no papel era **a tela do app**, não o desenho. Causa
+  provável: no iOS o `print()` volta na hora e o `afterprint` dispara antes
+  de a prévia ser desenhada; a limpeza que eu tinha posto no `afterprint`
+  removia a folha cedo demais. Nenhum teste meu pegou isso: no Chromium o
+  `print()` espera o diálogo fechar. Corrigido (a folha agora fica até a
+  próxima impressão) — **e esse conserto também ainda não voltou ao iPhone.**
+- O iOS ignora o `@page { size: A4 landscape }`: a orientação fica a que a
+  pessoa escolher na folha de impressão (veio "Vertical"). A cena em paisagem
+  cabe numa folha em pé, menor. Não tem conserto por CSS.
+
 **Limites, sem enfeite:**
-- **O iPhone não foi testado — e era o defeito de origem.** A troca de
-  iframe por documento principal é uma *hipótese* bem fundada, não um
-  conserto provado. Só o aparelho do Bruno diz.
 - Os PDFs saíram de uma página de teste que chama as mesmas funções do app,
   com o `print()` trocado por um marcador; não cliquei no botão dentro do
   diálogo de impressão do Windows nem de nenhum celular.
@@ -267,6 +277,61 @@ Menor alvo de toque entre ferramentas, setas e opções de impressão: 52 px
 
 Se o item 1 falhar, o plano B do plano é abrir a folha numa aba nova e
 imprimir de lá. Não foi construído.
+
+---
+
+## Estante em pastas e painel lateral (F3 — 2026-11-11)
+
+Onde: `src/conteudo/pastas.ts`, `src/telas/painelLateral.ts`,
+`src/telas/telaEstante.ts`, `src/telas/comum.ts` (avatar), `src/main.ts`.
+
+### O que mudou e por quê
+
+| Antes | Agora |
+|---|---|
+| 31 cartões numa grade só; achar o Alfabeto era rolar a página inteira. | Cada livro mora numa pasta; a estante mostra uma pasta por vez, em seções. |
+| O avatar da barra ia direto para a troca de perfil. | O avatar abre um menu lateral: pastas, anotações, trocar de perfil. |
+| Do meio de um livro, o caminho até as anotações era voltar, voltar, rolar. | Dois toques de qualquer tela: avatar → destino. |
+
+Carga cognitiva: a estante abre com 3 botões de pasta sempre no mesmo lugar
+e seções com título, em vez de 31 cartões sem ordem aparente.
+
+### O que foi verificado
+
+| Item | Resultado | Prova |
+|---|---|---|
+| Todo livro do catálogo está numa pasta, e numa só; nenhum some | 30 livros | teste (`pastas.test.ts`) |
+| Livro novo sem pasta não desaparece | cai em "Clássicos" | teste |
+| A barra do topo não ganhou botão nem segunda linha | 75 px de altura em 390 px e em 1280 px, como antes | medido |
+| Alfabetos e Anotações em 2 toques, a partir da tela de pintar | avatar → item | medido (percurso feito por script) |
+| Trocar de perfil pelo menu, sem trava | chega à tela de perfis | medido |
+| A pasta aberta por último é lembrada por perfil | saiu e voltou: reabriu em "Clássicos" | medido |
+| Sem rolagem de lado, 390 px e 1280 px, com menu aberto e fixo | sim | medido |
+| Menor alvo de toque dentro do menu | 46 px | medido |
+| Gaveta: `role="dialog"`, `aria-modal`, foco entra no item atual | sim | medido (DOM) |
+| `Esc`, ✕ e toque fora fecham; o foco volta ao avatar | sim | medido (DOM) |
+| Avatar: `aria-expanded`, `aria-controls`, `aria-haspopup` | sim | medido (DOM) |
+| Árvore: `role="tree"`/`treeitem`, `aria-level`, setas ↑ ↓ Home End | sim | medido (DOM) |
+| Onde estou: `aria-current="page"` + borda + barra à esquerda | sim (forma, não só cor) | medido |
+| Menu fixo (📌): só em tela ≥ 1200 px; conteúdo abre espaço; o desenho de pintar continua inteiro (860 px) | sim | medido em 1280 px |
+
+**Limites, sem enfeite:**
+- Nenhum leitor de tela real. Uma árvore (`role="tree"`) é dos padrões que
+  os leitores tratam de formas mais diferentes entre si; os atributos estão
+  certos, a experiência falada não foi ouvida.
+- O foco preso na gaveta foi lido no código, não exercitado com `Tab` real.
+- A gaveta não tem animação: aparece e some. É de propósito (movimento
+  reduzido sem precisar de exceção), mas ninguém avaliou se a criança
+  entende de onde ela veio.
+- O avatar mudou de função: quem estava acostumado a tocar nele para trocar
+  de perfil agora encontra um menu. Theo e Davi não foram avisados nem
+  observados.
+- Com o menu fixo e a janela entre 1200 e ~1250 px, a tela de pintar fica
+  justa; abaixo de 1200 o menu fixo vira gaveta sozinho.
+- Contraste do menu nos temas: usa as mesmas variáveis do resto (texto sobre
+  cartão, medido na F1 entre 12:1 e 18:1); o texto suave do contador de
+  livros não foi medido.
+- Tema "Monte o seu" e temas de livro: não conferidos no menu.
 
 ---
 

@@ -1,6 +1,7 @@
 // Peças de UI compartilhadas entre telas.
 
 import { perfilAtivo } from '../perfis/perfis';
+import { alternarPainel, painelAberto, painelConfigurado } from './painelLateral';
 import { ajustarTamanho, PASSO_FONTE } from './preferencias';
 
 export function el<K extends keyof HTMLElementTagNameMap>(
@@ -33,9 +34,18 @@ export function barraTopo(op: OpcoesBarra): HTMLElement {
 
   const p = perfilAtivo();
   const chip = el('button', 'chip-perfil', p.avatar);
-  chip.setAttribute('aria-label', `Trocar de perfil (agora: ${p.nome})`);
-  chip.title = `${p.nome} — tocar para trocar de perfil`;
-  chip.addEventListener('click', op.aoTrocarPerfil);
+  // O avatar abre o painel lateral (pastas, anotações, trocar de perfil).
+  // Antes ele ia direto para a troca de perfil; ela continua a dois toques,
+  // sem trava. A barra não ganhou botão novo: não engrossa.
+  chip.setAttribute('aria-label', `Abrir o menu de ${p.nome}`);
+  chip.setAttribute('aria-haspopup', 'dialog');
+  chip.setAttribute('aria-controls', 'painel-lateral');
+  chip.setAttribute('aria-expanded', String(painelAberto()));
+  chip.title = `${p.nome} — tocar para abrir o menu`;
+  chip.addEventListener('click', () => {
+    if (painelConfigurado()) alternarPainel(chip);
+    else op.aoTrocarPerfil();
+  });
   barra.appendChild(chip);
 
   barra.appendChild(el('h1', 'titulo-barra', op.titulo));

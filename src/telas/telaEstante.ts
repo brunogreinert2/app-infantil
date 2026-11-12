@@ -4,6 +4,7 @@
 import { armazenamento } from '../armazenamento/armazenamento';
 import { capasBosquesCastelos } from '../conteudo/colecaoBosquesCastelos';
 import { livros } from '../conteudo/catalogo';
+import { PASTAS, PASTA_PADRAO, acharPasta, secoesDaPasta, todasAsPastas } from '../conteudo/pastas';
 import { capasPrimeirasAventuras } from '../conteudo/colecaoPrimeirasAventuras';
 import type { Livro } from '../motor/tipos';
 import { perfilAtivo } from '../perfis/perfis';
@@ -26,51 +27,75 @@ const EMOJIS_CAPA: Record<string, string> = {
 
 export async function montarTelaEstante(
   raiz: HTMLElement,
+  idPasta: string,
   nav: {
     perfis: () => void;
     aparencia: () => void;
     leitura: (livro: Livro) => void;
     anotacoes: () => void;
+    pasta: (id: string) => void;
   },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-estante';
 
+  const pasta = acharPasta(idPasta) ?? acharPasta(PASTA_PADRAO)!;
+  // a pasta de fora a que esta pertence (para marcar a aba certa)
+  const deFora = PASTAS.find((f) => f === pasta || todasAsPastas(f.filhas).includes(pasta)) ?? pasta;
+
   raiz.appendChild(
-    barraTopo({ titulo: 'Estante', aoTrocarPerfil: nav.perfis, aoAparencia: nav.aparencia }),
+    barraTopo({
+      titulo: `${pasta.emoji} ${pasta.rotulo}`,
+      aoTrocarPerfil: nav.perfis,
+      aoAparencia: nav.aparencia,
+    }),
   );
 
-  const p = perfilAtivo();
-  const grade = el('div', 'grade-livros');
-
-  for (const livro of livros) {
-    const progresso = await armazenamento.obter<{ posicaoAtual?: string; status?: string }>(
-      `${p.id}:progresso:${livro.id}`,
-    );
-
-    const cartao = el('button', 'cartao-livro');
-    cartao.appendChild(el('span', 'capa-emoji', EMOJIS_CAPA[livro.id] ?? '📖'));
-    cartao.appendChild(el('span', 'titulo-livro', livro.metadados.titulo));
-    if (livro.metadados.autor_original) {
-      cartao.appendChild(el('span', 'autor-livro', livro.metadados.autor_original));
+  // --- as pastas de fora, sempre no mesmo lugar, a um toque ---
+  const abas = el('nav', 'pastas-estante');
+  abas.setAttribute('aria-label', 'Pastas da estante');
+  const aba = (rotulo: string, atual: boolean, aoTocar: () => void) => {
+    const b = el('button', 'botao-opcao aba-pasta', rotulo);
+    if (atual) {
+      b.classList.add('ativa');
+      b.setAttribute('aria-current', 'page');
     }
-    const rotulo =
-      progresso?.status === 'concluido' ? '⭐ Lido' : progresso ? '▶ Continuar' : '✨ Novo';
-    cartao.appendChild(el('span', 'selo-status', rotulo));
-    cartao.addEventListener('click', () => nav.leitura(livro));
-    grade.appendChild(cartao);
+    b.addEventListener('click', aoTocar);
+    abas.appendChild(b);
+  };
+  for (const f of PASTAS) aba(`${f.emoji} ${f.rotulo}`, f === deFora, () => nav.pasta(f.id));
+  aba('📝 Anotações', false, nav.anotacoes);
+  raiz.appendChild(abas);
+
+  const p = perfilAtivo();
+  const porId = new Map(livros.map((l) => [l.id, l]));
+  const secoes = secoesDaPasta(pasta, livros.map((l) => l.id));
+
+  for (const secao of secoes) {
+    // uma pasta só não precisa repetir o nome que já está na barra
+    if (secoes.length > 1 || secao.pasta !== pasta) {
+      const titulo = el('h2', 'titulo-secao titulo-pasta', `${secao.pasta.emoji} ${secao.pasta.rotulo}`);
+      raiz.appendChild(titulo);
+    }
+    const grade = el('div', 'grade-livros');
+    for (const id of secao.livros) {
+      const livro = porId.get(id)!;
+      const progresso = await armazenamento.obter<{ posicaoAtual?: string; status?: string }>(
+        `${p.id}:progresso:${livro.id}`,
+      );
+
+      const cartao = el('button', 'cartao-livro');
+      cartao.appendChild(el('span', 'capa-emoji', EMOJIS_CAPA[livro.id] ?? '📖'));
+      cartao.appendChild(el('span', 'titulo-livro', livro.metadados.titulo));
+      if (livro.metadados.autor_original) {
+        cartao.appendChild(el('span', 'autor-livro', livro.metadados.autor_original));
+      }
+      const rotulo =
+        progresso?.status === 'concluido' ? '⭐ Lido' : progresso ? '▶ Continuar' : '✨ Novo';
+      cartao.appendChild(el('span', 'selo-status', rotulo));
+      cartao.addEventListener('click', () => nav.leitura(livro));
+      grade.appendChild(cartao);
+    }
+    raiz.appendChild(grade);
   }
-
-  /* O caderno entra na estante como mais um cartão, no fim da grade: é um
-     lugar para onde se vai, igual a um livro. Não leva selo de progresso —
-     anotação não se "conclui" —, e a classe própria dá a ele uma borda que o
-     separa dos livros sem tirá-lo do meio deles. */
-  const caderno = el('button', 'cartao-livro cartao-caderno');
-  caderno.appendChild(el('span', 'capa-emoji', '📝'));
-  caderno.appendChild(el('span', 'titulo-livro', 'Minhas anotações'));
-  caderno.appendChild(el('span', 'autor-livro', 'escreva o que quiser'));
-  caderno.addEventListener('click', nav.anotacoes);
-  grade.appendChild(caderno);
-
-  raiz.appendChild(grade);
 }

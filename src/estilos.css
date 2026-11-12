@@ -727,6 +727,169 @@ button {
   border-color: #b8b8b8;
 }
 
+/* ---------- estante em pastas ---------- */
+.pastas-estante {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 18px 16px 0;
+}
+
+.aba-pasta {
+  min-height: 48px;
+}
+
+/* a pasta aberta: borda grossa na cor do texto + sublinhado (forma, não só cor) */
+.aba-pasta.ativa {
+  border-color: var(--texto);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 2px;
+}
+
+.titulo-pasta {
+  margin: 28px 16px 0;
+  text-align: center;
+}
+
+/* ---------- painel lateral ----------
+   Gaveta por padrão; em tela larga pode ficar fixo (📌). O limite de 1200px
+   está também em painelLateral.ts (TELA_LARGA): abaixo disso não cabem o
+   painel e o desenho de pintar lado a lado. */
+.painel-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.painel-lateral {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 50;
+  display: none;
+  flex-direction: column;
+  gap: 14px;
+  width: min(88vw, 320px);
+  padding: 14px 12px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--cartao);
+  color: var(--texto);
+  border-right: 2px solid var(--borda);
+  box-shadow: var(--sombra);
+}
+
+.painel-lateral.aberto {
+  display: flex;
+}
+
+.topo-painel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar-painel {
+  font-size: 1.6em;
+  line-height: 1;
+}
+
+.nome-painel {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.botao-alfinete {
+  display: none;
+  border: 2px solid transparent;
+}
+
+.botao-alfinete[aria-pressed='true'] {
+  border-color: var(--texto);
+}
+
+.arvore-painel,
+.arvore-painel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.arvore-painel ul {
+  padding-left: 22px;
+}
+
+.item-painel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  margin: 2px 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: transparent;
+  color: var(--texto);
+  font-size: 1em;
+  text-align: left;
+}
+
+.item-painel:hover {
+  background: var(--fundo);
+}
+
+/* onde a criança está: borda + fundo + barra à esquerda (forma, não só cor) */
+.item-painel[aria-current='page'] {
+  border-color: var(--texto);
+  border-left-width: 8px;
+  background: var(--fundo);
+}
+
+.rotulo-painel {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.conta-painel {
+  font-size: 0.85em;
+  font-weight: 400;
+  color: var(--texto-suave);
+}
+
+.item-trocar-perfil {
+  margin-top: auto;
+  border-color: var(--borda);
+}
+
+@media (min-width: 1200px) {
+  .botao-alfinete {
+    display: inline-block;
+  }
+
+  .painel-lateral.fixo {
+    display: flex;
+  }
+
+  .painel-lateral.fixo .botao-fechar-painel {
+    display: none;
+  }
+
+  body.painel-fixo #app {
+    margin-left: 320px;
+  }
+
+  body.painel-fixo .painel-lateral {
+    width: 320px;
+  }
+}
+
 /* ---------- lupa, setas do zoom e escolha de impressão ---------- */
 .botao-lupa {
   padding: 0 12px;

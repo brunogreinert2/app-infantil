@@ -14,7 +14,16 @@ import { montarTelaQuebraCabeca } from './telas/telaQuebraCabeca';
 import { montarTelaAbertura } from './telas/telaAbertura';
 import { montarTelaConfiguracoes, montarTravaParental } from './telas/telaConfiguracoes';
 import { aplicarTemaDeLivro, carregarPreferencias } from './telas/preferencias';
-import { temPerfilAtivo } from './perfis/perfis';
+import { perfilAtivo, temPerfilAtivo } from './perfis/perfis';
+import { armazenamento } from './armazenamento/armazenamento';
+import { PASTA_PADRAO, acharPasta, pastaDoLivro } from './conteudo/pastas';
+import {
+  LOCAL_ANOTACOES,
+  configurarPainel,
+  marcarLocal,
+  prepararPainel,
+  removerPainel,
+} from './telas/painelLateral';
 import { pararFala } from './tts';
 
 const raiz = document.getElementById('app')!;
@@ -22,12 +31,14 @@ let livroAtual: Livro | null = null;
 
 function irPerfis(): void {
   pararFala();
+  removerPainel(); // sem perfil escolhido não há menu
   // saindo de um livro tematizado: devolve o tema da criança
   if (temPerfilAtivo()) carregarPreferencias();
   montarTelaPerfis(
     raiz,
     async () => {
       await carregarPreferencias();
+      await prepararPainel();
       irEstante();
     },
     irAjustes,
@@ -36,6 +47,7 @@ function irPerfis(): void {
 
 function irAjustes(): void {
   // trava parental primeiro — sempre (spec 8.5)
+  removerPainel();
   montarTravaParental(
     raiz,
     () => montarTelaConfiguracoes(raiz, { perfis: irPerfis }),
@@ -43,25 +55,43 @@ function irAjustes(): void {
   );
 }
 
-function irEstante(): void {
+// A estante abre na última pasta que ESTE perfil visitou. `idPasta` só vale
+// quando é texto: vários botões chamam irEstante direto como ouvinte de
+// clique, e aí o primeiro argumento é o evento.
+function irEstante(idPasta?: unknown): void {
+  void abrirEstante(idPasta);
+}
+
+async function abrirEstante(idPasta?: unknown): Promise<void> {
   pararFala();
   window.scrollTo(0, 0);
   // saindo de um livro tematizado: devolve o tema da criança
   carregarPreferencias();
-  montarTelaEstante(raiz, {
+
+  const chave = `${perfilAtivo().id}:pastaEstante`;
+  let id = typeof idPasta === 'string' ? idPasta : await armazenamento.obter<string>(chave);
+  if (!id || !acharPasta(id)) id = PASTA_PADRAO;
+  if (typeof idPasta === 'string') await armazenamento.definir(chave, id);
+  marcarLocal(id);
+
+  await montarTelaEstante(raiz, id, {
     perfis: irPerfis,
     aparencia: () => irAparencia(irEstante),
     leitura: (livro) => {
       livroAtual = livro;
+      marcarLocal(pastaDoLivro(livro.id).id); // no menu, a pasta do livro aberto
       irLeitura(true); // vindo da estante → abertura cênica (se o livro tiver)
     },
     anotacoes: irAnotacoes,
+    pasta: irEstante,
   });
 }
 
 function irAnotacoes(): void {
   pararFala();
   window.scrollTo(0, 0);
+  carregarPreferencias(); // pode ter vindo de um livro tematizado, pelo menu
+  marcarLocal(LOCAL_ANOTACOES);
   void montarTelaAnotacoes(raiz, {
     perfis: irPerfis,
     aparencia: () => irAparencia(irAnotacoes),
@@ -112,5 +142,12 @@ function irColorir(assetId: string): void {
     voltar: irLeitura,
   });
 }
+
+// o menu lateral alcança estes três lugares de qualquer tela
+configurarPainel({
+  pasta: irEstante,
+  anotacoes: irAnotacoes,
+  perfis: irPerfis,
+});
 
 irPerfis();
