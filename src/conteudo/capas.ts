@@ -17,4 +17,5 @@ export const EMOJIS_CAPA: Record<string, string> = {
   'o-vento-e-o-sol': '🌬️☀️',
   'alfabeto-grego': 'Ωα',
   'alfabeto': '🔤',
+  'numeros': '🔢',
 };

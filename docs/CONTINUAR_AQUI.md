@@ -14,13 +14,12 @@ Registro de acessibilidade, com o que NÃO foi verificado: `docs/ACESSIBILIDADE.
       Ver abaixo. No iPhone a folha ABRE; a correção de "sai a tela do app"
       (`c4b17bb`) ainda precisa voltar ao aparelho.
 - [x] **F3 — estante em pastas + painel lateral** (2026-11-11). Ver abaixo.
-- [ ] **F4 — números arábicos, romanos e operações.** COMEÇADA: existe a
-      primeira folha (`svgNumeroA4(n)`, 0 a 10, em `src/conteudo/numeroArte.ts`),
-      fora do app, **esperando o sim do Bruno para o estilo**. Depois do sim:
-      `numeros.ts` espelhando `alfabetos.ts` (livro "Os Números" no catálogo,
-      pasta "Números" em `pastas.ts`), folha única de 0 a 10, romanos I–X com
-      a regra do IV/IX e o relógio, operações (reta, quadro de dez, grupos).
-      Renderizar cada folha nova em PNG e OLHAR (ver "Como olhar uma folha").
+- [x] **F4 — números arábicos, romanos e operações** (2026-11-12). Estilo da
+      primeira folha aprovado pelo Bruno ("aprovadíssimo"). Ver abaixo.
+
+**O plano está cumprido (F0, F1, F5, F2, F3, F4).** O que falta é do Bruno:
+conferir no iPhone a impressão numa página, olhar o livro Os Números, e
+autorizar (ou não) a publicação. Nada foi para a master.
 - F6 (triagem de SVGs e histórias) não é para Fable: ver o plano.
 
 ### Teste do Bruno no iPhone (2026-11-11, 22h) e o que ele mudou
@@ -36,13 +35,40 @@ Registro de acessibilidade, com o que NÃO foi verificado: `docs/ACESSIBILIDADE.
 - O iOS ignora a orientação do `@page`: a folha vem "Vertical". Não tem
   conserto por CSS; a cena em paisagem cabe em pé, menor.
 
+### F4, o que ficou feito
+
+- `src/conteudo/numeroArte.ts`: as folhas. `svgNumeroA4(n)` (0 a 10),
+  `svgNumerosTabelaA4`, `svgDezenasA4`, `svgRomanosA4`, `svgRelogioRomanoA4`,
+  `svgJuntarA4`, `svgTirarA4`, `svgVezesA4`, `svgRepartirA4`, `svgTabuadaA4`.
+  Usa as peças de `alfabetoArte.ts` (agora exportadas: `base`, `quadro`,
+  `regiao`, `letras`, `linha`, `linhasTexto`). `texto()` local troca os
+  algarismos pela Cardo (zero sem corte).
+- `src/conteudo/numeros.ts`: `gerarCadernoNumeros()` e `gerarNumeros()` — o
+  livro `numeros` ("Os Números"), 20 assets `numeros_<id>.svg`, texto na voz
+  da criança, um quiz. Entra no `catalogo.ts` junto dos alfabetos.
+- `scripts/gera-glifos.mjs`: os algarismos 0–9 entraram nos glifos da Cardo
+  Bold (132 glifos).
+- Pasta "Números" (`pastas.ts`), capa 🔢 (`capas.ts`), insígnia "Amigo dos
+  Números" (`insignias.ts`), botões de impressão no livro (`tabelas.ts`):
+  de zero a dez, tabuada, caderno completo.
+- 82 testes; build verde.
+
+### F4, o que ficou de fora
+
+- Oito das onze folhas "um número" não foram olhadas uma a uma (1, 2, 4–9).
+- `scripts/exportar-fichas.mjs` não exporta os Números (só os alfabetos): o
+  pacote de SVG/PDF para as professoras ainda não tem estas folhas.
+- Guia da professora para os Números: não escrito.
+- Números de 11 a 20, dezenas quebradas (23, 47…), tabuada por número.
+- Na tabuada o algarismo é cheio: some se a casa for pintada de cor escura.
+
 ### Terceiro retorno do Bruno (2026-11-12): a paleta
 
 Ele ainda via Amarelo-sol ao lado de Vermelho e Verde perto de Amarelo. A
 ordem "medida" passava no teste e não resolvia. Refeita como **xadrez
 quente/frio** (`lado` em `cores.ts`), grade de 5 colunas em toda tela
 (`COLUNAS_PALETA = 5`). "Pode ser aleatório, pensado para o daltonismo" —
-palavra dele. Detalhe e limites em `docs/ACESSIBILIDADE.md`. **Falta ele olhar.**
+palavra dele. Detalhe e limites em `docs/ACESSIBILIDADE.md`. Ele olhou e aprovou ("as cores ficaram ótimas").
 
 ### Como olhar uma folha (F4)
 

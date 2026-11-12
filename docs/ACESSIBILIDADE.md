@@ -382,19 +382,59 @@ pastas da estante continuam a 1 toque pelos botões do alto.
 
 ---
 
-## Folhas de Números (F4 — começada em 2026-11-12)
+## Os Números (F4 — 2026-11-12)
 
-Só a primeira folha existe (`src/conteudo/numeroArte.ts`, `svgNumeroA4(n)`,
-de 0 a 10), ainda **fora do app**: espera o Bruno aprovar o estilo.
+Onde: `src/conteudo/numeroArte.ts` (desenho), `src/conteudo/numeros.ts`
+(livro), pasta "Números" em `pastas.ts`. Vinte folhas A4: todos de zero a
+dez numa folha; uma folha por número (0 a 10); de dez em dez até cem;
+romanos; relógio romano; juntar, tirar, grupos iguais, repartir; tabuada.
+
+### Decisões de acessibilidade
 
 - **Zero sem corte.** A fonte das legendas (Atkinson Hyperlegible) desenha o
   zero com um risco no meio, para não confundir com a letra O — bom em código,
   ruim numa folha que ensina o zero a uma criança de 7 anos. Nas folhas de
-  Números todo algarismo vem da Cardo; o título vai por extenso.
-- Sem certo e errado na folha: contar, pintar, apontar ou escrever.
-- Regiões grandes (a menor é a bolinha, 38 de 800 unidades da folha).
-- Conferido: as folhas do 3, do 0 e do 10 renderizadas em PNG e olhadas.
-  Não conferido: as outras oito, nenhuma impressa em papel, nenhuma criança.
+  Números todo algarismo vem da Cardo, e os títulos vão por extenso.
+- **Sem certo e errado.** A caixa da resposta fica vazia; a folha não corrige.
+  Quem confere é a criança, contando ou pulando na reta (princípio 4).
+- **Quantidade antes do símbolo.** Toda conta aparece em bolinhas que se
+  podem contar; o algarismo vem junto, nunca sozinho.
+- **Mais de um jeito de participar** em cada folha: pintar, apontar, contar
+  em voz alta, riscar, desenhar, escrever.
+- **Os sinais (+ − × ÷ =) são desenhados**, com traço grosso e nome falado
+  (`aria-label`: "mais", "menos"…), sem depender de fonte.
+- **Mesma estrutura em todas as folhas de operação**: três contas, a reta, um
+  convite para inventar. A criança aprende o caminho uma vez.
+
+### O que foi verificado
+
+| Item | Resultado | Prova |
+|---|---|---|
+| Vinte folhas, A4, só preto e branco, sem `<text>`, ids de região únicos | sim | teste (`numeroArte.test.ts`) |
+| Bolinhas do quadro de dez = o número, de 0 a 10 | sim | teste |
+| Nenhum título de folha com algarismo | sim | teste |
+| As contas cabem na reta de zero a dez | sim | teste |
+| Cada folha desenhada e **olhada** | 3, 0, 10 e as nove folhas que não são "um número" | PNG pelo Chromium sem janela |
+| No app: pasta Números, livro com 20 seções e 20 desenhos, pintura por toque | sim, em 390×844, sem rolagem de lado | medido |
+
+**Limites, sem enfeite:**
+- As folhas do 1, 2, 4, 5, 6, 7, 8 e 9 **não foram olhadas uma a uma** —
+  saem do mesmo molde das três que olhei, mas "mesmo molde" não é "olhei".
+- Nenhuma folha foi impressa em papel nem usada por criança ou professora.
+- Na tabuada, o número de cada casa é preto: pintando a casa de cor escura,
+  o número some. Nas folhas de alfabeto as letras são vazadas; aqui, com cem
+  casas, deixei cheio para caber e ler. É uma perda real para quem pinta escuro.
+- Os algarismos da Cardo são serifados; para algumas crianças com dislexia
+  ou baixa visão um algarismo sem serifa lê melhor. Escolhi a Cardo por causa
+  do zero cortado da Atkinson. A OpenDyslexic não foi testada nas folhas.
+- O "1" da Cardo tem bandeirinha e pé, diferente do pauzinho que muitas
+  crianças aprendem a escrever; o "4" é fechado. Não tratei.
+- Leitor de tela: cada legenda tem `aria-label`, mas a folha como um todo é
+  um desenho — uma criança cega não faz estas atividades pelo app.
+- Relógio: optei por IV (e não IIII, que muitos relógios usam) para bater com
+  a regra da folha de romanos.
+- A tabuada pesa cerca de 425 KB como SVG na memória (não no pacote: as
+  folhas são geradas na hora). Em aparelho fraco não medi.
 
 ---
 

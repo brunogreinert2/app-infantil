@@ -7,7 +7,16 @@
 // bem. Sem "nota", sem certo e errado na folha — a criança conta, pinta,
 // aponta ou escreve do jeito dela.
 
-import { base, letras, linha, quadro, regiao, texto as textoDaLegenda } from './alfabetoArte';
+import {
+  base,
+  letras,
+  linha,
+  linhasTexto,
+  quadro,
+  regiao,
+  svgQuadrosA4,
+  texto as textoDaLegenda,
+} from './alfabetoArte';
 import glifos from './glifos.json';
 import legendas from './glifos-legendas.json';
 
@@ -136,3 +145,240 @@ export function svgNumeroA4(n: number): string {
   // título por extenso: o título passa pela legenda comum (zero cortado)
   return base(`O número ${nome}`, 'Números · um por um', corpo);
 }
+
+// ---------- peças comuns ----------
+
+const TINTA = '#000000';
+
+/** Bolinhas pintáveis numa fileira; cada uma é uma região. */
+function bolinhas(prefixo: string, n: number, x: number, cy: number, r = 20, passo = 48): string {
+  let s = '';
+  for (let i = 0; i < n; i++) {
+    s += regiao(`${prefixo}-${i + 1}`, `<circle cx="${x + r + i * passo}" cy="${cy}" r="${r}"/>`);
+  }
+  return s;
+}
+
+type Sinal = 'mais' | 'menos' | 'vezes' | 'dividir' | 'igual';
+
+// Os sinais são desenhados, não escritos: traço grosso, sempre do mesmo
+// tamanho, e sem depender de a fonte ter o sinal de menos ou de dividir.
+function sinal(tipo: Sinal, cx: number, cy: number, t = 15): string {
+  const d = {
+    mais: `M${cx - t} ${cy}H${cx + t}M${cx} ${cy - t}V${cy + t}`,
+    menos: `M${cx - t} ${cy}H${cx + t}`,
+    vezes: `M${cx - t * 0.8} ${cy - t * 0.8}L${cx + t * 0.8} ${cy + t * 0.8}M${cx + t * 0.8} ${cy - t * 0.8}L${cx - t * 0.8} ${cy + t * 0.8}`,
+    dividir: `M${cx - t} ${cy}H${cx + t}`,
+    igual: `M${cx - t} ${cy - 7}H${cx + t}M${cx - t} ${cy + 7}H${cx + t}`,
+  }[tipo];
+  const pontos =
+    tipo === 'dividir'
+      ? `<circle cx="${cx}" cy="${cy - 12}" r="4.5" fill="${TINTA}" stroke="none"/><circle cx="${cx}" cy="${cy + 12}" r="4.5" fill="${TINTA}" stroke="none"/>`
+      : '';
+  const nome = { mais: 'mais', menos: 'menos', vezes: 'vezes', dividir: 'dividido por', igual: 'igual a' }[tipo];
+  return `<g role="img" aria-label="${nome}" fill="none" stroke="${TINTA}" stroke-width="6" pointer-events="none"><path d="${d}"/>${pontos}</g>`;
+}
+
+/** A reta de 0 a 10, com uma casinha pintável em cada número. */
+function reta(prefixo: string, y: number): string {
+  const passo = 66;
+  const x = 70;
+  let s = linha(x, y, x + 10 * passo, y);
+  for (let i = 0; i <= 10; i++) {
+    s += regiao(`${prefixo}-${i}`, `<circle cx="${x + i * passo}" cy="${y}" r="23"/>`);
+    s += texto(String(i), x + i * passo, y + 53, 21, 'middle');
+  }
+  return s;
+}
+
+/** A caixa vazia onde a criança escreve ou desenha a resposta. */
+function caixaResposta(id: string, x: number, y: number): string {
+  return quadro(id, x, y, 74, 74, 12);
+}
+
+// ---------- folha única: de zero a dez ----------
+
+export function svgNumerosTabelaA4(): string {
+  let corpo = texto('Observe, conte e pinte. Cada número tem um nome.', 48, 154, 21);
+  const passo = 205;
+  for (let n = 0; n <= 10; n++) {
+    const x = 48 + (n % 4) * 180;
+    const y = 179 + Math.floor(n / 4) * passo;
+    corpo += quadro(`regiao-quadro-${n}`, x, y, 164, passo - 13);
+    corpo += letras(`regiao-numero-${n}`, String(n), x + 16, y + 16, 132, passo - 78);
+    corpo += texto(NOMES_DOS_NUMEROS[n], x + 82, y + passo - 30, 21, 'middle');
+  }
+  // o canto vazio da grade (onze números em quatro colunas)
+  corpo += texto('Até onde você', 670, 179 + 2 * passo + 75, 19, 'middle');
+  corpo += texto('sabe contar?', 670, 179 + 2 * passo + 103, 19, 'middle');
+  corpo += texto('Conte em voz alta!', 670, 179 + 2 * passo + 145, 17, 'middle');
+  corpo += reta('regiao-reta', 870);
+  corpo += linhasTexto('Conte os dedos, os degraus, as estrelas. Depois pinte a casinha do número de que você mais gosta.', 48, 990, 704, 19, 27);
+  return base('Os números de zero a dez', 'Números · todos em uma folha', corpo, false);
+}
+
+// ---------- de dez em dez ----------
+
+export function svgDezenasA4(): string {
+  const nomes = ['dez', 'vinte', 'trinta', 'quarenta', 'cinquenta', 'sessenta', 'setenta', 'oitenta', 'noventa', 'cem'];
+  return svgQuadrosA4(
+    'De dez em dez até cem',
+    'Números · consulta',
+    [{ titulo: 'Dez dedos de cada vez', itens: nomes.map((rotulo, i) => ({ simbolos: String((i + 1) * 10), rotulo })) }],
+    'Mostre as duas mãos abertas: são dez dedos. Abra de novo: vinte! Quantas vezes você abre as mãos até chegar no cem?',
+  );
+}
+
+// ---------- números romanos ----------
+
+export const ROMANOS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
+
+export function svgRomanosA4(): string {
+  const letrasQueValem: Array<[string, string]> = [
+    ['I', 'um'], ['V', 'cinco'], ['X', 'dez'], ['L', 'cinquenta'], ['C', 'cem'], ['D', 'quinhentos'], ['M', 'mil'],
+  ];
+  return svgQuadrosA4(
+    'Números romanos',
+    'Números · consulta',
+    [
+      { titulo: 'De um a dez, do jeito dos romanos', itens: ROMANOS.slice(0, 10).map((simbolos, i) => ({ simbolos, rotulo: NOMES_DOS_NUMEROS[i + 1] })) },
+      { titulo: 'Sete letras que valem números', itens: letrasQueValem.map(([simbolos, rotulo]) => ({ simbolos, rotulo })) },
+    ],
+    'Letra menor DEPOIS da maior: junta. VI é cinco mais um. Letra menor ANTES da maior: tira. IV é cinco menos um; IX é dez menos um.',
+  );
+}
+
+export function svgRelogioRomanoA4(): string {
+  const cx = 400;
+  const cy = 570;
+  let corpo = texto('Os relógios antigos usam números romanos. Pinte cada hora!', 48, 197, 22);
+  corpo += regiao('regiao-aro', `<circle cx="${cx}" cy="${cy}" r="322"/>`);
+  corpo += regiao('regiao-mostrador', `<circle cx="${cx}" cy="${cy}" r="296"/>`);
+  let riscos = '';
+  for (let h = 0; h < 12; h++) {
+    const a = (h * Math.PI) / 6 - Math.PI / 2;
+    // h = 0 fica no alto: é o XII
+    const rotulo = ROMANOS[(h + 11) % 12];
+    const largura = Math.max(46, rotulo.length * 24);
+    const x = cx + 228 * Math.cos(a);
+    const y = cy + 228 * Math.sin(a);
+    corpo += letras(`regiao-hora-${h === 0 ? 12 : h}`, rotulo, x - largura / 2, y - 26, largura, 52);
+    riscos += `M${(cx + 281 * Math.cos(a)).toFixed(1)} ${(cy + 281 * Math.sin(a)).toFixed(1)}L${(cx + 294 * Math.cos(a)).toFixed(1)} ${(cy + 294 * Math.sin(a)).toFixed(1)}`;
+  }
+  corpo += `<path d="${riscos}" fill="none" stroke="${TINTA}" stroke-width="5" pointer-events="none"/>`;
+  corpo += regiao('regiao-centro', `<circle cx="${cx}" cy="${cy}" r="13"/>`);
+  corpo += texto('Que horas você acorda? Desenhe os dois ponteiros.', 400, 945, 22, 'middle');
+  corpo += texto('O ponteiro pequeno mostra a hora. O grande mostra os minutos.', 400, 985, 18, 'middle');
+  corpo += texto('Você pode desenhar, apontar ou contar para alguém.', 400, 1034, 18, 'middle');
+  return base('O relógio romano', 'Números · romanos', corpo);
+}
+
+// ---------- as quatro operações ----------
+// Cada folha: três contas para VER (bolinhas), a reta para conferir pulando
+// e um convite para inventar a própria. A caixa da resposta fica vazia: a
+// folha não diz se está certo — quem confere é a criança, contando.
+
+const Y_CONTAS = [232, 422, 612];
+const ALTURA_CONTA = 168;
+
+function fimDaFolha(convite: string): string {
+  return (
+    texto('Confira pulando na reta.', 48, 838, 22) +
+    reta('regiao-reta', 884) +
+    texto(convite, 48, 1010, 22) +
+    linha(48, 1048, 752, 1048)
+  );
+}
+
+export function svgJuntarA4(): string {
+  let corpo = texto('Junte as bolinhas. Quantas ficam ao todo?', 48, 197, 24);
+  ([[2, 3], [4, 1], [3, 3]] as Array<[number, number]>).forEach(([a, b], k) => {
+    const y = Y_CONTAS[k];
+    const cy = y + 62;
+    corpo += quadro(`regiao-conta-${k + 1}`, 48, y, 704, ALTURA_CONTA);
+    corpo += bolinhas(`regiao-conta-${k + 1}-a`, a, 78, cy) + sinal('mais', 348, cy);
+    corpo += bolinhas(`regiao-conta-${k + 1}-b`, b, 388, cy) + sinal('igual', 640, cy);
+    corpo += caixaResposta(`regiao-resposta-${k + 1}`, 668, cy - 37);
+    corpo += texto(String(a), 78 + (a * 48 - 8) / 2, y + 138, 34, 'middle');
+    corpo += texto(String(b), 388 + (b * 48 - 8) / 2, y + 138, 34, 'middle');
+  });
+  corpo += fimDaFolha('Invente uma conta de juntar:');
+  return base('Juntar: a conta de mais', 'Números · operações', corpo);
+}
+
+export function svgTirarA4(): string {
+  let corpo = texto('Pinte as bolinhas. Risque as que vão embora. Quantas sobram?', 48, 197, 22);
+  ([[5, 2], [4, 1], [6, 3]] as Array<[number, number]>).forEach(([tudo, tira], k) => {
+    const y = Y_CONTAS[k];
+    const cy = y + 62;
+    corpo += quadro(`regiao-conta-${k + 1}`, 48, y, 704, ALTURA_CONTA);
+    corpo += bolinhas(`regiao-conta-${k + 1}-a`, tudo, 78, cy) + sinal('menos', 410, cy);
+    corpo += letras(`regiao-conta-${k + 1}-tira`, String(tira), 452, cy - 38, 90, 76);
+    corpo += sinal('igual', 600, cy) + caixaResposta(`regiao-resposta-${k + 1}`, 668, cy - 37);
+    corpo += texto(String(tudo), 78 + (tudo * 48 - 8) / 2, y + 138, 34, 'middle');
+    corpo += texto(`vão embora ${tira}`, 497, y + 138, 20, 'middle');
+  });
+  corpo += fimDaFolha('Invente uma conta de tirar:');
+  return base('Tirar: a conta de menos', 'Números · operações', corpo);
+}
+
+export function svgVezesA4(): string {
+  let corpo = texto('Grupos iguais! Quantas bolinhas há ao todo?', 48, 197, 24);
+  ([[2, 3], [3, 2], [4, 2]] as Array<[number, number]>).forEach(([grupos, cada], k) => {
+    const y = Y_CONTAS[k];
+    const cy = y + 62;
+    const larguraGrupo = cada * 42 + 14;
+    corpo += quadro(`regiao-conta-${k + 1}`, 48, y, 704, ALTURA_CONTA);
+    for (let g = 0; g < grupos; g++) {
+      const x = 74 + g * (larguraGrupo + 14);
+      corpo += quadro(`regiao-conta-${k + 1}-grupo-${g + 1}`, x, cy - 30, larguraGrupo, 60, 14);
+      corpo += bolinhas(`regiao-conta-${k + 1}-grupo-${g + 1}-bola`, cada, x + 9, cy, 17, 42);
+    }
+    corpo += sinal('igual', 640, cy) + caixaResposta(`regiao-resposta-${k + 1}`, 668, cy - 37);
+    corpo += texto(`${grupos} grupos de ${cada}`, 74, y + 138, 26);
+  });
+  corpo += fimDaFolha('Desenhe os seus grupos iguais:');
+  return base('Grupos iguais: a conta de vezes', 'Números · operações', corpo);
+}
+
+export function svgRepartirA4(): string {
+  let corpo = texto('Reparta igual: uma bolinha para cada prato, até acabar.', 48, 197, 22);
+  ([[6, 2], [8, 4], [9, 3]] as Array<[number, number]>).forEach(([total, pratos], k) => {
+    const y = Y_CONTAS[k];
+    corpo += quadro(`regiao-conta-${k + 1}`, 48, y, 704, ALTURA_CONTA);
+    corpo += bolinhas(`regiao-conta-${k + 1}-bola`, total, 74, y + 36, 16, 40);
+    for (let p = 0; p < pratos; p++) {
+      corpo += quadro(`regiao-conta-${k + 1}-prato-${p + 1}`, 74 + p * 128, y + 68, 112, 62, 31);
+    }
+    corpo += texto(`${total} bolinhas em ${pratos} pratos`, 74, y + 156, 19);
+    corpo += sinal('igual', 640, y + 99) + caixaResposta(`regiao-resposta-${k + 1}`, 668, y + 62);
+    corpo += texto('em cada', 705, y + 156, 17, 'middle');
+  });
+  corpo += fimDaFolha('Reparta alguma coisa sua:');
+  return base('Repartir igual: a conta de dividir', 'Números · operações', corpo);
+}
+
+// ---------- tabuada para pintar ----------
+
+export function svgTabuadaA4(): string {
+  const lado = 62;
+  const x0 = 110;
+  const y0 = 282;
+  let corpo = texto('Escolha um número. Pinte a fileira dele de uma cor só.', 48, 190, 22);
+  corpo += texto('Achou números que se repetem? Pinte da mesma cor!', 48, 222, 20);
+  corpo += sinal('vezes', x0 - 31, y0 - 31, 13);
+  for (let i = 1; i <= 10; i++) {
+    corpo += texto(String(i), x0 + (i - 1) * lado + lado / 2, y0 - 20, 26, 'middle');
+    corpo += texto(String(i), x0 - 31, y0 + (i - 1) * lado + lado / 2 + 9, 26, 'middle');
+    for (let j = 1; j <= 10; j++) {
+      const x = x0 + (j - 1) * lado;
+      const y = y0 + (i - 1) * lado;
+      corpo += quadro(`regiao-vezes-${i}-${j}`, x, y, lado, lado, 5);
+      corpo += texto(String(i * j), x + lado / 2, y + lado / 2 + 7, 20, 'middle');
+    }
+  }
+  corpo += linhasTexto('Segredo: três vezes quatro e quatro vezes três dão o mesmo número. Procure os pares!', 48, 955, 704, 19, 27);
+  corpo += texto('Não precisa decorar. Precisa passear.', 48, 1034, 18);
+  return base('Tabuada para pintar', 'Números · operações', corpo);
+}
+

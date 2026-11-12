@@ -8,6 +8,7 @@ import { carregarLivro } from '../motor/frontmatter';
 import type { Livro } from '../motor/tipos';
 import { livrosBosquesCastelos, assetsBosquesCastelos } from './colecaoBosquesCastelos';
 import { gerarAlfabetos } from './alfabetos';
+import { gerarNumeros } from './numeros';
 import { livrosPrimeirasAventuras, assetsPrimeirasAventuras } from './colecaoPrimeirasAventuras';
 
 import lebreMd from './livros/lebre-e-tartaruga.md?raw';
@@ -36,7 +37,7 @@ import leaoSvg from './assets/colecao01-leao.svg?raw';
 import uvasSvg from './assets/colecao01-uvas.svg?raw';
 import ventoSolSvg from './assets/colecao01-vento-sol.svg?raw';
 
-const gerados = gerarAlfabetos();
+const gerados = [...gerarAlfabetos(), gerarNumeros()];
 
 export const livros: Livro[] = [
   carregarLivro('lebre-e-tartaruga', lebreMd),

@@ -72,6 +72,13 @@ export const PASTAS: Pasta[] = [
     livros: ['alfabeto', 'alfabeto-grego'],
     filhas: [],
   },
+  {
+    id: 'numeros',
+    rotulo: 'Números',
+    emoji: '🔢',
+    livros: ['numeros'],
+    filhas: [],
+  },
 ];
 
 export const PASTA_PADRAO = 'historias';
