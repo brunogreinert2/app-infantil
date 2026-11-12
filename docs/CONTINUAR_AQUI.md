@@ -50,6 +50,13 @@ Os retoques anteriores (`fable/retoques-pos-publicacao`) JÁ estão no site
 
 **Publicação autorizada em 2026-11-12** ("Depois disso pode publicar"):
 a branch `fable/sugestoes` vai inteira para a master.
+**Publicação confirmada:** master em `0b98895`; o
+[Actions 43301495350](https://github.com/brunogreinert2/app-infantil/actions/runs/43301495350)
+concluiu com sucesso. Conferido por download do pacote servido em
+https://historinhas.app.br (traz guia, galeria, títulos recolhíveis, régua,
+PDF, peso da letra e tabuadas; não traz o axe-core). NÃO abri o site num
+navegador nem num celular depois de publicar. Este registro fica só na
+branch. Mudança nova volta a pedir autorização.
 
 **As oito sugestões estão entregues, menos: traçado de algarismos, nomes das
 regiões das 51 cenas, e o teste com leitor de tela.** Tudo na branch
