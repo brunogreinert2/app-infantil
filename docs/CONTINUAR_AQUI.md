@@ -10,11 +10,52 @@ Registro de acessibilidade, com o que NÃO foi verificado: `docs/ACESSIBILIDADE.
 - [x] **F0** — branch criada; 41 testes e build verdes antes de começar.
 - [x] **F1 — cores com nome, tons e voz** (2026-11-11). Ver abaixo.
 - [x] **F5 — espaçamento como no app-leitura** (2026-11-11). Ver abaixo.
-- [ ] **F2 — imprimir no iPhone, "do jeito que pintei", lupa de verdade.**
-      É a PRÓXIMA.
-- [ ] F3 — estante em pastas + painel lateral.
+- [x] **F2 — imprimir, "do jeito que pintei", lupa de verdade** (2026-11-11).
+      Ver abaixo. O conserto do iPhone é HIPÓTESE até o Bruno testar.
+- [ ] **F3 — estante em pastas + painel lateral.** É a PRÓXIMA.
 - [ ] F4 — números arábicos, romanos e operações.
 - F6 (triagem de SVGs e histórias) não é para Fable: ver o plano.
+
+### F2, o que ficou feito
+
+- `motorImpressao.ts`: `imprimirDocumento(titulo, corpoHtml, css)` mantém a
+  assinatura, mas não usa mais iframe. A folha é montada no documento, num
+  shadow DOM (`#area-impressao`), escondida na tela; na impressão o resto do
+  app se esconde e vale `window.print()`. `@page` e `@font-face` sobem para o
+  documento; `html`/`body`/`:root` do CSS da folha viram `:host`. Limpa em
+  `afterprint`. Vale para TODA impressão do app (cenas, fichas, cadernos,
+  tabelas).
+- `folhaPintada.ts` (texto para texto, testável sem navegador): arte com as
+  cores + traços como imagem + contorno preto por cima — a mesma pilha de três
+  camadas da tela. Traços redesenhados a 2480 px pela mesma função da tela
+  (`desenharTracos`, agora exportada de `camadaPincel.ts`).
+- Tela de pintar: 🖨️ pergunta "Só o contorno" ou "Do jeito que eu pintei";
+  vale também para as fichas de alfabeto.
+- Lupa: `zoomPinca.ts` ganhou `definir()`, `mover()` e `aoMudar()`. Botão
+  cicla 1× → 2× → 3× → 1× com o número escrito; setas aparecem com zoom;
+  teclas `+ − 0` e setas; Ctrl+roda.
+- 65 testes (8 novos em `folhaPintada.test.ts`); build verde.
+- Impressão REAL conferida em PDF (Chromium sem janela de
+  `%LOCALAPPDATA%\ms-playwright`, com `--print-to-pdf` numa página de teste
+  temporária que chamava as funções do app): cena P&B e cena pintada = 1
+  página A4 paisagem; ficha pintada = 1 página A4 retrato; caderno de 3 = 3
+  páginas. A página de teste foi apagada.
+
+### F2, o que o Bruno precisa testar no iPhone (é o ponto da fase)
+
+`npm run build`, `npm run preview -- --host`, abrir `http://<IP-do-PC>:4173`:
+1. 🖨️ → qualquer opção → abre a folha de impressão do iOS? No Safari e no
+   app instalado na tela inicial.
+2. Sai 1 página A4 com as cores?
+3. Se a PRIMEIRA tentativa não abrir e a segunda abrir: é a espera da fonte
+   (até 1,5 s longe do toque) — avisar, tem conserto simples (pré-carregar).
+4. Se nada abrir: construir o plano B (abrir a folha em aba nova).
+
+### F2, o que ficou de fora
+
+- Plano B do iOS (aba nova) — só se o teste falhar.
+- Caderno inteiro pintado.
+- Folha pintada em impressora preto e branco (cores viram cinzas parecidos).
 
 ### F5, o que ficou feito
 

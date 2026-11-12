@@ -727,6 +727,52 @@ button {
   border-color: #b8b8b8;
 }
 
+/* ---------- lupa, setas do zoom e escolha de impressão ---------- */
+.botao-lupa {
+  padding: 0 12px;
+  white-space: nowrap;
+  /* o número é texto: tem de ler bem, não é emoji */
+  color: var(--texto);
+  font-size: 1.15em;
+}
+
+.setas-zoom {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.setas-zoom[hidden],
+.escolha-impressao[hidden] {
+  display: none;
+}
+
+.botao-seta {
+  color: var(--texto);
+  font-size: 1.2em;
+}
+
+.escolha-impressao {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: min(100%, 420px);
+  padding: 12px 14px 14px;
+  border-radius: 16px;
+  background: var(--cartao);
+  border: 2px solid var(--borda);
+}
+
+.escolha-impressao .rotulo-tons {
+  text-align: center;
+}
+
+.escolha-impressao .botao-opcao {
+  min-height: 52px;
+  text-align: left;
+}
+
 /* Na tela Aparência a prévia fica lá no alto, fora da vista de quem está
    apertando os botões de espaço cá embaixo. Então o próprio texto de ajuda,
    que está colado nos botões, muda junto: a criança vê o efeito onde olha.

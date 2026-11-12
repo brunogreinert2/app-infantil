@@ -10,6 +10,33 @@ export interface Traco {
   pontos: [number, number][]; // normalizados 0..1
 }
 
+/**
+ * Desenha traços (pincel e borracha) num contexto de qualquer tamanho. É a
+ * ÚNICA receita de traço: a tela usa, e a impressão "do jeito que pintei"
+ * usa a mesma num canvas maior — por isso o papel sai igual à tela.
+ */
+export function desenharTracos(
+  ctx: CanvasRenderingContext2D,
+  w: number,
+  h: number,
+  tracos: Traco[],
+): void {
+  for (const t of tracos) {
+    if (t.pontos.length < 2) continue;
+    ctx.save();
+    ctx.globalCompositeOperation = t.borracha ? 'destination-out' : 'source-over';
+    ctx.strokeStyle = t.cor;
+    ctx.lineWidth = t.largura * w;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(t.pontos[0][0] * w, t.pontos[0][1] * h);
+    for (const [x, y] of t.pontos.slice(1)) ctx.lineTo(x * w, y * h);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
 export class CamadaPincel {
   readonly canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
@@ -78,19 +105,7 @@ export class CamadaPincel {
   }
 
   private desenharTraco(t: Traco): void {
-    const { width: w, height: h } = this.canvas;
-    if (t.pontos.length < 2) return;
-    this.ctx.save();
-    this.ctx.globalCompositeOperation = t.borracha ? 'destination-out' : 'source-over';
-    this.ctx.strokeStyle = t.cor;
-    this.ctx.lineWidth = t.largura * w;
-    this.ctx.lineCap = 'round';
-    this.ctx.lineJoin = 'round';
-    this.ctx.beginPath();
-    this.ctx.moveTo(t.pontos[0][0] * w, t.pontos[0][1] * h);
-    for (const [x, y] of t.pontos.slice(1)) this.ctx.lineTo(x * w, y * h);
-    this.ctx.stroke();
-    this.ctx.restore();
+    desenharTracos(this.ctx, this.canvas.width, this.canvas.height, [t]);
   }
 
   redesenhar(): void {

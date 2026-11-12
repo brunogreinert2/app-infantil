@@ -144,19 +144,110 @@ export async function montarTelaColorir(
   desf.addEventListener('click', desfazer);
   grupoFerr.appendChild(desf);
 
-  const verTudo = el('button', 'botao-ferramenta', '🔍');
-  verTudo.setAttribute('aria-label', 'Ver o desenho inteiro (tirar o zoom)');
-  verTudo.title = 'Dois dedos dão zoom; este botão volta ao normal';
-  verTudo.addEventListener('click', () => zoom.reiniciar());
-  grupoFerr.appendChild(verTudo);
+  // --- lupa: um toque amplia (1× → 2× → 3× → 1×), e o número fica escrito
+  // no botão. Antes este botão só VOLTAVA a 1× — sem pinça antes, não fazia
+  // nada, e no computador não havia zoom nenhum.
+  const lupa = el('button', 'botao-ferramenta botao-lupa');
+  lupa.addEventListener('click', () => {
+    const atual = Math.round(zoom.escala());
+    zoom.definir(atual >= 3 ? 1 : atual + 1);
+  });
+  grupoFerr.appendChild(lupa);
 
+  // --- imprimir: primeiro a pergunta (contorno ou pintado) ---
   const imprimir = el('button', 'botao-ferramenta', '🖨️');
-  imprimir.setAttribute('aria-label', 'Imprimir para colorir no papel');
-  imprimir.addEventListener('click', () =>
-    imprimirParaColorir(svgFonte, livro.metadados.titulo),
-  );
+  imprimir.setAttribute('aria-label', 'Imprimir');
+  imprimir.setAttribute('aria-controls', 'escolha-impressao');
   grupoFerr.appendChild(imprimir);
   barra.appendChild(grupoFerr);
+
+  // com zoom, andar pela arte sem precisar de dois dedos
+  const setas = el('div', 'setas-zoom');
+  setas.setAttribute('role', 'group');
+  setas.setAttribute('aria-label', 'Andar pelo desenho ampliado');
+  const PASSO_SETA = 0.25;
+  // \uFE0E = "desenhe como texto": sem ele ◀ e ▶ viram emoji de outro tamanho
+  for (const [rotulo, nome, dx, dy] of [
+    ['\u25C0\uFE0E', 'Ver mais à esquerda', -PASSO_SETA, 0],
+    ['▲', 'Ver mais acima', 0, -PASSO_SETA],
+    ['▼', 'Ver mais abaixo', 0, PASSO_SETA],
+    ['\u25B6\uFE0E', 'Ver mais à direita', PASSO_SETA, 0],
+  ] as Array<[string, string, number, number]>) {
+    const b = el('button', 'botao-ferramenta botao-seta', rotulo);
+    b.setAttribute('aria-label', nome);
+    b.addEventListener('click', () => zoom.mover(dx, dy));
+    setas.appendChild(b);
+  }
+  barra.appendChild(setas);
+
+  const atualizarZoom = () => {
+    const fator = zoom.escala();
+    const texto = Number.isInteger(fator) ? String(fator) : fator.toFixed(1).replace('.', ',');
+    lupa.textContent = `🔍 ${texto}×`;
+    lupa.setAttribute('aria-label', `Lupa: aumento de ${texto} vezes. Tocar muda o aumento.`);
+    setas.hidden = fator <= 1.01;
+  };
+  zoom.aoMudar(atualizarZoom);
+  atualizarZoom();
+
+  // teclado: + e − mudam o aumento, 0 volta ao normal, setas andam
+  const aoTeclar = (ev: KeyboardEvent) => {
+    if (!tela.isConnected) {
+      document.removeEventListener('keydown', aoTeclar);
+      return;
+    }
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    const alvo = ev.target as HTMLElement | null;
+    if (alvo && /^(INPUT|TEXTAREA|SELECT)$/.test(alvo.tagName)) return;
+    const comZoom = zoom.escala() > 1.01;
+    if (ev.key === '+' || ev.key === '=') zoom.definir(zoom.escala() + 1);
+    else if (ev.key === '-' || ev.key === '_') zoom.definir(zoom.escala() - 1);
+    else if (ev.key === '0') zoom.reiniciar();
+    else if (comZoom && ev.key === 'ArrowLeft') zoom.mover(-PASSO_SETA, 0);
+    else if (comZoom && ev.key === 'ArrowRight') zoom.mover(PASSO_SETA, 0);
+    else if (comZoom && ev.key === 'ArrowUp') zoom.mover(0, -PASSO_SETA);
+    else if (comZoom && ev.key === 'ArrowDown') zoom.mover(0, PASSO_SETA);
+    else return;
+    ev.preventDefault();
+  };
+  document.addEventListener('keydown', aoTeclar);
+
+  const escolhaImpressao = el('div', 'escolha-impressao');
+  escolhaImpressao.id = 'escolha-impressao';
+  escolhaImpressao.setAttribute('role', 'group');
+  escolhaImpressao.setAttribute('aria-label', 'Como imprimir');
+  escolhaImpressao.appendChild(el('p', 'rotulo-tons', 'Como você quer imprimir?'));
+  const abrirImpressao = (aberto: boolean) => {
+    escolhaImpressao.hidden = !aberto;
+    imprimir.setAttribute('aria-expanded', String(aberto));
+    imprimir.classList.toggle('ativa', aberto);
+  };
+  const opcaoImpressao = (rotulo: string, comPintura: boolean) => {
+    const b = el('button', 'botao-opcao', rotulo);
+    b.addEventListener('click', () => {
+      abrirImpressao(false);
+      imprimirParaColorir(
+        svgFonte,
+        livro.metadados.titulo,
+        comPintura ? { regioes: estado.regioes, tracos: pincel.obterTracos() } : undefined,
+      );
+    });
+    escolhaImpressao.appendChild(b);
+    return b;
+  };
+  const soContorno = opcaoImpressao('✏️ Só o contorno, para pintar no papel', false);
+  opcaoImpressao('🎨 Do jeito que eu pintei', true);
+  imprimir.addEventListener('click', () => {
+    abrirImpressao(escolhaImpressao.hidden);
+    if (!escolhaImpressao.hidden) soContorno.focus();
+  });
+  escolhaImpressao.addEventListener('keydown', (ev) => {
+    if (ev.key !== 'Escape') return;
+    abrirImpressao(false);
+    imprimir.focus();
+  });
+  abrirImpressao(false);
+  barra.appendChild(escolhaImpressao);
 
   // encerramento explícito do desenho: comemora e volta pra história
   const pronto = el('button', 'botao-grande botao-terminei', '✓ Pronto!');

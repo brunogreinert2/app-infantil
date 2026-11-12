@@ -199,6 +199,77 @@ palavras; agora o número de letras por linha fica estável.
 
 ---
 
+## Imprimir e lupa (F2 — 2026-11-11)
+
+Onde: `src/impressao/motorImpressao.ts`, `src/impressao/folhaPintada.ts`,
+`src/canvas/zoomPinca.ts`, `src/telas/telaColorir.ts`.
+
+### O que mudou e por quê
+
+| Antes | Agora |
+|---|---|
+| Imprimir chamava `print()` de um iframe escondido — no iPhone, nada acontecia. | A folha é montada no próprio documento e vale o `window.print()` comum. |
+| Só contorno preto e branco. | Pergunta antes: "Só o contorno, para pintar no papel" ou "Do jeito que eu pintei". |
+| A lupa só *voltava* a 1×; sem pinça antes, não fazia nada. No computador não havia zoom. | Um toque amplia (1× → 2× → 3× → 1×), com o número escrito no botão. |
+| Zoom e arrasto só com dois dedos. | Tudo o que a pinça faz tem caminho de um toque ou de teclado. |
+
+### Motora: nenhum gesto sem alternativa
+
+| Gesto | Alternativa de um toque | Teclado |
+|---|---|---|
+| Pinça para ampliar | botão da lupa | `+` `−` `0`, Ctrl+roda |
+| Dois dedos para andar pela arte | quatro setas, que só aparecem com zoom | setas do teclado |
+| Toque longo para tons (F1) | botão "Tons" | `Tab` + `Enter` |
+
+Menor alvo de toque entre ferramentas, setas e opções de impressão: 52 px
+(medido em 390×844).
+
+### O que foi verificado
+
+| Item | Resultado | Prova |
+|---|---|---|
+| Folha pintada: cores nas regiões certas, ids intactos, contorno por cima, traços no meio | sim | teste (`folhaPintada.test.ts`, 8 casos) |
+| Só hex vira cor na folha (o valor vem do armazenamento) | texto estranho é ignorado | teste |
+| Impressão real, cena só contorno | 1 página A4 paisagem | PDF gerado pelo Chromium sem janela |
+| Impressão real, cena pintada (balde + pincel + borracha) | 1 página A4 paisagem; céu, traços e o vão da borracha conferidos | PDF, olhado |
+| Impressão real, ficha de alfabeto pintada | 1 página A4 retrato; legendas legíveis por cima da cor | PDF, olhado |
+| Impressão real, caderno de 3 fichas | 3 páginas A4 retrato | PDF |
+| O app que está na tela não sai no papel | página de teste com 3000 px de conteúdo: 1 página só | PDF |
+| Lupa, setas, teclas e Ctrl+roda mudam o zoom | 1× → 2× → 3× → 4× → 1×; 1,2× na roda | medido (DOM) |
+| Sem rolagem de lado em 390 px com tudo aberto | sim | medido |
+| Leitor de tela | lupa diz o aumento; impressão tem `aria-expanded`, foco vai à primeira opção, `Esc` fecha e devolve o foco | medido (DOM) |
+
+**Limites, sem enfeite:**
+- **O iPhone não foi testado — e era o defeito de origem.** A troca de
+  iframe por documento principal é uma *hipótese* bem fundada, não um
+  conserto provado. Só o aparelho do Bruno diz.
+- Os PDFs saíram de uma página de teste que chama as mesmas funções do app,
+  com o `print()` trocado por um marcador; não cliquei no botão dentro do
+  diálogo de impressão do Windows nem de nenhum celular.
+- Firefox e Safari de computador: não testados.
+- Impressão em preto e branco de uma folha pintada (impressora sem cor):
+  cores de mesma claridade viram o mesmo cinza. Não medi nem tratei.
+- A pinça de dois dedos no iOS continua como estava: não testada aqui.
+- As teclas `+ − 0` e as setas valem na tela de pintar inteira; não testei
+  conflito com leitor de tela (que também usa setas).
+- O caderno *inteiro* pintado não existe: "do jeito que pintei" vale para a
+  folha que está aberta.
+
+### Só um iPhone de verdade confirma
+
+1. Tocar em 🖨️ e escolher uma opção abre a folha de impressão do iOS —
+   no Safari **e** no app instalado na tela inicial.
+2. A folha sai em A4, uma página, com as cores (AirPrint ou "Salvar em PDF").
+3. A primeira impressão de cena espera a fonte carregar (até 1,5 s): se o iOS
+   recusar por estar longe do toque, a segunda tentativa deve funcionar — e
+   aí é um defeito a consertar, avisar.
+4. Pinça de dois dedos amplia e arrasta; a lupa mostra o número certo.
+
+Se o item 1 falhar, o plano B do plano é abrir a folha numa aba nova e
+imprimir de lá. Não foi construído.
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e
