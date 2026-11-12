@@ -128,14 +128,7 @@ export function svgNumeroA4(n: number): string {
 
   // --- 4. a reta numérica ---
   corpo += texto(`4. Onde o ${algarismo} mora? Pinte a casinha dele.`, 48, 834, 24);
-  const passo = 66;
-  const xr = 70;
-  const yr = 884;
-  corpo += linha(xr, yr, xr + 10 * passo, yr);
-  for (let i = 0; i <= 10; i++) {
-    corpo += regiao(`regiao-reta-${i}`, `<circle cx="${xr + i * passo}" cy="${yr}" r="23"/>`);
-    corpo += texto(String(i), xr + i * passo, 937, 21, 'middle');
-  }
+  corpo += reta('regiao-reta', 884);
 
   // --- 5. escrever ---
   corpo += texto('5. Escreva do seu jeito.', 48, 989, 24);
@@ -183,9 +176,15 @@ function sinal(tipo: Sinal, cx: number, cy: number, t = 15): string {
 function reta(prefixo: string, y: number): string {
   const passo = 66;
   const x = 70;
-  let s = linha(x, y, x + 10 * passo, y);
+  // A linha é feita de PEDAÇOS, um entre cada duas casinhas, e não de um
+  // traço só por baixo delas. Na estante a casinha branca escondia o traço;
+  // mas na tela de pintar e no papel o contorno fica por cima, sem
+  // preenchimento — e aparecia um risco atravessando todas as bolinhas.
+  const r = 23;
+  let s = '';
+  for (let i = 0; i < 10; i++) s += linha(x + i * passo + r, y, x + (i + 1) * passo - r, y);
   for (let i = 0; i <= 10; i++) {
-    s += regiao(`${prefixo}-${i}`, `<circle cx="${x + i * passo}" cy="${y}" r="23"/>`);
+    s += regiao(`${prefixo}-${i}`, `<circle cx="${x + i * passo}" cy="${y}" r="${r}"/>`);
     s += texto(String(i), x + i * passo, y + 53, 21, 'middle');
   }
   return s;

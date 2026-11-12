@@ -47,6 +47,18 @@ export function instalarZoomPinca(
     avisar?.();
   };
 
+  // Esquece qualquer gesto em andamento. No iPhone (Bruno, 2026-11-12), depois
+  // de uma pinça até 4×, a lupa não trazia o zoom de volta — só outra pinça.
+  // Não reproduzi no computador; a explicação que cabe é um dedo "fantasma":
+  // o aviso de que o dedo saiu não chega, a pinça continua valendo por dentro
+  // e desfaz o que o botão acabou de fazer. Então todo comando que não é
+  // pinça (lupa, teclas, setas) começa limpando os dedos guardados.
+  const esquecerGesto = () => {
+    ponteiros.clear();
+    pinca = null;
+    houvePinca = false;
+  };
+
   // muda a escala mantendo parado o ponto (x, y) da moldura
   const definir = (nova: number, centro?: { x: number; y: number }) => {
     const r = moldura.getBoundingClientRect();
@@ -76,8 +88,13 @@ export function instalarZoomPinca(
   moldura.addEventListener(
     'pointerdown',
     (ev) => {
+      // o primeiro dedo a tocar: não pode haver outro guardado de antes
+      if (ev.isPrimary) ponteiros.clear();
       ponteiros.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
-      if (ponteiros.size === 1) houvePinca = false;
+      if (ponteiros.size === 1) {
+        houvePinca = false;
+        pinca = null;
+      }
       if (ponteiros.size === 2) {
         const [a, b] = [...ponteiros.values()];
         const r = moldura.getBoundingClientRect();
@@ -125,6 +142,17 @@ export function instalarZoomPinca(
   };
   moldura.addEventListener('pointerup', soltar, { capture: true });
   moldura.addEventListener('pointercancel', soltar, { capture: true });
+  // o dedo pode sair FORA do desenho: escutar também na janela
+  const soltarFora = (ev: PointerEvent) => {
+    if (!moldura.isConnected) {
+      window.removeEventListener('pointerup', soltarFora, true);
+      window.removeEventListener('pointercancel', soltarFora, true);
+      return;
+    }
+    soltar(ev);
+  };
+  window.addEventListener('pointerup', soltarFora, true);
+  window.addEventListener('pointercancel', soltarFora, true);
 
   // engole o clique fantasma disparado ao soltar a pinça
   moldura.addEventListener(
@@ -141,14 +169,19 @@ export function instalarZoomPinca(
 
   return {
     reiniciar() {
+      esquecerGesto();
       escala = 1;
       tx = 0;
       ty = 0;
       aplicar();
     },
     escala: () => escala,
-    definir,
+    definir(nova, centro) {
+      esquecerGesto();
+      definir(nova, centro);
+    },
     mover(dx, dy) {
+      esquecerGesto();
       const r = moldura.getBoundingClientRect();
       tx -= dx * r.width;
       ty -= dy * r.height;

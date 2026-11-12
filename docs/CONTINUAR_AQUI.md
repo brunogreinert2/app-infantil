@@ -1,5 +1,52 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Retoques depois da publicação — 2026-11-12 (Fable 5.2)
+
+Branch `fable/retoques-pos-publicacao`, saída de `fable/novas-ideias`.
+**NÃO publicada: espera autorização nova do Bruno.** Ele relatou quatro
+coisas usando o site no iPhone:
+
+1. **Imprimir no app instalado não abria nada** (no Safari funciona, numa
+   página). Num app instalado o iOS ignora o `print()`. Feito:
+   `src/impressao/folhaParaCompartilhar.ts` — a folha vira PNG e sai pelo
+   compartilhar do aparelho (`navigator.share` com arquivo), em dois toques.
+   `imprimirDocumento` desvia para lá quando `appInstaladoNoIos()`. Acima de
+   12 folhas avisa para usar o Safari. **Só simulado; falta o iPhone.**
+2. **Risco sobre as bolinhas da reta** nas folhas de Números: a linha
+   passava por baixo das casinhas. Agora é feita de pedaços (`reta()` em
+   `numeroArte.ts`), com teste.
+3. **Voz no quiz**: 🔊 na pergunta (com as opções) e na explicação
+   (`blocoQuiz` em `telaLeitura.ts`).
+4. **Zoom**: a lupa vai a 4×, como a pinça; `zoomPinca.ts` limpa dedos
+   "fantasmas" antes de todo comando que não é pinça. O "não volta do 4×"
+   não foi reproduzido no computador — se continuar no iPhone, a causa é outra.
+
+Também: setas do zoom viraram ← ↑ ↓ → (os triângulos saíam de tamanhos
+diferentes). Build verde. Testes: 82 de 83 passam NESTA máquina — o que
+falha é "50 mil linhas em menos de 4 segundos" (`parser.test.ts`), com ~6 s.
+Falha igual SEM as minhas mudanças (conferido com `git stash`, no código já
+publicado), e não toca em nada que mexi: é a máquina, com Node 20 local e
+carregada. É o mesmo teste que já falhou por tempo em outubro; o Actions usa
+Node 24 e passou hoje cedo com este mesmo motor. Não mexi no limite nem no
+motor. **Antes de publicar, ver o Actions passar.**
+
+### Ideias que ofereci ao Bruno (ele pediu sugestões) — nada disto foi feito
+
+Em ordem do que eu faria primeiro:
+1. Pintura sem toque fino: escolher a região por lista/teclado ("céu",
+   "árvore") — é o que falta para o desenho ser operável por leitor de tela e
+   por quem não tem precisão motora. Hoje é a maior lacuna de acessibilidade.
+2. Exportar/importar os dados (pinturas, insígnias, anotações): hoje moram
+   só no aparelho; já estava na fila como pré-requisito do app de loja.
+3. Guia da professora dentro do app (e os Números no pacote de fichas).
+4. Realce da palavra/frase que está sendo lida em voz alta.
+5. "Minhas pinturas": galeria do que a criança já pintou.
+6. Régua de leitura (faixa que isola a linha) — combina com o trabalho de
+   espaçamento.
+7. Números de 11 a 20 e tabuada por número; folhas de traçado.
+8. Auditoria com leitor de tela de verdade (VoiceOver) e axe-core.
+
+
 ## Novas ideias do Bruno — plano em fases (Fable 5.2, desde 2026-11-11)
 
 Plano: `docs/FABLE_PLANO_NOVAS_IDEIAS.md`. **Ordem: F0, F1, F5, F2, F3, F4.**

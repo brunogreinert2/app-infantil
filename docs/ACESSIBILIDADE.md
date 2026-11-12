@@ -438,6 +438,32 @@ romanos; relógio romano; juntar, tirar, grupos iguais, repartir; tabuada.
 
 ---
 
+## Retoques depois da publicação (2026-11-12)
+
+Vieram do Bruno usando o site no iPhone.
+
+| O que ele viu | O que era | O que foi feito | Prova |
+|---|---|---|---|
+| No app INSTALADO, imprimir não abre nada (no Safari abre, e numa página só) | Num app instalado o iOS ignora o `print()`, sem erro | A folha vira imagem PNG e sai pelo compartilhar do aparelho, que tem "Imprimir" e "Salvar imagem". Dois toques: preparar, depois entregar | simulado no computador (aparelho e modo instalado fingidos, compartilhar trocado por um marcador): PNG de 2339×1754 entregue. **No iPhone: não testado** |
+| Risco atravessando as bolinhas da reta, só depois de abrir para pintar | A linha passava por baixo das casinhas; na estante o branco a escondia, mas ao pintar e no papel o contorno fica sem preenchimento | A linha agora é feita de pedaços entre as casinhas | teste |
+| Perguntas e respostas sem voz | Só os parágrafos tinham 🔊 | 🔊 na pergunta (lê pergunta e opções, sem dizer a certa) e na explicação | medido (DOM); **não ouvi** |
+| Lupa parava em 3×, pinça ia a 4× e a lupa não trazia de volta | O teto diferente era erro meu. O "não volta" **não reproduzi** | Lupa vai a 4× como a pinça; todo comando que não é pinça limpa os dedos guardados; o soltar do dedo é ouvido também fora do desenho | medido no computador; a causa no iPhone é palpite |
+
+**Limites, sem enfeite:**
+- O caminho do app instalado é o que tem mais chance de surpresa: depende
+  de o iOS aceitar o compartilhar de arquivo dentro do toque, e de desenhar
+  um SVG com imagem embutida (os traços do pincel) num canvas. Nada disso
+  rodou num iPhone.
+- No app instalado o caderno completo (46 folhas do alfabeto, 20 dos
+  números) não sai: acima de 12 folhas o app avisa e manda imprimir pelo
+  Safari. Uma folha de cada vez funciona.
+- A imagem compartilhada não tem o título da história escrito (a folha
+  impressa pelo Safari tem).
+- A voz do quiz diz "Primeira… Segunda…": não testei se soa natural, nem
+  com perguntas de mais de três opções.
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e

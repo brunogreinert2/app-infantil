@@ -88,6 +88,24 @@ describe('o livro Os Números', () => {
     }
   });
 
+  it('a reta é feita de pedaços: nenhum traço atravessa uma casinha', () => {
+    // casinhas em x = 70 + 66·i, raio 23; a linha só pode existir ENTRE elas
+    for (const f of fichas) {
+      if (!f.svg.includes('id="regiao-reta-0"')) continue;
+      const y = Number(f.svg.match(/id="regiao-reta-0"[^>]*><circle cx="70" cy="(\d+)"/)![1]);
+      const tracos = [...f.svg.matchAll(/<path d="M([\d.]+) (\d+) H([\d.]+)" transform="translate\(0 0\)"/g)]
+        .filter((m) => Number(m[2]) === y)
+        .map((m) => [Number(m[1]), Number(m[3])]);
+      expect(tracos.length, f.id).toBe(10);
+      for (const [de, ate] of tracos) {
+        for (let i = 0; i <= 10; i++) {
+          const cx = 70 + 66 * i;
+          expect(de >= cx + 23 || ate <= cx - 23, `${f.id}: traço ${de}–${ate} na casinha ${i}`).toBe(true);
+        }
+      }
+    }
+  });
+
   it('entra no catálogo pelo pipeline comum, com cada folha ancorada no texto', () => {
     const livro = livros.find((l) => l.id === 'numeros')!;
     expect(livro.metadados.titulo).toBe('Os Números');

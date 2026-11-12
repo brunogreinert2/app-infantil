@@ -21,6 +21,7 @@ import { derivarContornoPB } from '../canvas/camadaBase';
 import { desenharTracos, type Traco } from '../canvas/camadaPincel';
 import fonteImpressao from '../fontes/opendyslexic-400.woff?url';
 import fonteCardo from '../fontes/cardo-regular.woff2?url';
+import { appInstaladoNoIos, oferecerFolhas } from './folhaParaCompartilhar';
 import { caixaDeVisao, montarFolhaPintada } from './folhaPintada';
 
 const FONTES_IMPRESSAO = `
@@ -157,6 +158,12 @@ function limparImpressao(): void {
 }
 
 export function imprimirDocumento(titulo: string, corpoHtml: string, css: string): void {
+  // app instalado no iPhone: lá o print() não faz nada; a folha sai pelo
+  // compartilhar do aparelho (ver folhaParaCompartilhar.ts)
+  if (appInstaladoNoIos()) {
+    void oferecerFolhas(titulo, corpoHtml);
+    return;
+  }
   limparImpressao();
   const { doDocumento, daFolha } = separarCss(css);
 

@@ -7,7 +7,7 @@ import { soltarConfetes } from '../efeitos/confete';
 import { CamadaPincel, type Traco } from '../canvas/camadaPincel';
 import { MATIZES, matizDe, nomeDaCor, tintaSobre, type Matiz } from '../canvas/cores';
 import { RoteadorFerramenta, type Ferramenta } from '../canvas/roteadorFerramenta';
-import { instalarZoomPinca } from '../canvas/zoomPinca';
+import { ZOOM_MAXIMO, instalarZoomPinca } from '../canvas/zoomPinca';
 import { arquivosAssets } from '../conteudo/catalogo';
 import { imprimirParaColorir } from '../impressao/motorImpressao';
 import type { Livro } from '../motor/tipos';
@@ -144,13 +144,16 @@ export async function montarTelaColorir(
   desf.addEventListener('click', desfazer);
   grupoFerr.appendChild(desf);
 
-  // --- lupa: um toque amplia (1× → 2× → 3× → 1×), e o número fica escrito
+  // --- lupa: um toque amplia (1× → 2× → 3× → 4× → 1×), e o número fica escrito
   // no botão. Antes este botão só VOLTAVA a 1× — sem pinça antes, não fazia
   // nada, e no computador não havia zoom nenhum.
   const lupa = el('button', 'botao-ferramenta botao-lupa');
   lupa.addEventListener('click', () => {
-    const atual = Math.round(zoom.escala());
-    zoom.definir(atual >= 3 ? 1 : atual + 1);
+    // o mesmo teto da pinça (ZOOM_MAXIMO): antes a lupa parava em 3× e a
+    // pinça ia a 4×. Do máximo, o próximo toque volta ao desenho inteiro.
+    const atual = Math.floor(zoom.escala() + 0.05);
+    if (atual >= ZOOM_MAXIMO) zoom.reiniciar();
+    else zoom.definir(atual + 1);
   });
   grupoFerr.appendChild(lupa);
 
@@ -166,12 +169,13 @@ export async function montarTelaColorir(
   setas.setAttribute('role', 'group');
   setas.setAttribute('aria-label', 'Andar pelo desenho ampliado');
   const PASSO_SETA = 0.25;
-  // \uFE0E = "desenhe como texto": sem ele ◀ e ▶ viram emoji de outro tamanho
+  // setas de traço (← ↑ ↓ →), as mesmas do botão de voltar: os triângulos
+  // ◀ ▶ viravam emoji em alguns aparelhos e saíam de tamanho diferente
   for (const [rotulo, nome, dx, dy] of [
-    ['\u25C0\uFE0E', 'Ver mais à esquerda', -PASSO_SETA, 0],
-    ['▲', 'Ver mais acima', 0, -PASSO_SETA],
-    ['▼', 'Ver mais abaixo', 0, PASSO_SETA],
-    ['\u25B6\uFE0E', 'Ver mais à direita', PASSO_SETA, 0],
+    ['←', 'Ver mais à esquerda', -PASSO_SETA, 0],
+    ['↑', 'Ver mais acima', 0, -PASSO_SETA],
+    ['↓', 'Ver mais abaixo', 0, PASSO_SETA],
+    ['→', 'Ver mais à direita', PASSO_SETA, 0],
   ] as Array<[string, string, number, number]>) {
     const b = el('button', 'botao-ferramenta botao-seta', rotulo);
     b.setAttribute('aria-label', nome);

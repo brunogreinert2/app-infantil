@@ -222,9 +222,9 @@ function desenhar(hast: Element): HTMLElement {
 }
 
 // 🔊 vira ⏹ enquanto fala — e volta sozinho quando a fala termina
-function botaoOuvir(texto: string): HTMLElement {
+function botaoOuvir(texto: string, nome = 'Ouvir este parágrafo'): HTMLElement {
   const botao = el('button', 'botao-ouvir', '🔊');
-  botao.setAttribute('aria-label', 'Ouvir este parágrafo');
+  botao.setAttribute('aria-label', nome);
   botao.addEventListener('click', () => {
     if (textoFalando() === texto) {
       pararFala();
@@ -382,7 +382,17 @@ async function rodapeConclusao(
 // avanço. Tentativas/acertos gravados em silêncio — nunca nota pra criança.
 function blocoQuiz(q: PerguntaQuiz, livro: Livro, indice: number): HTMLElement {
   const caixa = el('div', 'quiz');
-  caixa.appendChild(el('p', 'quiz-pergunta', `🤔 ${q.pergunta}`));
+  // A pergunta e as respostas também se ouvem — quem ainda não lê sozinho
+  // ouvia a história inteira e ficava de fora justamente da brincadeira.
+  // A voz diz "Primeira… Segunda…" e nunca qual é a certa.
+  const ORDINAIS = ['Primeira', 'Segunda', 'Terceira', 'Quarta', 'Quinta', 'Sexta'];
+  const falaDaPergunta =
+    `${q.pergunta} ` +
+    q.alternativas.map((alt, i) => `${ORDINAIS[i] ?? `Opção ${i + 1}`}: ${alt}.`).join(' ');
+  const cabeca = el('div', 'quiz-cabeca');
+  cabeca.appendChild(el('p', 'quiz-pergunta', `🤔 ${q.pergunta}`));
+  if (suportaTTS()) cabeca.appendChild(botaoOuvir(falaDaPergunta, 'Ouvir a pergunta e as respostas'));
+  caixa.appendChild(cabeca);
 
   const lista = el('div', 'quiz-alternativas');
   let respondido = false;
@@ -413,7 +423,17 @@ function blocoQuiz(q: PerguntaQuiz, livro: Livro, indice: number): HTMLElement {
       }
 
       if (q.explicacao) {
-        caixa.appendChild(el('p', 'quiz-explicacao', `💡 ${q.explicacao}`));
+        const linha = el('div', 'quiz-cabeca');
+        linha.appendChild(el('p', 'quiz-explicacao', `💡 ${q.explicacao}`));
+        if (suportaTTS()) {
+          linha.appendChild(
+            botaoOuvir(
+              `A resposta é: ${q.alternativas[q.correta]}. ${q.explicacao}`,
+              'Ouvir a resposta e a explicação',
+            ),
+          );
+        }
+        caixa.appendChild(linha);
       }
 
       // registro silencioso (spec 8.5) — nunca vira placar
