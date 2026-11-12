@@ -1,7 +1,7 @@
 // MOTOR DO ECOSSISTEMA — cópia gerada, NÃO EDITE AQUI.
 // Fonte: C:\Claude\parser\motor\idioma.ts
 // Para mudar: edite a fonte e rode `npm run espalhar` em C:\Claude\parser.
-// sha256: 2952cfd80743aa019180025f12a96f98481bf2b82019e1cf02976a2f52104edc
+// sha256: cdb91cf8f303e9cda9f9e00b750ff4dc081d3879e6f9867a444c937a0b8e520f
 /**
  * Detecção de escrita por faixa Unicode — a MESMA de `idioma_da_linha` em
  * `scripts/rolo/gerador_rolo.py`. Estava escrita três vezes no projeto (duas
@@ -16,8 +16,14 @@
 
 /* `arc` é o aramaico (Targum, Daniel, Esdras): a mesma escrita quadrada do
    hebraico, outra língua. A faixa Unicode não distingue as duas; quem diz que
-   é aramaico é o cabeçalho (`language: arc`) ou a etiqueta `^arc` na linha. */
-export type Escrita = 'he' | 'arc' | 'grc' | 'ru' | 'pt-BR' | 'en' | 'la'
+   é aramaico é o cabeçalho (`language: arc`) ou a etiqueta `^arc` na linha.
+   `de` (2026-11-02) só chega por etiqueta (`^deu`): o alemão que a edição de
+   Diels traz dentro de um arquivo grego (B 20 e B 23 de Anaxágoras). Não há
+   detecção de alemão; quem diz é quem preparou o texto.
+   `fr` (2026-11-06) chega pelo cabeçalho (`language: fra`) ou pela etiqueta
+   `^fra`: o Gardeton de 1826, primeiro livro em francês do acervo. Também não
+   há detecção de francês; ver idiomaDoTexto. */
+export type Escrita = 'he' | 'arc' | 'grc' | 'ru' | 'pt-BR' | 'en' | 'la' | 'de' | 'fr'
 
 /**
  * Português, inglês e latim escrevem com o MESMO alfabeto — o código dos
@@ -91,6 +97,10 @@ export function idiomaDoTexto(texto: string, padrao: Escrita = 'pt-BR'): Escrita
   // declarado aramaico, letra hebraica é aramaico.
   if (escritaDominante === 'he' && padrao === 'arc') return 'arc'
   if (escritaDominante) return escritaDominante
+  // Francês não entra na disputa abaixo: com «de», «que» e os acentos, um
+  // parágrafo francês sai português com folga. Num arquivo declarado francês,
+  // o alfabeto latino é francês; trecho noutra língua leva etiqueta.
+  if (padrao === 'fr') return 'fr'
 
   // Trecho curto não dá amostra: número de versículo, título de uma palavra.
   if (texto.trim().split(/\s+/).length < 6) return padrao
@@ -121,6 +131,8 @@ const CODIGOS: Record<string, Escrita> = {
   heb: 'he', he: 'he',
   arc: 'arc',
   rus: 'ru', ru: 'ru',
+  deu: 'de', ger: 'de', de: 'de',
+  fra: 'fr', fre: 'fr', fr: 'fr',
 }
 
 export function escritaDoCabecalho(bruto: unknown): Escrita {
@@ -167,6 +179,8 @@ const VOZES: Record<Escrita, string[]> = {
   // próxima da pronúncia eclesiástica, e o espanhol da restaurada; o português
   // fecha a lista porque é melhor que ler com fonética inglesa.
   la: ['it-it', 'it', 'es-es', 'es', 'pt-br', 'pt'],
+  de: ['de-de', 'de'],
+  fr: ['fr-fr', 'fr-ca', 'fr'],
 }
 
 /**
@@ -207,4 +221,6 @@ export const NOME_DA_ESCRITA: Record<Escrita, string> = {
   'pt-BR': 'português',
   en: 'inglês',
   la: 'latim',
+  de: 'alemão',
+  fr: 'francês',
 }
