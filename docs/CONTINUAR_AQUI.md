@@ -1,5 +1,65 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Novas ideias do Bruno — plano em fases (Fable 5.2, desde 2026-11-11)
+
+Plano: `docs/FABLE_PLANO_NOVAS_IDEIAS.md`. **Ordem: F0, F1, F5, F2, F3, F4.**
+Branch `fable/novas-ideias` (saiu de `codex/segunda-colecao`, `f579d70`).
+Nada foi para a master nem para o site: publicar só com autorização nova.
+Registro de acessibilidade, com o que NÃO foi verificado: `docs/ACESSIBILIDADE.md`.
+
+- [x] **F0** — branch criada; 41 testes e build verdes antes de começar.
+- [x] **F1 — cores com nome, tons e voz** (2026-11-11). Ver abaixo.
+- [ ] **F5 — espaçamento como no app-leitura** (entrelinha, espaço entre
+      letras, grade de pixels, coluna em `ch`). É a PRÓXIMA.
+- [ ] F2 — imprimir no iPhone, "do jeito que pintei", lupa de verdade.
+- [ ] F3 — estante em pastas + painel lateral.
+- [ ] F4 — números arábicos, romanos e operações.
+- F6 (triagem de SVGs e histórias) não é para Fable: ver o plano.
+
+### F1, o que ficou feito
+
+- `src/canvas/cores.ts`: 20 cores-base, 5 tons cada (branco e preto, um só) =
+  98 cores com nome único. `nomeDaCor(hex)`, `matizDe(hex)`. As 14 cores já
+  publicadas mantêm o hex; "Verde-claro" passou a se chamar "Verde-limão"
+  (senão o tom seria "Verde-claro claro"). Novas: Verde, Turquesa, Lilás,
+  Bege, Vinho, Verde-oliva. O formato salvo da pintura não mudou.
+- Tela de pintar: nome da cor sempre escrito (só o nome), amostra, botão
+  **Tons** (um toque) e toque longo de 450 ms no poço (os dois abrem a mesma
+  fileira), botão 🔊/🔇 de voz, ✓ na cor escolhida, poços de 52 px.
+- Voz: preferência por perfil `<perfil>:falarCores` (padrão desligada), com
+  botão na própria tela de pintar e em Aparência → "Cores de pintar".
+- A ordem da paleta foi **medida**: `src/canvas/visaoDeCores.ts` simula
+  protanopia, deuteranopia e tritanopia, e o teste exige que nenhuma cor
+  encoste numa parecida, na grade de 5 colunas (celular) e na de 10. Por isso
+  a paleta virou grade fixa. **Mexeu na ordem, nas cores ou nas colunas da
+  grade: rodar `npm test`** (e manter `COLUNAS_PALETA` igual ao CSS).
+- 52 testes (11 novos em `cores.test.ts`); build verde. Conferido no Chromium
+  em 390×844 e 1280×900, sem rolagem horizontal e sem erro de console.
+
+### F1, o que só o iPhone do Bruno confirma
+
+Servir com `npm run build` e `npm run preview -- --host`, abrir
+`http://<IP-do-PC>:4173` no iPhone (mesma rede). Conferir: (1) o nome aparece
+ao tocar; (2) o toque longo abre os tons sem abrir menu do iOS; (3) a voz
+fala ao tocar na cor — a fala sai 120 ms depois do toque e não sei se o
+Safari aceita; (4) o Bruno, com protanomalia, olhar se a ordem nova ajuda.
+
+### Decisões que tomei e o Bruno pode desfazer
+
+- Nome "Verde-limão" no lugar de "Verde-claro"; os seis matizes novos.
+- A ordem da paleta deixou de ser arco-íris (é o preço de afastar as cores
+  confundíveis). Se as crianças estranharem, a alternativa é voltar ao
+  arco-íris e confiar só no nome escrito.
+- Botão de voz também na tela de pintar (o plano só pedia em Aparência, mas a
+  tela de pintar não tem o 🎨 na barra).
+
+### Ficou de fora da F1
+
+- A pintura já feita não tem nome (só a cor escolhida tem).
+- O desenho não é operável por teclado/leitor de tela (era assim antes).
+- Poços do "Monte o seu" (Aparência) ainda têm hex como nome falado.
+- Node local é 20.20.2; o `.nvmrc` pede 24. Os testes passaram mesmo assim.
+
 ## Publicação das coleções autorizada — 15/10/2026
 
 O usuário autorizou expressamente: “Pode publicar no site por favor”.

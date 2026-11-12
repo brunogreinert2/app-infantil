@@ -693,6 +693,147 @@ button {
   border-color: #b8b8b8;
 }
 
+/* ---------- cores de pintar: nome escrito, tons, grade fixa ----------
+   Grade de colunas FIXAS (5 no celular, 10 em tela larga) e não flex-wrap:
+   a ordem das cores foi medida para que nenhuma encoste numa parecida, e
+   isso só vale se a vizinhança for sempre a mesma (canvas/cores.ts). */
+.paleta,
+.paleta-tons {
+  display: grid;
+  grid-template-columns: repeat(5, 52px);
+  gap: 12px;
+  justify-content: center;
+  max-width: none;
+}
+
+@media (min-width: 700px) {
+  .paleta {
+    grid-template-columns: repeat(10, 52px);
+  }
+}
+
+/* Borda na cor do texto em TODO poço: amarelo-claro, bege e branco somem
+   num fundo claro, e os escuros somem no tema Espaço. forced-color-adjust:
+   no alto contraste do sistema o navegador apagaria a cor do poço — e a cor
+   do poço é o conteúdo. */
+.paleta .poco-cor,
+.paleta-tons .poco-cor,
+.amostra-cor {
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--texto);
+  forced-color-adjust: none;
+}
+
+.paleta .poco-cor,
+.paleta-tons .poco-cor {
+  position: relative;
+  touch-action: manipulation;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* escolhida = cresce + borda grossa + marca ✓ (três sinais de forma; a cor
+   não entra na conta) */
+.paleta .poco-cor.ativa,
+.paleta-tons .poco-cor.ativa {
+  border-width: 4px;
+  border-color: var(--texto);
+}
+
+.paleta .poco-cor.ativa::after,
+.paleta-tons .poco-cor.ativa::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 700 26px/1 system-ui, sans-serif;
+  color: var(--tinta, #000000);
+}
+
+.cor-atual {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  max-width: 100%;
+}
+
+.amostra-cor {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.nome-cor {
+  font-size: 1.35em;
+  line-height: 1.2;
+  color: var(--texto);
+  overflow-wrap: anywhere;
+  text-align: center;
+  min-width: 7ch; /* o botão «Tons» não pula de lugar a cada cor */
+}
+
+.botao-tons {
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0 16px;
+  border-radius: 14px;
+  background: var(--cartao);
+  color: var(--texto);
+  border: 2px solid var(--texto);
+  font-weight: 700;
+}
+
+.botao-tons:disabled {
+  opacity: 0.45;
+  border-style: dashed;
+}
+
+.botao-voz-cor {
+  padding: 0;
+  font-size: 22px;
+}
+
+.botao-voz-cor[aria-pressed='true'] {
+  border-width: 4px;
+}
+
+.fileira-tons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px 14px;
+  border-radius: 16px;
+  background: var(--cartao);
+  border: 2px solid var(--borda);
+}
+
+.fileira-tons[hidden] {
+  display: none;
+}
+
+.rotulo-tons {
+  margin: 0;
+  font-weight: 700;
+  color: var(--texto);
+}
+
+/* existe para o leitor de tela, não ocupa lugar na tela */
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* ---------- botões de tabela imprimível (livros de alfabeto) ---------- */
 .barra-extras {
   display: flex;

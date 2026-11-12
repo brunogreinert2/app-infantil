@@ -142,6 +142,16 @@ export async function definirTemaSoberano(valor: boolean): Promise<void> {
   await armazenamento.definir(`${perfilAtivo().id}:temaSoberano`, valor);
 }
 
+// Voz ao escolher uma cor de pintar. Desligada por padrão: quem usa leitor
+// de tela já ouve o nome pelo leitor, e duas vozes juntas atrapalham.
+export async function obterFalarCores(): Promise<boolean> {
+  return (await armazenamento.obter<boolean>(`${perfilAtivo().id}:falarCores`)) ?? false;
+}
+
+export async function definirFalarCores(valor: boolean): Promise<void> {
+  await armazenamento.definir(`${perfilAtivo().id}:falarCores`, valor);
+}
+
 export async function trocarTema(tema: string): Promise<void> {
   const prefs = await obterPreferencias();
   aplicarTema(tema, prefs.personalizado);

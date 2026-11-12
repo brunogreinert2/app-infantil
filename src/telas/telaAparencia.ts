@@ -13,7 +13,9 @@ import {
   ajustarTamanho,
   PASSO_FONTE,
   definirPersonalizado,
+  definirFalarCores,
   definirTemaSoberano,
+  obterFalarCores,
   obterPreferencias,
   obterTemaSoberano,
   trocarFonte,
@@ -121,6 +123,33 @@ export async function montarTelaAparencia(
   maior.addEventListener('click', () => ajustarTamanho(PASSO_FONTE));
   linhaTamanho.append(menor, maior);
   corpo.appendChild(linhaTamanho);
+
+  // ---------- cores de pintar ----------
+  corpo.appendChild(el('h2', 'titulo-secao', 'Cores de pintar'));
+  corpo.appendChild(
+    el('p', 'texto-sobre', 'Na hora de pintar, o nome da cor aparece escrito. Quer ouvir o nome também?'),
+  );
+  const gradeVoz = el('div', 'grade-opcoes');
+  const falando = await obterFalarCores();
+  const botoesVoz: HTMLButtonElement[] = [];
+  for (const [rotulo, valor] of [
+    ['🔇 Só escrito', false],
+    ['🔊 Falar o nome das cores', true],
+  ] as Array<[string, boolean]>) {
+    const botao = el('button', 'botao-opcao', rotulo);
+    botao.classList.toggle('ativa', valor === falando);
+    botao.setAttribute('aria-pressed', String(valor === falando));
+    botao.addEventListener('click', async () => {
+      await definirFalarCores(valor);
+      botoesVoz.forEach((b) => {
+        b.classList.toggle('ativa', b === botao);
+        b.setAttribute('aria-pressed', String(b === botao));
+      });
+    });
+    botoesVoz.push(botao);
+    gradeVoz.appendChild(botao);
+  }
+  corpo.appendChild(gradeVoz);
 
   // ---------- monte o seu ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Monte o seu tema'));
