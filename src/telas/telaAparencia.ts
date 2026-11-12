@@ -53,7 +53,9 @@ export async function montarTelaAparencia(
   // muda algo visível aqui na hora — sem isso, a cor favorita parecia
   // não fazer nada (feedback do Bruno: ela só aparecia lá na leitura)
   const previa = el('div', 'cartao-previa');
-  previa.appendChild(el('h3', 'cabecalho previa-titulo', 'O título fica assim'));
+  // parágrafo, não título: é uma AMOSTRA de título, e como <h3> vinha antes
+  // de qualquer <h2>, quebrando a ordem dos títulos para o leitor de tela
+  previa.appendChild(el('p', 'cabecalho previa-titulo', 'O título fica assim'));
   previa.appendChild(
     el(
       'p',

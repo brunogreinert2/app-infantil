@@ -28,7 +28,8 @@ export function montarTravaParental(
   const b = 6 + Math.floor(Math.random() * 4);
 
   const caixa = el('div', 'caixa-trava');
-  caixa.appendChild(el('h2', undefined, '🔒 Área dos adultos'));
+  // <h1>: é o título desta tela (toda tela tem um, para quem navega por títulos)
+  caixa.appendChild(el('h1', 'titulo-trava', '🔒 Área dos adultos'));
   caixa.appendChild(el('p', undefined, `Quanto é ${a} × ${b}?`));
 
   const campo = el('input', 'campo-trava') as HTMLInputElement;

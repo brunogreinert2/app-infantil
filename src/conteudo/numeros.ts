@@ -16,6 +16,8 @@ import {
   svgDezenasA4,
   svgJuntarA4,
   svgNumeroA4,
+  svgNumeroAte20A4,
+  svgTabuadaDoA4,
   svgNumerosTabelaA4,
   svgRelogioRomanoA4,
   svgRepartirA4,
@@ -40,6 +42,16 @@ const CONVITES: string[] = [
   'Oito: oito pernas tem a aranha! O oito é feito de duas bolinhas, uma em cima da outra. Um boneco de neve!',
   'Nove: quase dez! Falta só um. O nove é um seis que resolveu plantar bananeira.',
   'Dez: todos os dedos das duas mãos! Um e zero de mãos dadas. Mostre as duas mãos e conte bem alto.',
+  'Onze: dez e mais um. Um time de futebol inteiro entra em campo com onze!',
+  'Doze: dez e mais dois. Uma dúzia de ovos, doze meses do ano. Qual é o mês do seu aniversário?',
+  'Treze: dez e mais três. Tem gente que acha que dá sorte, tem gente que acha que dá azar. E você?',
+  'Catorze: dez e mais quatro. Duas semanas inteirinhas têm catorze dias.',
+  'Quinze: dez e mais cinco. Três mãos cheias de dedos! Quinze minutos é um pedacinho da hora.',
+  'Dezesseis: dez e seis, está escrito no nome! Escute: dez-e-seis.',
+  'Dezessete: dez e sete. O nome já conta a história toda.',
+  'Dezoito: dez e oito. Falta pouquinho para o vinte!',
+  'Dezenove: dez e nove. Quase, quase… falta só um!',
+  'Vinte: dois quadros de dez cheinhos. Todos os dedos das mãos e dos pés!',
 ];
 
 const CONVITES_DAS_OUTRAS: Record<string, string> = {
@@ -60,8 +72,13 @@ export function gerarCadernoNumeros(): FichaAlfabeto[] {
     fichas.push({ id, arquivo: `${ID_LIVRO_NUMEROS}_${id}.svg`, titulo, svg, grupo });
 
   add('tabela', 'Os números de zero a dez', svgNumerosTabelaA4(), 'Todos em uma folha');
-  for (let n = 0; n <= 10; n++) {
-    add(`numero${String(n).padStart(2, '0')}`, `${n} · ${NOMES_DOS_NUMEROS[n]}`, svgNumeroA4(n), 'Números');
+  for (let n = 0; n <= 20; n++) {
+    add(
+      `numero${String(n).padStart(2, '0')}`,
+      `${n} · ${NOMES_DOS_NUMEROS[n]}`,
+      n <= 10 ? svgNumeroA4(n) : svgNumeroAte20A4(n),
+      'Números',
+    );
   }
   add('dezenas', 'De dez em dez até cem', svgDezenasA4(), 'Consulta');
   add('romanos', 'Números romanos', svgRomanosA4(), 'Romanos');
@@ -71,6 +88,9 @@ export function gerarCadernoNumeros(): FichaAlfabeto[] {
   add('vezes', 'Grupos iguais: a conta de vezes', svgVezesA4(), 'Operações');
   add('repartir', 'Repartir igual: a conta de dividir', svgRepartirA4(), 'Operações');
   add('tabuada', 'Tabuada para pintar', svgTabuadaA4(), 'Operações');
+  for (let n = 1; n <= 10; n++) {
+    add(`tabuada${String(n).padStart(2, '0')}`, `Tabuada do ${n}`, svgTabuadaDoA4(n), 'Tabuadas');
+  }
   return fichas;
 }
 
@@ -105,7 +125,12 @@ export function gerarNumeros(): { livro: Livro; arquivos: Record<string, string>
   );
   for (const f of fichas) {
     linhas.push(`## ${f.titulo}`, '');
-    const convite = f.grupo === 'Números' ? CONVITES[Number(f.id.slice(6))] : CONVITES_DAS_OUTRAS[f.id];
+    const convite =
+      f.grupo === 'Números'
+        ? CONVITES[Number(f.id.slice(6))]
+        : f.grupo === 'Tabuadas'
+          ? `Na tabuada do ${Number(f.id.slice(7))}, cada bolinha vale ${NOMES_DOS_NUMEROS[Number(f.id.slice(7))]}. Uma bolinha, duas, três… Pinte fileira por fileira e descubra quanto dá. Não precisa correr!`
+          : CONVITES_DAS_OUTRAS[f.id];
     if (convite) linhas.push(convite, '');
     linhas.push(`{{img:${f.id}}}`, '');
   }

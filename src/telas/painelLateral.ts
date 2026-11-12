@@ -230,7 +230,9 @@ function desenhar(comoGaveta: boolean): void {
   fundo = null;
 
   const p = perfilAtivo();
-  const novo = el('aside', 'painel-lateral');
+  // <div> com papel explícito: gaveta é diálogo, fixo é navegação (um <aside>
+  // não pode virar diálogo)
+  const novo = el('div', 'painel-lateral');
   painel = novo;
   novo.id = 'painel-lateral';
   novo.classList.toggle('fixo', fixo);
@@ -240,6 +242,8 @@ function desenhar(comoGaveta: boolean): void {
   if (gaveta) {
     novo.setAttribute('role', 'dialog');
     novo.setAttribute('aria-modal', 'true');
+  } else {
+    novo.setAttribute('role', 'navigation');
   }
 
   // --- cabeçalho: de quem é, alfinete, fechar ---

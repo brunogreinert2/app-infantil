@@ -599,6 +599,68 @@ anunciada ao leitor de tela (é só visual).
 
 ---
 
+## PDF no app instalado, Minhas pinturas, mais Números (2026-11-12)
+
+- **PDF de verdade no app instalado do iPhone.** As folhas viram um PDF
+  montado no próprio aparelho (`src/impressao/pdf.ts`, escrito à mão, sem
+  biblioteca) e saem pelo compartilhar — Arquivos, Drive, e-mail, impressora.
+  O caderno completo passou a caber (até 60 folhas). Provas: teste do gerador
+  (tabela de objetos, A4 em pé e deitado, imagem dentro das margens, JPEG
+  intacto); um PDF de três páginas aberto num leitor de PDF de verdade; e o
+  caderno de 20 folhas dos Números gerado no navegador em 2 s, 6,1 MB, com
+  aparelho e modo instalado fingidos. **No iPhone: não testado.** O PDF é
+  feito de imagens: não tem texto selecionável nem lido por leitor de tela.
+- **Minhas pinturas** (aba na estante e item do menu): tudo o que o perfil
+  pintou, com miniatura fiel (cores, pincel, borracha); tocar continua a
+  pintura e o "voltar" devolve à galeria. Cada cartão é um botão com nome
+  ("Continuar a pintura: O Corvo e o Jarro · desenho 2 de 2"); o desenho é
+  marcado como enfeite, porque não tem descrição do que mostra. Sem ordem por
+  data (o app não guarda quando se pintou). Não há como apagar uma pintura
+  pela galeria.
+- **Números de onze a vinte** (dois quadros de dez: "dez e mais dois") e
+  **uma folha por tabuada** (linha k com k bolinhas, cada uma valendo n). O
+  livro passou a ter 40 folhas. Olhadas em imagem: a do 12 e a tabuada do 3;
+  as outras dezoito saem do mesmo molde e NÃO foram olhadas. O traçado de
+  algarismos (pontilhado) não foi feito.
+
+## Auditoria automática (axe-core 4.14, 2026-11-12)
+
+Rodei o axe-core, com as regras padrão (WCAG A e AA e boas práticas), em dez
+telas, em 390×844, tema Claro: perfis, trava dos adultos, ajustes, guia,
+estante, menu aberto, minhas pinturas, leitura com quiz respondido, pintar
+(com tons e partes abertos) e aparência.
+
+| O que o axe achou | Onde | Conserto |
+|---|---|---|
+| Página sem região principal; conteúdo fora de marcos | todas | o `#app` virou `<main>` |
+| Nome falado não contém o texto visível ("A−", "A+") — atrapalha controle por voz | barra do alto | nomes viraram "A−: diminuir a letra" e "A+: aumentar a letra" |
+| Ordem de títulos quebrada (h3 antes de h2) | aparência | a amostra de título virou parágrafo |
+| `<aside>` com papel de diálogo | menu | virou `<div>`: diálogo na gaveta, navegação quando fixo |
+| Tela sem título de nível 1 | trava dos adultos | o título virou `<h1>` |
+
+Depois dos consertos: **nenhuma violação nas dez telas** (entre 17 e 35
+regras aprovadas por tela).
+
+**O que isso NÃO quer dizer.** Ferramenta automática pega uma parte pequena
+dos problemas de acessibilidade — a que dá para decidir sem gente. Não diz
+se a ordem do foco faz sentido, se os nomes ajudam, se o app é usável de
+ouvido. Ficou de fora da medição: os outros temas (Floresta, Espaço, Alto
+contraste, "Monte o seu") e os temas de livro; tela larga; os desenhos por
+dentro (SVG); quebra-cabeça, abertura cênica e anotações. O axe-core é
+dependência de desenvolvimento: não entra no pacote do app, e não há ainda
+um comando que o rode sozinho — rodei à mão, no painel do navegador.
+
+**Leitor de tela de verdade: continua não feito.** Eu não tenho como ligar o
+VoiceOver nem o TalkBack. É o item que só uma pessoa faz, de preferência
+alguém que usa leitor de tela no dia a dia. Roteiro sugerido para o Bruno,
+no iPhone (Ajustes → Acessibilidade → VoiceOver): (1) criar um perfil;
+(2) achar e abrir "A Lebre e a Tartaruga" pelo menu do avatar; (3) ouvir um
+parágrafo e responder a pergunta; (4) abrir o desenho, escolher uma parte
+pela lista e pintar; (5) mudar o espaço entre as linhas em Aparência.
+Anotar onde travou, onde o que se ouve não diz o que é, e onde o foco some.
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e
@@ -606,6 +668,5 @@ ajustes não foram auditados nesta rodada. Pendências já conhecidas:
 
 - Poços de cor da tela Aparência ("Monte o seu") têm o código hex como nome
   para leitor de tela ("Fundo #fff6ec").
-- Nenhuma auditoria automática (axe-core) foi rodada ainda.
 - Feedback do quiz (✓/✗) não foi conferido em simulação de daltonismo.
 - Tamanho da letra é gravado em px (ignora a letra configurada no aparelho).

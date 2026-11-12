@@ -24,10 +24,29 @@ Os retoques anteriores (`fable/retoques-pos-publicacao`) JÁ estão no site
       `src/telas/realceLeitura.ts`; `::highlight(lendo)` e `.lendo-agora`.
 - [x] **5. Régua de leitura**: `src/telas/reguaLeitura.ts`; botão 📏 na
       leitura; `<perfil>:reguaLeitura`.
-- [ ] **6. Minhas pinturas** (galeria; as chaves `<perfil>:colorir:*` já
-      existem). É a PRÓXIMA.
-- [ ] 7. Mais Números: 11 a 20, uma folha por tabuada, traçado.
-- [ ] 8. Auditoria com leitor de tela de verdade e axe-core.
+- [x] **6. Minhas pinturas**: `src/telas/telaPinturas.ts`; aba na estante e
+      item do menu; `desenhoPintadoParaTela()` em `motorImpressao.ts`.
+- [x] **Extra — PDF de verdade no app instalado** (o Bruno lembrou que é
+      pelo PDF que a folha chega ao computador): `src/impressao/pdf.ts`
+      (PDF mínimo escrito à mão) + `folhaParaCompartilhar.ts`. No app de loja
+      isso se resolve com impressão e arquivos nativos — ver
+      `docs/CAPACITOR_PLANO.md`; até lá, é este o caminho.
+- [x] **7. Mais Números**: `svgNumeroAte20A4(n)` (11 a 20) e
+      `svgTabuadaDoA4(n)` em `numeroArte.ts`; o livro tem 40 folhas.
+      O TRAÇADO (algarismo pontilhado) NÃO foi feito.
+- [~] **8. Auditoria**: axe-core instalado (devDependency) e rodado à mão
+      em dez telas; cinco achados consertados; zero violações depois. A parte
+      com LEITOR DE TELA DE VERDADE não foi feita e não é coisa que uma IA
+      faça: o roteiro para o Bruno está no fim de `docs/ACESSIBILIDADE.md`.
+
+**As oito sugestões estão entregues, menos: traçado de algarismos, nomes das
+regiões das 51 cenas, e o teste com leitor de tela.** Tudo na branch
+`fable/sugestoes`, sem publicar.
+
+Como rodar o axe de novo: com o dev server ligado, no console do navegador,
+carregar `/node_modules/axe-core/axe.min.js` num `<script>` e chamar
+`axe.run(document)`. Vale virar um comando (falta um navegador controlável
+no projeto; o Chromium sem janela de `ms-playwright` serve com um script).
 
 O que não foi provado está em `docs/ACESSIBILIDADE.md` (seção de mesma data).
 A lacuna que sobra no item 1: **dar nome às regiões** das 51 cenas das

@@ -53,10 +53,10 @@ export function barraTopo(op: OpcoesBarra): HTMLElement {
   if (op.aoAparencia) {
     const ajustes = el('div', 'ajustes');
     const menor = el('button', 'botao-icone', 'A−');
-    menor.setAttribute('aria-label', 'Diminuir letra');
+    menor.setAttribute('aria-label', 'A−: diminuir a letra');
     menor.addEventListener('click', () => ajustarTamanho(1 / PASSO_FONTE));
     const maior = el('button', 'botao-icone', 'A+');
-    maior.setAttribute('aria-label', 'Aumentar letra');
+    maior.setAttribute('aria-label', 'A+: aumentar a letra');
     maior.addEventListener('click', () => ajustarTamanho(PASSO_FONTE));
     const aparencia = el('button', 'botao-icone', '🎨');
     aparencia.setAttribute('aria-label', 'Mudar aparência');

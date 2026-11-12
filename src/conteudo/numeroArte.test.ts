@@ -49,11 +49,12 @@ describe('folhas de números', () => {
 describe('o livro Os Números', () => {
   const fichas = gerarCadernoNumeros();
 
-  it('tem as vinte folhas, com ids de asset únicos', () => {
+  it('tem as quarenta folhas, com ids de asset únicos', () => {
     expect(fichas.map((f) => f.id)).toEqual([
       'tabela',
-      ...Array.from({ length: 11 }, (_, n) => `numero${String(n).padStart(2, '0')}`),
+      ...Array.from({ length: 21 }, (_, n) => `numero${String(n).padStart(2, '0')}`),
       'dezenas', 'romanos', 'relogio', 'juntar', 'tirar', 'vezes', 'repartir', 'tabuada',
+      ...Array.from({ length: 10 }, (_, n) => `tabuada${String(n + 1).padStart(2, '0')}`),
     ]);
     expect(new Set(fichas.map((f) => f.arquivo)).size).toBe(fichas.length);
   });
@@ -88,6 +89,26 @@ describe('o livro Os Números', () => {
     }
   });
 
+  it('de onze a vinte: as bolinhas dos dois quadros somam o número', () => {
+    for (let n = 11; n <= 20; n++) {
+      const ids = regioes(fichas.find((f) => f.id === `numero${n}`)!.svg);
+      expect(ids.filter((id) => id.startsWith('regiao-bolinha-')), `folha ${n}`).toHaveLength(n);
+      expect(ids.filter((id) => id.startsWith('regiao-casa-'))).toHaveLength(20);
+      expect(ids.filter((id) => id.startsWith('regiao-estrela-'))).toHaveLength(20);
+      expect(ids).toContain(`regiao-reta-${n}`); // a casinha dele existe na reta de dez a vinte
+    }
+  });
+
+  it('tabuadas: a linha k tem k bolinhas e uma caixa de resposta vazia', () => {
+    for (let n = 1; n <= 10; n++) {
+      const ids = regioes(fichas.find((f) => f.id === `tabuada${String(n).padStart(2, '0')}`)!.svg);
+      for (let k = 1; k <= 10; k++) {
+        expect(ids.filter((id) => id.startsWith(`regiao-linha-${k}-bola-`)), `tabuada ${n}, linha ${k}`).toHaveLength(k);
+        expect(ids).toContain(`regiao-resposta-${k}`);
+      }
+    }
+  });
+
   it('a reta é feita de pedaços: nenhum traço atravessa uma casinha', () => {
     // casinhas em x = 70 + 66·i, raio 23; a linha só pode existir ENTRE elas
     for (const f of fichas) {
@@ -109,7 +130,7 @@ describe('o livro Os Números', () => {
   it('entra no catálogo pelo pipeline comum, com cada folha ancorada no texto', () => {
     const livro = livros.find((l) => l.id === 'numeros')!;
     expect(livro.metadados.titulo).toBe('Os Números');
-    expect(livro.metadados.assets).toHaveLength(20);
+    expect(livro.metadados.assets).toHaveLength(40);
     const { arquivos } = gerarNumeros();
     for (const a of livro.metadados.assets!) expect(arquivos[a.arquivo_interativo!]).toBeTruthy();
     expect(livro.metadados.quiz).toHaveLength(1);

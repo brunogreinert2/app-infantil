@@ -1467,6 +1467,12 @@ button {
   justify-content: center;
 }
 
+/* mesmo tamanho que tinha como <h2> */
+.titulo-trava {
+  margin: 0;
+  font-size: 1.5em;
+}
+
 .caixa-trava {
   display: flex;
   flex-direction: column;

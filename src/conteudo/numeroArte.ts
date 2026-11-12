@@ -57,6 +57,7 @@ function texto(
 
 export const NOMES_DOS_NUMEROS = [
   'zero', 'um', 'dois', 'três', 'quatro', 'cinco', 'seis', 'sete', 'oito', 'nove', 'dez',
+  'onze', 'doze', 'treze', 'catorze', 'quinze', 'dezesseis', 'dezessete', 'dezoito', 'dezenove', 'vinte',
 ];
 
 // estrela de cinco pontas, centro (cx, cy), raio de fora r
@@ -172,8 +173,8 @@ function sinal(tipo: Sinal, cx: number, cy: number, t = 15): string {
   return `<g role="img" aria-label="${nome}" fill="none" stroke="${TINTA}" stroke-width="6" pointer-events="none"><path d="${d}"/>${pontos}</g>`;
 }
 
-/** A reta de 0 a 10, com uma casinha pintável em cada número. */
-function reta(prefixo: string, y: number): string {
+/** A reta de onze casinhas a partir de `inicio` (0 a 10, ou 10 a 20), uma região por número. */
+function reta(prefixo: string, y: number, inicio = 0): string {
   const passo = 66;
   const x = 70;
   // A linha é feita de PEDAÇOS, um entre cada duas casinhas, e não de um
@@ -184,8 +185,8 @@ function reta(prefixo: string, y: number): string {
   let s = '';
   for (let i = 0; i < 10; i++) s += linha(x + i * passo + r, y, x + (i + 1) * passo - r, y);
   for (let i = 0; i <= 10; i++) {
-    s += regiao(`${prefixo}-${i}`, `<circle cx="${x + i * passo}" cy="${y}" r="${r}"/>`);
-    s += texto(String(i), x + i * passo, y + 53, 21, 'middle');
+    s += regiao(`${prefixo}-${inicio + i}`, `<circle cx="${x + i * passo}" cy="${y}" r="${r}"/>`);
+    s += texto(String(inicio + i), x + i * passo, y + 53, 21, 'middle');
   }
   return s;
 }
@@ -379,5 +380,86 @@ export function svgTabuadaA4(): string {
   corpo += linhasTexto('Segredo: três vezes quatro e quatro vezes três dão o mesmo número. Procure os pares!', 48, 955, 704, 19, 27);
   corpo += texto('Não precisa decorar. Precisa passear.', 48, 1034, 18);
   return base('Tabuada para pintar', 'Números · operações', corpo);
+}
+
+// ---------- de onze a vinte ----------
+
+/**
+ * A folha de um número de 11 a 20. A ideia que ela mostra: todo número
+ * desses é "dez e mais um pouco" — um quadro de dez cheio e outro começado.
+ */
+export function svgNumeroAte20A4(n: number): string {
+  if (!Number.isInteger(n) || n < 11 || n > 20) throw new Error(`Número fora da folha: ${n}`);
+  const algarismo = String(n);
+  const nome = NOMES_DOS_NUMEROS[n];
+  const resto = n - 10;
+
+  // --- 1. o número e a quantidade: dois quadros de dez ---
+  let corpo = texto('1. Observe e pinte o número e as bolinhas.', 48, 197, 24);
+  corpo += quadro('regiao-quadro-numero', 48, 216, 336, 254) + quadro('regiao-quadro-quantidade', 416, 216, 336, 254);
+  corpo += texto('NÚMERO', 216, 249, 18, 'middle') + texto('QUANTIDADE', 584, 249, 18, 'middle');
+  corpo += letras('regiao-numero', algarismo, 78, 268, 276, 182);
+  const lado = 40;
+  const x0 = 584 - (5 * lado) / 2;
+  [262, 354].forEach((y0, q) => {
+    for (let i = 0; i < 10; i++) {
+      const k = q * 10 + i;
+      const x = x0 + (i % 5) * lado;
+      const y = y0 + Math.floor(i / 5) * lado;
+      corpo += quadro(`regiao-casa-${k + 1}`, x, y, lado, lado, 5);
+      if (k < n) corpo += regiao(`regiao-bolinha-${k + 1}`, `<circle cx="${x + lado / 2}" cy="${y + lado / 2}" r="13"/>`);
+    }
+  });
+  corpo += texto(nome, 584, 462, 26, 'middle');
+
+  // --- 2. contar: dez e mais um pouco ---
+  corpo += texto(`2. Conte e pinte ${algarismo} estrelas. É dez e mais ${NOMES_DOS_NUMEROS[resto]}!`, 48, 515, 23);
+  for (let i = 0; i < 20; i++) {
+    corpo += regiao(`regiao-estrela-${i + 1}`, estrela(83 + (i % 10) * 70.4, 560 + Math.floor(i / 10) * 62, 27));
+  }
+
+  // --- 3. achar o número entre outros ---
+  corpo += texto(`3. Encontre o ${algarismo}. Pinte ou aponte.`, 48, 692, 24);
+  const vizinho = (d: number) => String(11 + ((n - 11 + d) % 10));
+  [algarismo, vizinho(1), vizinho(4), algarismo, vizinho(7), vizinho(2)].forEach((s2, j) => {
+    corpo += quadro(`regiao-busca-quadro-${j}`, 48 + j * 120, 708, 104, 86, 15);
+    corpo += letras(`regiao-busca-numero-${j}`, s2, 60 + j * 120, 724, 80, 54);
+  });
+
+  // --- 4. a reta de dez a vinte ---
+  corpo += texto(`4. Onde o ${algarismo} mora? Pinte a casinha dele.`, 48, 838, 24);
+  corpo += reta('regiao-reta', 884, 10);
+
+  // --- 5. escrever ---
+  corpo += texto('5. Escreva do seu jeito.', 48, 989, 24);
+  corpo += letras('regiao-modelo', algarismo, 48, 1000, 96, 52);
+  corpo += linha(160, 1048, 752, 1048);
+
+  return base(`O número ${nome}`, 'Números · de onze a vinte', corpo);
+}
+
+// ---------- uma folha por tabuada ----------
+
+/**
+ * A tabuada de um número como FILEIRAS de bolinhas: a primeira linha tem
+ * uma fileira, a segunda tem duas… A criança pinta, conta e escreve. Vezes
+ * é isso: a mesma quantidade, repetida.
+ */
+export function svgTabuadaDoA4(n: number): string {
+  if (!Number.isInteger(n) || n < 1 || n > 10) throw new Error(`Tabuada fora da folha: ${n}`);
+  const nome = NOMES_DOS_NUMEROS[n];
+  let corpo = texto(`Cada bolinha vale ${nome}. Pinte, conte de ${nome} em ${nome} e escreva.`, 48, 190, 20);
+  const passo = 82;
+  const y0 = 214;
+  for (let k = 1; k <= 10; k++) {
+    const y = y0 + (k - 1) * passo;
+    corpo += quadro(`regiao-linha-${k}`, 48, y, 704, passo - 10, 12);
+    // k bolinhas, cada uma valendo n: é contar de n em n
+    corpo += bolinhas(`regiao-linha-${k}-bola`, k, 62, y + 36, 15, 37);
+    corpo += texto(`${k} × ${n} =`, 628, y + 47, 30, 'end');
+    corpo += quadro(`regiao-resposta-${k}`, 646, y + 9, 92, 54, 10);
+  }
+  corpo += texto(`Dica: comece no ${n} e vá somando ${n}.`, 48, 1048, 18);
+  return base(`Tabuada do ${nome}`, 'Números · tabuadas', corpo);
 }
 
