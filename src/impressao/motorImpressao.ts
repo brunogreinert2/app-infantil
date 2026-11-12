@@ -109,6 +109,9 @@ function separarCss(css: string): { doDocumento: string; daFolha: string } {
   };
 }
 
+let limpezaAgendada: number | undefined;
+let tituloDoApp: string | undefined;
+
 function limparImpressao(): void {
   document.getElementById(ID_AREA)?.remove();
   document.getElementById(ID_ESTILO)?.remove();
@@ -142,14 +145,25 @@ export function imprimirDocumento(titulo: string, corpoHtml: string, css: string
   document.body.appendChild(area);
 
   // o cabeçalho que o navegador põe na página usa o título do documento
-  const tituloDoApp = document.title;
+  // (guardado uma vez só: numa segunda impressão o título "atual" já é o da
+  // folha anterior)
+  tituloDoApp ??= document.title;
   document.title = titulo;
-  const aoTerminar = () => {
-    document.title = tituloDoApp;
+  // NÃO limpar no `afterprint`. No iPhone (teste do Bruno, 2026-11-11) o
+  // print() volta na hora e o `afterprint` dispara ANTES de a folha de
+  // impressão desenhar a prévia: a limpeza tirava a folha e as regras de
+  // impressão, e o que saía no papel era a tela do app. A folha é invisível
+  // na tela e não atrapalha ninguém: fica até a próxima impressão (o
+  // limparImpressao() lá em cima) ou até esta espera longa vencer. A prévia
+  // do iOS pode ser redesenhada enquanto a pessoa mexe nas opções, então a
+  // espera é generosa e recomeça a cada impressão.
+  clearTimeout(limpezaAgendada);
+  limpezaAgendada = window.setTimeout(() => {
+    if (document.getElementById(ID_AREA) !== area) return; // já veio outra
+    if (tituloDoApp !== undefined) document.title = tituloDoApp;
+    tituloDoApp = undefined;
     limparImpressao();
-    window.removeEventListener('afterprint', aoTerminar);
-  };
-  window.addEventListener('afterprint', aoTerminar);
+  }, 10 * 60_000);
 
   const imprimir = () => {
     if (!area.isConnected) return;
