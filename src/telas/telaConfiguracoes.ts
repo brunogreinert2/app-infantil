@@ -65,7 +65,7 @@ export function montarTravaParental(
 
 export async function montarTelaConfiguracoes(
   raiz: HTMLElement,
-  nav: { perfis: () => void },
+  nav: { perfis: () => void; guia?: () => void },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-config';
@@ -82,6 +82,17 @@ export async function montarTelaConfiguracoes(
   raiz.appendChild(corpo);
 
   const recarregar = () => montarTelaConfiguracoes(raiz, nav);
+
+  // ---------- guia ----------
+  if (nav.guia) {
+    corpo.appendChild(el('h2', 'titulo-secao', 'Para quem ensina'));
+    corpo.appendChild(
+      el('p', 'texto-sobre', 'Por que a letra tem espaço, como pintar sem toque fino, como usar as folhas de letras e de números — e o que o app ainda não faz bem.'),
+    );
+    const abrirGuia = el('button', 'botao-grande', '📖 Guia de quem ensina');
+    abrirGuia.addEventListener('click', nav.guia);
+    corpo.appendChild(abrirGuia);
+  }
 
   // ---------- perfis ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Perfis'));

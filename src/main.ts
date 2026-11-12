@@ -13,6 +13,7 @@ import { montarTelaColorir } from './telas/telaColorir';
 import { montarTelaQuebraCabeca } from './telas/telaQuebraCabeca';
 import { montarTelaAbertura } from './telas/telaAbertura';
 import { montarTelaConfiguracoes, montarTravaParental } from './telas/telaConfiguracoes';
+import { montarTelaGuia } from './telas/telaGuia';
 import { aplicarTemaDeLivro, carregarPreferencias } from './telas/preferencias';
 import { perfilAtivo, temPerfilAtivo } from './perfis/perfis';
 import { armazenamento } from './armazenamento/armazenamento';
@@ -46,12 +47,21 @@ function irPerfis(): void {
   );
 }
 
+// já dentro da área dos adultos (a trava ficou para trás): ajustes ⇄ guia
+function abrirAjustes(): void {
+  window.scrollTo(0, 0);
+  void montarTelaConfiguracoes(raiz, {
+    perfis: irPerfis,
+    guia: () => montarTelaGuia(raiz, { voltar: abrirAjustes }),
+  });
+}
+
 function irAjustes(): void {
   // trava parental primeiro — sempre (spec 8.5)
   removerPainel();
   montarTravaParental(
     raiz,
-    () => montarTelaConfiguracoes(raiz, { perfis: irPerfis }),
+    abrirAjustes,
     irPerfis,
   );
 }

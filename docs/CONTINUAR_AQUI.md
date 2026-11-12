@@ -16,12 +16,16 @@ Os retoques anteriores (`fable/retoques-pos-publicacao`) JÁ estão no site
 - [x] **2. Cópia de segurança** (como o exportar/importar do Pedra Angular):
       `src/armazenamento/copia.ts` (conta, testada) e `copiaNoAparelho.ts`;
       botões em Ajustes. É TROCA, não mistura.
-- [ ] **3. Guia da professora dentro do app** (+ Números no pacote de fichas,
-      `scripts/exportar-fichas.mjs`). É a PRÓXIMA.
-- [ ] 4. Realce da frase que está sendo lida em voz alta (`src/tts.ts` já
-      fatia em frases: dá para avisar qual pedaço está falando).
-- [ ] 5. Régua de leitura (faixa que isola a linha).
-- [ ] 6. Minhas pinturas (galeria; as chaves `<perfil>:colorir:*` já existem).
+- [x] **3. Guia de quem ensina** dentro do app: `src/conteudo/guia.ts`
+      (texto), `src/telas/telaGuia.ts`; entra por Ajustes. Os Números
+      entraram em `scripts/exportar-fichas.mjs` (não rodei o script).
+      O TEXTO DO GUIA É MEU: o Bruno precisa ler e corrigir.
+- [x] **4. Realce do que a voz lê**: `ouvirPedacos()` em `tts.ts`;
+      `src/telas/realceLeitura.ts`; `::highlight(lendo)` e `.lendo-agora`.
+- [x] **5. Régua de leitura**: `src/telas/reguaLeitura.ts`; botão 📏 na
+      leitura; `<perfil>:reguaLeitura`.
+- [ ] **6. Minhas pinturas** (galeria; as chaves `<perfil>:colorir:*` já
+      existem). É a PRÓXIMA.
 - [ ] 7. Mais Números: 11 a 20, uma folha por tabuada, traçado.
 - [ ] 8. Auditoria com leitor de tela de verdade e axe-core.
 

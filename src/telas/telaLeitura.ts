@@ -3,6 +3,8 @@
 // cores que a criança já pintou, e conclusão explícita do livro
 // ("Terminei!") que concede insígnia fixa e previsível.
 
+import { ligarRealce } from './realceLeitura';
+import { definirRegua, mostrarRegua, reguaLigada } from './reguaLeitura';
 import { armazenamento } from '../armazenamento/armazenamento';
 import { registrarLivroConcluido, listarConquistas } from '../conquistas/insignias';
 import { arquivosAssets, arquivosImagens } from '../conteudo/catalogo';
@@ -54,7 +56,23 @@ export async function montarTelaLeitura(
     botao.addEventListener('click', b.acao);
     barraExtras.appendChild(botao);
   }
-  if (barraExtras.childElementCount > 0) raiz.appendChild(barraExtras);
+  // 📏 régua de leitura: liga e desliga aqui mesmo, e fica guardada por perfil
+  let comRegua = await reguaLigada();
+  const botaoRegua = el('button', 'botao-extra', '📏 Régua');
+  const marcarRegua = () => {
+    botaoRegua.setAttribute('aria-pressed', String(comRegua));
+    botaoRegua.classList.toggle('ativa', comRegua);
+    botaoRegua.setAttribute('aria-label', 'Régua de leitura: uma faixa clara mostra a linha que você está lendo');
+    mostrarRegua(raiz, comRegua);
+  };
+  botaoRegua.addEventListener('click', async () => {
+    comRegua = !comRegua;
+    await definirRegua(comRegua);
+    marcarRegua();
+  });
+  barraExtras.appendChild(botaoRegua);
+  raiz.appendChild(barraExtras);
+  marcarRegua();
 
   const p = perfilAtivo();
   const chaveProgresso = `${p.id}:progresso:${livro.id}`;
@@ -130,6 +148,8 @@ export async function montarTelaLeitura(
 
   artigo.appendChild(await rodapeConclusao(livro, progresso, chaveProgresso));
   raiz.appendChild(artigo);
+  // o trecho que a voz está lendo fica marcado na tela
+  ligarRealce(artigo);
 
   // restaurar posição de leitura + "você parou aqui" visível
   if (progresso.posicaoAtual) {

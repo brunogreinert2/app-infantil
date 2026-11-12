@@ -11,9 +11,10 @@ const raiz=fileURLToPath(new URL('../',import.meta.url));
 const server=await createServer({root:raiz,configFile:false,resolve:{preserveSymlinks:true},optimizeDeps:{noDiscovery:true,include:[]},server:{middlewareMode:true},appType:'custom'});
 try {
   const {gerarCadernoAlfabeto}=await server.ssrLoadModule('/src/conteudo/alfabetos.ts');
+  const {gerarCadernoNumeros}=await server.ssrLoadModule('/src/conteudo/numeros.ts');
   const indice=[];
-  for(const id of ['alfabeto','alfabeto-grego']){
-    const fichas=gerarCadernoAlfabeto(id);
+  for(const id of ['alfabeto','alfabeto-grego','numeros']){
+    const fichas=id==='numeros'?gerarCadernoNumeros():gerarCadernoAlfabeto(id);
     await mkdir(join(destino,'svg',id),{recursive:true});
     for(const [n,f] of fichas.entries()){
       await writeFile(join(destino,'svg',id,f.arquivo),f.svg);

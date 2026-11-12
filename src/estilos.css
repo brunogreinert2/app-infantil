@@ -960,6 +960,78 @@ button {
   }
 }
 
+/* ---------- o que a voz está lendo ----------
+   Preto sobre amarelo, fixo: 15:1, e igual em todos os temas (um realce
+   que mudasse com o tema teria de ser medido em cada um). Sublinhado junto:
+   quem não distingue o amarelo ainda vê a marca. No bloco, uma barra à
+   esquerda — desenhada como sombra para não empurrar o texto. */
+::highlight(lendo) {
+  background-color: #ffe066;
+  color: #000000;
+  text-decoration: underline;
+}
+
+.lendo-agora {
+  box-shadow: -11px 0 0 -5px var(--texto);
+}
+
+/* ---------- régua de leitura ---------- */
+.regua-leitura {
+  position: fixed;
+  inset: 0;
+  z-index: 8; /* abaixo da barra do alto (10) e do menu */
+  pointer-events: none;
+}
+
+.regua-sombra {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.42);
+}
+
+.regua-sombra:first-child {
+  top: 0;
+  border-bottom: 3px solid var(--texto);
+}
+
+.regua-sombra:last-child {
+  bottom: 0;
+  border-top: 3px solid var(--texto);
+}
+
+.botao-extra.ativa {
+  border: 3px solid var(--texto);
+}
+
+/* ---------- guia de quem ensina ---------- */
+.indice-guia ul {
+  margin: 0 0 1.5em;
+  padding: 0;
+  list-style: none;
+}
+
+.indice-guia li {
+  margin: 0.2em 0;
+}
+
+.indice-guia a {
+  display: inline-block;
+  padding: 0.35em 0;
+  color: var(--texto);
+  text-decoration: underline;
+}
+
+.tela-guia .cabecalho {
+  text-align: left;
+  margin-top: 1.6em;
+}
+
+/* no guia não há botão 🔊 ao lado do parágrafo: a coluna inteira é texto */
+.paragrafo-guia {
+  padding-right: 0;
+}
+
 /* ---------- pintar por partes ---------- */
 .painel-partes {
   display: flex;

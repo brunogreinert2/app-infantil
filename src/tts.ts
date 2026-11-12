@@ -20,6 +20,13 @@ let aoTerminarAtual: (() => void) | undefined;
 let tiqueResume: number | undefined;
 let atrasoPendente: number | undefined;
 let vozPt: SpeechSynthesisVoice | null = null;
+// quem quer saber o que está sendo dito agora (o realce da leitura)
+let ouvinte: ((pedaco: string | null) => void) | null = null;
+
+/** Avisa a cada pedaço que começa a ser falado, e `null` quando a voz para. */
+export function ouvirPedacos(cb: ((pedaco: string | null) => void) | null): void {
+  ouvinte = cb;
+}
 
 export function suportaTTS(): boolean {
   // guarda de typeof: este módulo também roda nos testes (Node, sem window)
@@ -105,6 +112,7 @@ function proximoPedaco(): void {
     if (falaViva === fala) encerrar();
   };
   falaViva = fala; // referência viva: sem ela o Chrome mata a fala no GC
+  ouvinte?.(fila[indice]);
   sintese.speak(fala);
 }
 
@@ -120,6 +128,7 @@ export function pararFala(): void {
 }
 
 function limparEstado(): void {
+  if (textoAtual !== null) ouvinte?.(null);
   textoAtual = null;
   fila = [];
   indice = 0;

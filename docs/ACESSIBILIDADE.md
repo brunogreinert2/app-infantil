@@ -536,6 +536,69 @@ atrás da conta de multiplicar): testei as funções que os botões chamam.
 
 ---
 
+## Guia de quem ensina, realce da leitura e régua (2026-11-12)
+
+### Guia de quem ensina
+
+Ajustes (área dos adultos) → "📖 Guia de quem ensina": treze assuntos, com
+índice, na mesma coluna de leitura do app (tamanho, espaço e peso valem), e
+"Imprimir o guia". É onde mora a explicação do ceratocone, do daltonismo e
+dos outros porquês — fora da tela da criança.
+
+| Item | Resultado | Prova |
+|---|---|---|
+| Cobre cada recurso de acesso do app | sim | teste (`guia.test.ts`) |
+| Diz o que não foi testado; não promete cura nem diagnóstico | sim | teste |
+| Abre, pula pelo índice (o foco vai ao título), volta aos Ajustes | sim, 390×844, sem rolagem de lado | medido |
+| Imprime | 5 páginas A4 | PDF pelo Chromium sem janela |
+
+Limites: **o texto é meu, não passou por professora nem por profissional de
+saúde ou de visão** — as frases sobre ceratocone, astigmatismo e dislexia
+repetem o argumento do Bruno com cautela ("costuma", "ajuda quem"), e o guia
+diz que não substitui avaliação. No PDF de teste a fonte saiu a de reserva
+(Arial), não a Atkinson. No app instalado do iPhone o guia não imprime (o
+caminho de lá só sabe entregar desenhos): pede o Safari.
+
+### Realce do que a voz está lendo
+
+Enquanto o 🔊 fala, o trecho fica marcado: as palavras em preto sobre
+amarelo com sublinhado, e uma barra à esquerda do bloco.
+
+| Item | Resultado | Prova |
+|---|---|---|
+| O realce acompanha a voz, frase a frase, e some no fim | sim | medido, com a voz trocada por um marcador |
+| Contraste do trecho marcado | preto sobre #ffe066: 15,9:1, igual em todos os temas | calculado |
+| Não é só cor | sublinhado nas palavras + barra no bloco | lido |
+| Sem movimento | o realce pula; a tela só rola se o trecho saiu da vista | lido |
+
+Limites: **não ouvi nada** — a voz foi simulada, então a sincronia real
+(a voz do aparelho pode atrasar ou adiantar em relação ao aviso) não foi
+conferida. O realce é por frase ou grupo de frases (até ~180 letras), não
+palavra por palavra. Quando um pedaço atravessa dois parágrafos, só a
+primeira frase é marcada. Com narração gravada (`narracao`) não há realce.
+Precisa da API de realce do navegador (Safari 17.2+, Chrome 105+); sem ela
+fica só a barra no bloco.
+
+### Régua de leitura
+
+Botão "📏 Régua" no alto de cada livro, guardado por perfil: escurece a
+tela e deixa clara uma faixa de duas linhas e meia (acompanha o tamanho e a
+entrelinha escolhidos). Parada a um terço da tela; com mouse segue o ponteiro.
+
+| Item | Resultado | Prova |
+|---|---|---|
+| Faixa = 2,5 linhas | 110 px com entrelinha de 44 px | medido |
+| Não bloqueia toque nem botões por baixo | `pointer-events: none` | medido |
+| Persiste por perfil | `<perfil>:reguaLeitura` | medido |
+
+Limites: a parte escurecida perde contraste de propósito (é o que a régua
+faz) — não medi quanto, e num tema escuro o efeito é fraco: lá quem marca a
+faixa são as duas linhas de borda. No celular a faixa não se move; não
+testei se um terço da tela é a altura boa para uma criança. Não é
+anunciada ao leitor de tela (é só visual).
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e
