@@ -17,9 +17,17 @@ Registro de acessibilidade, com o que NÃO foi verificado: `docs/ACESSIBILIDADE.
 - [x] **F4 — números arábicos, romanos e operações** (2026-11-12). Estilo da
       primeira folha aprovado pelo Bruno ("aprovadíssimo"). Ver abaixo.
 
-**O plano está cumprido (F0, F1, F5, F2, F3, F4).** O que falta é do Bruno:
-conferir no iPhone a impressão numa página, olhar o livro Os Números, e
-autorizar (ou não) a publicação. Nada foi para a master.
+**O plano está cumprido (F0, F1, F5, F2, F3, F4).**
+
+**Publicação autorizada em 2026-11-12** — o Bruno escreveu "Pode publicar".
+A branch `fable/novas-ideias` foi integrada na master por avanço direto
+(sem commit de merge) e enviada: o GitHub Actions testa, monta e publica em
+https://historinhas.app.br. Foram junto três commits que estavam em
+`codex/segunda-colecao` e ainda não na master (`90c16c3`, `ec12d41`,
+`f579d70`: registro de publicação e duas sincronizações do motor).
+A autorização vale para ESTA entrega; mudança nova volta a pedir branch
+própria e autorização nova. Ainda por confirmar no iPhone, agora no site:
+a impressão numa página.
 - F6 (triagem de SVGs e histórias) não é para Fable: ver o plano.
 
 ### Teste do Bruno no iPhone (2026-11-11, 22h) e o que ele mudou
