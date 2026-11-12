@@ -25,6 +25,13 @@ A branch `fable/novas-ideias` foi integrada na master por avanço direto
 https://historinhas.app.br. Foram junto três commits que estavam em
 `codex/segunda-colecao` e ainda não na master (`90c16c3`, `ec12d41`,
 `f579d70`: registro de publicação e duas sincronizações do motor).
+**Publicação confirmada:** master em `b8f1ef0`; o
+[Actions 43210047671](https://github.com/brunogreinert2/app-infantil/actions/runs/43210047671)
+concluiu testes, build e deploy. Conferido por download do pacote servido em
+https://historinhas.app.br: ele já traz as cores novas, o menu lateral, a
+impressão nova, o espaçamento e Os Números. NÃO abri o site num navegador
+nem num celular depois de publicar. Este registro fica só na branch, para
+não disparar outra publicação idêntica.
 A autorização vale para ESTA entrega; mudança nova volta a pedir branch
 própria e autorização nova. Ainda por confirmar no iPhone, agora no site:
 a impressão numa página.
