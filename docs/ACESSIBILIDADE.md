@@ -1,5 +1,10 @@
 # Acessibilidade do Historinhas — o que foi medido, como, e o que não foi
 
+> Correção (2026-11-12): este arquivo dizia "98 cores". São **92**: 18 cores
+> com cinco tons, mais branco e preto, que têm um tom só. A conta estava errada
+> desde a primeira versão (18 × 5 + 2, não 20 × 5 − 2); o código e os testes
+> sempre estiveram certos, o número escrito é que não.
+
 Este arquivo é o registro honesto. Cada linha diz **o que foi verificado**,
 **como** e — tão importante quanto — **o que NÃO foi verificado**. Nada aqui
 vale como "testado com pessoas": até hoje nenhuma criança ou professora com
@@ -25,7 +30,7 @@ Simulador: `src/canvas/visaoDeCores.ts` (só entra nos testes, fora do pacote).
 | Antes | Agora |
 |---|---|
 | O nome da cor só existia em `title` (dica de mouse) e `aria-label`. No celular, ninguém via. | O nome da cor escolhida fica **sempre escrito**, grande, ao lado de uma amostra. |
-| 14 cores em ordem de arco-íris, quebrando de linha conforme a largura. | 20 cores, cada uma com 5 tons (98 cores com nome), em **grade fixa** e numa ordem **medida**. |
+| 14 cores em ordem de arco-íris, quebrando de linha conforme a largura. | 20 cores — 18 com 5 tons cada, mais branco e preto (92 cores com nome), em **grade fixa** e numa ordem **medida**. |
 | Cor escolhida = poço um pouco maior. | Cor escolhida = maior + borda grossa + marca ✓. |
 | Sem voz. | Voz opcional por perfil ("Falar o nome das cores"), desligada por padrão. |
 
@@ -63,11 +68,11 @@ também passava. A tabela abaixo é a da primeira ordem, mantida como registro.
 
 | Item | Resultado | Prova |
 |---|---|---|
-| Toda cor tem nome, nenhum nome se repete, nenhum hex se repete | 98 cores, 98 nomes | teste (`cores.test.ts`) |
+| Toda cor tem nome, nenhum nome se repete, nenhum hex se repete | 92 cores, 92 nomes | teste (`cores.test.ts`) |
 | Nenhuma cor da paleta encosta (ao lado, acima, abaixo) em outra parecida, para visão comum, protanopia, deuteranopia e tritanopia | menor diferença entre vizinhas: ΔE 33 (piso do teste: 25) | teste |
 | O modelo reproduz a confusão real | vermelho × verde: ΔE 116 na visão comum, 7 na deuteranopia | teste |
 | Tons vizinhos de um mesmo matiz continuam diferentes | sim; o par mais fraco é amarelo muito claro × amarelo claro na tritanopia (ΔE 5,9) | teste (piso 5) |
-| A marca ✓ se lê sobre qualquer cor | contraste ≥ 4,5:1 nas 98 | teste |
+| A marca ✓ se lê sobre qualquer cor | contraste ≥ 4,5:1 nas 92 | teste |
 
 Por que a ordem importa — pares que a ordem antiga (arco-íris) deixava
 próximos, pela mesma medida (ΔE na pior visão; abaixo de ~10 confunde):
@@ -703,8 +708,8 @@ e a voz das cores, se o perfil a ligou.
 
 | Item | Resultado | Prova |
 |---|---|---|
-| No FUNDO só entram tons em que a letra tem contraste ≥ 7:1 | 59 dos 98 tons; toda cor tem pelo menos um | teste (`cores.test.ts`) |
-| Nenhuma combinação oferecida fica ilegível: texto ≥ 7, título ≥ 4,5, letra do botão ≥ 4,5, texto suave ≥ 4,5 | todas as 5.782 combinações de fundo × favorita | teste (`temaDerivado.test.ts`) |
+| No FUNDO só entram tons em que a letra tem contraste ≥ 7:1 | 60 dos 92 tons; toda cor tem pelo menos um | teste (`cores.test.ts`) |
+| Nenhuma combinação oferecida fica ilegível: texto ≥ 7, título ≥ 4,5, letra do botão ≥ 4,5, texto suave ≥ 4,5 | todas as 5.520 combinações de fundo × favorita (60 × 92) | teste (`temaDerivado.test.ts`) |
 | Temas feitos com as cores antigas continuam legíveis | as 120 combinações antigas | teste |
 | axe-core na Aparência, com tons abertos | nenhuma violação | medido |
 

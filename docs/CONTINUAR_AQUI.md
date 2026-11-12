@@ -344,7 +344,7 @@ uma função vazia. Apagar a página depois.
 ### F1, o que ficou feito
 
 - `src/canvas/cores.ts`: 20 cores-base, 5 tons cada (branco e preto, um só) =
-  98 cores com nome único. `nomeDaCor(hex)`, `matizDe(hex)`. As 14 cores já
+  92 cores com nome único (já escrevi 98 aqui: estava errado). `nomeDaCor(hex)`, `matizDe(hex)`. As 14 cores já
   publicadas mantêm o hex; "Verde-claro" passou a se chamar "Verde-limão"
   (senão o tom seria "Verde-claro claro"). Novas: Verde, Turquesa, Lilás,
   Bege, Vinho, Verde-oliva. O formato salvo da pintura não mudou.
