@@ -6,6 +6,7 @@ import { CamadaBase, criarCamadaLinhas } from '../canvas/camadaBase';
 import { soltarConfetes } from '../efeitos/confete';
 import { CamadaPincel, type Traco } from '../canvas/camadaPincel';
 import { MATIZES, matizDe, nomeDaCor, tintaSobre, type Matiz } from '../canvas/cores';
+import { nomeDaParte } from '../canvas/partes';
 import { RoteadorFerramenta, type Ferramenta } from '../canvas/roteadorFerramenta';
 import { ZOOM_MAXIMO, instalarZoomPinca } from '../canvas/zoomPinca';
 import { arquivosAssets } from '../conteudo/catalogo';
@@ -71,7 +72,7 @@ export async function montarTelaColorir(
   let roteador: RoteadorFerramenta;
   const pincel = new CamadaPincel(lente, () => roteador.estiloPincel());
   roteador = new RoteadorFerramenta(pincel);
-  criarCamadaLinhas(lente, svgFonte);
+  const camadaLinhas = criarCamadaLinhas(lente, svgFonte);
   const zoom = instalarZoomPinca(tela, lente, () => pincel.cancelarTracoAtivo());
 
   // --- estado + persistência ---
@@ -93,13 +94,19 @@ export async function montarTelaColorir(
     }, 300);
   };
 
-  base.aoTocarRegiao((regiaoId) => {
-    if (roteador.ferramenta !== 'balde') return;
+  // pintar uma região: o mesmo caminho para o toque no desenho e para o
+  // botão "Pintar esta parte"
+  const pintarRegiao = (regiaoId: string) => {
     acoes.push({ tipo: 'balde', regiaoId, corAnterior: base.corDe(regiaoId) });
     base.pintar(regiaoId, roteador.cor);
     estado.regioes[regiaoId] = roteador.cor;
     salvar();
     avisar(`Pintou de ${nomeDaCor(roteador.cor)}`);
+    atualizarPartes();
+  };
+  base.aoTocarRegiao((regiaoId) => {
+    if (roteador.ferramenta !== 'balde') return;
+    pintarRegiao(regiaoId);
   });
 
   let desfazendo = false;
@@ -121,6 +128,7 @@ export async function montarTelaColorir(
       desfazendo = false;
     }
     salvar();
+    atualizarPartes();
   };
 
   // --- barra de ferramentas ---
@@ -143,6 +151,13 @@ export async function montarTelaColorir(
   desf.setAttribute('aria-label', 'Desfazer');
   desf.addEventListener('click', desfazer);
   grupoFerr.appendChild(desf);
+
+  // --- pintar por partes: escolher a região numa lista, sem precisar tocar
+  // no lugar exato do desenho ---
+  const botaoPartes = el('button', 'botao-ferramenta', '📋');
+  botaoPartes.setAttribute('aria-label', 'Pintar escolhendo a parte do desenho');
+  botaoPartes.setAttribute('aria-controls', 'painel-partes');
+  grupoFerr.appendChild(botaoPartes);
 
   // --- lupa: um toque amplia (1× → 2× → 3× → 4× → 1×), e o número fica escrito
   // no botão. Antes este botão só VOLTAVA a 1× — sem pinça antes, não fazia
@@ -215,6 +230,82 @@ export async function montarTelaColorir(
     ev.preventDefault();
   };
   document.addEventListener('keydown', aoTeclar);
+
+  const idsDasPartes = base.regioes();
+  let parteAtual = 0;
+  let partesAbertas = false;
+
+  const painelPartes = el('div', 'painel-partes');
+  painelPartes.id = 'painel-partes';
+  painelPartes.setAttribute('role', 'group');
+  painelPartes.setAttribute('aria-label', 'Pintar por partes');
+  painelPartes.appendChild(el('p', 'rotulo-tons', 'Escolha uma parte e pinte'));
+  const linhaPartes = el('div', 'linha-partes');
+  const parteAntes = el('button', 'botao-ferramenta botao-seta', '←');
+  parteAntes.setAttribute('aria-label', 'Parte anterior');
+  const parteDepois = el('button', 'botao-ferramenta botao-seta', '→');
+  parteDepois.setAttribute('aria-label', 'Próxima parte');
+  const seletor = el('select', 'seletor-partes');
+  seletor.setAttribute('aria-label', 'Parte do desenho');
+  idsDasPartes.forEach((id, i) => {
+    const opcao = el('option', undefined, `${i + 1} de ${idsDasPartes.length} · ${nomeDaParte(id)}`);
+    opcao.value = String(i);
+    seletor.appendChild(opcao);
+  });
+  linhaPartes.append(parteAntes, seletor, parteDepois);
+  const corDaParte = el('p', 'cor-da-parte');
+  const pintarParte = el('button', 'botao-grande botao-pintar-parte');
+  painelPartes.append(linhaPartes, corDaParte, pintarParte);
+  barra.appendChild(painelPartes);
+
+  // o contorno da parte escolhida fica destacado NO DESENHO (camada de
+  // linhas): é assim que a criança vê de que pedaço a lista está falando
+  function atualizarPartes(): void {
+    camadaLinhas.querySelectorAll('.parte-escolhida').forEach((e) => e.classList.remove('parte-escolhida'));
+    painelPartes.hidden = !partesAbertas;
+    botaoPartes.setAttribute('aria-expanded', String(partesAbertas));
+    botaoPartes.classList.toggle('ativa', partesAbertas);
+    const id = idsDasPartes[parteAtual];
+    if (!partesAbertas || !id) return;
+    camadaLinhas.querySelector(`#${CSS.escape(id)}`)?.classList.add('parte-escolhida');
+    seletor.value = String(parteAtual);
+    corDaParte.textContent = `Agora está: ${nomeDaCor(base.corDe(id))}`;
+    pintarParte.textContent = `🪣 Pintar de ${nomeDaCor(roteador.cor)}`;
+  }
+  const irParaParte = (i: number) => {
+    const n = idsDasPartes.length;
+    if (!n) return;
+    parteAtual = ((i % n) + n) % n;
+    atualizarPartes();
+    // no celular a lista fica abaixo do desenho: se o desenho saiu da tela,
+    // ele volta — senão a criança escolhe a parte sem ver qual é
+    const topo = tela.getBoundingClientRect().top;
+    if (topo < 80) window.scrollBy({ top: topo - 86, behavior: 'instant' });
+    const id = idsDasPartes[parteAtual];
+    avisar(`${parteAtual + 1} de ${n}: ${nomeDaParte(id)}. Está ${nomeDaCor(base.corDe(id))}.`);
+  };
+  parteAntes.addEventListener('click', () => irParaParte(parteAtual - 1));
+  parteDepois.addEventListener('click', () => irParaParte(parteAtual + 1));
+  seletor.addEventListener('change', () => irParaParte(Number(seletor.value)));
+  pintarParte.addEventListener('click', () => {
+    const id = idsDasPartes[parteAtual];
+    if (id) pintarRegiao(id);
+  });
+  botaoPartes.addEventListener('click', () => {
+    partesAbertas = !partesAbertas;
+    atualizarPartes();
+    if (partesAbertas) seletor.focus();
+  });
+  painelPartes.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') {
+      partesAbertas = false;
+      atualizarPartes();
+      botaoPartes.focus();
+    }
+    // as setas aqui são do seletor, não do zoom
+    if (ev.key.startsWith('Arrow')) ev.stopPropagation();
+  });
+  if (!idsDasPartes.length) botaoPartes.hidden = true;
 
   const escolhaImpressao = el('div', 'escolha-impressao');
   escolhaImpressao.id = 'escolha-impressao';
@@ -417,6 +508,7 @@ export async function montarTelaColorir(
     pocosTons.querySelectorAll<HTMLButtonElement>('.poco-cor').forEach((b) => {
       marcar(b, b.dataset.cor === cor);
     });
+    atualizarPartes();
   }
   roteador.aoMudar(atualizarSelecao);
   atualizarSelecao();

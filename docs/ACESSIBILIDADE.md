@@ -464,6 +464,78 @@ Vieram do Bruno usando o site no iPhone.
 
 ---
 
+## Pintar por partes, peso da letra e cópia de segurança (2026-11-12)
+
+### Pintar por partes — o desenho deixou de exigir toque fino
+
+Era a maior lacuna registrada neste arquivo: as regiões do desenho só
+respondiam a toque ou clique no lugar exato. Agora, além do toque (que
+continua igual), o botão 📋 abre "Escolha uma parte e pinte": ← e → andam
+pelas partes, uma lista (`<select>` do sistema) pula direto para qualquer
+uma, e "Pintar de <cor>" pinta. A parte escolhida fica com o contorno
+grosso e tracejado no desenho, com halo branco.
+
+| Item | Resultado | Prova |
+|---|---|---|
+| Toda região do desenho está na lista, na ordem do desenho | 33 de 33 na Lebre | medido |
+| Pintar pelo botão dá o mesmo resultado do toque (cor, salvar, desfazer) | sim: é a mesma função | medido |
+| O toque no desenho continua funcionando com a lista aberta | sim | medido |
+| Diz a cor que a parte TEM agora ("Agora está: Verde") | sim — fecha a lacuna "a pintura feita não tem nome" | medido |
+| Leitor de tela: anuncia "3 de 33: nuvem. Está Branco." e "Pintou de Verde" | região viva | medido (DOM) |
+| Só teclado: abrir, escolher, pintar, `Esc` fecha e devolve o foco | sim | medido (DOM) |
+| No celular o desenho volta à vista ao trocar de parte | sim, em 390×844 | medido |
+| Alvos | setas 56 px, lista 52 px, botão 56 px | lido no CSS |
+
+**Limites, sem enfeite:**
+- **Os nomes são pobres na maior parte dos desenhos.** Só as cinco cenas
+  antigas têm regiões com nome de coisa ("céu", "sol"). As 51 cenas das duas
+  coleções usam `regiao-detalhe-012` → "detalhe 12", e as folhas de alfabeto e
+  de números têm dezenas de "quadro 3", "casa 7". Para uma criança cega, "detalhe
+  12" não diz nada: o recurso hoje serve bem a quem VÊ o destaque e não
+  consegue tocar com precisão (motora, acionador, teclado), e serve mal a quem
+  não vê. Dar nome a cada região é trabalho de revisão das ilustrações.
+- Pincel e borracha continuam só por toque/arrasto.
+- O destaque é fino em regiões pequenas ou encobertas (o tronco atrás da lebre).
+- Nenhum leitor de tela real, nenhum acionador, nenhuma criança.
+
+### Peso da letra
+
+Fina (padrão) · Média · Grossa, por perfil, com os mesmos ids e valores do
+app-leitura: contorno de 0,02 / 1 / 2 pixels **do aparelho**, na cor do texto,
+aplicado à mesma prosa do espaçamento. Com isto o Historinhas tem os quatro
+ajustes de leitura do app-leitura: corpo, entrelinha, espaço entre letras e peso.
+
+| Item | Resultado | Prova |
+|---|---|---|
+| Mesmos ids e valores do app-leitura | sim | teste |
+| Média e Grossa em pixel inteiro do aparelho, em seis densidades | sim | teste |
+| Chega à tela e persiste por perfil | densidade 2: 0,01 / 0,5 / 1 px; chave `<perfil>:pesoTraco` | medido |
+
+Limites: visto só nesta tela (densidade 2), não num iPhone; não medi o
+contraste efetivo nem se a Grossa "entope" a OpenDyslexic, que já é pesada;
+o `-webkit-text-stroke` não existe em impressão de alguns navegadores (não
+afeta as folhas, que são desenho).
+
+### Cópia de segurança
+
+Ajustes (atrás da trava dos adultos) → "Guardar uma cópia" grava tudo num
+arquivo `.json`; "Trazer de uma cópia…" troca o que há no aparelho pelo
+arquivo, depois de mostrar a data e os perfis da cópia e pedir confirmação —
+com o foco no "Deixar como está".
+
+| Item | Resultado | Prova |
+|---|---|---|
+| O que sai é o que volta | 18 itens, idênticos byte a byte | medido (ida e volta no navegador) e teste |
+| Arquivo que não é cópia, de versão futura ou com chave estranha é recusado | sim, com mensagem em português | teste |
+| Não toca em dados de outros sites/apps do navegador | sim | medido |
+
+Limites: é **troca**, não mistura (os perfis são numerados por aparelho);
+não há como trazer um perfil só. No celular a entrega é pelo compartilhar —
+não testado em iPhone nem Android. A tela de Ajustes em si não cliquei (fica
+atrás da conta de multiplicar): testei as funções que os botões chamam.
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e

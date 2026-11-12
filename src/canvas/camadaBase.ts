@@ -32,6 +32,11 @@ export class CamadaBase {
     return el?.getAttribute('fill') ?? '#ffffff';
   }
 
+  /** Os ids de todas as regiões pintáveis, na ordem do desenho. */
+  regioes(): string[] {
+    return [...this.svg.querySelectorAll<SVGElement>('.colorir-alvo')].map((e) => e.id).filter(Boolean);
+  }
+
   aplicarEstado(regioes: Record<string, string>): void {
     for (const [id, cor] of Object.entries(regioes)) this.pintar(id, cor);
   }

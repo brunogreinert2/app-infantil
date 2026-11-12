@@ -1,5 +1,35 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Sugestões aceitas pelo Bruno — em andamento (2026-11-12, Fable 5.2)
+
+O Bruno aceitou as oito sugestões, na ordem. Branch `fable/sugestoes`
+(saída da master publicada). **NÃO publicada: pede autorização nova.**
+Os retoques anteriores (`fable/retoques-pos-publicacao`) JÁ estão no site
+(Actions 43217124678, sucesso — inclusive o teste de 50 mil linhas).
+
+- [x] **Peso da letra** (pedido extra dele, para igualar o app-leitura):
+      `PESOS` e `tracoDoPeso()` em `espacamento.ts`; `--reading-stroke`;
+      `<perfil>:pesoTraco`; grupo "Peso da letra" na Aparência.
+- [x] **1. Pintar por partes**, mantendo o toque: 📋 na tela de pintar;
+      `nomeDaParte()` em `src/canvas/partes.ts`; `CamadaBase.regioes()`;
+      destaque `.parte-escolhida` na camada de linhas.
+- [x] **2. Cópia de segurança** (como o exportar/importar do Pedra Angular):
+      `src/armazenamento/copia.ts` (conta, testada) e `copiaNoAparelho.ts`;
+      botões em Ajustes. É TROCA, não mistura.
+- [ ] **3. Guia da professora dentro do app** (+ Números no pacote de fichas,
+      `scripts/exportar-fichas.mjs`). É a PRÓXIMA.
+- [ ] 4. Realce da frase que está sendo lida em voz alta (`src/tts.ts` já
+      fatia em frases: dá para avisar qual pedaço está falando).
+- [ ] 5. Régua de leitura (faixa que isola a linha).
+- [ ] 6. Minhas pinturas (galeria; as chaves `<perfil>:colorir:*` já existem).
+- [ ] 7. Mais Números: 11 a 20, uma folha por tabuada, traçado.
+- [ ] 8. Auditoria com leitor de tela de verdade e axe-core.
+
+O que não foi provado está em `docs/ACESSIBILIDADE.md` (seção de mesma data).
+A lacuna que sobra no item 1: **dar nome às regiões** das 51 cenas das
+coleções (hoje "detalhe 12") — sem isso a lista serve mal a quem não vê.
+
+
 ## Retoques depois da publicação — 2026-11-12 (Fable 5.2)
 
 Branch `fable/retoques-pos-publicacao`, saída de `fable/novas-ideias`.

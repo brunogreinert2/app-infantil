@@ -9,6 +9,7 @@ import {
   DESTAQUES_PERSONALIZADOS,
   ENTRELINHAS,
   ESPACAMENTOS,
+  PESOS,
   FONTES,
   FUNDOS_PERSONALIZADOS,
   TEMAS,
@@ -23,6 +24,7 @@ import {
   trocarEntrelinha,
   trocarEspacamento,
   trocarFonte,
+  trocarPeso,
   trocarTema,
 } from './preferencias';
 import { el } from './comum';
@@ -167,6 +169,13 @@ export async function montarTelaAparencia(
     corpo.appendChild(grade);
   };
 
+  grupoDeEscolha(
+    'Peso da letra',
+    'Letra mais grossa costuma ler melhor na tela. Escolha a que seus olhos preferem.',
+    PESOS.map((x) => ({ id: x.id, rotulo: `${x.rotulo} — ${x.dica}` })),
+    prefs.peso,
+    trocarPeso,
+  );
   grupoDeEscolha(
     'Espaço entre as linhas',
     'Linhas mais afastadas: cada linha fica sozinha, mais fácil de seguir com os olhos.',

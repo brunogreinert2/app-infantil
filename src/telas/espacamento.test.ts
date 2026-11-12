@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ENTRELINHAS, ESPACAMENTOS, naGrade } from './espacamento';
+import { ENTRELINHAS, ESPACAMENTOS, PESOS, naGrade, tracoDoPeso } from './espacamento';
 
 const PASSO_FONTE = 1.125; // o mesmo de preferencias.ts
 
@@ -58,5 +58,29 @@ describe('grade de pixels do aparelho', () => {
   it('densidade inválida não quebra', () => {
     expect(naGrade(30.6, 0)).toBe(31);
     expect(naGrade(30.6, NaN)).toBe(31);
+  });
+});
+
+describe('peso da letra', () => {
+  it('mesmos ids e valores do app-leitura', () => {
+    expect(PESOS.map((p) => [p.id, p.pixels])).toEqual([
+      ['fino', 0.02],
+      ['medio', 1],
+      ['grosso', 2],
+    ]);
+  });
+
+  it('média e grossa dão pixel inteiro do aparelho em toda densidade', () => {
+    for (const dpr of [1, 1.25, 1.5, 2, 2.625, 3]) {
+      for (const [id, pixels] of [['medio', 1], ['grosso', 2]] as Array<[string, number]>) {
+        expect(parseFloat(tracoDoPeso(id, dpr)) * dpr).toBeCloseTo(pixels, 2);
+      }
+    }
+    expect(tracoDoPeso('grosso', 2)).toBe('1px');
+  });
+
+  it('a fina é um fio, nunca zero; peso desconhecido cai na fina', () => {
+    expect(parseFloat(tracoDoPeso('fino', 3))).toBeGreaterThan(0);
+    expect(tracoDoPeso('nao-existe', 1)).toBe(tracoDoPeso('fino', 1));
   });
 });

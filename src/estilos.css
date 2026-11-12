@@ -9,6 +9,8 @@
   --reading-line-height: 1.7;
   --reading-letter-spacing: 0em;
   --reading-word-spacing: 0em;
+  /* peso da letra: "Fina" é um fio invisível (ver espacamento.ts) */
+  --reading-stroke: 0.01px;
 
   /* Anel de foco de teclado. Segue a cor de destaque do tema por herança —
      e, no tema "Monte o seu", segue --titulo, que preferencias.ts já passa
@@ -386,6 +388,9 @@ button {
   line-height: var(--reading-entrelinha-px, var(--reading-line-height));
   letter-spacing: var(--reading-letter-spacing, 0);
   word-spacing: var(--reading-word-spacing, 0);
+  /* peso da letra: contorno na cor do texto, por baixo do preenchimento */
+  -webkit-text-stroke: var(--reading-stroke) currentColor;
+  paint-order: stroke fill;
 }
 
 .paragrafo p {
@@ -955,6 +960,64 @@ button {
   }
 }
 
+/* ---------- pintar por partes ---------- */
+.painel-partes {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: min(100%, 420px);
+  padding: 12px 14px 14px;
+  border-radius: 16px;
+  background: var(--cartao);
+  border: 2px solid var(--borda);
+}
+
+.painel-partes[hidden] {
+  display: none;
+}
+
+.painel-partes .rotulo-tons,
+.cor-da-parte {
+  margin: 0;
+  text-align: center;
+  color: var(--texto);
+}
+
+.linha-partes {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.seletor-partes {
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  padding: 0 10px;
+  border-radius: 14px;
+  border: 2px solid var(--texto);
+  background: var(--fundo);
+  color: var(--texto);
+  font: inherit;
+  font-size: 0.9em;
+}
+
+.botao-pintar-parte {
+  min-height: 56px;
+}
+
+/* A parte escolhida, no desenho: contorno grosso e tracejado, com um halo
+   branco em volta — aparece em cima de qualquer cor já pintada. Sem
+   animação. (CSS vence os atributos stroke/stroke-width do SVG.) */
+.camada-linhas .parte-escolhida,
+.camada-linhas .parte-escolhida * {
+  stroke: #000000;
+  stroke-width: 12;
+  stroke-dasharray: 18 10;
+  filter: drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 2px #ffffff) drop-shadow(0 0 3px #ffffff);
+}
+
 /* ---------- lupa, setas do zoom e escolha de impressão ---------- */
 .botao-lupa {
   padding: 0 12px;
@@ -1009,6 +1072,8 @@ button {
   line-height: var(--reading-line-height);
   letter-spacing: var(--reading-letter-spacing, 0);
   word-spacing: var(--reading-word-spacing, 0);
+  -webkit-text-stroke: var(--reading-stroke) currentColor;
+  paint-order: stroke fill;
 }
 
 /* ---------- cores de pintar: nome escrito, tons, grade fixa ----------

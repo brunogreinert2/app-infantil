@@ -11,10 +11,12 @@ import {
   ENTRELINHA_PADRAO,
   ESPACAMENTOS,
   ESPACAMENTO_PADRAO,
+  PESO_PADRAO,
   naGrade,
+  tracoDoPeso,
 } from './espacamento';
 
-export { ENTRELINHAS, ESPACAMENTOS } from './espacamento';
+export { ENTRELINHAS, ESPACAMENTOS, PESOS } from './espacamento';
 import { perfilAtivo } from '../perfis/perfis';
 
 export const TEMAS = [
@@ -66,6 +68,7 @@ export interface Preferencias {
   tamanho: number;
   entrelinha: string; // id de ENTRELINHAS
   espacamento: string; // id de ESPACAMENTOS
+  peso: string; // id de PESOS
   personalizado: TemaPersonalizado | null;
 }
 
@@ -80,6 +83,7 @@ export async function obterPreferencias(): Promise<Preferencias> {
     tamanho: (await armazenamento.obter<number>(`${p.id}:tamanhoFonte`)) ?? TAMANHO_PADRAO,
     entrelinha: (await armazenamento.obter<string>(`${p.id}:entrelinha`)) ?? ENTRELINHA_PADRAO,
     espacamento: (await armazenamento.obter<string>(`${p.id}:espacamento`)) ?? ESPACAMENTO_PADRAO,
+    peso: (await armazenamento.obter<string>(`${p.id}:pesoTraco`)) ?? PESO_PADRAO,
     personalizado: await armazenamento.obter<TemaPersonalizado>(`${p.id}:temaPersonalizado`),
   };
 }
@@ -90,6 +94,7 @@ export async function carregarPreferencias(): Promise<void> {
   aplicarFonte(prefs.fonte);
   aplicarEntrelinha(prefs.entrelinha);
   aplicarEspacamento(prefs.espacamento);
+  aplicarPeso(prefs.peso);
   aplicarTamanho(prefs.tamanho);
 }
 
@@ -123,6 +128,7 @@ export function aplicarFonte(fonte: string): void {
 // A+ emperrar, arredondando sempre para o mesmo número.
 let tamanhoAtual = TAMANHO_PADRAO;
 let multEntrelinha = 1.7;
+let pesoAtual: string = PESO_PADRAO;
 
 /**
  * Encaixa o corpo da letra e a entrelinha na grade de pixels do aparelho.
@@ -146,6 +152,8 @@ function encaixarNaGradeDePixels(): void {
   raiz.setProperty('--tamanho-base', `${naGrade(tamanhoAtual, dpr)}px`);
   raiz.setProperty('--reading-line-height', String(multEntrelinha));
   raiz.setProperty('--reading-entrelinha-px', `${naGrade(tamanhoAtual * multEntrelinha, dpr)}px`);
+  // o peso é em pixels do aparelho: muda de valor quando a densidade muda
+  raiz.setProperty('--reading-stroke', tracoDoPeso(pesoAtual, dpr));
 }
 
 // a grade muda quando a janela vai para um monitor de outra densidade ou o
@@ -162,6 +170,11 @@ export function aplicarTamanho(px: number): void {
 export function aplicarEntrelinha(id: string): void {
   const def = ENTRELINHAS.find((e) => e.id === id) ?? ENTRELINHAS.find((e) => e.id === ENTRELINHA_PADRAO)!;
   multEntrelinha = def.mult;
+  encaixarNaGradeDePixels();
+}
+
+export function aplicarPeso(id: string): void {
+  pesoAtual = id;
   encaixarNaGradeDePixels();
 }
 
@@ -255,6 +268,11 @@ export async function trocarFonte(fonte: string): Promise<void> {
 export async function trocarEntrelinha(id: string): Promise<void> {
   aplicarEntrelinha(id);
   await armazenamento.definir(`${perfilAtivo().id}:entrelinha`, id);
+}
+
+export async function trocarPeso(id: string): Promise<void> {
+  aplicarPeso(id);
+  await armazenamento.definir(`${perfilAtivo().id}:pesoTraco`, id);
 }
 
 export async function trocarEspacamento(id: string): Promise<void> {

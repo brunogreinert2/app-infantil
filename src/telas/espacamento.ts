@@ -27,6 +27,27 @@ export const ESPACAMENTOS = [
   { id: 'muito-amplo', rotulo: 'Bem afastadas', letra: 0.12, palavra: 0.36 },
 ] as const;
 
+// PESO DA LETRA: um contorno na cor do próprio texto, que engrossa o traço
+// sem trocar de fonte (a Cardo só tem 400 e 700, e 700 já é negrito).
+// Medido em pixels DO APARELHO, não em `em`: 0, 1 ou 2 pixels inteiros dão o
+// mesmo traço em toda linha; em `em` o valor caía em fração de pixel e o
+// texto saía em faixas. "Fina" não é zero: é um fio invisível de 0,02 pixel,
+// que obriga o iPhone a desenhar a letra pelo contorno, como nos outros dois
+// pesos (a explicação longa está no app-leitura, ThemeDialog.tsx).
+export const PESOS = [
+  { id: 'fino', rotulo: 'Fina', dica: 'O traço da letra como ela foi desenhada.', pixels: 0.02 },
+  { id: 'medio', rotulo: 'Média', dica: 'Um pouco mais de tinta.', pixels: 1 },
+  { id: 'grosso', rotulo: 'Grossa', dica: 'Bem forte, para quem vê a letra fininha sumir.', pixels: 2 },
+] as const;
+
+export const PESO_PADRAO = 'fino';
+
+/** O contorno em CSS para um peso, numa tela de certa densidade. */
+export function tracoDoPeso(id: string, dpr: number): string {
+  const def = PESOS.find((x) => x.id === id) ?? PESOS[0];
+  return `${+(def.pixels / (dpr > 0 ? dpr : 1)).toFixed(4)}px`;
+}
+
 export const ENTRELINHA_PADRAO = 'normal';
 export const ESPACAMENTO_PADRAO = 'normal';
 

@@ -3,6 +3,7 @@
 // troca de perfil no dia a dia).
 // v1: gestão de perfis (criar/editar/excluir) + sobre o app.
 
+import { entregarArquivo, fazerCopia, lerCopia, restaurarCopia } from '../armazenamento/copiaNoAparelho';
 import {
   atualizarPerfil,
   criarPerfil,
@@ -101,13 +102,70 @@ export async function montarTelaConfiguracoes(
   });
   corpo.appendChild(novo);
 
+  // ---------- cópia de segurança ----------
+  corpo.appendChild(el('h2', 'titulo-secao', 'Cópia de segurança'));
+  corpo.appendChild(
+    el('p', 'texto-sobre', 'Pinturas, insígnias, anotações e perfis ficam guardados só neste aparelho. Guarde uma cópia num arquivo para levar a outro aparelho, ou para não perder nada se o navegador for limpo.'),
+  );
+  const avisoCopia = el('p', 'texto-sobre');
+  avisoCopia.setAttribute('role', 'status');
+
+  const guardar = el('button', 'botao-grande', '💾 Guardar uma cópia');
+  guardar.addEventListener('click', async () => {
+    const { arquivo, quantos } = await fazerCopia();
+    await entregarArquivo(arquivo);
+    avisoCopia.textContent = `Cópia feita: ${arquivo.name} (${quantos} itens). Guarde o arquivo num lugar seguro.`;
+  });
+
+  const campoArquivo = el('input');
+  campoArquivo.type = 'file';
+  campoArquivo.accept = 'application/json,.json';
+  campoArquivo.hidden = true;
+  const trazer = el('button', 'botao-opcao', '📂 Trazer de uma cópia…');
+  trazer.addEventListener('click', () => campoArquivo.click());
+  const confirmacao = el('div', 'caixa-apagar');
+  confirmacao.hidden = true;
+
+  campoArquivo.addEventListener('change', async () => {
+    const arquivo = campoArquivo.files?.[0];
+    campoArquivo.value = '';
+    confirmacao.hidden = true;
+    confirmacao.innerHTML = '';
+    if (!arquivo) return;
+    const lida = await lerCopia(arquivo);
+    if (!lida.ok) {
+      avisoCopia.textContent = `⚠ ${lida.motivo}`;
+      return;
+    }
+    avisoCopia.textContent = '';
+    const quando = lida.copia.feitaEm ? new Date(lida.copia.feitaEm).toLocaleDateString('pt-BR') : 'data desconhecida';
+    const quem = lida.perfis.length ? lida.perfis.join(', ') : 'nenhum perfil';
+    confirmacao.appendChild(
+      el('p', 'aviso-apagar', `Cópia de ${quando}, com: ${quem}. Trazer esta cópia TROCA tudo o que está neste aparelho agora (${lista.length} ${lista.length === 1 ? 'perfil' : 'perfis'}) pelo que está no arquivo. Não dá para desfazer.`),
+    );
+    const sim = el('button', 'botao-grande', '✓ Trocar tudo pela cópia');
+    sim.addEventListener('click', async () => {
+      await restaurarCopia(lida.copia);
+      nav.perfis(); // os perfis são outros agora
+    });
+    const nao = el('button', 'botao-opcao', 'Deixar como está');
+    nao.addEventListener('click', () => {
+      confirmacao.hidden = true;
+      trazer.focus();
+    });
+    confirmacao.append(sim, nao);
+    confirmacao.hidden = false;
+    nao.focus(); // o foco cai no "não": trocar tudo pede um gesto a mais
+  });
+  corpo.append(guardar, trazer, campoArquivo, avisoCopia, confirmacao);
+
   // ---------- sobre ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Sobre'));
   corpo.appendChild(
     el('p', 'texto-sobre', 'Historinhas — historinhas.app.br — v0.2.0. App de leitura, pintura e quizzes feito em família. Conteúdo em domínio público com tradução própria.'),
   );
   corpo.appendChild(
-    el('p', 'texto-sobre', 'Atualizar o app NUNCA apaga as pinturas, insígnias e progresso — eles ficam guardados neste aparelho.'),
+    el('p', 'texto-sobre', 'Atualizar o app NUNCA apaga as pinturas, insígnias e progresso — eles ficam guardados neste aparelho. (Limpar os dados do navegador apaga: por isso existe a cópia de segurança.)'),
   );
 
   // PWA guarda tudo em cache pra funcionar offline; este botão força a
