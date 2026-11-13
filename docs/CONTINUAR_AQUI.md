@@ -3,7 +3,7 @@
 ## Textos próprios compatíveis com o Pedra Angular — 2026-11-12, noite (Opus 5.5)
 
 Branch `fable/sugestoes` (a mesma, que já estava publicada até `8c37d3c`).
-**NÃO publicado: pede autorização nova.**
+**Publicação autorizada em 2026-11-12** ("Pode publicar sim").
 
 Pedido do Bruno: Minhas anotações com as mesmas ações dos "Meus arquivos" do
 app-leitura (pesquisar, Adicionar, Novo, Exportar, Importar), troca de
