@@ -16,17 +16,27 @@
 //     painel do Pedra Angular. Não prende foco nem cobre nada.
 //
 // Trocar de perfil continua SEM trava parental (princípio 5 do app).
+//
+// Desde 2026-11-12, como a Biblioteca do Pedra Angular: um campo de pesquisa
+// no alto (livro, autor, pasta, texto próprio) e "Minhas anotações" como
+// pasta que abre ali mesmo, com cada texto dentro.
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { livros } from '../conteudo/catalogo';
 import { EMOJIS_CAPA } from '../conteudo/capas';
 import { PASTAS, contarLivros, secoesDaPasta, type Pasta } from '../conteudo/pastas';
 import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
+import { listarTextos } from '../armazenamento/textos';
+import { combina, nomeParaMostrar, type TextoProprio } from '../conteudo/textosProprios';
 import { el } from './comum';
 
 export interface NavPainel {
   livro: (id: string) => void;
   anotacoes: () => void;
+  /** abre um texto próprio pelo id */
+  texto: (id: string) => void;
+  /** abre uma pasta da estante (resultado da pesquisa) */
+  pasta?: (id: string) => void;
   pinturas: () => void;
   perfis: () => void;
 }
@@ -35,6 +45,10 @@ export interface NavPainel {
 export const LOCAL_ANOTACOES = 'anotacoes';
 /** id do item "Minhas pinturas" */
 export const LOCAL_PINTURAS = 'pinturas';
+/** a PASTA "Minhas anotações" no menu (o item de dentro, LOCAL_ANOTACOES, abre a tela) */
+const PASTA_ANOTACOES = 'pasta-anotacoes';
+/** onde a criança está quando lê/edita um texto próprio */
+export const localDoTexto = (id: string) => `texto:${id}`;
 
 // igual ao @media de estilos.css: abaixo disto não cabe painel + desenho
 const TELA_LARGA = '(min-width: 1200px)';
@@ -47,6 +61,10 @@ let fundo: HTMLElement | null = null;
 let origem: HTMLElement | null = null; // quem abriu: recebe o foco de volta
 // pastas abertas no menu; vale enquanto o app estiver aberto
 const abertas = new Set<string>();
+// os textos do perfil, lidos do IndexedDB (que é assíncrono) quando o menu abre
+let textos: TextoProprio[] = [];
+// o que está escrito na pesquisa: sobrevive a redesenhar o menu
+let consulta = '';
 
 const telaLarga = () => window.matchMedia(TELA_LARGA).matches;
 const fixadoAgora = () => fixo && telaLarga();
@@ -62,6 +80,7 @@ export function painelConfigurado(): boolean {
 
 // as pastas que levam até um lugar (livro ou pasta), de fora para dentro
 function caminhoAte(id: string): string[] {
+  if (id.startsWith('texto:') || id === LOCAL_ANOTACOES) return [PASTA_ANOTACOES];
   const descer = (pastas: Pasta[], trilha: string[]): string[] | null => {
     for (const p of pastas) {
       const aqui = [...trilha, p.id];
@@ -83,9 +102,20 @@ export function marcarLocal(id: string | null): void {
   if (painel) desenhar(painel.classList.contains('aberto'));
 }
 
+/** Lê de novo os textos do perfil e, se o menu está à vista, redesenha. */
+export async function atualizarTextosDoPainel(): Promise<void> {
+  if (!temPerfilAtivo()) return;
+  textos = await listarTextos(perfilAtivo().id).catch(() => textos);
+  if (painel) desenhar(painel.classList.contains('aberto'));
+}
+
 /** Ao entrar num perfil: lê se ESTE perfil deixou o painel fixo. */
 export async function prepararPainel(): Promise<void> {
+  textos = [];
+  consulta = '';
+  abertas.clear();
   fixo = (await armazenamento.obter<boolean>(`${perfilAtivo().id}:painelFixo`)) ?? false;
+  void atualizarTextosDoPainel();
   if (fixo) desenhar(false);
   else removerPainel();
 }
@@ -115,6 +145,7 @@ export function alternarPainel(chip: HTMLElement): void {
   else {
     desenhar(true);
     (painel?.querySelector<HTMLElement>('[aria-current="page"]') ?? primeiroItem())?.focus();
+    void atualizarTextosDoPainel();
   }
 }
 
@@ -220,6 +251,78 @@ function ramo(pasta: Pasta, nivel: number): HTMLLIElement {
   return li;
 }
 
+// "Minhas anotações" é pasta: abre ali mesmo, com cada texto dentro
+function ramoDasAnotacoes(): HTMLLIElement {
+  const aberta = abertas.has(PASTA_ANOTACOES);
+  const { li, botao } = item('Minhas anotações', '📝', PASTA_ANOTACOES, 1, () => alternarPasta(PASTA_ANOTACOES));
+  botao.classList.add('item-pasta');
+  botao.dataset.pasta = PASTA_ANOTACOES;
+  botao.setAttribute('aria-expanded', String(aberta));
+  const conta = el('span', 'conta-painel', String(textos.length));
+  conta.setAttribute('aria-label', textos.length === 1 ? '1 texto' : `${textos.length} textos`);
+  const seta = el('span', 'seta-painel', aberta ? '▾' : '▸');
+  seta.setAttribute('aria-hidden', 'true');
+  botao.append(conta, seta);
+  if (aberta) {
+    const ul = el('ul');
+    ul.setAttribute('role', 'group');
+    // o primeiro item leva à tela inteira: é lá que estão Novo, Adicionar,
+    // Exportar e Importar
+    ul.appendChild(
+      item('Todas · novo, adicionar, exportar', '🗂️', LOCAL_ANOTACOES, 2, () => ir(() => nav?.anotacoes())).li,
+    );
+    for (const t of textos) {
+      ul.appendChild(
+        item(nomeParaMostrar(t), t.tipo === 'md' ? '📖' : t.tipo === 'txt' ? '📄' : '📝', localDoTexto(t.id), 2, () =>
+          ir(() => nav?.texto(t.id)),
+        ).li,
+      );
+    }
+    li.appendChild(ul);
+  }
+  return li;
+}
+
+interface Achado {
+  emoji: string;
+  rotulo: string;
+  onde?: string;
+  abrir: () => void;
+}
+
+/** Livros (título, autor), pastas e textos próprios que combinam com a pesquisa. */
+function pesquisar(q: string): Achado[] {
+  const saida: Achado[] = [];
+  const todas = (ps: Pasta[]): Pasta[] => ps.flatMap((p) => [p, ...todas(p.filhas)]);
+  for (const pasta of todas(PASTAS)) {
+    if (combina(q, pasta.rotulo)) {
+      saida.push({ emoji: pasta.emoji, rotulo: pasta.rotulo, onde: 'pasta', abrir: () => ir(() => nav?.pasta?.(pasta.id)) });
+    }
+  }
+  for (const livro of livros) {
+    const pasta = todas(PASTAS).find((p) => p.livros.includes(livro.id));
+    if (combina(q, livro.metadados.titulo, livro.metadados.autor_original, pasta?.rotulo)) {
+      saida.push({
+        emoji: EMOJIS_CAPA[livro.id] ?? '📖',
+        rotulo: livro.metadados.titulo,
+        onde: [livro.metadados.autor_original, pasta?.rotulo].filter(Boolean).join(', '),
+        abrir: () => ir(() => nav?.livro(livro.id)),
+      });
+    }
+  }
+  for (const t of textos) {
+    if (combina(q, nomeParaMostrar(t), t.autor, 'anotações')) {
+      saida.push({
+        emoji: t.tipo === 'md' ? '📖' : '📝',
+        rotulo: nomeParaMostrar(t),
+        onde: [t.autor, 'Minhas anotações'].filter(Boolean).join(', '),
+        abrir: () => ir(() => nav?.texto(t.id)),
+      });
+    }
+  }
+  return saida;
+}
+
 function desenhar(comoGaveta: boolean): void {
   if (!temPerfilAtivo()) return;
   const foco = painel?.contains(document.activeElement)
@@ -279,10 +382,51 @@ function desenhar(comoGaveta: boolean): void {
   arvore.appendChild(
     item('Minhas pinturas', '🖼️', LOCAL_PINTURAS, 1, () => ir(() => nav?.pinturas())).li,
   );
-  arvore.appendChild(
-    item('Minhas anotações', '📝', LOCAL_ANOTACOES, 1, () => ir(() => nav?.anotacoes())).li,
-  );
-  novo.appendChild(arvore);
+  arvore.appendChild(ramoDasAnotacoes());
+
+  // --- pesquisa: com algo escrito, a árvore dá lugar à lista do que achou ---
+  const busca = el('input', 'campo-busca busca-painel') as HTMLInputElement;
+  busca.type = 'search';
+  busca.dataset.foco = 'busca';
+  busca.placeholder = 'Pesquisar livro, autor, pasta…';
+  busca.setAttribute('aria-label', 'Pesquisar livro, autor, pasta ou anotação');
+  busca.value = consulta;
+  const achados = el('ul', 'achados-painel');
+  achados.setAttribute('aria-label', 'Resultados da pesquisa');
+  const filtrar = () => {
+    consulta = busca.value;
+    const tem = consulta.trim().length > 0;
+    arvore.hidden = tem;
+    achados.hidden = !tem;
+    achados.innerHTML = '';
+    if (!tem) return;
+    const resultados = pesquisar(consulta);
+    for (const r of resultados) {
+      const li = el('li');
+      const b = el('button', 'item-painel');
+      const marca = el('span', 'emoji-painel', r.emoji);
+      marca.setAttribute('aria-hidden', 'true');
+      const rotulo = el('span', 'rotulo-painel', r.rotulo);
+      if (r.onde) rotulo.appendChild(el('span', 'onde-painel', ` · ${r.onde}`));
+      b.append(marca, rotulo);
+      b.addEventListener('click', r.abrir);
+      li.appendChild(b);
+      achados.appendChild(li);
+    }
+    if (!resultados.length) achados.appendChild(el('li', 'nada-painel', 'Nada com essas palavras.'));
+  };
+  busca.addEventListener('input', filtrar);
+  busca.addEventListener('keydown', (ev) => {
+    // Esc na pesquisa limpa primeiro; só o segundo Esc fecha o menu
+    if (ev.key === 'Escape' && busca.value) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      busca.value = '';
+      filtrar();
+    }
+  });
+  novo.append(busca, arvore, achados);
+  filtrar();
 
   const trocar = el('button', 'item-painel item-trocar-perfil');
   const gente = el('span', 'emoji-painel', '👥');

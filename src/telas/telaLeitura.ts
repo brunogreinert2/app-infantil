@@ -41,6 +41,10 @@ export async function montarTelaLeitura(
     colorir: (assetId: string) => void;
     quebraCabeca: (assetId: string) => void;
   },
+  // Um texto da própria criança (Minhas anotações) também se lê aqui, com
+  // voz, régua e espaço entre linhas — mas não é livro da estante: não ganha
+  // "Terminei" nem insígnia, e tem um botão para editar.
+  textoProprio?: { editar: () => void },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-leitura';
@@ -63,6 +67,12 @@ export async function montarTelaLeitura(
     const botao = el('button', 'botao-extra', b.rotulo);
     botao.addEventListener('click', b.acao);
     barraExtras.appendChild(botao);
+  }
+  if (textoProprio) {
+    const editar = el('button', 'botao-extra', '✏️ Editar');
+    editar.setAttribute('aria-label', 'Editar este texto');
+    editar.addEventListener('click', textoProprio.editar);
+    barraExtras.appendChild(editar);
   }
   // 📏 régua de leitura: liga e desliga aqui mesmo, e fica guardada por perfil
   let regua = await modoDaRegua();
@@ -113,11 +123,16 @@ export async function montarTelaLeitura(
     fechar();
   }
 
+  // O título mais alto do texto vira <h2> (o <h1> é o da barra). Um texto que
+  // começa em `##` — comum nos .md trazidos de fora — pulava do h1 para o h3,
+  // e quem navega por títulos com leitor de tela achava um degrau faltando.
+  const niveis = livro.nos.filter((n) => n.tipo === 'cabecalho').map((n) => (n as { nivel: number }).nivel);
+  const nivelMinimo = niveis.length ? Math.max(1, Math.min(...niveis)) : 1;
   for (const no of livro.nos) {
     if (no.tipo === 'cabecalho') {
       // profundidade arbitrária preservada: nível vira atributo,
       // o elemento HTML só limita a tag, nunca o dado
-      const tag = `h${Math.min(no.nivel + 1, 6)}` as keyof HTMLElementTagNameMap;
+      const tag = `h${Math.min(no.nivel - nivelMinimo + 2, 6)}` as keyof HTMLElementTagNameMap;
       const cab = el(tag, 'cabecalho', no.texto);
       cab.dataset.nivel = String(no.nivel);
       cab.id = `no-${no.id}`;
@@ -158,7 +173,7 @@ export async function montarTelaLeitura(
     deCapitulo.forEach((q) => artigo.appendChild(blocoQuiz(q, livro, perguntas.indexOf(q))));
   }
 
-  artigo.appendChild(await rodapeConclusao(livro, progresso, chaveProgresso));
+  if (!textoProprio) artigo.appendChild(await rodapeConclusao(livro, progresso, chaveProgresso));
   raiz.appendChild(artigo);
   // títulos `##` abrem e recolhem o capítulo (começam abertos nos livros)
   tornarRecolhivel(artigo, { fechadas: false });

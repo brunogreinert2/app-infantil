@@ -3,17 +3,20 @@
 
 import { armazenamento } from './armazenamento';
 import { conferirCopia, montarCopia, nomeDoArquivo, type Conferencia, type Copia } from './copia';
+import { todosOsTextos, trocarTodosOsTextos } from './textos';
 
 export async function fazerCopia(): Promise<{ arquivo: File; quantos: number }> {
   const dados: Record<string, unknown> = {};
   for (const chave of await armazenamento.chaves('')) {
     dados[chave] = await armazenamento.obter(chave);
   }
+  const textos = await todosOsTextos();
   const agora = new Date();
-  const texto = JSON.stringify(montarCopia(dados, agora));
+  const texto = JSON.stringify(montarCopia(dados, agora, textos));
+  const quantosTextos = Object.values(textos).reduce((n, l) => n + l.length, 0);
   return {
     arquivo: new File([texto], nomeDoArquivo(agora), { type: 'application/json' }),
-    quantos: Object.keys(dados).length,
+    quantos: Object.keys(dados).length + quantosTextos,
   };
 }
 
@@ -58,4 +61,5 @@ export async function lerCopia(arquivo: File): Promise<Conferencia> {
 export async function restaurarCopia(copia: Copia): Promise<void> {
   for (const chave of await armazenamento.chaves('')) await armazenamento.remover(chave);
   for (const [chave, valor] of Object.entries(copia.dados)) await armazenamento.definir(chave, valor);
+  await trocarTodosOsTextos(copia.textos ?? {});
 }

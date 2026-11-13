@@ -7,7 +7,10 @@ import { montarTelaAparencia } from './telas/telaAparencia';
 import type { Livro } from './motor/tipos';
 import { montarTelaPerfis } from './telas/telaPerfis';
 import { montarTelaEstante } from './telas/telaEstante';
-import { montarTelaAnotacoes } from './telas/telaAnotacoes';
+import { abrirEditor, abrirTexto, montarTelaAnotacoes, type NavAnotacoes } from './telas/telaAnotacoes';
+import { obterTexto } from './armazenamento/textos';
+import { nomeParaMostrar, type TextoProprio } from './conteudo/textosProprios';
+import { carregarLivro } from './motor/frontmatter';
 import { montarTelaLeitura } from './telas/telaLeitura';
 import { montarTelaColorir } from './telas/telaColorir';
 import { montarTelaQuebraCabeca } from './telas/telaQuebraCabeca';
@@ -22,6 +25,8 @@ import { obterLivro } from './conteudo/catalogo';
 import { PASTA_PADRAO, acharPasta } from './conteudo/pastas';
 import {
   LOCAL_ANOTACOES,
+  atualizarTextosDoPainel,
+  localDoTexto,
   LOCAL_PINTURAS,
   configurarPainel,
   marcarLocal,
@@ -103,14 +108,51 @@ async function abrirEstante(idPasta?: unknown): Promise<void> {
 
 function irAnotacoes(): void {
   pararFala();
+  void atualizarTextosDoPainel();
   window.scrollTo(0, 0);
   carregarPreferencias(); // pode ter vindo de um livro tematizado, pelo menu
   marcarLocal(LOCAL_ANOTACOES);
-  void montarTelaAnotacoes(raiz, {
-    perfis: irPerfis,
-    aparencia: () => irAparencia(irAnotacoes),
-    estante: irEstante,
-  });
+  void montarTelaAnotacoes(raiz, navAnotacoes);
+}
+
+const navAnotacoes: NavAnotacoes = {
+  perfis: irPerfis,
+  aparencia: () => irAparencia(irAnotacoes),
+  estante: irEstante,
+  ler: (texto) => lerTextoProprio(texto),
+};
+
+// Um texto .md de Minhas anotações, aberto como livro (pelo mesmo motor dos
+// livros da estante). O id ganha prefixo para nunca colidir com um livro.
+function lerTextoProprio(texto: TextoProprio): void {
+  pararFala();
+  window.scrollTo(0, 0);
+  carregarPreferencias();
+  marcarLocal(localDoTexto(texto.id));
+  const livro = carregarLivro(`proprio-${texto.id}`, texto.conteudo);
+  livro.metadados.titulo = nomeParaMostrar(texto);
+  if (texto.autor) livro.metadados.autor_original = texto.autor;
+  void montarTelaLeitura(
+    raiz,
+    livro,
+    {
+      perfis: irPerfis,
+      estante: irAnotacoes,
+      aparencia: () => irAparencia(() => lerTextoProprio(texto)),
+      colorir: () => undefined,
+      quebraCabeca: () => undefined,
+    },
+    { editar: () => abrirEditor(raiz, navAnotacoes, texto) },
+  );
+}
+
+// o menu lateral abre um texto pelo id
+async function abrirTextoPeloMenu(id: string): Promise<void> {
+  const texto = await obterTexto(perfilAtivo().id, id);
+  if (!texto) return irAnotacoes();
+  window.scrollTo(0, 0);
+  marcarLocal(localDoTexto(id));
+  abrirTexto(raiz, navAnotacoes, texto);
 }
 
 function irPinturas(): void {
@@ -184,6 +226,8 @@ configurarPainel({
     irLeitura(true);
   },
   anotacoes: irAnotacoes,
+  texto: (id) => void abrirTextoPeloMenu(id),
+  pasta: irEstante,
   pinturas: irPinturas,
   perfis: irPerfis,
 });

@@ -1,5 +1,34 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Textos próprios compatíveis com o Pedra Angular — 2026-11-12, noite (Opus 5.5)
+
+Branch `fable/sugestoes` (a mesma, que já estava publicada até `8c37d3c`).
+**NÃO publicado: pede autorização nova.**
+
+Pedido do Bruno: Minhas anotações com as mesmas ações dos "Meus arquivos" do
+app-leitura (pesquisar, Adicionar, Novo, Exportar, Importar), troca de
+textos pelo `.json` dos dois apps, e "Minhas anotações" abrindo ali mesmo no
+menu lateral.
+
+- `src/conteudo/textosProprios.ts` — o modelo `TextoProprio` (tipos `nota`,
+  `md`, `txt`) e a conta: ler/gerar o `.json` do Pedra Angular
+  (`app: 'pedra-angular-leitura'`, `files: [...]`), `.md`/`.txt` → texto,
+  juntar sem gravar por cima, pesquisar sem acento. 13 testes.
+- `src/armazenamento/textos.ts` — IndexedDB `historinhas-textos` (com volta
+  ao localStorage se não abrir); migra `<perfil>:notas` na primeira leitura.
+- `telaAnotacoes.ts` — reescrita da lista (o editor cru continua igual).
+- `telaLeitura.ts` — 4º parâmetro `textoProprio: { editar }`: sem rodapé de
+  "Terminei", com "✏️ Editar". Título mais alto do livro vira h2.
+- `painelLateral.ts` — pasta "Minhas anotações", pesquisa no alto.
+- Cópia de segurança versão 2 (`textos`), `excluirPerfil` apaga os textos.
+- **Nada mudou no app-leitura.** O `.json` exportado daqui foi importado lá
+  pela função `importBackup` do próprio app-leitura, em dev, e apagado depois.
+
+O que falta para "igualdade" com o Pedra Angular, se o Bruno quiser: excluir
+tudo de Minhas anotações; arrastar e soltar arquivo na janela; abrir arquivo
+pelo "Abrir com" do sistema; pesquisa dentro do texto.
+
+
 ## Sugestões aceitas pelo Bruno — em andamento (2026-11-12, Fable 5.2)
 
 O Bruno aceitou as oito sugestões, na ordem. Branch `fable/sugestoes`

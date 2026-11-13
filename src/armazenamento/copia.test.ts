@@ -45,3 +45,31 @@ describe('cópia de segurança', () => {
     expect(nomeDoArquivo(new Date(2026, 10, 3))).toBe('historinhas-2026-11-03.json');
   });
 });
+
+describe('cópia de segurança: textos próprios (versão 2)', () => {
+  const textos = {
+    '1': [{ id: 'nota-1', titulo: '', autor: '', tipo: 'nota' as const, conteudo: '/tp @s 0 64 0', fonte: 'codigo', quebrar: true, criadoEm: 1, alteradoEm: 1 }],
+  };
+
+  it('os textos vão e voltam junto', () => {
+    const lida = conferirCopia(JSON.stringify(montarCopia(DADOS, new Date(0), textos)));
+    expect(lida.ok && lida.copia.textos).toEqual(textos);
+  });
+
+  it('uma cópia versão 1 (sem textos) ainda se traz', () => {
+    const r = conferirCopia(JSON.stringify({ app: 'historinhas', versao: 1, feitaEm: '', dados: DADOS }));
+    expect(r.ok && r.copia.textos).toEqual({});
+  });
+
+  it('parte de textos estragada é recusada', () => {
+    expect(conferirCopia(JSON.stringify({ app: 'historinhas', versao: 2, dados: {}, textos: [] })).ok).toBe(false);
+    expect(conferirCopia(JSON.stringify({ app: 'historinhas', versao: 2, dados: {}, textos: { 'x': [] } })).ok).toBe(false);
+  });
+
+  it('um backup do Pedra Angular aqui recebe o caminho certo', () => {
+    const r = conferirCopia(JSON.stringify({ app: 'pedra-angular-leitura', version: 1, localStorage: {}, files: [] }));
+    expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.motivo).toContain('Minhas anotações');
+  });
+});
+

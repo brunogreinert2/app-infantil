@@ -23,22 +23,30 @@
 //      de Minecraft passa fácil de duzentos caracteres.
 //
 // E um botão de copiar, que é o ponto todo: ele escreve aqui para colar lá.
+//
+// DESDE 2026-11-12, AS MESMAS AÇÕES DO PEDRA ANGULAR ("Meus arquivos"):
+// pesquisar, Novo, Adicionar (.md e .txt, inclusive livros inteiros),
+// Exportar e Importar — no MESMO .json do Pedra Angular, para os textos
+// irem e voltarem entre os dois apps (ver ../conteudo/textosProprios.ts).
+// Um .md trazido de fora abre como LIVRO (com voz, régua, espaço entre
+// linhas…); anotação escrita aqui e .txt continuam abrindo no editor cru.
 
-import { armazenamento } from '../armazenamento/armazenamento';
+import { entregarArquivo } from '../armazenamento/copiaNoAparelho';
+import { apagarTexto, guardarTexto, guardarVarios, listarTextos } from '../armazenamento/textos';
+import {
+  combina,
+  deArquivo,
+  idNovo,
+  juntar,
+  lerJsonDeTextos,
+  nomeDoArquivoDeTextos,
+  nomeParaMostrar,
+  paraPedraAngular,
+  type TextoProprio,
+} from '../conteudo/textosProprios';
 import { PILHAS_DE_FONTE } from '../fontes';
 import { perfilAtivo } from '../perfis/perfis';
 import { barraTopo, el } from './comum';
-
-export interface Anotacao {
-  id: number;
-  titulo: string;
-  texto: string;
-  /** Chave de PILHAS_DE_FONTE — escolha da criança, por anotação. */
-  fonte: string;
-  /** Linha comprida quebra na tela (true) ou rola para o lado (false). */
-  quebrar: boolean;
-  alteradoEm: number;
-}
 
 const FONTES_OFERECIDAS = [
   { id: 'codigo', rotulo: '⌨️ Atkinson' },
@@ -47,29 +55,47 @@ const FONTES_OFERECIDAS = [
   { id: 'dyslexic', rotulo: '🔤 OpenDyslexic' },
 ];
 
-const chaveDoPerfil = () => `${perfilAtivo().id}:notas`;
-
-async function listar(): Promise<Anotacao[]> {
-  return (await armazenamento.obter<Anotacao[]>(chaveDoPerfil())) ?? [];
+export interface NavAnotacoes {
+  perfis: () => void;
+  aparencia: () => void;
+  estante: () => void;
+  /** abre um texto .md como livro (com voz, régua, espaço entre linhas) */
+  ler: (texto: TextoProprio) => void;
 }
 
-async function guardar(lista: Anotacao[]): Promise<void> {
-  await armazenamento.definir(chaveDoPerfil(), lista);
-}
+const perfil = () => perfilAtivo().id;
 
 function agora(): string {
   return new Date().toLocaleDateString('pt-BR');
 }
 
-/** Primeira linha com conteúdo vira o nome, se a criança não deu um. */
-function tituloAutomatico(texto: string): string {
-  const linha = texto.split('\n').find((l) => l.trim());
-  return linha ? linha.trim().slice(0, 40) : 'Sem nome';
+const EMOJI_DO_TIPO: Record<TextoProprio['tipo'], string> = { nota: '📝', md: '📖', txt: '📄' };
+
+/** O que um toque no texto faz: livro abre para ler; o resto, no editor. */
+export function abrirTexto(raiz: HTMLElement, nav: NavAnotacoes, texto: TextoProprio): void {
+  if (texto.tipo === 'md') nav.ler(texto);
+  else abrirEditor(raiz, nav, texto);
+}
+
+function novaAnotacao(): TextoProprio {
+  const t = Date.now();
+  return {
+    id: idNovo(t, 'nota'),
+    titulo: '',
+    autor: '',
+    tipo: 'nota',
+    conteudo: '',
+    fonte: 'codigo',
+    quebrar: true,
+    criadoEm: t,
+    alteradoEm: t,
+  };
 }
 
 export async function montarTelaAnotacoes(
   raiz: HTMLElement,
-  nav: { perfis: () => void; aparencia: () => void; estante: () => void },
+  nav: NavAnotacoes,
+  aviso = '',
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-anotacoes';
@@ -84,60 +110,152 @@ export async function montarTelaAnotacoes(
 
   const corpo = el('div', 'corpo-anotacoes');
   raiz.appendChild(corpo);
+  const recarregar = (msg = '') => montarTelaAnotacoes(raiz, nav, msg);
+  const lista = await listarTextos(perfil());
 
-  const recarregar = () => montarTelaAnotacoes(raiz, nav);
+  // ---- pesquisar ----
+  const busca = el('input', 'campo-busca') as HTMLInputElement;
+  busca.type = 'search';
+  busca.placeholder = 'Pesquisar texto, autor…';
+  busca.setAttribute('aria-label', 'Pesquisar nas anotações');
 
-  const nova = el('button', 'botao-grande', '✨ Escrever uma nova');
-  nova.addEventListener('click', () =>
-    abrirEditor(raiz, nav, {
-      id: Date.now(),
-      titulo: '',
-      texto: '',
-      fonte: 'codigo',
-      quebrar: true,
-      alteradoEm: Date.now(),
-    }),
-  );
-  corpo.appendChild(nova);
+  // ---- as quatro ações, como no Pedra Angular ----
+  const acoes = el('div', 'acoes-anotacoes');
+  const novo = el('button', 'botao-opcao', '✨ Novo');
+  novo.setAttribute('aria-label', 'Novo: escrever uma anotação nova');
+  novo.addEventListener('click', () => abrirEditor(raiz, nav, novaAnotacao()));
 
-  const lista = await listar();
+  const campoArquivos = el('input') as HTMLInputElement;
+  campoArquivos.type = 'file';
+  campoArquivos.accept = '.md,.markdown,.txt,text/markdown,text/plain';
+  campoArquivos.multiple = true;
+  campoArquivos.hidden = true;
+  const adicionar = el('button', 'botao-opcao', '➕ Adicionar');
+  adicionar.setAttribute('aria-label', 'Adicionar: arquivos .md ou .txt, até livros inteiros');
+  adicionar.addEventListener('click', () => campoArquivos.click());
+  campoArquivos.addEventListener('change', async () => {
+    // a lista de arquivos é "viva": copiar ANTES de limpar o campo
+    const arquivos = Array.from(campoArquivos.files ?? []);
+    campoArquivos.value = '';
+    const chegando: TextoProprio[] = [];
+    let recusados = 0;
+    for (const arquivo of arquivos) {
+      const t = deArquivo(arquivo.name, await arquivo.text(), Date.now());
+      if (t) chegando.push(t);
+      else recusados++;
+    }
+    const { novos } = juntar(lista, chegando, Date.now());
+    await guardarVarios(perfil(), novos);
+    const partes = [`${novos.length} ${novos.length === 1 ? 'texto entrou' : 'textos entraram'}.`];
+    if (recusados) partes.push(`${recusados} não ${recusados === 1 ? 'é' : 'são'} .md nem .txt e ficou de fora.`);
+    await recarregar(partes.join(' '));
+  });
+
+  const exportar = el('button', 'botao-opcao', '⇩ Exportar');
+  exportar.setAttribute('aria-label', 'Exportar: as anotações num .json que o Pedra Angular também lê');
+  exportar.disabled = lista.length === 0;
+  exportar.addEventListener('click', async () => {
+    const quando = new Date();
+    const json = JSON.stringify(paraPedraAngular(lista, quando), null, 2);
+    await entregarArquivo(new File([json], nomeDoArquivoDeTextos(quando), { type: 'application/json' }));
+    mostrarAviso(`${lista.length} ${lista.length === 1 ? 'texto foi' : 'textos foram'} para o arquivo. O Pedra Angular abre este arquivo em Importar.`);
+  });
+
+  const campoJson = el('input') as HTMLInputElement;
+  campoJson.type = 'file';
+  campoJson.accept = '.json,application/json';
+  campoJson.hidden = true;
+  const importar = el('button', 'botao-opcao', '⇧ Importar');
+  importar.setAttribute('aria-label', 'Importar: textos de um .json do Pedra Angular ou do Historinhas');
+  importar.addEventListener('click', () => campoJson.click());
+  campoJson.addEventListener('change', async () => {
+    const arquivo = campoJson.files?.[0];
+    campoJson.value = '';
+    if (!arquivo) return;
+    const lida = lerJsonDeTextos(await arquivo.text(), Date.now());
+    if (!lida.ok) {
+      mostrarAviso(`⚠ ${lida.motivo}`);
+      return;
+    }
+    const { novos, iguais } = juntar(lista, lida.textos, Date.now());
+    await guardarVarios(perfil(), novos);
+    const partes = [`${novos.length} ${novos.length === 1 ? 'texto entrou' : 'textos entraram'}.`];
+    if (iguais) partes.push(`${iguais} já ${iguais === 1 ? 'estava' : 'estavam'} aqui.`);
+    if (lida.doPedraAngular) partes.push('Do Pedra Angular vêm só os textos: tema e letra de lá não mudam nada aqui.');
+    await recarregar(partes.join(' '));
+  });
+
+  acoes.append(novo, adicionar, exportar, importar, campoArquivos, campoJson);
+  corpo.append(busca, acoes);
+
+  const caixaAviso = el('p', 'aviso-anotacoes');
+  caixaAviso.setAttribute('role', 'status');
+  corpo.appendChild(caixaAviso);
+  function mostrarAviso(texto: string): void {
+    caixaAviso.textContent = texto;
+  }
+  if (aviso) mostrarAviso(aviso);
+
   if (lista.length === 0) {
     corpo.appendChild(
       el(
         'p',
         'texto-vazio',
-        'Aqui você guarda o que quiser: comandos, ideias, listas, histórias. ' +
-          'Fica só neste aparelho, e é seu.',
+        'Aqui você guarda o que quiser: comandos, ideias, listas, histórias — e até livros inteiros, ' +
+          'trazidos em .md ou .txt. Fica só neste aparelho, e é seu.',
       ),
     );
     return;
   }
 
-  for (const nota of [...lista].sort((a, b) => b.alteradoEm - a.alteradoEm)) {
+  const listaEl = el('div', 'lista-anotacoes');
+  const nada = el('p', 'texto-vazio', 'Nenhum texto com essas palavras.');
+  nada.hidden = true;
+  const cartoes: Array<[HTMLElement, TextoProprio]> = [];
+  for (const texto of lista) {
     const cartao = el('button', 'cartao-anotacao');
-    cartao.appendChild(el('span', 'nome-anotacao', nota.titulo || tituloAutomatico(nota.texto)));
-    const linhas = nota.texto.split('\n').filter((l) => l.trim()).length;
-    cartao.appendChild(
-      el('span', 'meta-anotacao', `${linhas} linha${linhas === 1 ? '' : 's'}`),
-    );
-    cartao.addEventListener('click', () => abrirEditor(raiz, nav, nota));
-    corpo.appendChild(cartao);
+    const emoji = el('span', 'emoji-anotacao', EMOJI_DO_TIPO[texto.tipo]);
+    emoji.setAttribute('aria-hidden', 'true');
+    cartao.appendChild(emoji);
+    const textos = el('span', 'textos-anotacao');
+    textos.appendChild(el('span', 'nome-anotacao', nomeParaMostrar(texto)));
+    const linhas = texto.conteudo.split('\n').filter((l) => l.trim()).length;
+    const meta = [
+      texto.autor,
+      texto.tipo === 'md' ? 'livro para ler' : `${linhas} linha${linhas === 1 ? '' : 's'}`,
+    ].filter(Boolean);
+    textos.appendChild(el('span', 'meta-anotacao', meta.join(' · ')));
+    cartao.appendChild(textos);
+    cartao.addEventListener('click', () => abrirTexto(raiz, nav, texto));
+    listaEl.appendChild(cartao);
+    cartoes.push([cartao, texto]);
   }
+  corpo.append(listaEl, nada);
+
+  busca.addEventListener('input', () => {
+    let visiveis = 0;
+    for (const [cartao, t] of cartoes) {
+      const sim = combina(busca.value, nomeParaMostrar(t), t.autor, t.origem);
+      cartao.hidden = !sim;
+      if (sim) visiveis++;
+    }
+    nada.hidden = visiveis > 0;
+  });
 
   const apagar = el('button', 'botao-extra', '🗑️ Apagar uma anotação');
   apagar.addEventListener('click', () => {
-    apagar.replaceWith(montarApagar(lista, recarregar));
+    apagar.replaceWith(montarApagar(lista, () => void recarregar()));
   });
   corpo.appendChild(apagar);
 }
 
-function montarApagar(lista: Anotacao[], recarregar: () => void): HTMLElement {
+function montarApagar(lista: TextoProprio[], recarregar: () => void): HTMLElement {
   const caixa = el('div', 'caixa-apagar');
   caixa.appendChild(el('p', 'aviso-apagar', 'Toque na que você quer apagar:'));
   for (const nota of lista) {
     // Dois toques, sem diálogo que trava a tela: o primeiro arma, o segundo
     // apaga, e sozinho ele desarma em 4 segundos. Mesmo padrão dos perfis.
-    const b = el('button', 'botao-extra botao-perigo', `🗑️ ${nota.titulo || tituloAutomatico(nota.texto)}`);
+    const b = el('button', 'botao-extra botao-perigo', `🗑️ ${nomeParaMostrar(nota)}`);
     let armado = false;
     b.addEventListener('click', async () => {
       if (!armado) {
@@ -145,11 +263,11 @@ function montarApagar(lista: Anotacao[], recarregar: () => void): HTMLElement {
         b.textContent = 'Apagar mesmo?';
         setTimeout(() => {
           armado = false;
-          b.textContent = `🗑️ ${nota.titulo || tituloAutomatico(nota.texto)}`;
+          b.textContent = `🗑️ ${nomeParaMostrar(nota)}`;
         }, 4000);
         return;
       }
-      await guardar((await listar()).filter((n) => n.id !== nota.id));
+      await apagarTexto(perfil(), nota.id);
       recarregar();
     });
     caixa.appendChild(b);
@@ -157,11 +275,7 @@ function montarApagar(lista: Anotacao[], recarregar: () => void): HTMLElement {
   return caixa;
 }
 
-function abrirEditor(
-  raiz: HTMLElement,
-  nav: { perfis: () => void; aparencia: () => void; estante: () => void },
-  nota: Anotacao,
-): void {
+export function abrirEditor(raiz: HTMLElement, nav: NavAnotacoes, nota: TextoProprio): void {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-anotacoes';
 
@@ -182,10 +296,12 @@ function abrirEditor(
   nome.placeholder = 'Nome (opcional)';
   nome.maxLength = 60;
   nome.value = nota.titulo;
+  nome.setAttribute('aria-label', 'Nome da anotação');
   corpo.appendChild(nome);
 
   const area = el('textarea', 'area-anotacao') as HTMLTextAreaElement;
-  area.value = nota.texto;
+  area.value = nota.conteudo;
+  area.setAttribute('aria-label', 'Texto');
   area.rows = 14;
   area.placeholder = 'Escreva aqui…';
   /* O bloco que faz o texto sobreviver ao teclado do celular. Sem estes
@@ -269,19 +385,16 @@ function abrirEditor(
 
   const salvar = el('button', 'botao-grande', '💾 Guardar');
   salvar.addEventListener('click', async () => {
-    const lista = await listar();
-    const atualizada: Anotacao = {
+    const atualizada: TextoProprio = {
       ...nota,
       titulo: nome.value.trim(),
-      texto: area.value,
+      conteudo: area.value,
       alteradoEm: Date.now(),
     };
-    const i = lista.findIndex((n) => n.id === nota.id);
-    if (i >= 0) lista[i] = atualizada;
-    else lista.push(atualizada);
-    await guardar(lista);
+    await guardarTexto(perfil(), atualizada);
     salvar.textContent = `✅ Guardado ${agora()}`;
-    setTimeout(voltar, 700);
+    // livro volta para a leitura; anotação volta para a lista
+    setTimeout(() => (atualizada.tipo === 'md' ? nav.ler(atualizada) : voltar()), 700);
   });
 
   acoes.append(copiar, salvar);

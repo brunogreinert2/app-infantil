@@ -730,6 +730,67 @@ tela) — ganharam `role="img"`.
 
 ---
 
+## Minhas anotações como "Meus arquivos" do Pedra Angular (2026-11-12, noite)
+
+Pedido do Bruno: igualar as anotações aos textos próprios do app-leitura e
+trocar textos entre os dois apps.
+
+**O que existe agora.** Na tela de anotações: pesquisar, ✨ Novo,
+➕ Adicionar (.md e .txt, vários de uma vez, livros inteiros), ⇩ Exportar e
+⇧ Importar. No menu lateral, "Minhas anotações" é pasta que abre ali mesmo
+com cada texto dentro, e um campo de pesquisa no alto acha livro, autor,
+pasta e texto próprio. Um `.md` abre como livro (voz, realce, régua, espaço
+entre linhas, títulos recolhíveis) com um botão "✏️ Editar"; anotação escrita
+aqui e `.txt` continuam abrindo no editor cru, sem correção automática.
+
+**Formato de troca: o do Pedra Angular.** Exportar gera o `.json` que o
+app-leitura já sabe importar, sem mudar uma linha de lá. Importar aceita o
+`.json` do Pedra Angular (de lá ou feito aqui) e pega só os textos. Nada é
+gravado por cima: texto igual não duplica; mesmo id com conteúdo diferente
+entra ao lado, como "título (cópia)".
+
+**Onde moram os textos: IndexedDB**, não o localStorage. O localStorage tem
+um teto de poucos MB por site (e já guarda perfis e pinturas); um livro em
+`.md` passa de 1 MB. As anotações antigas passam sozinhas para o lugar novo
+na primeira abertura; a chave antiga só é apagada depois. A cópia de
+segurança de Ajustes passou à versão 2 e leva os textos; a versão 1 ainda se
+traz.
+
+| Item | Resultado | Prova |
+|---|---|---|
+| Ler um backup do Pedra Angular; exportar no formato dele; ida e volta | sim | teste (`textosProprios.test.ts`, 13 casos) |
+| O Pedra Angular importa o que sai daqui | 4 de 4 textos, com o tipo certo (nota → .txt), sem mexer no tema de lá | **rodado no app-leitura local**, com a função `importBackup` dele; textos de teste apagados depois |
+| Importar o mesmo arquivo duas vezes não duplica | "0 entraram, 2 já estavam" | medido |
+| Arquivo que não é .md/.txt fica de fora, com aviso | sim | medido |
+| Anotações antigas migram | sim, e a chave antiga some | medido |
+| Cópia de segurança leva e devolve os textos | sim | medido e teste |
+| Backup do Pedra Angular em Ajustes recebe o caminho certo | "…se trazem em Minhas anotações → Importar" | teste |
+| axe-core: anotações, menu com a pasta aberta, menu com pesquisa, livro próprio, editor | nenhuma violação | medido |
+
+Consertos que a auditoria pediu: nomes falados dos quatro botões passaram a
+começar pelo texto visível ("Novo: …"); e um texto que começa em `##` pulava
+do h1 para o h3 — agora o título mais alto de qualquer livro vira h2.
+
+**Limites, sem enfeite:**
+- **Só textos atravessam.** Tema, letra e posição de leitura de um app não
+  vão para o outro (as chaves são diferentes e as escolhas têm sentidos
+  diferentes). Pinturas e insígnias não existem no Pedra Angular.
+- **O Pedra Angular → Historinhas foi testado com um `.json` montado no
+  formato dele** (o mesmo de `src/lib/backup.ts` de lá), não com um backup
+  baixado do app-leitura de verdade.
+- **Livro grande não foi medido.** O IndexedDB aguenta; o que não sei é
+  quanto tempo um livro de vários MB leva para abrir no celular (o leitor
+  monta o livro inteiro de uma vez).
+- Imagens do `.md` (`![](…)`, `{{img:…}}`) não vêm junto: o Pedra Angular
+  também não as guarda nos textos próprios.
+- A pesquisa do menu não procura DENTRO dos textos, só em título, autor e
+  pasta — como a do Pedra Angular.
+- Não há "excluir tudo de Minhas anotações" (o Pedra Angular tem); apaga-se
+  uma por vez.
+- Nada disto rodou num iPhone. O "Adicionar" no iPhone abre o app Arquivos.
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e

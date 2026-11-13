@@ -2,6 +2,7 @@
 // O app SEMPRE abre na seleção de perfil; o perfil ativo vive só em memória.
 
 import { armazenamento } from '../armazenamento/armazenamento';
+import { apagarTextosDoPerfil } from '../armazenamento/textos';
 
 export interface Perfil {
   id: number;
@@ -78,5 +79,6 @@ export async function excluirPerfil(id: number): Promise<void> {
   for (const chave of await armazenamento.chaves(`${id}:`)) {
     await armazenamento.remover(chave);
   }
+  await apagarTextosDoPerfil(id); // os textos moram em outro lugar (IndexedDB)
   if (ativo?.id === id) ativo = null;
 }
