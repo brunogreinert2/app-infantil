@@ -1,5 +1,37 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Revisão da Luiza — pasta no Google Drive (2026-11-13)
+
+O trabalho da disciplina "Intervenção Pedagógica e Necessidades Educativas
+Especiais" (UFRGS) é em dupla: a colega **Luiza** (licenciatura em
+matemática) entra como revisora — a maior parte dos textos e folhas foi
+escrita com IA e ainda não teve revisão humana.
+
+Pasta no Drive do Bruno: **"Historinhas — revisão (Luiza)"**, id
+`12KsJsQgvGk6EpbF58bBID3tHwQAr78Yh`. Quem compartilha com ela é o Bruno.
+- `0 · Leia primeiro` — como revisar (modo Sugestão, comentários), o que olhar.
+- `1`–`4 · Histórias — <coleção>` — texto como a criança lê, perguntas no
+  lugar delas, resposta certa marcada com ✓. Documentos Google.
+- `5 · Alfabetos` e `6 · Os Números` — os textos da leitura desses livros.
+- `7 · Folhas de Números` (PDF, 40 folhas) e `8a/8b/8c · Desenhos` (PDF,
+  56 cenas em 4 arquivos — o envio daqui tem teto de 10 MB por arquivo).
+
+**Para trazer a revisão de volta** (o Bruno vai pedir "aplica as revisões da
+Luiza"): ler cada documento com o conector do Drive, `read_file_content`
+com `includeComments: true`; as SUGESTÕES do modo Sugestão podem não vir
+nessa leitura — se não vierem, pedir ao Bruno para ligar o conector do
+Google Docs, ou para aceitar as sugestões no próprio documento antes. Achar
+cada trecho no `.md` de origem (`src/conteudo/livros/*.md`, coleções em
+`colecaoPrimeirasAventuras.ts`/`colecaoBosquesCastelos.ts`, alfabetos em
+`alfabetoBrincadeiras.ts`, números em `numeros.ts`) e corrigir lá. Desenho
+NUNCA se corrige no SVG à mão: corrige-se a receita que o gera
+(`numeroArte.ts`, `alfabetoArte.ts`, `scripts/*/artes.py`).
+
+Os documentos foram gerados por um teste temporário (já apagado) a partir de
+`livro.nos` — o texto puro, sem o negrito do `.md`. Para gerar de novo: ver
+este registro e refazer; não há script guardado.
+
+
 ## Textos próprios compatíveis com o Pedra Angular — 2026-11-12, noite (Opus 5.5)
 
 Branch `fable/sugestoes` (a mesma, que já estava publicada até `8c37d3c`).
