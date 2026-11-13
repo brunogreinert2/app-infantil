@@ -25,7 +25,7 @@ menu lateral.
 - **Nada mudou no app-leitura.** O `.json` exportado daqui foi importado lá
   pela função `importBackup` do próprio app-leitura, em dev, e apagado depois.
 
-Depois (mesma noite; publicação autorizada — "Pode publicar"): tabelas com borda (`.paragrafo table`)
+Depois (mesma noite; publicado: master `2c7a0b4`, Actions 43353982034 com sucesso, CSS conferido no site): tabelas com borda (`.paragrafo table`)
 e recolher em TODOS os níveis de título (`secoesRecolhiveis.ts`, agora
 recursivo). Diagnóstico do Pedra Angular, sem mexer lá: o texto "quebrado"
 vem de `white-space: pre-line` em `.reader-body p, li, blockquote, dd`
