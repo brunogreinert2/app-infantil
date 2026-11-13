@@ -4,6 +4,7 @@
 
 Branch `fable/sugestoes` (a mesma, que já estava publicada até `8c37d3c`).
 **Publicação autorizada em 2026-11-12** ("Pode publicar sim").
+**Publicação confirmada:** master em `187233e`, Actions 43346590127 com sucesso; o pacote servido em historinhas.app.br já traz os textos no IndexedDB. Não abri o site num navegador depois.
 
 Pedido do Bruno: Minhas anotações com as mesmas ações dos "Meus arquivos" do
 app-leitura (pesquisar, Adicionar, Novo, Exportar, Importar), troca de
