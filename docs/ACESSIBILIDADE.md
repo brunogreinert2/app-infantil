@@ -813,6 +813,26 @@ as crianças, dá para deixar o `#` de fora só nos livros da estante.
 
 ---
 
+## A barra do alto não engrossa (2026-11-13)
+
+Decisão do Bruno, a mesma do Pedra Angular: a barra crescia junto com o A+,
+e a letra 180 px fazia a barra ocupar quase um terço da tela — tirando
+campo de leitura justamente de quem aumentou a letra. Agora o tamanho da
+barra é fixo em `rem`: acompanha a letra configurada no aparelho, não o
+A−/A+ do app; e ela não ganha segunda linha (o título se encurta).
+
+| Item | Resultado | Prova |
+|---|---|---|
+| Altura da barra com letra 12, 20 e 180 px | 75 px nas três | medido em 390×844, na leitura e na pintura |
+| Sem segunda linha | sim | medido |
+
+Limites: os botões da barra deixam de crescer com o A+ — para quem precisa
+de botão maior, a saída é a letra do aparelho (que a barra segue), não a do
+app. Com letra acima de ~68 px a página ainda rola de lado, por causa de
+botões do conteúdo (já era assim; não é a barra).
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e

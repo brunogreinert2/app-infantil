@@ -147,10 +147,15 @@ button {
   z-index: 10;
   display: flex;
   align-items: center;
-  /* Quebra em linhas quando a letra cresce: o avatar e o título acompanham o
-     corpo da fonte, e numa barra de linha única eles se espremiam até vazar a
-     tela. Em corpo pequeno nada muda — só há quebra quando falta largura. */
-  flex-wrap: wrap;
+  /* A BARRA NÃO ENGROSSA (decisão do Bruno, a mesma do Pedra Angular desde
+     2026-10-11, trazida para cá em 2026-11-13). Antes ela crescia junto com o
+     A+: a letra 180px fazia a barra ocupar quase um terço da tela, comendo o
+     campo de leitura que a pessoa aumentou a letra justamente para ter. Agora
+     o tamanho dela é fixo em `rem` — segue a letra que a pessoa configurou no
+     APARELHO, mas não o A−/A+ do app — e ela nunca ganha segunda linha: o
+     título é que se encurta com reticências. */
+  font-size: 1.25rem;
+  flex-wrap: nowrap;
   gap: 10px;
   padding: 10px 14px;
   background: var(--cartao);
@@ -159,6 +164,7 @@ button {
 
 .titulo-barra {
   flex: 1;
+  min-width: 0; /* sem isto o título não encolhe e empurra os botões para fora */
   margin: 0;
   font-size: 1.05em;
   white-space: nowrap;
@@ -182,6 +188,7 @@ button {
 
 .ajustes {
   display: flex;
+  flex: none;
   gap: 6px;
 }
 
@@ -191,6 +198,7 @@ button {
   min-height: 46px;
   border-radius: 50%;
   font-size: 1.4em;
+  flex: none;
   background: var(--fundo);
   border: 3px solid var(--destaque);
 }

@@ -35,6 +35,10 @@ Enter simples como o Obsidian; o `.md` escrito no chat vem com quebra a cada
 CommonMark e junta as linhas. O Bruno entende que o comportamento do Pedra
 Angular existe por causa de poemas, versos e salmos, e o mantém como está.
 
+2026-11-13: a barra do alto deixou de engrossar com o A+ (decisão do Bruno,
+a mesma do Pedra Angular): `.barra-topo { font-size: 1.25rem; flex-wrap:
+nowrap }` em `estilos.css`. Não publicado.
+
 O que falta para "igualdade" com o Pedra Angular, se o Bruno quiser: excluir
 tudo de Minhas anotações; arrastar e soltar arquivo na janela; abrir arquivo
 pelo "Abrir com" do sistema; pesquisa dentro do texto.
