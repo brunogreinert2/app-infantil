@@ -791,6 +791,28 @@ do h1 para o h3 — agora o título mais alto de qualquer livro vira h2.
 
 ---
 
+## Tabelas com borda e todos os títulos recolhíveis (2026-11-12, noite)
+
+O Bruno abriu o mesmo `.md` (com tabelas e títulos de quatro níveis) nos dois
+apps e comparou.
+
+- **Tabelas:** ganharam linhas de borda e cabeçalho destacado, como no Pedra
+  Angular, e rolam de lado dentro delas mesmas quando não cabem. A linha usa
+  o texto suave do tema: 6,7:1 (Claro), 6,6:1 (Floresta), 11,4:1 (Espaço),
+  15,9:1 (Alto contraste) contra o fundo — a cor das caixas (`--borda`) dava
+  1,2:1 e sumia. No modo de alto contraste do sistema a borda vira a cor do
+  texto do sistema (lido, não ligado).
+- **Títulos:** agora `#`, `##`, `###`… recolhem, um dentro do outro (recolher
+  um `#` esconde os `##` e `###` dele). Medido com um texto de quatro níveis:
+  7 seções, 7 botões de recolher; o "você parou aqui" e a voz abrem todas as
+  seções de fora até o ponto. axe-core: nenhuma violação.
+
+Limite: nos livros da estante o título `#` do livro também recolhe — inclusive
+o livro inteiro, de uma vez. É o comportamento do Pedra Angular; se confundir
+as crianças, dá para deixar o `#` de fora só nos livros da estante.
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e

@@ -1041,6 +1041,55 @@ button {
   min-width: 0;
 }
 
+/* ---------- tabelas: bordas como no Pedra Angular ----------
+   Sem regra nenhuma o navegador desenha sem borda e as colunas colam umas
+   nas outras. Só cor de borda e de cartão do tema: o texto continua em
+   --texto, então o contraste vale em todos os temas. Tabela larga demais
+   rola de lado dentro dela mesma, sem empurrar a página. */
+.paragrafo table {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 0.4em 0;
+}
+
+.paragrafo th,
+.paragrafo td {
+  /* --borda (a das caixas) mediu 1,2:1 contra o fundo: some. A linha da
+     tabela ajuda a ler, então segue a régua de 3:1 de elemento que não é
+     texto — o texto suave do tema passa disso em todo tema. */
+  border: 1px solid var(--texto-suave);
+  padding: 0.35em 0.7em;
+  text-align: left;
+  vertical-align: top;
+}
+
+.paragrafo thead th {
+  background: var(--cartao);
+  font-weight: 700;
+}
+
+/* alinhamento vindo do markdown (|---:|) prevalece */
+.paragrafo th[align='right'],
+.paragrafo td[align='right'] {
+  text-align: right;
+}
+
+.paragrafo th[align='center'],
+.paragrafo td[align='center'] {
+  text-align: center;
+}
+
+/* forced-colors: a borda tem de continuar visível */
+@media (forced-colors: active) {
+  .paragrafo th,
+  .paragrafo td {
+    border-color: CanvasText;
+  }
+}
+
 /* ---------- títulos que abrem e recolhem ---------- */
 .botao-secao {
   display: inline-flex;

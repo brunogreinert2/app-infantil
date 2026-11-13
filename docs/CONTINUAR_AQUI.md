@@ -25,6 +25,15 @@ menu lateral.
 - **Nada mudou no app-leitura.** O `.json` exportado daqui foi importado lá
   pela função `importBackup` do próprio app-leitura, em dev, e apagado depois.
 
+Depois (mesma noite, sem publicar): tabelas com borda (`.paragrafo table`)
+e recolher em TODOS os níveis de título (`secoesRecolhiveis.ts`, agora
+recursivo). Diagnóstico do Pedra Angular, sem mexer lá: o texto "quebrado"
+vem de `white-space: pre-line` em `.reader-body p, li, blockquote, dd`
+(`app-leitura/src/styles.css` ~l.1552), posto DE PROPÓSITO para respeitar o
+Enter simples como o Obsidian; o `.md` escrito no chat vem com quebra a cada
+~80 colunas, e o Pedra Angular mostra cada uma. O Historinhas segue o
+CommonMark e junta as linhas. Qual dos dois é o certo é decisão do Bruno.
+
 O que falta para "igualdade" com o Pedra Angular, se o Bruno quiser: excluir
 tudo de Minhas anotações; arrastar e soltar arquivo na janela; abrir arquivo
 pelo "Abrir com" do sistema; pesquisa dentro do texto.
