@@ -88,5 +88,9 @@ da mesma arte-fonte em runtime (`camadaBase.ts`) — uma arte, três papéis.
 - UI, identificadores e commits em português (o código-fonte é bilíngue de propósito:
   módulos seguem os nomes da spec — camadaBase, roteadorFerramenta, etc.).
 - Commits pequenos e frequentes, mensagens em português.
+- **A cada publicação, subir a versão em `package.json`** (o "Sobre" dos Ajustes a
+  lê de lá, com a data da montagem — nunca escrever o número à mão). Mudança
+  pequena sobe o último número (0.9.0 → 0.9.1); conjunto de recursos novos, o do
+  meio (0.9.x → 0.10.0).
 - Antes de concluir qualquer fase: `npm run build` limpo + teste no viewport mobile.
 - Contraste de texto ≥ 7:1 em todos os temas (padrão Perkins herdado do Pedra Angular).

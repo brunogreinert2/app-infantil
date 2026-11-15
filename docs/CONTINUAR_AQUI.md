@@ -1,5 +1,16 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Versão de verdade (2026-11-15)
+
+O "Sobre" dizia v0.2.0 desde julho: o número estava escrito à mão no texto.
+Agora vem de `package.json` (via `define` em `vite.config.ts`: `__VERSAO__` e
+`__MONTADO_EM__`, declarados em `src/globais.d.ts`; texto em
+`src/telas/sobre.ts`, com teste). Versão subiu para **0.9.0** — escolha
+minha, para marcar as ~8 publicações desde 0.2.0; sugestão ao Bruno: 1.0.0 no
+dia da apresentação na UFRGS. Regra nova no CLAUDE.md: subir a versão a cada
+publicação.
+
+
 ## Escrever no desenho, Detalhes e coluna (2026-11-15) — NÃO publicado
 
 Pedidos do Bruno. Branch `fable/sugestoes`.

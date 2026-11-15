@@ -1,10 +1,19 @@
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+import pacote from './package.json' with { type: 'json' };
 
 // base './' — obrigatório para o empacotamento Capacitor futuro e para o
 // GitHub Pages (servido em /app-infantil/)
 export default defineConfig({
   base: './',
+  // A versão vem do package.json e a data é a da montagem: o "Sobre" dos
+  // Ajustes mostra as duas. Antes o número estava escrito à mão no texto e
+  // ficou em 0.2.0 por umas dez publicações. Agora: subiu a versão no
+  // package.json, ela aparece sozinha.
+  define: {
+    __VERSAO__: JSON.stringify(pacote.version),
+    __MONTADO_EM__: JSON.stringify(new Date().toISOString().slice(0, 10)),
+  },
   plugins: [
     // PWA: instalável na tela do tablet e 100% offline após a primeira
     // visita (precache de tudo, incluindo fontes — princípio zero-rede).

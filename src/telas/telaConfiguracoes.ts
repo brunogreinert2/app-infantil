@@ -3,6 +3,7 @@
 // troca de perfil no dia a dia).
 // v1: gestão de perfis (criar/editar/excluir) + sobre o app.
 
+import { textoSobre } from './sobre';
 import { entregarArquivo, fazerCopia, lerCopia, restaurarCopia } from '../armazenamento/copiaNoAparelho';
 import {
   atualizarPerfil,
@@ -174,7 +175,7 @@ export async function montarTelaConfiguracoes(
   // ---------- sobre ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Sobre'));
   corpo.appendChild(
-    el('p', 'texto-sobre', 'Historinhas — historinhas.app.br — v0.2.0. App de leitura, pintura e quizzes feito em família. Conteúdo em domínio público com tradução própria.'),
+    el('p', 'texto-sobre', textoSobre()),
   );
   corpo.appendChild(
     el('p', 'texto-sobre', 'Atualizar o app NUNCA apaga as pinturas, insígnias e progresso — eles ficam guardados neste aparelho. (Limpar os dados do navegador apaga: por isso existe a cópia de segurança.)'),
@@ -237,4 +238,3 @@ function linhaPerfil(p: Perfil, totalPerfis: number, recarregar: () => void): HT
   }
   return linha;
 }
-
