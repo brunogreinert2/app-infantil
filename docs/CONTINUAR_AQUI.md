@@ -11,6 +11,9 @@ Pedidos do Bruno. Branch `fable/sugestoes`.
   de texto próprio (`telaLeitura.ts`, opção `detalhes`). Front matter com BOM
   e linha em branco antes agora é lido (na entrada e na leitura).
 - Coluna `.leitura` em 61ch (era 52), como no Pedra Angular.
+- Depois: arrastar a escrita, "✥ Mover" em dois toques e Alt + setas
+  (`CamadaEscrita`); barra do alto no computador com as medidas do Pedra
+  Angular (`@media (min-width: 48rem)` em `estilos.css`).
 - O Bruno contou que leu um .md do ChatGPT no Historinhas e gostou mais do
   que em qualquer outro lugar (o Historinhas junta as linhas de 80 colunas).
 

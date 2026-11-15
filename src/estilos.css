@@ -203,6 +203,41 @@ button {
   border: 3px solid var(--destaque);
 }
 
+/* COMPUTADOR: a barra com as medidas da do Pedra Angular (pedido do Bruno,
+   2026-11-15: "pequena e tímida" ao lado dela). Lá: barra de 78px, botões
+   de letra de 64 × 54 com moldura, 1rem entre eles. Continua fixa — não
+   cresce com o A+ — e de uma linha só. */
+@media (min-width: 48rem) {
+  .barra-topo {
+    min-height: 4.875rem;
+    padding: 0 1.5rem;
+    gap: 1rem;
+    font-size: 1.5rem;
+  }
+
+  .barra-topo .botao-icone,
+  .barra-topo .chip-perfil {
+    min-height: 3.375rem;
+  }
+
+  .barra-topo .botao-icone {
+    min-width: 4rem;
+  }
+
+  .barra-topo .chip-perfil {
+    min-width: 3.375rem;
+  }
+
+  /* A− e A+ com a moldura cheia, como os do Pedra Angular */
+  .barra-topo .ajustes .botao-icone {
+    border: 2px solid var(--texto);
+  }
+
+  .barra-topo .ajustes {
+    gap: 0.5rem;
+  }
+}
+
 /* ---------- tela de perfis ---------- */
 .tela-perfis {
   align-items: center;
@@ -1334,17 +1369,37 @@ button {
 }
 
 /* o campo aparece no ponto tocado, centrado nele, com letra grande */
+.camada-escrita.movendo {
+  cursor: crosshair;
+  outline: 4px dashed #1a1a1a;
+  outline-offset: -4px;
+}
+
 .campo-escrita {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 9em;
   min-height: 44px;
   padding: 2px 8px;
   border: 3px solid #1a1a1a;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.95);
-  font: 700 24px/1.2 'Cardo', serif;
+  font-family: 'Cardo', serif;
+  font-weight: 700;
+  line-height: 1.2;
   text-align: center;
+  pointer-events: auto;
+}
+
+.botao-mover-escrita {
+  position: absolute;
+  transform: translate(-50%, 0);
+  min-height: 44px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 2px solid #1a1a1a;
+  background: #ffffff;
+  color: #1a1a1a;
+  font: 700 16px/1 system-ui, sans-serif;
   pointer-events: auto;
 }
 

@@ -872,6 +872,29 @@ px). Com Atkinson a linha passa de 80 letras — acima do que se recomenda.
 
 ---
 
+## Ajustar o lugar da escrita; barra do computador como a do Pedra Angular (2026-11-15)
+
+**Lugar da escrita.** Três caminhos, para o mesmo resultado (pôr o nome
+certinho na linha de "Nome"):
+- **arrastar** a escrita com o dedo ou o mouse (um toque sem arrastar ainda
+  abre para editar);
+- **"✥ Mover"**, que aparece junto de uma escrita aberta: tocar nele e depois
+  no lugar novo — dois toques, sem gesto, para quem não consegue arrastar;
+- **Alt + setas** no teclado, com o campo aberto, aos pouquinhos.
+Também: o campo de escrever passou a ter a letra do tamanho que a escrita vai
+ter e não sai mais para fora da folha perto da borda.
+
+Medido: "Bruno" arrastado para a linha do Nome; movido em dois toques para a
+linha da Data; quatro passos de Alt+↓; desfazer volta um passo. Limite: cada
+passo de Alt + seta é um passo de desfazer; não testado com toque de verdade.
+
+**Barra no computador.** A partir de 768 px de largura a barra tem as medidas
+da do Pedra Angular: 78 px de altura, A− e A+ de 64 × 54 px com moldura,
+1rem entre os botões (medido em 1280 px). No celular continua como estava.
+Ela segue fixa: não cresce com o A+.
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e
