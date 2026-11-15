@@ -1,6 +1,6 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
-## Versão de verdade (2026-11-15)
+## Versão de verdade (2026-11-15) — publicado em `48bf159` (Actions 43760941173)
 
 O "Sobre" dizia v0.2.0 desde julho: o número estava escrito à mão no texto.
 Agora vem de `package.json` (via `define` em `vite.config.ts`: `__VERSAO__` e
