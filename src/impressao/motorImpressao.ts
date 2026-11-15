@@ -18,6 +18,7 @@
 // documento.
 
 import { derivarContornoPB } from '../canvas/camadaBase';
+import type { Escrita } from '../canvas/camadaEscrita';
 import { desenharTracos, type Traco } from '../canvas/camadaPincel';
 import fonteImpressao from '../fontes/opendyslexic-400.woff?url';
 import fonteCardo from '../fontes/cardo-regular.woff2?url';
@@ -86,6 +87,7 @@ const escaparHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;'
 export interface Pintura {
   regioes: Record<string, string>;
   tracos: Traco[];
+  escritas?: Escrita[];
 }
 
 export function corpoCadernoA4(
@@ -133,6 +135,7 @@ export function desenhoPintadoParaTela(svgFonte: string, pintura: Pintura, largu
       svgFonte,
       pintura.regioes,
       imagemDosTracos(pintura.tracos, caixa.largura, caixa.altura, larguraDosTracos),
+      pintura.escritas,
     );
   return folha ?? derivarContornoPB(svgFonte);
 }
@@ -147,6 +150,7 @@ function desenhoParaPapel(svgFonte: string, pintura?: Pintura): string {
         svgFonte,
         pintura.regioes,
         imagemDosTracos(pintura.tracos, caixa.largura, caixa.altura),
+        pintura.escritas,
       );
     if (folha) return folha;
   }

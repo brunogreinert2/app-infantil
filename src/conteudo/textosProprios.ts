@@ -85,7 +85,8 @@ function limparMeta(valor: unknown): string | null {
 }
 
 function lerFrontMatter(conteudo: string): Record<string, unknown> | null {
-  const m = conteudo.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  // a mesma tolerância de separarFrontMatter: BOM, linhas em branco antes, \r\n
+  const m = conteudo.replace(/^﻿/, '').match(/^\s*---[ \t]*\r?\n([\s\S]*?)\r?\n---/);
   if (!m) return null;
   try {
     const meta = load(m[1]);
@@ -269,3 +270,52 @@ export function combina(consulta: string, ...campos: Array<string | undefined>):
   const onde = normalizar(campos.filter(Boolean).join(' '));
   return palavras.every((p) => onde.includes(p));
 }
+
+// ---------- o front matter de um texto trazido de fora ----------
+
+export interface FrontMatterSeparado {
+  /** o texto sem o bloco `---` do começo */
+  corpo: string;
+  /** os campos, para a caixa "Detalhes" — na ordem em que vieram */
+  detalhes: Array<[string, string]>;
+  /** o bloco como veio, quando o YAML não se leu (mostrado cru em "Detalhes") */
+  bruto: string | null;
+}
+
+function valorLegivel(v: unknown): string {
+  if (v === null || v === undefined) return '';
+  if (Array.isArray(v)) return v.map(valorLegivel).filter(Boolean).join(', ');
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  if (typeof v === 'object') return JSON.stringify(v);
+  return limparMeta(v) ?? String(v);
+}
+
+/**
+ * Tira o front matter do começo de um texto próprio, para que ele vá para
+ * "Detalhes" e não apareça no meio da leitura — como no Pedra Angular.
+ *
+ * Mais tolerante que o leitor dos livros da estante, porque o texto vem de
+ * qualquer lugar (um chat, outro app): aceita a marca de BOM e linhas em
+ * branco antes do `---`, e `\r\n`. Se o YAML não se lê, o bloco sai do texto
+ * do mesmo jeito e vai cru para "Detalhes" — nada se perde, e a leitura não
+ * começa com uma sopa de `chave: valor`.
+ */
+export function separarFrontMatter(conteudo: string): FrontMatterSeparado {
+  const texto = conteudo.replace(/^﻿/, '');
+  const m = texto.match(/^\s*---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/);
+  if (!m) return { corpo: conteudo, detalhes: [], bruto: null };
+  const corpo = texto.slice(m[0].length);
+  try {
+    const meta = load(m[1]);
+    if (meta && typeof meta === 'object' && !Array.isArray(meta)) {
+      const detalhes = Object.entries(meta as Record<string, unknown>)
+        .map(([k, v]) => [k, valorLegivel(v)] as [string, string])
+        .filter(([, v]) => v);
+      return { corpo, detalhes, bruto: null };
+    }
+  } catch {
+    /* vai cru, abaixo */
+  }
+  return { corpo, detalhes: [], bruto: m[1] };
+}
+

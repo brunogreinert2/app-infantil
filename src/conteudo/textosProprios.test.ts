@@ -6,6 +6,7 @@ import {
   juntar,
   lerJsonDeTextos,
   paraPedraAngular,
+  separarFrontMatter,
   type TextoProprio,
 } from './textosProprios';
 
@@ -87,6 +88,11 @@ describe('textos próprios: arquivos .md e .txt', () => {
     expect([txt.titulo, txt.autor, txt.tipo]).toEqual(['Minhas ideias', '', 'txt']);
   });
 
+  it('título do front matter mesmo com BOM e linha em branco antes (texto de chat)', () => {
+    const t = deArquivo('chat.md', '﻿\n---\ntitle: "Texto do chat"\nautor: ChatGPT\n---\n\n# x', AGORA)!;
+    expect([t.titulo, t.autor]).toEqual(['Texto do chat', 'ChatGPT']);
+  });
+
   it('outros arquivos são recusados', () => {
     expect(deArquivo('foto.png', 'x', AGORA)).toBeNull();
   });
@@ -124,3 +130,29 @@ describe('pesquisar', () => {
     expect(combina('', 'qualquer')).toBe(true);
   });
 });
+
+describe('front matter de texto trazido de fora', () => {
+  it('sai do texto e vira detalhes, na ordem, com listas legíveis', () => {
+    const r = separarFrontMatter('---\ntitle: "[[Fédon]]"\ntags: [filosofia, morte]\ndata: 2026-11-15\n---\n\n# Fédon\n');
+    expect(r.corpo).toBe('\n# Fédon\n');
+    expect(r.detalhes).toEqual([['title', 'Fédon'], ['tags', 'filosofia, morte'], ['data', '2026-11-15']]);
+    expect(r.bruto).toBeNull();
+  });
+
+  it('aguenta BOM, linha em branco antes e \\r\\n (texto vindo de chat)', () => {
+    const r = separarFrontMatter('\uFEFF\r\n---\r\ntitle: X\r\n---\r\nCorpo');
+    expect(r.corpo).toBe('Corpo');
+    expect(r.detalhes).toEqual([['title', 'X']]);
+  });
+
+  it('YAML que não se lê sai do texto do mesmo jeito, cru, para Detalhes', () => {
+    const r = separarFrontMatter('---\ntitle: "aberto\nautor: : :\n---\nCorpo');
+    expect(r.corpo).toBe('Corpo');
+    expect(r.bruto).toContain('autor');
+  });
+
+  it('sem front matter, nada muda', () => {
+    expect(separarFrontMatter('# Só texto\n\n---\n\nfim')).toEqual({ corpo: '# Só texto\n\n---\n\nfim', detalhes: [], bruto: null });
+  });
+});
+

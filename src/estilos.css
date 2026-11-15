@@ -354,8 +354,10 @@ button {
      linha fica sempre com mais ou menos o mesmo número de caracteres. Linha
      comprida demais faz a vista errar o começo da linha seguinte. Os 94px são
      o que não é texto: 20+20 de margem e 54 do botão 🔊. O `ch` mede o zero
-     da fonte; quantas letras cabem de verdade está em docs/ACESSIBILIDADE.md. */
-  max-width: max(30rem, calc(52ch + 94px));
+     da fonte; quantas letras cabem de verdade está em docs/ACESSIBILIDADE.md.
+     61ch desde 2026-11-15, o mesmo do Pedra Angular: com 52 a coluna ficava
+     estreita no computador, "como um celular no meio da tela" (Bruno). */
+  max-width: max(30rem, calc(61ch + 94px));
   /* letra muito grande + letras afastadas: uma palavra sozinha pode não caber
      na linha. Quebrar a palavra é feio; rolar a página de lado para ler é pior. */
   overflow-wrap: break-word;
@@ -1270,6 +1272,80 @@ button {
 /* no guia não há botão 🔊 ao lado do parágrafo: a coluna inteira é texto */
 .paragrafo-guia {
   padding-right: 0;
+}
+
+/* ---------- Detalhes de um texto próprio (o front matter) ---------- */
+.detalhes-texto {
+  margin: 0 0 1.4em;
+  padding: 0.4em 0.9em;
+  border: 2px solid var(--borda);
+  border-radius: 14px;
+  background: var(--cartao);
+}
+
+.detalhes-texto > summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.detalhes-texto dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.3em 1em;
+  margin: 0.4em 0 0.8em;
+}
+
+.detalhes-texto dt {
+  font-weight: 700;
+}
+
+.detalhes-texto dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.detalhes-texto pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  font-size: 0.85em;
+}
+
+/* ---------- escrever no desenho ---------- */
+.camada-escrita {
+  position: absolute;
+  inset: 0;
+  pointer-events: none; /* só recebe toque com a ferramenta ✏️ */
+}
+
+.camada-escrita.ativa {
+  pointer-events: auto;
+  cursor: text;
+}
+
+.camada-escrita > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* o campo aparece no ponto tocado, centrado nele, com letra grande */
+.campo-escrita {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 9em;
+  min-height: 44px;
+  padding: 2px 8px;
+  border: 3px solid #1a1a1a;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  font: 700 24px/1.2 'Cardo', serif;
+  text-align: center;
+  pointer-events: auto;
 }
 
 /* ---------- pintar por partes ---------- */

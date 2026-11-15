@@ -12,6 +12,8 @@
 // navegador. (Os traços viram imagem em motorImpressao.ts, que precisa de
 // canvas.)
 
+import { escritasEmSvg, escritasValidas, type Escrita } from '../canvas/camadaEscrita';
+
 const TAG_ALVO = /<([a-zA-Z][\w:-]*)\b([^<>]*\bclass="[^"]*\bcolorir-alvo\b[^"]*"[^<>]*?)(\/?)>/g;
 
 function definirAtributo(atributos: string, nome: string, valor: string): string {
@@ -90,6 +92,7 @@ export function montarFolhaPintada(
   svgFonte: string,
   regioes: Record<string, string>,
   imagemDosTracos?: string,
+  escritas: Escrita[] = [],
 ): string | null {
   const caixa = caixaDeVisao(svgFonte);
   if (!caixa) return null;
@@ -103,6 +106,8 @@ export function montarFolhaPintada(
     comoCamada(aplicarPintura(svgFonte, regioes), largura, altura) +
     tracos +
     comoCamada(contornoPreto(svgFonte), largura, altura) +
+    // o que a criança escreveu vai por cima de tudo, como na tela
+    escritasEmSvg(escritasValidas(escritas), largura, altura) +
     '</svg>'
   );
 }

@@ -4,7 +4,7 @@
 
 import type { CamadaPincel } from './camadaPincel';
 
-export type Ferramenta = 'balde' | 'pincel' | 'borracha';
+export type Ferramenta = 'balde' | 'pincel' | 'borracha' | 'texto';
 
 export class RoteadorFerramenta {
   private _ferramenta: Ferramenta = 'balde';

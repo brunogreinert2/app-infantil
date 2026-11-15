@@ -44,7 +44,13 @@ export async function montarTelaLeitura(
   // Um texto da própria criança (Minhas anotações) também se lê aqui, com
   // voz, régua e espaço entre linhas — mas não é livro da estante: não ganha
   // "Terminei" nem insígnia, e tem um botão para editar.
-  textoProprio?: { editar: () => void },
+  textoProprio?: {
+    editar: () => void;
+    /** campos do front matter, para a caixa "Detalhes" */
+    detalhes?: Array<[string, string]>;
+    /** o front matter cru, quando o YAML não se leu */
+    detalhesBrutos?: string | null;
+  },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-leitura';
@@ -99,6 +105,21 @@ export async function montarTelaLeitura(
     (await armazenamento.obter<Progresso>(chaveProgresso)) ?? {};
 
   const artigo = el('article', 'leitura');
+  // Front matter de um texto próprio: numa caixa "Detalhes" fechada no alto,
+  // como no Pedra Angular — fica à mão, mas não no meio da leitura.
+  if (textoProprio && (textoProprio.detalhes?.length || textoProprio.detalhesBrutos)) {
+    const caixa = el('details', 'detalhes-texto');
+    caixa.appendChild(el('summary', undefined, 'Detalhes'));
+    if (textoProprio.detalhes?.length) {
+      const lista = el('dl');
+      for (const [chave, valor] of textoProprio.detalhes) {
+        lista.append(el('dt', undefined, chave), el('dd', undefined, valor));
+      }
+      caixa.appendChild(lista);
+    }
+    if (textoProprio.detalhesBrutos) caixa.appendChild(el('pre', undefined, textoProprio.detalhesBrutos));
+    artigo.appendChild(caixa);
+  }
   const perguntas = livro.metadados.quiz ?? [];
 
   // texto de cada capítulo (do cabeçalho até o próximo) p/ o 🔊 do cabeçalho

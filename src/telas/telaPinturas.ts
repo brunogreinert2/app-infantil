@@ -35,7 +35,11 @@ export async function listarPinturas(): Promise<PinturaGuardada[]> {
       const pintura = await armazenamento.obter<Pintura>(chave);
       const svgFonte = arquivosAssets[asset.arquivo_interativo!];
       // folha aberta e deixada em branco não é pintura
-      const temAlgo = pintura && (Object.keys(pintura.regioes ?? {}).length > 0 || (pintura.tracos ?? []).length > 0);
+      const temAlgo =
+        pintura &&
+        (Object.keys(pintura.regioes ?? {}).length > 0 ||
+          (pintura.tracos ?? []).length > 0 ||
+          (pintura.escritas ?? []).length > 0);
       if (!temAlgo || !svgFonte) continue;
       achadas.push({
         livro,
@@ -43,7 +47,7 @@ export async function listarPinturas(): Promise<PinturaGuardada[]> {
         ordem: i + 1,
         total: desenhos.length,
         svgFonte,
-        pintura: { regioes: pintura.regioes ?? {}, tracos: pintura.tracos ?? [] },
+        pintura: { regioes: pintura.regioes ?? {}, tracos: pintura.tracos ?? [], escritas: pintura.escritas ?? [] },
       });
     }
   }

@@ -1,5 +1,20 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Escrever no desenho, Detalhes e coluna (2026-11-15) — NÃO publicado
+
+Pedidos do Bruno. Branch `fable/sugestoes`.
+- `src/canvas/camadaEscrita.ts` — ferramenta ✏️ (`Ferramenta` ganhou
+  `'texto'`); campo `escritas` opcional no estado da pintura; vai para
+  `montarFolhaPintada` (impressão e galeria). "✏️ Escrever nesta parte" no
+  painel de partes.
+- `separarFrontMatter()` em `textosProprios.ts`; caixa "Detalhes" na leitura
+  de texto próprio (`telaLeitura.ts`, opção `detalhes`). Front matter com BOM
+  e linha em branco antes agora é lido (na entrada e na leitura).
+- Coluna `.leitura` em 61ch (era 52), como no Pedra Angular.
+- O Bruno contou que leu um .md do ChatGPT no Historinhas e gostou mais do
+  que em qualquer outro lugar (o Historinhas junta as linhas de 80 colunas).
+
+
 ## Revisão da Luiza — pasta no Google Drive (2026-11-13)
 
 O trabalho da disciplina "Intervenção Pedagógica e Necessidades Educativas

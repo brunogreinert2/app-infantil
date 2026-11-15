@@ -9,7 +9,7 @@ import { montarTelaPerfis } from './telas/telaPerfis';
 import { montarTelaEstante } from './telas/telaEstante';
 import { abrirEditor, abrirTexto, montarTelaAnotacoes, type NavAnotacoes } from './telas/telaAnotacoes';
 import { obterTexto } from './armazenamento/textos';
-import { nomeParaMostrar, type TextoProprio } from './conteudo/textosProprios';
+import { nomeParaMostrar, separarFrontMatter, type TextoProprio } from './conteudo/textosProprios';
 import { carregarLivro } from './motor/frontmatter';
 import { montarTelaLeitura } from './telas/telaLeitura';
 import { montarTelaColorir } from './telas/telaColorir';
@@ -129,7 +129,9 @@ function lerTextoProprio(texto: TextoProprio): void {
   window.scrollTo(0, 0);
   carregarPreferencias();
   marcarLocal(localDoTexto(texto.id));
-  const livro = carregarLivro(`proprio-${texto.id}`, texto.conteudo);
+  // o front matter vai para "Detalhes"; o leitor recebe só o texto
+  const separado = separarFrontMatter(texto.conteudo);
+  const livro = carregarLivro(`proprio-${texto.id}`, separado.corpo);
   livro.metadados.titulo = nomeParaMostrar(texto);
   if (texto.autor) livro.metadados.autor_original = texto.autor;
   void montarTelaLeitura(
@@ -142,7 +144,11 @@ function lerTextoProprio(texto: TextoProprio): void {
       colorir: () => undefined,
       quebraCabeca: () => undefined,
     },
-    { editar: () => abrirEditor(raiz, navAnotacoes, texto) },
+    {
+      editar: () => abrirEditor(raiz, navAnotacoes, texto),
+      detalhes: separado.detalhes,
+      detalhesBrutos: separado.bruto,
+    },
   );
 }
 

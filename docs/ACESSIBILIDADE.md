@@ -833,6 +833,45 @@ botões do conteúdo (já era assim; não é a barra).
 
 ---
 
+## Escrever no desenho, "Detalhes" e coluna mais larga (2026-11-15)
+
+**Escrever no desenho.** Ferramenta ✏️ na tela de pintar: tocar num lugar
+abre um campo ali (letra grande, sem corretor nem maiúscula automática);
+Enter guarda, Esc desiste; tocar numa escrita a edita, apagar todo o texto
+a remove; ↩️ desfaz. A escrita fica por cima da pintura, na cor escolhida,
+com contorno branco para se ler sobre qualquer cor, e vai junto para a
+impressão "do jeito que eu pintei" e para Minhas pinturas. Quem não acerta
+o toque escreve pela lista de partes: "✏️ Escrever nesta parte" abre o campo
+no meio da parte escolhida. O formato salvo ganhou um campo opcional
+(`escritas`); pinturas antigas continuam valendo.
+
+| Item | Resultado | Prova |
+|---|---|---|
+| "14" escrito na caixinha do 2 × 7 da tabuada, salvo e desfeito | sim | medido |
+| Leitor de tela: campo com nome e instrução, "Escreveu: 14" anunciado | sim | medido (DOM) |
+| Texto da criança escapado no SVG; só cor em hex | sim | teste (`camadaEscrita.test.ts`) |
+| Vai para a folha impressa, por cima do contorno | sim | teste |
+| axe-core com o campo aberto | nenhuma violação | medido |
+
+Limites: um só tamanho de letra (cabe na caixinha das folhas A4); a letra é
+a Cardo — numa impressão pelo app instalado do iPhone (que vira imagem) a
+letra pode sair a do sistema; o quebra-cabeça não mostra a escrita; não
+testado com o teclado do celular de verdade.
+
+**Detalhes.** O front matter de um texto trazido de fora não aparece mais no
+meio da leitura: vai para uma caixa "Detalhes", fechada, no alto — como no
+Pedra Angular. A leitura passou a aceitar o front matter com marca de BOM e
+linha em branco antes do `---` (comum em texto gerado por chat); antes, nesse
+caso, o bloco inteiro aparecia como texto e o título não era lido.
+
+**Coluna.** A coluna de leitura passou de 52 para 61 letras (`ch`), a mesma
+medida do Pedra Angular, e continua crescendo junto com a letra até a borda
+da tela. Medido em 1280 px com OpenDyslexic: 72 letras por linha com letra
+20 px (coluna de 824 px) e as mesmas 72 com letra 28,8 px (coluna de 1237
+px). Com Atkinson a linha passa de 80 letras — acima do que se recomenda.
+
+---
+
 ## O que ainda não tem seção aqui
 
 Estante, leitura, quiz, quebra-cabeça, anotações, impressão, perfis e

@@ -3,6 +3,7 @@
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { CamadaBase, criarCamadaLinhas } from '../canvas/camadaBase';
+import { CamadaEscrita, escritasValidas, type Escrita } from '../canvas/camadaEscrita';
 import { soltarConfetes } from '../efeitos/confete';
 import { CamadaPincel, type Traco } from '../canvas/camadaPincel';
 import { MATIZES, matizDe, nomeDaCor, tintaSobre, type Matiz } from '../canvas/cores';
@@ -20,9 +21,14 @@ import { definirFalarCores, obterFalarCores } from './preferencias';
 interface EstadoColorir {
   regioes: Record<string, string>;
   tracos: Traco[];
+  /** o que a criança escreveu no desenho (campo novo, 2026-11-15: opcional) */
+  escritas?: Escrita[];
 }
 
-type Acao = { tipo: 'balde'; regiaoId: string; corAnterior: string } | { tipo: 'traco' };
+type Acao =
+  | { tipo: 'balde'; regiaoId: string; corAnterior: string }
+  | { tipo: 'traco' }
+  | { tipo: 'escrita'; antes: Escrita[] };
 
 // As cores (nomes, tons, ordem) moram em ../canvas/cores.ts.
 // Toque longo num poço abre os tons — e o botão «Tons» faz o mesmo com um
@@ -73,6 +79,15 @@ export async function montarTelaColorir(
   const pincel = new CamadaPincel(lente, () => roteador.estiloPincel());
   roteador = new RoteadorFerramenta(pincel);
   const camadaLinhas = criarCamadaLinhas(lente, svgFonte);
+  // a de cima de todas: o que a criança escreve no desenho
+  const caixa = base.svg.viewBox.baseVal;
+  const escrita = new CamadaEscrita(
+    lente,
+    caixa && caixa.width > 0 ? caixa.width : 800,
+    caixa && caixa.height > 0 ? caixa.height : 600,
+    () => roteador.cor,
+    (texto) => avisar(texto),
+  );
   const zoom = instalarZoomPinca(tela, lente, () => pincel.cancelarTracoAtivo());
 
   // --- estado + persistência ---
@@ -83,6 +98,7 @@ export async function montarTelaColorir(
   };
   base.aplicarEstado(estado.regioes);
   pincel.carregar(estado.tracos);
+  escrita.carregar(escritasValidas(estado.escritas));
 
   const acoes: Acao[] = [];
   let salvarAgendado: number | undefined;
@@ -90,6 +106,7 @@ export async function montarTelaColorir(
     clearTimeout(salvarAgendado);
     salvarAgendado = window.setTimeout(() => {
       estado.tracos = pincel.obterTracos();
+      estado.escritas = escrita.obter();
       armazenamento.definir(chave, estado);
     }, 300);
   };
@@ -109,6 +126,11 @@ export async function montarTelaColorir(
     pintarRegiao(regiaoId);
   });
 
+  escrita.aoMudar((antes) => {
+    acoes.push({ tipo: 'escrita', antes });
+    salvar();
+  });
+
   let desfazendo = false;
   pincel.aoMudar(() => {
     if (!desfazendo) acoes.push({ tipo: 'traco' });
@@ -122,6 +144,8 @@ export async function montarTelaColorir(
       base.pintar(acao.regiaoId, acao.corAnterior);
       if (acao.corAnterior === '#ffffff') delete estado.regioes[acao.regiaoId];
       else estado.regioes[acao.regiaoId] = acao.corAnterior;
+    } else if (acao.tipo === 'escrita') {
+      escrita.carregar(acao.antes);
     } else {
       desfazendo = true;
       pincel.desfazerUltimo();
@@ -138,6 +162,7 @@ export async function montarTelaColorir(
     { id: 'balde', rotulo: '🪣', nome: 'Balde de tinta' },
     { id: 'pincel', rotulo: '🖌️', nome: 'Pincel' },
     { id: 'borracha', rotulo: '🧽', nome: 'Borracha' },
+    { id: 'texto', rotulo: '✏️', nome: 'Escrever no desenho: toque onde quer escrever' },
   ];
   const grupoFerr = el('div', 'grupo-ferramentas');
   for (const f of ferramentas) {
@@ -255,7 +280,9 @@ export async function montarTelaColorir(
   linhaPartes.append(parteAntes, seletor, parteDepois);
   const corDaParte = el('p', 'cor-da-parte');
   const pintarParte = el('button', 'botao-grande botao-pintar-parte');
-  painelPartes.append(linhaPartes, corDaParte, pintarParte);
+  // escrever no meio da parte escolhida: o caminho de quem não acerta o toque
+  const escreverParte = el('button', 'botao-opcao', '✏️ Escrever nesta parte');
+  painelPartes.append(linhaPartes, corDaParte, pintarParte, escreverParte);
   barra.appendChild(painelPartes);
 
   // o contorno da parte escolhida fica destacado NO DESENHO (camada de
@@ -291,6 +318,15 @@ export async function montarTelaColorir(
     const id = idsDasPartes[parteAtual];
     if (id) pintarRegiao(id);
   });
+  escreverParte.addEventListener('click', () => {
+    const id = idsDasPartes[parteAtual];
+    const alvo = id ? base.svg.querySelector<SVGGraphicsElement>(`#${CSS.escape(id)}`) : null;
+    if (!alvo) return;
+    const b = alvo.getBBox();
+    const w = caixa && caixa.width > 0 ? caixa.width : 800;
+    const h = caixa && caixa.height > 0 ? caixa.height : 600;
+    escrita.abrirCampo((b.x + b.width / 2) / w, (b.y + b.height / 2) / h);
+  });
   botaoPartes.addEventListener('click', () => {
     partesAbertas = !partesAbertas;
     atualizarPartes();
@@ -324,7 +360,7 @@ export async function montarTelaColorir(
       imprimirParaColorir(
         svgFonte,
         livro.metadados.titulo,
-        comPintura ? { regioes: estado.regioes, tracos: pincel.obterTracos() } : undefined,
+        comPintura ? { regioes: estado.regioes, tracos: pincel.obterTracos(), escritas: escrita.obter() } : undefined,
       );
     });
     escolhaImpressao.appendChild(b);
@@ -469,6 +505,7 @@ export async function montarTelaColorir(
   raiz.appendChild(barra);
 
   function atualizarSelecao(): void {
+    escrita.ativa(roteador.ferramenta === 'texto');
     grupoFerr.querySelectorAll<HTMLButtonElement>('[data-ferramenta]').forEach((b) => {
       const ativa = b.dataset.ferramenta === roteador.ferramenta;
       b.classList.toggle('ativa', ativa);
