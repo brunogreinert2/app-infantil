@@ -115,6 +115,9 @@ Em ordem sugerida:
    frase inteira e outro para limpar. Alvos de toque grandes; sem animação.
 2. **Formulário da professora** para `fichaDePalavraPropria`: palavra,
    sílabas (opcional, com hífens), contexto (lista), parecidas (opcional).
+   O campo das sílabas já pode nascer preenchido por `silabasComHifens()` de
+   `src/conteudo/silabas.ts`, com os avisos de `conferir` ao lado: é sugestão
+   que ela confirma ou corrige, nunca separação automática na ficha.
    Guardar por perfil em `armazenamento.ts`. Gerar e imprimir pelo
    `motorImpressao.ts` (já aceita SVG A4).
 3. **Prancha personalizada**: escolher casas do catálogo de palavras + casas

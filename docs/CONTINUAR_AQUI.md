@@ -10,6 +10,44 @@ faixa. Ao mexer em qualquer tela, perguntar se ela serve também a um
 adolescente — e não pôr material juvenil na estante dos pequenos sem essa
 conversa (decisão 3 de `docs/LER_O_MUNDO.md`).
 
+## Geradores: motores puros em .ts (2026-11-16, fim da noite) — NÃO publicado
+
+O Bruno gostou da lógica "um `.ts` puro com teste destrava muita coisa" e quer
+o app como uma **caixa de brincadeiras e folhas**: muitas opções, tudo gerado.
+Receita de cada gerador (a mesma de `src/caa/modelo.ts` e do separador abaixo):
+função pura, entrada simples → SVG/HTML A4, **sem sorteio** (mesma entrada, mesma
+folha; se precisar variar, por semente numérica), teste que confere que cabe no
+A4 e que o gabarito bate. Tela e formulário vêm depois, por modelo menor.
+
+**Feito: `src/conteudo/silabas.ts`** — `separarSilabas(palavra)` devolve
+`{ silabas, conferir }`. É **sugestão**: a decisão "o app não adivinha a
+separação" continua valendo para a ficha (`fichaDePalavraPropria` só aceita
+sílabas informadas). O formulário da professora deve preencher o campo com
+`silabasComHifens()` e mostrar os avisos de `conferir` para ela confirmar.
+Conferido só por teste (9 testes: as 43 palavras do catálogo, ditongos, hiatos,
+QU/GU, nomes); hiato sem acento que a regra erra entra em `HIATOS_SABIDOS`.
+Nenhuma professora conferiu ainda.
+
+**Fila, na ordem em que eu faria** (nada começado):
+
+1. Caça-palavras e cruzadinha de qualquer lista, com gabarito.
+2. Jogos de mesa em A4 com os 60 desenhos: memória, dominó, bingo (cartelas
+   todas diferentes), frente e verso alinhados para recortar.
+3. Papéis: pauta comum, **pauta ampliada**, quadriculado, milimetrado,
+   pontilhado, régua de recortar, calendário do mês/ano. Um motor só
+   (`papeis.ts`) com medidas em mm. O Bruno citou a "linha Clara" como
+   referência de pauta ampliada — **eu não achei registro dela no repositório;
+   perguntar a ele as medidas antes de desenhar.**
+4. Matemática do ensino médio (interesse da Luiza): plano cartesiano em branco
+   e com função traçada, parábola com vértice/raízes/Bhaskara passo a passo,
+   reta numérica, relógio.
+5. Frase → tira de pictogramas (base da história social e da agenda visual).
+6. Diário de uso da prancha, só para a professora (nunca reordena casas).
+
+Para modelo menor: agenda visual "primeiro → depois", prancha do ônibus, escala
+de emoções, textos de história social. Dinheiro de recortar: só cédula
+estilizada, claramente de brincadeira.
+
 ## Prancha de CAA no app (2026-11-16, noite) — NÃO publicado
 
 Mesma branch `fable/ler-o-mundo-e-caa`. O motor e as telas da prancha de
