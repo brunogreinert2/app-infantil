@@ -84,6 +84,11 @@ Verbos: destaque, circule, aponte, fale, escreva. Nunca "pinte".
 
 ## O que falta (coisa de motor e de tela — Claude Code)
 
+> **Atualização 16/11 (noite):** os itens 1 (tela da prancha) e 3 (prancha
+> personalizada, com foto) estão feitos em `src/caa/` — ver `docs/CAA.md`.
+> A decisão 3 ("onde mora no app") foi resolvida só para a prancha: botão
+> próprio na porta de entrada, fora da estante. Ler o Mundo continua sem casa.
+
 Em ordem sugerida:
 
 1. **Tela da prancha no app.** Grade tocável; tocar fala `casa.fala` com

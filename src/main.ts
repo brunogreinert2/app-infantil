@@ -34,6 +34,10 @@ import {
   removerPainel,
 } from './telas/painelLateral';
 import { pararFala } from './tts';
+import { montarTelaPrancha } from './caa/telaPrancha';
+import { montarTelaPranchasAdultos } from './caa/telaMontar';
+import { conjuntoAtivo } from './caa/guardar';
+import type { ConjuntoCaa } from './caa/modelo';
 
 const raiz = document.getElementById('app')!;
 let livroAtual: Livro | null = null;
@@ -51,7 +55,33 @@ function irPerfis(): void {
       irEstante();
     },
     irAjustes,
+    () => void irPrancha(),
   );
+}
+
+// ---------- prancha de comunicação (CAA) ----------
+// Fora da estante e dos perfis: quem usa pode ser adolescente ou adulto.
+// Também abre direto pelo endereço historinhas.app.br/#prancha (para deixar
+// salvo no tablet do aluno); é a única porta que não passa pela escolha de
+// perfil, e de propósito: a prancha é a voz de alguém, e não um cantinho de
+// leitura.
+async function irPrancha(conjunto?: ConjuntoCaa, voltar: () => void = irPerfis): Promise<void> {
+  pararFala();
+  removerPainel();
+  const c = conjunto ?? (await conjuntoAtivo());
+  montarTelaPrancha(raiz, c, {
+    sair: voltar,
+    rotuloSair: voltar === irPerfis ? 'Sair' : 'Voltar a montar',
+    montar: conjunto ? undefined : () => montarTravaParental(raiz, irPranchasAdultos, () => void irPrancha()),
+  });
+}
+
+function irPranchasAdultos(): void {
+  removerPainel();
+  void montarTelaPranchasAdultos(raiz, {
+    voltar: abrirAjustes,
+    experimentar: (c, voltar) => void irPrancha(c, voltar),
+  });
 }
 
 // já dentro da área dos adultos (a trava ficou para trás): ajustes ⇄ guia
@@ -60,6 +90,7 @@ function abrirAjustes(): void {
   void montarTelaConfiguracoes(raiz, {
     perfis: irPerfis,
     guia: () => montarTelaGuia(raiz, { voltar: abrirAjustes }),
+    pranchas: irPranchasAdultos,
   });
 }
 
@@ -238,4 +269,5 @@ configurarPainel({
   perfis: irPerfis,
 });
 
-irPerfis();
+if (location.hash === '#prancha') void irPrancha();
+else irPerfis();

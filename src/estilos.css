@@ -2154,3 +2154,114 @@ button {
      entrelinhas isto não muda nada (cabe dentro da linha). */
   line-height: 1.2;
 }
+
+/* ---------- prancha de comunicação (CAA) — src/caa/ ----------
+   Paleta PRÓPRIA, clara e fixa: não segue o tema do perfil (quem aprende a
+   prancha num aparelho a reconhece no outro). Tinta #111 sobre fundos claros:
+   contraste ≥ 7:1 conferido em src/caa/modelo.test.ts. Sem animação. */
+.tela-caa {
+  --caa-fundo: #ecebe6;
+  --caa-tinta: #111111;
+  --caa-borda: #2b2b2b;
+  --caa-foco: #0047ab;
+  background: var(--caa-fundo);
+  color: var(--caa-tinta);
+  font-family: 'Atkinson Hyperlegible', 'OpenDyslexic', sans-serif;
+  padding: 0 8px 12px;
+  min-height: 100vh;
+}
+.caa-topo { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
+.caa-titulo { flex: 1; margin: 0; font-size: 1.1rem; font-weight: 700; text-align: center; color: var(--caa-tinta); }
+.caa-botao {
+  min-height: 48px; min-width: 48px; padding: 0 14px; border-radius: 12px;
+  border: 2px solid var(--caa-borda); background: #ffffff; color: var(--caa-tinta);
+  font: inherit; font-weight: 700; font-size: 1rem; cursor: pointer;
+}
+.caa-botao:disabled { opacity: 0.45; cursor: default; }
+.caa-botao-discreto { border-color: #8a8a8a; }
+.caa-botao:focus-visible, .casa-caa:focus-visible { outline: 4px solid var(--caa-foco); outline-offset: 2px; }
+.caa-frase {
+  display: flex; align-items: stretch; gap: 8px; padding: 6px;
+  background: #ffffff; border: 2px solid var(--caa-borda); border-radius: 14px; margin-bottom: 8px;
+}
+.caa-frase-casas { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 56px; }
+.caa-frase-vazia { color: #4a4a4a; font-size: 0.95rem; padding: 0 6px; }
+.caa-frase-pedaco {
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 48px; padding: 2px 6px; font-weight: 700; font-size: 0.85rem; line-height: 1.1;
+}
+.caa-frase-pedaco img, .caa-frase-figura svg { width: 32px; height: 32px; object-fit: contain; }
+.caa-frase-acoes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.caa-falar { background: #111111; color: #ffffff; border-color: #111111; }
+.caa-caminho { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.caa-caminho[hidden] { display: none; }
+.caa-caminho-aqui { font-weight: 700; font-size: 1.1rem; }
+.caa-grade {
+  --lado: 96px;
+  display: grid;
+  grid-template-columns: repeat(var(--colunas, 4), var(--lado));
+  grid-auto-rows: var(--lado);
+  gap: 8px;
+  justify-content: center;
+}
+.casa-caa {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2%;
+  width: var(--lado); height: var(--lado); padding: 6% 4%;
+  background: var(--cor-casa, #ffffff); color: #111111;
+  border: 2px solid #2b2b2b; border-radius: 12px;
+  font: inherit; cursor: pointer; overflow: hidden;
+  -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.casa-caa:active { filter: brightness(0.82); }
+.casa-caa.vazia { background: transparent; border: 2px dashed #9a9a9a; cursor: default; color: #555555; font-size: 1.6rem; }
+button.casa-caa.vazia { cursor: pointer; }
+/* pasta: aba grossa no alto (como uma pasta de arquivo) — não depende da cor */
+.casa-caa.pasta { border-width: 3px; border-top-width: 12px; }
+.casa-caa-figura { flex: 1; width: 100%; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.casa-caa-figura svg, .casa-caa-figura img { width: 100%; height: 100%; object-fit: contain; }
+.casa-caa-figura.sem-figura { flex: 0; }
+.casa-caa-rotulo {
+  font-weight: 700; line-height: 1.05; text-align: center; word-break: keep-all; overflow-wrap: normal;
+  max-width: 100%;
+  /* a palavra mais longa cabe na largura da casa: ~0,7 em por letra */
+  font-size: max(8px, min(calc(var(--lado) * 0.16), calc(var(--lado) * 1.3 / var(--letras, 6))));
+}
+.casa-caa.varrendo { outline: 6px solid var(--caa-foco, #0047ab); outline-offset: 2px; z-index: 1; }
+.caa-botao.varrendo { outline: 6px solid var(--caa-foco); outline-offset: 2px; }
+.com-varredura * { cursor: pointer; }
+.caa-aviso { text-align: center; font-size: 0.95rem; margin-top: 12px; }
+
+.botao-prancha-caa {
+  margin: 18px auto 0; display: block; min-height: 52px; padding: 0 22px; border-radius: 14px;
+  background: #ffffff; color: #111111; border: 2px solid #2b2b2b; font: inherit; font-weight: 700; cursor: pointer;
+}
+
+/* ---- montar pranchas (área dos adultos; segue o tema do app) ---- */
+.caa-criar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0; }
+.caa-criar input, .caa-campo input, .caa-campo select {
+  min-height: 48px; padding: 0 12px; border-radius: 12px; border: 2px solid var(--borda);
+  background: var(--cartao); color: var(--texto); font: inherit; max-width: 100%;
+}
+.caa-criar input { flex: 1 1 260px; }
+.caa-cartao { background: var(--cartao); border: 2px solid var(--borda); border-radius: 16px; padding: 12px 14px; margin: 12px 0; }
+.caa-cartao-nome { margin: 0 0 4px; font-size: 1.15rem; }
+.caa-cartao-botoes, .caa-linha, .caa-confirma { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.caa-confirma p { flex-basis: 100%; margin: 0; }
+.caa-imprimir { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.caa-marcar { display: flex; gap: 10px; align-items: center; min-height: 44px; cursor: pointer; }
+.caa-marcar input { width: 24px; height: 24px; }
+.caa-campo { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
+.caa-campo-nome { font-weight: 700; font-size: 0.95rem; }
+.caa-ajustes { margin: 10px 0; }
+.caa-ajustes summary { cursor: pointer; font-weight: 700; padding: 10px 0; }
+.caa-grade-editor { justify-content: start; margin: 10px 0; }
+.casa-caa.escolhida { outline: 5px solid var(--destaque); outline-offset: 2px; }
+.caa-painel-casa { background: var(--cartao); border: 2px solid var(--borda); border-radius: 16px; padding: 12px 14px; margin: 12px 0; }
+.caa-desenhos { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; margin: 8px 0; }
+.caa-desenho {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 2px;
+  background: #ffffff; color: #111111; border: 2px solid #bdbdbd; border-radius: 10px; font: inherit; font-size: 0.75rem; cursor: pointer;
+}
+.caa-desenho svg { width: 44px; height: 44px; }
+.caa-desenho[aria-pressed='true'] { border: 3px solid #111111; background: #fff1a8; }

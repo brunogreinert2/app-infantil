@@ -1,5 +1,15 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Prancha de CAA no app (2026-11-16, noite) — NÃO publicado
+
+Mesma branch `fable/ler-o-mundo-e-caa`. O motor e as telas da prancha de
+comunicação: `src/caa/` (modelo puro + essencial 5 × 6 com 4 pranchas de
+assunto + 60 desenhos + editor da professora com foto do aparelho + arquivo
+para levar ao tablet do aluno + impressão A4 com cores ou tracejada + varredura
+de um gesto). Entra pelo botão "💬 Prancha de comunicação" na porta de entrada,
+por `#prancha` e pelos Ajustes. Testes e build limpos; conferido no navegador e
+em PDF real. Tudo, inclusive o que NÃO foi conferido, em **`docs/CAA.md`**.
+
 ## Ler o Mundo e Prancha de CAA (2026-11-16) — piloto, NÃO publicado
 
 Encomenda de uma professora de AEE: letramento para adolescentes e adultos

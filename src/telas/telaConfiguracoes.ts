@@ -67,7 +67,7 @@ export function montarTravaParental(
 
 export async function montarTelaConfiguracoes(
   raiz: HTMLElement,
-  nav: { perfis: () => void; guia?: () => void },
+  nav: { perfis: () => void; guia?: () => void; pranchas?: () => void },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-config';
@@ -94,6 +94,15 @@ export async function montarTelaConfiguracoes(
     const abrirGuia = el('button', 'botao-grande', '📖 Guia de quem ensina');
     abrirGuia.addEventListener('click', nav.guia);
     corpo.appendChild(abrirGuia);
+  }
+  if (nav.pranchas) {
+    if (!nav.guia) corpo.appendChild(el('h2', 'titulo-secao', 'Para quem ensina'));
+    corpo.appendChild(
+      el('p', 'texto-sobre', 'Prancha de comunicação alternativa (CAA): montar para cada pessoa, com desenho ou foto, levar de um aparelho a outro e imprimir.'),
+    );
+    const abrirPranchas = el('button', 'botao-grande', '💬 Pranchas de comunicação');
+    abrirPranchas.addEventListener('click', nav.pranchas);
+    corpo.appendChild(abrirPranchas);
   }
 
   // ---------- perfis ----------
