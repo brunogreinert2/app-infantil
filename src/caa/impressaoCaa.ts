@@ -58,7 +58,9 @@ function folha(conjunto: ConjuntoCaa, prancha: PranchaCaa, op: OpcoesImpressao):
 
   const casas = prancha.casas
     .map((casa) => {
-      const cor = op.cores && casa.rotulo ? CORES_CAA[casa.categoria] : '#ffffff';
+      // a pasta não leva a cor da categoria: no papel ela se distingue pela
+      // aba preta com o destino e pela borda dupla (sobrevive à fotocópia)
+      const cor = op.cores && casa.rotulo && !casa.abre ? CORES_CAA[casa.categoria] : '#ffffff';
       const classes = ['casa', casa.abre ? 'pasta' : '', casa.rotulo ? '' : 'vazia'].filter(Boolean).join(' ');
       let miolo = '';
       if (casa.imagem) miolo = `<img src="${esc(casa.imagem)}" alt="">`;
@@ -104,7 +106,8 @@ export function htmlDoConjunto(conjunto: ConjuntoCaa, op: OpcoesImpressao): { co
     .grade { display: grid; }
     .casa { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: ${mm(0.5)};
       border: ${borda}; border-radius: ${mm(3)}; overflow: hidden; break-inside: avoid; color: #000000; }
-    .casa.pasta { border-width: ${mm(1)}; border-style: solid; padding-top: ${mm(4.6)}; }
+    .casa.pasta { border: ${mm(1.6)} double #000000; padding-top: ${mm(4.6)};
+      box-shadow: ${mm(1.2)} ${mm(1.2)} 0 ${mm(-0.3)} #ffffff, ${mm(1.2)} ${mm(1.2)} 0 0 #000000; }
     .aba { position: absolute; left: 0; right: 0; top: 0; height: ${mm(4.6)}; background: #000000; color: #ffffff;
       font-size: ${mm(2.8)}; font-weight: 700; line-height: ${mm(4.6)}; text-align: right; padding-right: ${mm(2)}; white-space: nowrap; overflow: hidden; }
     .casa.vazia { border-style: dashed; }

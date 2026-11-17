@@ -1,5 +1,15 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Rumo: app infanto-juvenil (ideia do Bruno, 2026-11-16)
+
+O Ler o Mundo (alfabetização sem cara infantil) e a prancha de CAA levaram o
+Bruno a pensar o Historinhas como **infanto-juvenil**, aproveitando a faixa
+etária que o perfil já tem (`faixa` em `src/perfis/`). "Vamos fazer esses
+ajustes aos poucos": nada decidido ainda sobre nome, estante ou visual por
+faixa. Ao mexer em qualquer tela, perguntar se ela serve também a um
+adolescente — e não pôr material juvenil na estante dos pequenos sem essa
+conversa (decisão 3 de `docs/LER_O_MUNDO.md`).
+
 ## Prancha de CAA no app (2026-11-16, noite) — NÃO publicado
 
 Mesma branch `fable/ler-o-mundo-e-caa`. O motor e as telas da prancha de

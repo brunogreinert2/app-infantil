@@ -44,7 +44,7 @@ export function desenharCasa(casa: CasaCaa, conjunto: ConjuntoCaa, comCor: boole
     botao.setAttribute('aria-hidden', 'true');
     return botao;
   }
-  if (comCor) botao.style.setProperty('--cor-casa', CORES_CAA[casa.categoria]);
+  if (comCor && !casa.abre) botao.style.setProperty('--cor-casa', CORES_CAA[casa.categoria]);
   const figura = el('span', 'casa-caa-figura');
   if (casa.imagem) {
     const img = el('img');

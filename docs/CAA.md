@@ -60,9 +60,12 @@ ensina"), `estilos.css` (bloco "prancha de comunicação"),
    corrige concordância nem inventa palavra. Única ajuda: `naFrase`, escrita
    pela professora (DOR sozinha → "estou com dor"; EU + ESTOU + DOR → "eu
    estou com dor").
-4. **Cor nunca é a única pista.** A palavra está sempre escrita; a pasta se
-   reconhece pela aba grossa no alto (na tela) e pela faixa preta com o
-   destino (no papel).
+4. **Cor nunca é a única pista.** A palavra está sempre escrita.
+5. **Pasta parece outra coisa, não uma palavra a mais** (pedido do Bruno: POR
+   FAVOR ficava igual às pastas ao lado). Na tela: fundo azul-escuro com
+   desenho e letra brancos, folhas empilhadas atrás e "›" no canto, sem a cor
+   da categoria. No papel: fundo branco, borda dupla, aba preta com o destino
+   ("→ Sinto") e folhas empilhadas — sobrevive à fotocópia em preto e branco.
 
 ## Ajustes por conjunto (o editor mostra todos)
 
