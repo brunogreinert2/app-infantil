@@ -18,6 +18,7 @@
 
 import type { FichaAlfabeto } from './alfabetos';
 import {
+  svgBanheiroA4,
   svgCatalogoA4,
   svgDinheiroA4,
   svgFormularioA4,
@@ -237,6 +238,7 @@ export function gerarCadernoLerOMundo(): FichaAlfabeto[] {
       add(`palavra-${idDaPalavra(palavra.palavra)}`, palavra.palavra, svgPalavraA4(palavra), grupo.titulo);
     }
   }
+  add('banheiro-sinais', 'Banheiro: masculino e feminino', svgBanheiroA4(), 'Lugares');
   add('formulario', 'Preencher uma ficha', svgFormularioA4(), 'Documentos');
   add('dinheiro', 'Dinheiro: notas e moedas', svgDinheiroA4(), 'Números do dia a dia');
   add('hora', 'Hora e horário de ônibus', svgHoraA4(), 'Números do dia a dia');

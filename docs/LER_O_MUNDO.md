@@ -28,7 +28,7 @@ Não registrar nome nem dado de aluno em lugar nenhum do repositório.
 | `src/conteudo/lerOMundoArte.ts` | As folhas: `svgPalavraA4`, `svgCatalogoA4`, `svgFormularioA4`, `svgDinheiroA4`, `svgHoraA4`; a identidade `IDENTIDADE_LER_O_MUNDO` |
 | `src/conteudo/pranchaCaa.ts` | `PRANCHA_ESSENCIAL` (20 casas, com o campo `fala`), `PRANCHA_EM_BRANCO`, 19 pictogramas próprios, `svgPranchaA4` |
 | `src/conteudo/lerOMundo.test.ts` | 9 testes (sílabas formam a palavra, IDs únicos, sem marca infantil, sem "pinte", folhas infantis intactas) |
-| `scripts/exportar-fichas.mjs` | Agora exporta também `ler-o-mundo` (53 folhas) e `comunicacao` (2 folhas) |
+| `scripts/exportar-fichas.mjs` | Agora exporta também `ler-o-mundo` (54 folhas) e `comunicacao` (2 folhas) |
 
 Mudanças em arquivos que já existiam, todas compatíveis:
 
@@ -40,6 +40,24 @@ Mudanças em arquivos que já existiam, todas compatíveis:
 
 Conferido: as 125 folhas infantis (alfabeto, grego, números) saem **idênticas
 byte a byte** às da `master` (exportei antes e depois e comparei com `diff -r`).
+
+## Folha "Banheiro: masculino e feminino" (2026-11-17)
+
+`svgBanheiroA4()` em `lerOMundoArte.ts`, id `banheiro-sinais`. Motivo: o texto
+"O meu irmão" (LEWIS, P. *A case for teaching functional skills*, TASH
+Newsletter 23(3), 1997; trad. em APAE Bauru, *Currículo Funcional Natural*,
+2011), que o Bruno trouxe: o rapaz diz o nome das letras num cartão, mas não
+distingue a placa de banheiro de homem e de mulher no McDonald's. É o
+argumento do currículo funcional, e serve de justificativa para todo o
+Ler o Mundo.
+
+A folha ensina a **pista** (calça com duas pernas × vestido em triângulo), as
+variações reais (HOMENS/MULHERES, SENHORES/SENHORAS, H/F, ♂/♀), o alerta da
+letra **M** (Masculino ou Mulheres) e que a cor muda de lugar para lugar. O
+exercício final pede para marcar a figura certa sob cada placa. `figura()` é
+reaproveitável (cabeça e corpo como regiões, traço fino abaixo de 90 px).
+Falta: banheiro acessível e família/unissex, e o passo seguinte do currículo
+funcional, que é treinar no lugar de verdade (foto da porta da escola).
 
 ## A ficha de palavra, em cinco passos
 

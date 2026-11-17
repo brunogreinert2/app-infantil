@@ -379,3 +379,134 @@ export function svgHoraA4(): string {
   });
   return folha('Hora e horário de ônibus', 'Números do dia a dia', corpo);
 }
+
+// ---------------------------------------------------------------------------
+// Banheiro: masculino e feminino
+// ---------------------------------------------------------------------------
+// Motivo: o texto "O meu irmão" (Lewis, 1997, trad. APAE Bauru) — o rapaz
+// diz o nome das letras num cartão, mas não distingue a placa de banheiro de
+// homem e de mulher no McDonald's. A folha ensina a PISTA (o desenho do corpo)
+// e as variações reais da placa, sem depender de cor.
+
+// Silhuetas numa caixa de 100 x 200 (cabeça à parte). Polígonos simples,
+// escalados aqui mesmo para o traço não engrossar.
+const CORPO_MASCULINO: [number, number][] = [
+  [22, 44], [78, 44], [86, 52], [86, 112], [76, 112], [76, 68], [72, 68], [72, 196],
+  [54, 196], [54, 128], [46, 128], [46, 196], [28, 196], [28, 68], [24, 68], [24, 112],
+  [14, 112], [14, 52],
+];
+const CORPO_FEMININO: [number, number][] = [
+  [30, 44], [70, 44], [79, 52], [88, 110], [78, 110], [71, 76], [90, 142], [64, 142],
+  [64, 196], [54, 196], [54, 142], [46, 142], [46, 196], [36, 196], [36, 142], [10, 142],
+  [29, 76], [22, 110], [12, 110], [21, 52],
+];
+
+export type Corpo = 'masculino' | 'feminino';
+
+/** figura de placa: cabeça e corpo são regiões separadas. Traço mais fino
+ *  nas figuras pequenas, senão o vão entre as pernas some. */
+export function figura(id: string, corpo: Corpo, cx: number, topo: number, altura: number): string {
+  const f = altura / 200;
+  const x0 = cx - 50 * f;
+  const traco = altura < 90 ? 1.4 : 3;
+  const pontos = (corpo === 'masculino' ? CORPO_MASCULINO : CORPO_FEMININO)
+    .map(([x, y]) => `${(x0 + x * f).toFixed(1)} ${(topo + y * f).toFixed(1)}`)
+    .join(' L');
+  return (
+    regiao(`${id}-cabeca`, `<circle cx="${cx}" cy="${(topo + 20 * f).toFixed(1)}" r="${(16 * f).toFixed(1)}" stroke-width="${traco}"/>`) +
+    regiao(`${id}-corpo`, `<path d="M${pontos} Z" stroke-linejoin="round" stroke-width="${traco}"/>`)
+  );
+}
+
+/** ♂ e ♀ desenhados (não há glifo deles na letra das legendas) */
+function simboloSexo(id: string, corpo: Corpo, cx: number, cy: number, r: number): string {
+  if (corpo === 'masculino') {
+    const ox = cx - r * 0.25;
+    const oy = cy + r * 0.25;
+    const a = r * 0.72; // até a borda, na diagonal
+    const ponta = r * 1.55;
+    return (
+      regiao(id, `<circle cx="${ox}" cy="${oy}" r="${r * 0.72}"/>`) +
+      risco(
+        `M${ox + a * 0.7} ${oy - a * 0.7} L${ox + ponta} ${oy - ponta} M${ox + ponta - r * 0.62} ${oy - ponta} H${ox + ponta} V${oy - ponta + r * 0.62}`,
+        5,
+      )
+    );
+  }
+  const oy = cy - r * 0.35;
+  return (
+    regiao(id, `<circle cx="${cx}" cy="${oy}" r="${r * 0.72}"/>`) +
+    risco(`M${cx} ${oy + r * 0.72} V${oy + r * 1.75} M${cx - r * 0.45} ${oy + r * 1.28} H${cx + r * 0.45}`, 5)
+  );
+}
+
+type Variante = { id: string; corpo: Corpo; palavra?: string; simbolo?: boolean };
+
+const VARIANTES_MASCULINO: Variante[] = [
+  { id: 'homens', corpo: 'masculino', palavra: 'HOMENS' },
+  { id: 'senhores', corpo: 'masculino', palavra: 'SENHORES' },
+  { id: 'letra-h', corpo: 'masculino', palavra: 'H' },
+  { id: 'simbolo', corpo: 'masculino', simbolo: true },
+];
+const VARIANTES_FEMININO: Variante[] = [
+  { id: 'mulheres', corpo: 'feminino', palavra: 'MULHERES' },
+  { id: 'senhoras', corpo: 'feminino', palavra: 'SENHORAS' },
+  { id: 'letra-f', corpo: 'feminino', palavra: 'F' },
+  { id: 'simbolo', corpo: 'feminino', simbolo: true },
+];
+
+function placaVariante(id: string, v: Variante, x: number, y: number, w: number, h: number): string {
+  let s = quadro(id, x, y, w, h, 10);
+  if (v.simbolo) s += simboloSexo(`${id}-simbolo`, v.corpo, x + w / 2, y + h / 2, h * 0.3);
+  else s += textoQueCabe(v.palavra!, x + w / 2, y + h / 2, w - 24, v.palavra!.length === 1 ? 44 : 28);
+  return s;
+}
+
+export function svgBanheiroA4(): string {
+  let corpo = texto('1. Os dois desenhos mais comuns. A diferença está no corpo.', 48, 197, 21);
+
+  const paineis: [Corpo, string, string, number][] = [
+    ['masculino', 'MASCULINO', 'calça: duas pernas separadas', 48],
+    ['feminino', 'FEMININO', 'vestido: um triângulo', 416],
+  ];
+  for (const [c, palavra, pista, x] of paineis) {
+    corpo += quadro(`regiao-placa-${c}`, x, 214, 336, 230, 16);
+    corpo += figura(`regiao-figura-${c}`, c, x + 168, 226, 150);
+    corpo += textoQueCabe(palavra, x + 168, 408, 290, 40);
+    corpo += texto(pista, x + 168, 470, 17, 'middle');
+  }
+
+  corpo += texto('2. A mesma porta, escrita de outros jeitos.', 48, 518, 21);
+  const linhaDeVariantes = (lista: Variante[], c: Corpo, y: number) => {
+    let s = figura(`regiao-guia-${c}`, c, 80, y + 2, 60);
+    lista.forEach((v, i) => (s += placaVariante(`regiao-variante-${c}-${v.id}`, v, 124 + i * 158, y, 146, 64)));
+    return s;
+  };
+  corpo += linhaDeVariantes(VARIANTES_MASCULINO, 'masculino', 536);
+  corpo += linhaDeVariantes(VARIANTES_FEMININO, 'feminino', 612);
+
+  corpo += texto('Cuidado com a letra M: pode ser MASCULINO ou MULHERES. Na dúvida,', 48, 712, 18);
+  corpo += texto('olhe o desenho ou pergunte. A cor muda de lugar para lugar: não decida só pela cor.', 48, 738, 18);
+
+  corpo += texto('3. Qual é a porta? Marque o desenho certo embaixo de cada placa.', 48, 788, 21);
+  const exercicio: Variante[] = [
+    { id: 'mulheres', corpo: 'feminino', palavra: 'MULHERES' },
+    { id: 'simbolo-m', corpo: 'masculino', simbolo: true },
+    { id: 'homens', corpo: 'masculino', palavra: 'HOMENS' },
+    { id: 'feminino', corpo: 'feminino', palavra: 'FEMININO' },
+    { id: 'letra-h', corpo: 'masculino', palavra: 'H' },
+    { id: 'simbolo-f', corpo: 'feminino', simbolo: true },
+    { id: 'masculino', corpo: 'masculino', palavra: 'MASCULINO' },
+    { id: 'senhoras', corpo: 'feminino', palavra: 'SENHORAS' },
+  ];
+  exercicio.forEach((v, i) => {
+    const x = 48 + (i % 4) * 180;
+    const y = 806 + Math.floor(i / 4) * 120;
+    corpo += placaVariante(`regiao-exercicio-${i + 1}`, v, x, y, 164, 46);
+    corpo += quadro(`regiao-exercicio-${i + 1}-opcao-masculino`, x + 10, y + 52, 68, 58, 8);
+    corpo += figura(`regiao-exercicio-${i + 1}-mini-masculino`, 'masculino', x + 44, y + 57, 48);
+    corpo += quadro(`regiao-exercicio-${i + 1}-opcao-feminino`, x + 86, y + 52, 68, 58, 8);
+    corpo += figura(`regiao-exercicio-${i + 1}-mini-feminino`, 'feminino', x + 120, y + 57, 48);
+  });
+  return folha('Banheiro: masculino e feminino', 'Lugares', corpo);
+}
