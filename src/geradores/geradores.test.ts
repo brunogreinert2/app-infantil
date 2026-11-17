@@ -295,7 +295,7 @@ describe('jogos de mesa', () => {
     expect(iguais.reduce((t, f) => t + conta(f.svg, 'aria-label="CASA"'), 0)).toBe(2);
     const leitura = svgMemoriaA4(pecas, { par: 'leitura', verso: true });
     expect(leitura).toHaveLength(4);
-    expect(leitura.at(-1)!.titulo).toContain('verso');
+    expect(leitura[leitura.length - 1].titulo).toContain('verso');
     expect(leitura.slice(0, 3).reduce((t, f) => t + conta(f.svg, 'aria-label="CASA"'), 0)).toBe(1);
     // palavra sem desenho: as duas cartas levam a palavra
     expect(leitura.slice(0, 3).reduce((t, f) => t + conta(f.svg, 'aria-label="THEO"'), 0)).toBe(2);
