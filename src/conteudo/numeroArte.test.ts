@@ -119,6 +119,14 @@ describe('o livro Os Números', () => {
     expect(svg).toContain('aria-label="1.000.000"');
   });
 
+  it('romanos: de um a doze, as letras com os ids de antes e o traço ao lado do M', () => {
+    const svg = fichas.find((f) => f.id === 'romanos')!.svg;
+    const letra = (n: number) => svg.match(new RegExp(`id="regiao-letra-${n}"[^>]*><g role="img" lang="pt-BR" aria-label="([A-Z]+)"`))![1];
+    expect([10, 18, 19].map(letra)).toEqual(['X', 'XI', 'XII']);
+    expect([11, 17, 20].map(letra)).toEqual(['I', 'M', 'V']); // ids publicados não mudam de casa
+    expect(svg).toContain('id="regiao-traco-20"');
+  });
+
   it('a reta é feita de pedaços: nenhum traço atravessa uma casinha', () => {
     // casinhas em x = 70 + 66·i, raio 23; a linha só pode existir ENTRE elas
     for (const f of fichas) {

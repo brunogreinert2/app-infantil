@@ -241,9 +241,21 @@ export function svgRomanosA4(): string {
   return svgQuadrosA4(
     'Números romanos',
     'Números · consulta',
+    // Ids das regiões: de um a dez são 1–10 e as sete letras 11–17, como
+    // eram antes (pintura guardada não muda de casa). Onze, doze e o traço,
+    // que chegaram depois (pedido do Bruno, 2026-11-17), ganham 18, 19 e 20.
     [
-      { titulo: 'De um a dez, do jeito dos romanos', itens: ROMANOS.slice(0, 10).map((simbolos, i) => ({ simbolos, rotulo: NOMES_DOS_NUMEROS[i + 1] })) },
-      { titulo: 'Sete letras que valem números', itens: letrasQueValem.map(([simbolos, rotulo]) => ({ simbolos, rotulo })) },
+      {
+        titulo: 'De um a doze (uma dúzia!), do jeito dos romanos',
+        itens: ROMANOS.map((simbolos, i) => ({ simbolos, rotulo: NOMES_DOS_NUMEROS[i + 1], ...(i >= 10 ? { id: 8 + i } : {}) })),
+      },
+      {
+        titulo: 'Sete letras que valem números, e um traço',
+        itens: [
+          ...letrasQueValem.map(([simbolos, rotulo]) => ({ simbolos, rotulo })),
+          { simbolos: 'V', rotulo: 'traço: vezes mil', id: 20, traco: true },
+        ],
+      },
     ],
     'Letra menor DEPOIS da maior: junta. VI é cinco mais um. Letra menor ANTES da maior: tira. IV é cinco menos um; IX é dez menos um.',
   );

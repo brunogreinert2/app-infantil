@@ -169,7 +169,8 @@ export function svgTabelaA4(titulo: string, letrasDados: DadoLetra[], grego: boo
   return base(titulo,grego?'Grego antigo · alfabeto completo':'Português · alfabeto completo',corpo,false);
 }
 
-export interface ItemQuadro { simbolos: string; rotulo: string; id?: number; }
+/** `traco`: o traço romano em cima das letras (vezes mil), pintável à parte. */
+export interface ItemQuadro { simbolos: string; rotulo: string; id?: number; traco?: boolean; }
 export interface GrupoQuadro { titulo: string; itens: ItemQuadro[]; }
 export function svgQuadrosA4(titulo: string, categoria: string, grupos: GrupoQuadro[], nota: string): string {
   let corpo='',y=180,n=0;
@@ -181,7 +182,11 @@ export function svgQuadrosA4(titulo: string, categoria: string, grupos: GrupoQua
     grupo.itens.forEach((it,i)=>{
       const x=48+(i%4)*180,ty=y+Math.floor(i/4)*altura,id=it.id??++n;
       corpo+=quadro(`regiao-quadro-${id}`,x,ty,164,altura-13);
-      corpo+=letras(`regiao-letra-${id}`,it.simbolos,x+15,ty+18,134,altura-69);
+      if(it.traco){
+        const c=caixaDasLetras(it.simbolos,x+15,ty+36,134,altura-87);
+        corpo+=letras(`regiao-letra-${id}`,it.simbolos,x+15,ty+36,134,altura-87);
+        corpo+=quadro(`regiao-traco-${id}`,c.x-6,c.y-17,c.largura+12,9,4);
+      } else corpo+=letras(`regiao-letra-${id}`,it.simbolos,x+15,ty+18,134,altura-69);
       corpo+=texto(it.rotulo,x+82,ty+altura-30,17,'middle');
     });
     y+=Math.ceil(grupo.itens.length/4)*altura+36;

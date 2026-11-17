@@ -58,7 +58,7 @@ const CONVITES: string[] = [
 const CONVITES_DAS_OUTRAS: Record<string, string> = {
   tabela: 'Aqui moram todos os números de zero a dez. Qual é o seu preferido? Escolha uma cor para cada um e conte em voz alta enquanto pinta.',
   dezenas: 'De dez em dez a gente chega longe! Dez, vinte, trinta… É como subir uma escada pulando degraus. Até onde você consegue ir?',
-  romanos: 'Os romanos antigos escreviam números com letras. I é um, V é cinco, X é dez. Olhe a sua mão aberta: o V parece a mão com o polegar afastado!',
+  romanos: 'Os romanos antigos escreviam números com letras. I é um, V é cinco, X é dez. Do um ao doze dá uma dúzia! Olhe a sua mão aberta: o V parece a mão com o polegar afastado!',
   relogio: 'Tic, tac! Muitos relógios antigos usam números romanos. Pinte cada hora e desenhe os ponteiros na hora de que você mais gosta.',
   milhares: 'E depois do mil? Os romanos tiveram uma ideia esperta: um tracinho em cima da letra. V é cinco; V com tracinho é cinco mil! Um tracinho só, e o número fica mil vezes maior.',
   juntar: 'Juntar é a conta de mais. Duas bolinhas chegam, três bolinhas chegam também… quantas ficaram brincando juntas? Conte todas!',

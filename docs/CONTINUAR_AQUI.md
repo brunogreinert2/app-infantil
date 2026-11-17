@@ -8,7 +8,7 @@ do relógio romano: M/MM/MMM, depois IV̄ V̄ X̄ L̄ C̄ D̄ M̄ (4 mil a 1 mil
 traço como região pintável própria, medido pela largura real das letras
 (`caixaDasLetras` em `alfabetoArte.ts`), e uma casa "Invente o seu!". O livro
 Os Números passou a ter **41 folhas** (as menções a 40 abaixo são de antes).
-Ids antigos intocados. Não publicado. Pendência visual pequena: na Cardo os
+Ids antigos intocados. Na folha `romanos` antiga (mesmo dia): agora vai até XII (a dúzia) e a casa ao lado do M mostra V com traço, "traço: vezes mil" — ids 1–17 de antes, XI/XII/traço ganharam 18/19/20. Não publicado. Pendência visual pequena: na Cardo os
 serifs de MMM se encostam (o mesmo acontece em qualquer romano longo).
 
 ## Rumo: app infanto-juvenil (ideia do Bruno, 2026-11-16)
