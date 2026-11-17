@@ -36,6 +36,7 @@ import {
 import { pararFala } from './tts';
 import { montarTelaPrancha } from './caa/telaPrancha';
 import { montarTelaPranchasAdultos } from './caa/telaMontar';
+import { FOLHAS_LIGADAS } from './geradores/ligado';
 import { conjuntoAtivo } from './caa/guardar';
 import type { ConjuntoCaa } from './caa/modelo';
 
@@ -84,6 +85,15 @@ function irPranchasAdultos(): void {
   });
 }
 
+// ---------- fazer uma folha (geradores) ----------
+// Desligada: ver src/geradores/ligado.ts. O código só é buscado quando abre.
+async function irFolhas(voltar: () => void = abrirAjustes): Promise<void> {
+  removerPainel();
+  window.scrollTo(0, 0);
+  const { montarTelaFolhas } = await import('./geradores/telaFolhas');
+  await montarTelaFolhas(raiz, { voltar });
+}
+
 // já dentro da área dos adultos (a trava ficou para trás): ajustes ⇄ guia
 function abrirAjustes(): void {
   window.scrollTo(0, 0);
@@ -91,6 +101,7 @@ function abrirAjustes(): void {
     perfis: irPerfis,
     guia: () => montarTelaGuia(raiz, { voltar: abrirAjustes }),
     pranchas: irPranchasAdultos,
+    folhas: FOLHAS_LIGADAS ? () => void irFolhas() : undefined,
   });
 }
 
@@ -270,4 +281,6 @@ configurarPainel({
 });
 
 if (location.hash === '#prancha') void irPrancha();
+else if (location.hash === '#folhas' && FOLHAS_LIGADAS) montarTravaParental(raiz, () => void irFolhas(), irPerfis);
+else if (location.hash === '#folhas' && import.meta.env.DEV) void irFolhas(irPerfis);
 else irPerfis();

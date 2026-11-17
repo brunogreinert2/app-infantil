@@ -31,14 +31,15 @@ Nenhuma professora conferiu ainda.
 **Feito também (mesma noite): `src/geradores/`** — caça-palavras e cruzadinha
 com gabarito, pautas (comum e ampliada), caligrafia, quadriculado, milimetrado,
 pontilhado, réguas de recortar, plano cartesiano com parábola e Bhaskara,
-calendário do mês (com espaço para figura) e do ano. Tudo motor puro com teste,
-**sem tela ainda**. Receita, lista do que existe, o que NÃO foi conferido e o
+calendário do mês (com espaço para figura) e do ano. Tudo motor puro com teste. Receita, lista do que existe, o que NÃO foi conferido e o
 que falta: **`docs/GERADORES.md`**. Para ver: `node scripts/exportar-geradores.mjs
 <pasta>` e abrir `amostra.html`.
 
-**Próximo passo que mais rende:** a tela "Fazer uma folha" na área de quem
-ensina (escolher gerador, digitar a lista, prévia, imprimir). Sem ela a
-professora não alcança nada disto.
+**A tela "Fazer uma folha" existe e está DESLIGADA** (pedido do Bruno: pronta,
+sem apertar o botão de ligar). Uso local: `npm run dev` e
+`http://localhost:5173/#folhas`; imprimir → "Salvar como PDF". A chave é
+`FOLHAS_LIGADAS` em `src/geradores/ligado.ts`; desligada, nada dela vai para o
+pacote publicado. Só o Bruno decide ligar.
 
 Para modelo menor: agenda visual "primeiro → depois", prancha do ônibus, escala
 de emoções, textos de história social. Dinheiro de recortar: só cédula

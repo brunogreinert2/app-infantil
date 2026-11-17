@@ -228,3 +228,47 @@ describe('papéis', () => {
     expect(svgCalendarioA4({ ano: 2026, mes: 12, imagem: 'data:image/svg+xml;base64,AAAA' })).not.toContain('<image');
   });
 });
+
+describe('do formulário à folha', () => {
+  it('cada tipo tem um pedido de partida que já dá folha', async () => {
+    const { TIPOS, fazerFolhas, pedidoInicial } = await import('./pedido');
+    for (const t of TIPOS) {
+      const r = fazerFolhas(pedidoInicial(t.tipo, new Date(2026, 10, 16)));
+      expect(r.folhas.length, t.tipo).toBeGreaterThan(0);
+      expect(r.titulo).toBeTruthy();
+      for (const f of r.folhas) folhaSa(f.svg);
+    }
+  });
+
+  it('lê a lista como quem ensina escreve', async () => {
+    const { lerItens, lerPalavras } = await import('./pedido');
+    expect(lerPalavras('casa, bola;\n  pão de queijo \n\n')).toEqual(['casa', 'bola', 'pão de queijo']);
+    expect(lerItens('LÁPIS: escreve: e apaga\nBOLA = redonda\nSOL\n\n')).toEqual([
+      { palavra: 'LÁPIS', dica: 'escreve: e apaga' },
+      { palavra: 'BOLA', dica: 'redonda' },
+      { palavra: 'SOL', dica: '' },
+    ]);
+  });
+
+  it('avisa em vez de quebrar', async () => {
+    const { fazerFolhas } = await import('./pedido');
+    const vazio = fazerFolhas({ tipo: 'caca', titulo: '', palavras: '', nivel: 'facil', semente: NaN, respostas: true });
+    expect(vazio.folhas).toHaveLength(2);
+    expect(vazio.avisos[0]).toContain('Escreva as palavras');
+    const fora = fazerFolhas({ tipo: 'caca', titulo: 'x', palavras: 'PARADA\nPARA', nivel: 'facil', semente: 0, respostas: false });
+    expect(fora.folhas).toHaveLength(1);
+    expect(fora.avisos.join(' ')).toContain('PARA ficou de fora');
+    const reta = fazerFolhas({ tipo: 'plano', alcance: 10, curva: true, a: 0, b: 1, c: 1, respostas: true });
+    expect(reta.folhas).toHaveLength(1);
+    expect(reta.avisos[0]).toContain('a = 0');
+    const parabola = fazerFolhas({ tipo: 'plano', alcance: 10, curva: true, a: 1, b: NaN, c: -4, respostas: true });
+    expect(parabola.folhas).toHaveLength(2);
+    const ano = fazerFolhas({ tipo: 'calendario', modelo: 'ano', ano: NaN, mes: 99, feriados: true });
+    expect(ano.folhas).toHaveLength(1);
+  });
+
+  it('a tela nasce desligada', async () => {
+    const { FOLHAS_LIGADAS } = await import('./ligado');
+    expect(FOLHAS_LIGADAS).toBe(false);
+  });
+});

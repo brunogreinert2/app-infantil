@@ -67,7 +67,7 @@ export function montarTravaParental(
 
 export async function montarTelaConfiguracoes(
   raiz: HTMLElement,
-  nav: { perfis: () => void; guia?: () => void; pranchas?: () => void },
+  nav: { perfis: () => void; guia?: () => void; pranchas?: () => void; folhas?: () => void },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-config';
@@ -103,6 +103,14 @@ export async function montarTelaConfiguracoes(
     const abrirPranchas = el('button', 'botao-grande', '💬 Pranchas de comunicação');
     abrirPranchas.addEventListener('click', nav.pranchas);
     corpo.appendChild(abrirPranchas);
+  }
+  if (nav.folhas) {
+    corpo.appendChild(
+      el('p', 'texto-sobre', 'Caça-palavras, cruzadinha, folha pautada (comum e ampliada), quadriculado, régua, plano cartesiano e calendário: feitos na hora, para imprimir.'),
+    );
+    const abrirFolhas = el('button', 'botao-grande', '🖨️ Fazer uma folha');
+    abrirFolhas.addEventListener('click', nav.folhas);
+    corpo.appendChild(abrirFolhas);
   }
 
   // ---------- perfis ----------

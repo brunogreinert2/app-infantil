@@ -1,7 +1,7 @@
 # Geradores de folhas — `src/geradores/` (2026-11-16)
 
-Branch `fable/ler-o-mundo-e-caa`. **Não publicado e ainda sem tela**: são
-motores puros, com teste, à espera de formulário. Feito por Claude (Fable 5.2).
+Branch `fable/ler-o-mundo-e-caa`. **Não publicado.** Motores puros com teste e
+uma tela pronta, mas desligada (ver abaixo). Feito por Claude (Fable 5.2).
 
 A ideia do Bruno: o app como uma caixa de brincadeiras e folhas para imprimir,
 com muita variedade, tudo gerado na hora a partir de dados simples.
@@ -61,11 +61,35 @@ quadriculado e do milimetrado; uso por aluno ou professora.
 - Folhas sem marca de criança (`IDENTIDADE_NEUTRA`): servem do 1º ano ao
   ensino médio. Passar `identidade` para pôr a marca do Historinhas.
 
+## A tela "Fazer uma folha" — pronta e DESLIGADA
+
+`src/geradores/telaFolhas.ts` (a tela), `pedido.ts` (do formulário à folha,
+parte pura e testada) e `ligado.ts` (a chave).
+
+- **Para usar hoje, no computador:** `npm run dev` e abrir
+  `http://localhost:5173/#folhas`. Escolher o tipo, preencher, ver a prévia e
+  "🖨️ Imprimir ou guardar em PDF" (na janela de impressão, "Salvar como PDF";
+  escala 100% para as medidas valerem). Funciona sem internet.
+- **No app publicado, enquanto `FOLHAS_LIGADAS` for `false`:** `#folhas` não
+  abre nada, não há botão em menu nenhum e o código da tela nem entra no
+  pacote (conferido no `dist/`: nenhum arquivo dela).
+- **Para ligar:** trocar para `true` em `src/geradores/ligado.ts` (e ajustar o
+  teste "a tela nasce desligada"). Aparece o botão "🖨️ Fazer uma folha" em
+  Ajustes → Para quem ensina, atrás da trava; `#folhas` passa a pedir a trava.
+- O que se preenche fica guardado no aparelho (`folhas:pedidos`), menos a
+  figura do calendário, que é grande.
+- No caça-palavras há "Ver estas palavras em sílabas" (sugestão do separador).
+
+Conferido no navegador do app (1280 px e 375 px): os sete tipos dão prévia,
+avisos aparecem (palavra que ficou de fora), a impressão monta as folhas A4,
+sem rolagem lateral no celular, sem erro no console. **NÃO conferido:** o PDF
+de verdade saindo da janela de impressão, papel, iPhone, leitor de tela, e a
+figura do calendário com foto real.
+
 ## O que falta
 
-1. **Tela "Fazer uma folha"** (área de quem ensina): escolher o gerador,
-   digitar a lista, ver a prévia, imprimir pelo `motorImpressao`. É onde tudo
-   isto passa a existir para a professora. Trabalho de tela: modelo menor.
+1. **Ligar a tela** quando o Bruno decidir (acima) e decidir onde ela mora
+   para um adolescente (decisão 3 de `LER_O_MUNDO.md`).
 2. Caça-palavras a partir das palavras de um livro da estante e dos grupos do
    Ler o Mundo (um botão em cada um).
 3. Cruzadinha com **desenho no lugar da dica** (os 60 pictogramas de
