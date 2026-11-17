@@ -272,3 +272,96 @@ describe('do formulário à folha', () => {
     expect(FOLHAS_LIGADAS).toBe(false);
   });
 });
+
+describe('jogos de mesa', () => {
+  const LISTA = 'FELIZ\nTRISTE\nBRAVO\nCASA\nÔNIBUS\nÁGUA\nSUCO\nPÃO\nFRUTA\nLIVRO\nLÁPIS\nMÚSICA\nTHEO';
+
+  it('acha o desenho pela palavra, com ou sem acento, e tira repetidas', async () => {
+    const { lerPecas } = await import('./jogosDeMesa');
+    expect(lerPecas('ônibus, Sala de aula; por favor\nTheo\nONIBUS\n\n')).toEqual([
+      { texto: 'ÔNIBUS', figura: 'onibus' },
+      { texto: 'SALA DE AULA', figura: 'sala' },
+      { texto: 'POR FAVOR', figura: 'por-favor' },
+      { texto: 'THEO', figura: undefined },
+    ]);
+  });
+
+  it('memória: duas cartas por palavra; na de leitura, figura numa e palavra na outra', async () => {
+    const { lerPecas, svgMemoriaA4 } = await import('./jogosDeMesa');
+    const pecas = lerPecas(LISTA);
+    const iguais = svgMemoriaA4(pecas);
+    expect(iguais).toHaveLength(3); // 26 cartas, 12 por folha
+    const conta = (svg: string, s: string) => svg.split(s).length - 1;
+    expect(iguais.reduce((t, f) => t + conta(f.svg, 'aria-label="CASA"'), 0)).toBe(2);
+    const leitura = svgMemoriaA4(pecas, { par: 'leitura', verso: true });
+    expect(leitura).toHaveLength(4);
+    expect(leitura.at(-1)!.titulo).toContain('verso');
+    expect(leitura.slice(0, 3).reduce((t, f) => t + conta(f.svg, 'aria-label="CASA"'), 0)).toBe(1);
+    // palavra sem desenho: as duas cartas levam a palavra
+    expect(leitura.slice(0, 3).reduce((t, f) => t + conta(f.svg, 'aria-label="THEO"'), 0)).toBe(2);
+    for (const f of [...iguais, ...leitura]) folhaSa(f.svg);
+  });
+
+  it('dominó: todas as combinações, cada uma uma vez', async () => {
+    const { gerarDomino, lerPecas, svgDominoA4 } = await import('./jogosDeMesa');
+    const pecas = lerPecas(LISTA);
+    const pedras = gerarDomino(pecas);
+    expect(pedras).toHaveLength(28);
+    expect(new Set(pedras.map(([a, b]) => `${a.texto}|${b.texto}`)).size).toBe(28);
+    for (const p of pecas.slice(0, 7)) {
+      expect(pedras.filter(([a, b]) => a === p || b === p)).toHaveLength(7);
+    }
+    expect(gerarDomino(pecas.slice(0, 5))).toHaveLength(15);
+    const folhas = svgDominoA4(pecas);
+    expect(folhas).toHaveLength(2);
+    for (const f of folhas) folhaSa(f.svg);
+  });
+
+  it('bingo: cartelas todas diferentes, sem casa repetida, sempre as mesmas', async () => {
+    const { gerarBingo, lerPecas, svgBingoA4 } = await import('./jogosDeMesa');
+    const pecas = lerPecas(LISTA);
+    const cartelas = gerarBingo(pecas, { cartelas: 30 });
+    expect(cartelas).toHaveLength(30);
+    for (const c of cartelas) expect(new Set(c).size).toBe(9);
+    expect(new Set(cartelas.map((c) => c.map((p) => p.texto).sort().join('|'))).size).toBe(30);
+    expect(gerarBingo(pecas, { cartelas: 30 })).toEqual(cartelas);
+    expect(gerarBingo(pecas, { cartelas: 30, semente: 1 })).not.toEqual(cartelas);
+    expect(gerarBingo(pecas.slice(0, 8))).toEqual([]);
+    // com 9 palavras só existe uma cartela possível: devolve uma, não trava
+    expect(gerarBingo(pecas.slice(0, 9), { cartelas: 5 })).toHaveLength(1);
+    const folhas = svgBingoA4(pecas, { cartelas: 5 });
+    expect(folhas).toHaveLength(4); // 3 de cartelas + 1 de fichas
+    for (const f of folhas) folhaSa(f.svg);
+  });
+
+  it('tabuleiro: 32 casas escuras, a do canto inferior direito clara; 24 pedras e 32 peças', async () => {
+    const { svgPecasDamasA4, svgPecasXadrezA4, svgTabuleiroA4 } = await import('./jogosDeMesa');
+    const tabuleiro = svgTabuleiroA4();
+    folhaSa(tabuleiro);
+    const escuras = [...tabuleiro.matchAll(/<rect x="([\d.]+)" y="([\d.]+)"[^>]*fill="#bdbdbd"/g)].map((m) => [Number(m[1]), Number(m[2])]);
+    expect(escuras).toHaveLength(32);
+    const maiorX = Math.max(...escuras.map((e) => e[0]));
+    const maiorY = Math.max(...escuras.map((e) => e[1]));
+    expect(escuras.some(([x, y]) => x === maiorX && y === maiorY)).toBe(false);
+    const damas = svgPecasDamasA4();
+    const xadrez = svgPecasXadrezA4();
+    folhaSa(damas);
+    folhaSa(xadrez);
+    expect((xadrez.match(/aria-label="P"/g) ?? []).length).toBe(16);
+    expect((xadrez.match(/aria-label="R"/g) ?? []).length).toBe(2);
+    expect((xadrez.match(/<circle/g) ?? []).length).toBe(32);
+  });
+
+  it('pelo formulário: avisa do que falta e do que vai sem desenho', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('jogo');
+    if (base.tipo !== 'jogo') throw new Error('tipo');
+    expect(fazerFolhas({ ...base, jogo: 'bingo' }).folhas.length).toBeGreaterThan(1);
+    const pouco = fazerFolhas({ ...base, jogo: 'bingo', lado: 4 });
+    expect(pouco.folhas).toEqual([]);
+    expect(pouco.avisos.join(' ')).toContain('pelo menos 19');
+    expect(fazerFolhas({ ...base, pecas: 'THEO\nDAVI' }).avisos[0]).toContain('THEO, DAVI');
+    expect(fazerFolhas({ ...base, jogo: 'xadrez' }).folhas).toHaveLength(2);
+    expect(fazerFolhas({ ...base, jogo: 'domino', pecas: 'A' }).folhas).toEqual([]);
+  });
+});

@@ -29,14 +29,16 @@ com muita variedade, tudo gerado na hora a partir de dados simples.
 | `cacaPalavras.ts` | `gerarCacaPalavras({ palavras, nivel, lado, semente })` + `svgCacaPalavrasA4(jogo, { titulo, gabarito })`. Níveis: fácil (→ ↓), médio (+ ↘), difícil (8 direções). Garante cada palavra uma vez só e nenhuma palavra feia formada por acaso |
 | `cruzadinha.ts` | `gerarCruzadinha([{ palavra, dica }])` + `svgCruzadinhaA4`. Numeração de jornal; grade de até 15 casas |
 | `papeis.ts` | `svgPautaA4` (`PAUTAS.comum / larga / ampliada / muitoAmpliada`), `svgCaligrafiaA4`, `svgQuadriculadoA4`, `svgMilimetradoA4`, `svgPontilhadoA4`, `svgReguasA4`, `svgPlanoCartesianoA4` (com `curva` e `respostas`), `bhaskara`, `passosBhaskara`, `svgCalendarioA4` (modelos `figura` e `anotar`), `svgCalendarioAnoA4`, `feriadosNacionais`, `pascoa` |
-| `geradores.test.ts` | 17 testes |
+| `jogosDeMesa.ts` | `lerPecas` (palavra vira peça; ganha desenho se a prancha tiver), `svgMemoriaA4` (pares iguais ou de leitura, com folha de verso), `gerarDomino`/`svgDominoA4` (7 palavras = 28 pedras), `gerarBingo`/`svgBingoA4` (cartelas todas diferentes + fichas de chamar), `svgTabuleiroA4`, `svgPecasDamasA4`, `svgPecasXadrezA4` |
+| `pedido.ts`, `telaFolhas.ts`, `ligado.ts` | a tela (ver abaixo) |
+| `geradores.test.ts` | 27 testes |
 | `../conteudo/silabas.ts` | separador de sílabas (sugestão que a professora confere) |
 | `scripts/exportar-geradores.mjs` | `node scripts/exportar-geradores.mjs <pasta>`: 20 SVGs de amostra + `amostra.html` |
 
 ## Conferido
 
-- `npm test`: 194 testes; `npm run build` limpo.
-- De olho, em imagem (Chromium sem janela): as 20 folhas de amostra.
+- `npm test`: 204 testes; `npm run build` limpo.
+- De olho, em imagem (Chromium sem janela): as 29 folhas de amostra.
 
 **NÃO conferido:** impressão em papel (nenhuma folha foi impressa nem medida
 com régua); o caminho pelo `motorImpressao.ts` (só o SVG avulso foi visto);
@@ -58,6 +60,14 @@ quadriculado e do milimetrado; uso por aluno ou professora.
 - **Caça-palavras**: a grade não tem acento (ATENÇÃO vira ATENCAO); a lista
   embaixo fica como foi escrita. Palavra dentro de outra (PARA em PARADA) sai,
   porque teria dois lugares certos.
+- **Jogos de mesa**: as peças usam os 60 desenhos da prancha (provisórios; ver
+  `CAA.md`). Palavra sem desenho vai só escrita, e a tela avisa quais. Na
+  memória de leitura o par é figura + palavra. O sorteio do bingo é de papel
+  (fichas num saquinho); o app não sorteia nada.
+- **Xadrez**: as peças são rodelas com a letra (R, D, T, B, C, P, a notação
+  brasileira), não figuras de rei e cavalo. É o que dá para recortar e ler; se
+  o Bruno quiser silhuetas, é arte a desenhar. Casas de 22 mm, peças de 19 mm.
+  As casas escuras são cinza (pouca tinta, e a peça preta aparece em cima).
 - Folhas sem marca de criança (`IDENTIDADE_NEUTRA`): servem do 1º ano ao
   ensino médio. Passar `identidade` para pôr a marca do Historinhas.
 
@@ -94,7 +104,8 @@ figura do calendário com foto real.
    Ler o Mundo (um botão em cada um).
 3. Cruzadinha com **desenho no lugar da dica** (os 60 pictogramas de
    `src/caa/pictogramas.ts`).
-4. Jogos de mesa: memória, dominó, bingo com cartelas todas diferentes.
+4. Mais jogos de mesa: trilha (tabuleiro de percurso), jogo da velha, ludo,
+   quebra-cabeça de recortar, dominó de figura com palavra.
 5. Mais matemática: reta numérica, relógio, função do 1º grau, folha de
    exercícios de Bhaskara com gabarito (a conta já existe em `passosBhaskara`).
 6. Frase → tira de pictogramas; diário de uso da prancha.

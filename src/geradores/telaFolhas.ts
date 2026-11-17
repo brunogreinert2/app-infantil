@@ -9,8 +9,10 @@ import { armazenamento } from '../armazenamento/armazenamento';
 import { corpoCadernoA4, cssCadernoA4, imprimirDocumento } from '../impressao/motorImpressao';
 import { el } from '../telas/comum';
 import { silabasComHifens } from '../conteudo/silabas';
+import { NOMES_COM_DESENHO } from './jogosDeMesa';
 import {
   NOMES_DAS_GRADES,
+  NOMES_DOS_JOGOS,
   NOMES_DAS_PAUTAS,
   TIPOS,
   fazerFolhas,
@@ -231,6 +233,53 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
         );
         campos.appendChild(marcar('Folha de respostas junto', p.respostas, (v) => ((p.respostas = v), atualizar(true))));
         break;
+      case 'jogo': {
+        campos.appendChild(
+          rotulado(
+            'Qual jogo?',
+            lista(
+              (Object.keys(NOMES_DOS_JOGOS) as Array<keyof typeof NOMES_DOS_JOGOS>).map((valor) => ({ valor, nome: NOMES_DOS_JOGOS[valor] })),
+              p.jogo,
+              (v) => ((p.jogo = v), desenharCampos(), atualizar(true)),
+            ),
+          ),
+        );
+        if (p.jogo === 'damas' || p.jogo === 'xadrez') {
+          campos.appendChild(el('p', 'texto-sobre', 'Sai o tabuleiro numa folha e as peças de recortar em outra.'));
+          break;
+        }
+        campos.appendChild(
+          rotulado('Palavras das peças', areaDeTexto(p.pecas, 9, (v) => ((p.pecas = v), atualizar())), 'Uma por linha. Se o app tiver o desenho da palavra, ele entra na peça.'),
+        );
+        const desenhos = el('details', 'folhas-silabas');
+        desenhos.appendChild(el('summary', undefined, 'Palavras que têm desenho'));
+        desenhos.appendChild(el('p', 'texto-sobre', NOMES_COM_DESENHO.join(' · ')));
+        campos.appendChild(desenhos);
+        if (p.jogo === 'memoria' || p.jogo === 'memoria-leitura') {
+          campos.appendChild(marcar('Folha de verso (para imprimir atrás)', p.verso, (v) => ((p.verso = v), atualizar(true))));
+        }
+        if (p.jogo === 'bingo') {
+          campos.appendChild(
+            rotulado(
+              'Tamanho da cartela',
+              lista(
+                [
+                  { valor: 3 as const, nome: '9 casas (3 por 3)' },
+                  { valor: 4 as const, nome: '16 casas (4 por 4)' },
+                ],
+                p.lado,
+                (v) => ((p.lado = v), atualizar(true)),
+              ),
+            ),
+          );
+          campos.appendChild(rotulado('Quantas cartelas', campoNumero(p.cartelas, (v) => ((p.cartelas = v), atualizar()), 1, 40)));
+          const outras = el('button', 'botao-opcao', '🔀 Outras cartelas');
+          outras.type = 'button';
+          outras.addEventListener('click', () => ((p.semente = (p.semente || 0) + 1), atualizar(true)));
+          campos.appendChild(outras);
+        }
+        break;
+      }
       case 'pauta':
         campos.appendChild(
           rotulado(

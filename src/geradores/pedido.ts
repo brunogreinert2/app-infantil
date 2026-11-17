@@ -15,15 +15,36 @@ import {
   svgQuadriculadoA4,
   svgReguasA4,
 } from './papeis';
+import {
+  lerPecas,
+  svgBingoA4,
+  svgDominoA4,
+  svgMemoriaA4,
+  svgPecasDamasA4,
+  svgPecasXadrezA4,
+  svgTabuleiroA4,
+} from './jogosDeMesa';
 
 export { FOLHAS_LIGADAS } from './ligado';
 
 export type ModeloPauta = keyof typeof PAUTAS | 'caligrafia';
 export type ModeloGrade = 'q5' | 'q10' | 'q20' | 'milimetrado' | 'pontilhado';
 
+export type JogoDeMesa = 'memoria' | 'memoria-leitura' | 'domino' | 'bingo' | 'damas' | 'xadrez';
+
+export const NOMES_DOS_JOGOS: Record<JogoDeMesa, string> = {
+  memoria: 'Memória: pares iguais',
+  'memoria-leitura': 'Memória de leitura: figura com palavra',
+  domino: 'Dominó',
+  bingo: 'Bingo',
+  damas: 'Damas: tabuleiro e peças',
+  xadrez: 'Xadrez: tabuleiro e peças',
+};
+
 export type Pedido =
   | { tipo: 'caca'; titulo: string; palavras: string; nivel: Nivel; semente: number; respostas: boolean }
   | { tipo: 'cruzadinha'; titulo: string; itens: string; respostas: boolean }
+  | { tipo: 'jogo'; jogo: JogoDeMesa; pecas: string; cartelas: number; lado: 3 | 4; verso: boolean; semente: number }
   | { tipo: 'pauta'; modelo: ModeloPauta; margem: boolean }
   | { tipo: 'grade'; modelo: ModeloGrade }
   | { tipo: 'reguas' }
@@ -35,6 +56,7 @@ export type TipoDeFolha = Pedido['tipo'];
 export const TIPOS: Array<{ tipo: TipoDeFolha; nome: string }> = [
   { tipo: 'caca', nome: 'Caça-palavras' },
   { tipo: 'cruzadinha', nome: 'Cruzadinha' },
+  { tipo: 'jogo', nome: 'Jogos de mesa: memória, dominó, bingo, damas, xadrez' },
   { tipo: 'pauta', nome: 'Folha pautada' },
   { tipo: 'grade', nome: 'Quadriculado, milimetrado, pontilhado' },
   { tipo: 'reguas', nome: 'Réguas de recortar' },
@@ -77,6 +99,16 @@ export function pedidoInicial(tipo: TipoDeFolha, hoje: Date = new Date()): Pedid
         itens:
           'CADERNO: Onde a gente escreve na aula.\nLÁPIS: Escreve e pode ser apagado.\nRECREIO: Hora de brincar e lanchar.\nMERENDA: A comida da escola.\nBORRACHA: Apaga o que o lápis escreveu.\nMOCHILA: Leva o material nas costas.',
         respostas: true,
+      };
+    case 'jogo':
+      return {
+        tipo,
+        jogo: 'memoria',
+        pecas: 'FELIZ\nTRISTE\nBRAVO\nCASA\nÔNIBUS\nÁGUA\nSUCO\nPÃO\nFRUTA\nLIVRO\nLÁPIS\nMÚSICA',
+        cartelas: 6,
+        lado: 3,
+        verso: false,
+        semente: 0,
       };
     case 'pauta':
       return { tipo, modelo: 'ampliada', margem: true };
@@ -146,6 +178,43 @@ export function fazerFolhas(p: Pedido): Resultado {
       const folhas = [{ titulo, svg: svgCruzadinhaA4(jogo, { titulo }) }];
       if (p.respostas) folhas.push({ titulo: `${titulo} — respostas`, svg: svgCruzadinhaA4(jogo, { titulo, gabarito: true }) });
       return { titulo: `Cruzadinha - ${titulo}`, folhas, avisos };
+    }
+    case 'jogo': {
+      if (p.jogo === 'damas' || p.jogo === 'xadrez') {
+        const xadrez = p.jogo === 'xadrez';
+        avisos.push('Casas de 22 mm e peças de 19 mm: imprima em tamanho real (escala 100%). Colar em papelão ajuda.');
+        return {
+          titulo: xadrez ? 'Xadrez' : 'Damas',
+          folhas: [
+            { titulo: 'Tabuleiro', svg: svgTabuleiroA4({ titulo: xadrez ? 'Xadrez' : 'Damas', coordenadas: xadrez }) },
+            { titulo: 'Peças', svg: xadrez ? svgPecasXadrezA4() : svgPecasDamasA4() },
+          ],
+          avisos,
+        };
+      }
+      const pecas = lerPecas(p.pecas);
+      const semDesenho = pecas.filter((x) => !x.figura).map((x) => x.texto);
+      if (semDesenho.length) avisos.push(`Sem desenho no app (vai só a palavra): ${semDesenho.join(', ')}.`);
+      if (p.jogo === 'domino') {
+        if (pecas.length < 3) avisos.push('O dominó precisa de pelo menos 3 palavras.');
+        if (pecas.length > 7) avisos.push('O dominó usa as 7 primeiras palavras (28 pedras).');
+        return { titulo: 'Dominó', folhas: pecas.length < 3 ? [] : svgDominoA4(pecas), avisos };
+      }
+      if (p.jogo === 'bingo') {
+        const lado = p.lado === 4 ? 4 : 3;
+        const minimo = lado * lado + 3;
+        if (pecas.length < minimo) {
+          avisos.push(`Para cartelas de ${lado * lado} casas, escreva pelo menos ${minimo} palavras (há ${pecas.length}).`);
+          return { titulo: 'Bingo', folhas: [], avisos };
+        }
+        const pedidas = Math.min(40, Math.max(1, Math.round(numeroOu(p.cartelas, 6))));
+        const folhas = svgBingoA4(pecas, { cartelas: pedidas, lado, semente: numeroOu(p.semente, 0) });
+        return { titulo: 'Bingo', folhas, avisos };
+      }
+      if (pecas.length < 2) avisos.push('A memória precisa de pelo menos 2 palavras.');
+      if (pecas.length > 24) avisos.push('A memória usa as 24 primeiras palavras.');
+      const folhas = pecas.length < 2 ? [] : svgMemoriaA4(pecas, { par: p.jogo === 'memoria-leitura' ? 'leitura' : 'igual', verso: p.verso });
+      return { titulo: 'Jogo da memória', folhas, avisos };
     }
     case 'pauta': {
       const nome = NOMES_DAS_PAUTAS[p.modelo] ?? NOMES_DAS_PAUTAS.comum;

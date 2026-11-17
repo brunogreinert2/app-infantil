@@ -12,6 +12,8 @@ try {
   const caca = await server.ssrLoadModule('/src/geradores/cacaPalavras.ts');
   const cruz = await server.ssrLoadModule('/src/geradores/cruzadinha.ts');
   const p = await server.ssrLoadModule('/src/geradores/papeis.ts');
+  const j = await server.ssrLoadModule('/src/geradores/jogosDeMesa.ts');
+  const pecas = j.lerPecas('FELIZ\nTRISTE\nBRAVO\nCASA\nÔNIBUS\nÁGUA\nSUCO\nPÃO\nFRUTA\nLIVRO\nLÁPIS\nMÚSICA\nTHEO');
 
   const transporte = ['ÔNIBUS', 'PARADA', 'LINHA', 'CENTRO', 'BAIRRO', 'TERMINAL', 'PASSAGEM', 'MOTORISTA'];
   const facil = caca.gerarCacaPalavras({ palavras: transporte, nivel: 'facil' });
@@ -49,6 +51,15 @@ try {
     'calendario-figura': p.svgCalendarioA4({ ano: hoje.getFullYear(), mes: hoje.getMonth() + 1 }),
     'calendario-anotar': p.svgCalendarioA4({ ano: hoje.getFullYear(), mes: hoje.getMonth() + 1, modelo: 'anotar' }),
     'calendario-ano': p.svgCalendarioAnoA4(hoje.getFullYear() + 1),
+    'memoria': j.svgMemoriaA4(pecas)[0].svg,
+    'memoria-leitura': j.svgMemoriaA4(pecas, { par: 'leitura' })[0].svg,
+    'memoria-verso': j.svgMemoriaA4(pecas, { verso: true }).at(-1).svg,
+    'domino': j.svgDominoA4(pecas)[0].svg,
+    'bingo-cartelas': j.svgBingoA4(pecas, { cartelas: 4 })[0].svg,
+    'bingo-fichas': j.svgBingoA4(pecas, { cartelas: 4 }).at(-1).svg,
+    'tabuleiro': j.svgTabuleiroA4({ titulo: 'Xadrez' }),
+    'pecas-damas': j.svgPecasDamasA4(),
+    'pecas-xadrez': j.svgPecasXadrezA4(),
   };
   for (const [nome, svg] of Object.entries(folhas)) writeFileSync(join(destino, `${nome}.svg`), svg);
   const figuras = Object.keys(folhas)
