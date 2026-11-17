@@ -28,21 +28,17 @@ Conferido só por teste (9 testes: as 43 palavras do catálogo, ditongos, hiatos
 QU/GU, nomes); hiato sem acento que a regra erra entra em `HIATOS_SABIDOS`.
 Nenhuma professora conferiu ainda.
 
-**Fila, na ordem em que eu faria** (nada começado):
+**Feito também (mesma noite): `src/geradores/`** — caça-palavras e cruzadinha
+com gabarito, pautas (comum e ampliada), caligrafia, quadriculado, milimetrado,
+pontilhado, réguas de recortar, plano cartesiano com parábola e Bhaskara,
+calendário do mês (com espaço para figura) e do ano. Tudo motor puro com teste,
+**sem tela ainda**. Receita, lista do que existe, o que NÃO foi conferido e o
+que falta: **`docs/GERADORES.md`**. Para ver: `node scripts/exportar-geradores.mjs
+<pasta>` e abrir `amostra.html`.
 
-1. Caça-palavras e cruzadinha de qualquer lista, com gabarito.
-2. Jogos de mesa em A4 com os 60 desenhos: memória, dominó, bingo (cartelas
-   todas diferentes), frente e verso alinhados para recortar.
-3. Papéis: pauta comum, **pauta ampliada**, quadriculado, milimetrado,
-   pontilhado, régua de recortar, calendário do mês/ano. Um motor só
-   (`papeis.ts`) com medidas em mm. O Bruno citou a "linha Clara" como
-   referência de pauta ampliada — **eu não achei registro dela no repositório;
-   perguntar a ele as medidas antes de desenhar.**
-4. Matemática do ensino médio (interesse da Luiza): plano cartesiano em branco
-   e com função traçada, parábola com vértice/raízes/Bhaskara passo a passo,
-   reta numérica, relógio.
-5. Frase → tira de pictogramas (base da história social e da agenda visual).
-6. Diário de uso da prancha, só para a professora (nunca reordena casas).
+**Próximo passo que mais rende:** a tela "Fazer uma folha" na área de quem
+ensina (escolher gerador, digitar a lista, prévia, imprimir). Sem ela a
+professora não alcança nada disto.
 
 Para modelo menor: agenda visual "primeiro → depois", prancha do ônibus, escala
 de emoções, textos de história social. Dinheiro de recortar: só cédula

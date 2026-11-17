@@ -1,0 +1,230 @@
+import { describe, expect, it } from 'vitest';
+import { gerarCacaPalavras, svgCacaPalavrasA4 } from './cacaPalavras';
+import { gerarCruzadinha, svgCruzadinhaA4 } from './cruzadinha';
+import {
+  PAUTAS,
+  bhaskara,
+  escreverQuadratica,
+  feriadosNacionais,
+  passosBhaskara,
+  pascoa,
+  semanasDoMes,
+  svgCalendarioA4,
+  svgCalendarioAnoA4,
+  svgCaligrafiaA4,
+  svgMilimetradoA4,
+  svgPautaA4,
+  svgPlanoCartesianoA4,
+  svgPontilhadoA4,
+  svgQuadriculadoA4,
+  svgReguasA4,
+} from './papeis';
+import { mm, soLetras } from './comum';
+import { TODAS_AS_PALAVRAS } from '../conteudo/lerOMundo';
+
+/** folha inteira, sem número estragado e sem nada desenhado fora do A4 */
+function folhaSa(svg: string): void {
+  expect(svg).toContain('data-folha-a4="true"');
+  expect(svg).toContain('viewBox="0 0 800 1131"');
+  expect(svg).not.toMatch(/NaN|undefined|Infinity/);
+  for (const m of svg.matchAll(/<(?:rect|line|circle)[^>]*?\b(?:x|x1|x2|cx)="(-?[\d.]+)"[^>]*?>/g)) {
+    if (m[0].includes('transform=')) continue;
+    expect(Number(m[1])).toBeGreaterThanOrEqual(-1);
+    expect(Number(m[1])).toBeLessThanOrEqual(801);
+  }
+  for (const m of svg.matchAll(/translate\((-?[\d.]+) (-?[\d.]+)\)/g)) {
+    expect(Number(m[1])).toBeGreaterThanOrEqual(-1);
+    expect(Number(m[1])).toBeLessThanOrEqual(801);
+    expect(Number(m[2])).toBeGreaterThanOrEqual(0);
+    expect(Number(m[2])).toBeLessThanOrEqual(1131);
+  }
+}
+
+const TRANSPORTE = ['ÔNIBUS', 'PARADA', 'LINHA', 'CENTRO', 'BAIRRO', 'TERMINAL', 'PASSAGEM', 'MOTORISTA'];
+
+describe('caça-palavras', () => {
+  it('põe cada palavra onde o gabarito diz, uma vez só', () => {
+    for (const nivel of ['facil', 'medio', 'dificil'] as const) {
+      const jogo = gerarCacaPalavras({ palavras: TRANSPORTE, nivel });
+      expect(jogo.fora).toEqual([]);
+      expect(jogo.conferido).toBe(true);
+      expect(jogo.achados.map((a) => a.palavra)).toEqual(TRANSPORTE);
+      for (const a of jogo.achados) {
+        const lidas = [...a.letras].map((_, k) => jogo.grade[a.linha + a.dl * k][a.coluna + a.dc * k]).join('');
+        expect(lidas).toBe(a.letras);
+        if (nivel === 'facil') expect(a.dl + a.dc).toBe(1);
+      }
+      expect(jogo.grade.flat().every((c) => /^[A-Z]$/.test(c))).toBe(true);
+    }
+  });
+
+  it('sem sorte: a mesma lista dá a mesma folha; a semente dá outra', () => {
+    const a = gerarCacaPalavras({ palavras: TRANSPORTE });
+    expect(gerarCacaPalavras({ palavras: TRANSPORTE })).toEqual(a);
+    expect(gerarCacaPalavras({ palavras: TRANSPORTE, semente: 1 }).grade).not.toEqual(a.grade);
+  });
+
+  it('tira acento e espaço na grade, mas a lista fica como foi escrita', () => {
+    const jogo = gerarCacaPalavras({ palavras: ['pão de queijo', 'SAÍDA', 'Atenção'] });
+    expect(jogo.achados.map((a) => [a.palavra, a.letras])).toEqual([
+      ['PÃO DE QUEIJO', 'PAODEQUEIJO'],
+      ['SAÍDA', 'SAIDA'],
+      ['ATENÇÃO', 'ATENCAO'],
+    ]);
+  });
+
+  it('explica o que ficou de fora', () => {
+    const jogo = gerarCacaPalavras({ palavras: ['PARADA', 'PARA', 'OI', 'PARADA', 'ARAP', '🚌'], lado: 6 });
+    expect(jogo.achados.map((a) => a.palavra)).toEqual(['PARADA']);
+    expect(jogo.fora.map((f) => f.palavra).sort()).toEqual(['ARAP', 'OI', 'PARA', 'PARADA']);
+    expect(gerarCacaPalavras({ palavras: ['EXTRAORDINARIAMENTE', 'CASA'], lado: 8 }).fora[0].motivo).toContain('não cabe');
+  });
+
+  it('serve para o catálogo inteiro do Ler o Mundo, grupo por grupo', () => {
+    const jogo = gerarCacaPalavras({ palavras: TODAS_AS_PALAVRAS.slice(0, 17).map((p) => p.palavra), nivel: 'dificil' });
+    expect(jogo.conferido).toBe(true);
+    expect(jogo.achados.length + jogo.fora.length).toBe(17);
+  });
+
+  it('desenha folha e gabarito dentro do A4', () => {
+    const jogo = gerarCacaPalavras({ palavras: TRANSPORTE, nivel: 'dificil' });
+    const folha = svgCacaPalavrasA4(jogo, { titulo: 'Ônibus e transporte' });
+    const respostas = svgCacaPalavrasA4(jogo, { titulo: 'Ônibus e transporte', gabarito: true });
+    folhaSa(folha);
+    folhaSa(respostas);
+    expect(folha).not.toContain('rotate(');
+    expect(respostas.match(/rotate\(/g)).toHaveLength(TRANSPORTE.length);
+    folhaSa(svgCacaPalavrasA4(gerarCacaPalavras({ palavras: [] })));
+  });
+});
+
+const ESCOLA = [
+  { palavra: 'CADERNO', dica: 'Onde a gente escreve na aula.' },
+  { palavra: 'LÁPIS', dica: 'Escreve e pode ser apagado.' },
+  { palavra: 'RECREIO', dica: 'Hora de brincar e lanchar.' },
+  { palavra: 'MERENDA', dica: 'A comida da escola.' },
+  { palavra: 'PROFESSORA', dica: 'Quem ensina a turma.' },
+  { palavra: 'BORRACHA', dica: 'Apaga o que o lápis escreveu.' },
+  { palavra: 'MOCHILA', dica: 'Leva o material nas costas.' },
+  { palavra: 'LIVRO', dica: 'Tem páginas e histórias.' },
+];
+
+describe('cruzadinha', () => {
+  const jogo = gerarCruzadinha(ESCOLA);
+
+  it('encaixa as palavras e cada entrada bate com a grade', () => {
+    expect(jogo.fora).toEqual([]);
+    expect(jogo.entradas).toHaveLength(ESCOLA.length);
+    for (const e of jogo.entradas) {
+      const dl = e.direcao === 'vertical' ? 1 : 0;
+      const dc = 1 - dl;
+      expect([...e.letras].map((_, k) => jogo.grade[e.linha + dl * k][e.coluna + dc * k]).join('')).toBe(e.letras);
+      // a palavra não emenda em outra letra antes nem depois
+      expect(jogo.grade[e.linha - dl]?.[e.coluna - dc] ?? '').toBe('');
+      expect(jogo.grade[e.linha + dl * e.letras.length]?.[e.coluna + dc * e.letras.length] ?? '').toBe('');
+    }
+    expect(Math.max(jogo.linhas, jogo.colunas)).toBeLessThanOrEqual(15);
+  });
+
+  it('toda sequência de letras da grade é uma palavra da lista', () => {
+    const validas = new Set(ESCOLA.map((i) => soLetras(i.palavra)));
+    const seqs: string[] = [];
+    const colunas = jogo.grade[0].map((_, c) => jogo.grade.map((l) => l[c]));
+    for (const fila of [...jogo.grade, ...colunas]) {
+      seqs.push(...fila.map((c) => c || ' ').join('').split(/\s+/).filter((s) => s.length > 1));
+    }
+    expect(seqs.length).toBe(ESCOLA.length);
+    for (const s of seqs) expect(validas.has(s), s).toBe(true);
+  });
+
+  it('numera como jornal e não usa sorte', () => {
+    const numeros = jogo.entradas.map((e) => e.numero);
+    expect(numeros).toEqual([...numeros].sort((a, b) => a - b));
+    expect(numeros[0]).toBe(1);
+    expect(gerarCruzadinha(ESCOLA)).toEqual(jogo);
+  });
+
+  it('deixa de fora o que não cruza, dizendo por quê', () => {
+    const j = gerarCruzadinha([...ESCOLA, { palavra: 'XYZ', dica: '' }, { palavra: 'livro', dica: 'de novo' }]);
+    expect(j.fora).toEqual([
+      { palavra: 'LIVRO', motivo: 'repetida' },
+      { palavra: 'XYZ', motivo: 'não cruza com as outras' },
+    ]);
+    expect(gerarCruzadinha([]).entradas).toEqual([]);
+  });
+
+  it('desenha folha e gabarito dentro do A4, com as dicas', () => {
+    const folha = svgCruzadinhaA4(jogo, { titulo: 'Coisas da escola' });
+    folhaSa(folha);
+    folhaSa(svgCruzadinhaA4(jogo, { gabarito: true }));
+    expect(folha).toContain('Hora de brincar e lanchar.');
+    expect(folha).not.toContain('aria-label="P"');
+    folhaSa(svgCruzadinhaA4(gerarCruzadinha(TODAS_AS_PALAVRAS.slice(0, 20).map((p) => ({ palavra: p.palavra, dica: p.onde ?? '' })))));
+  });
+});
+
+describe('papéis', () => {
+  it('mede em milímetros de verdade: 190 mm são as 800 unidades da folha', () => {
+    expect(mm(190)).toBe(800);
+    expect(mm(10)).toBeCloseTo(42.11, 2);
+  });
+
+  it('todas as folhas saem inteiras', () => {
+    const folhas = [
+      svgPautaA4(),
+      svgPautaA4(PAUTAS.ampliada),
+      svgPautaA4({ ...PAUTAS.muitoAmpliada, margem: false }),
+      svgCaligrafiaA4(),
+      svgQuadriculadoA4(),
+      svgQuadriculadoA4({ lado: 20, grossura: 0.8 }),
+      svgMilimetradoA4(),
+      svgPontilhadoA4(),
+      svgReguasA4(),
+      svgPlanoCartesianoA4(),
+      svgPlanoCartesianoA4({ curva: { a: 1, b: -2, c: -3 }, respostas: true }),
+      svgCalendarioA4({ ano: 2026, mes: 11 }),
+      svgCalendarioA4({ ano: 2027, mes: 2, modelo: 'anotar' }),
+      svgCalendarioAnoA4(2027),
+    ];
+    for (const f of folhas) folhaSa(f);
+  });
+
+  it('a pauta ampliada tem menos linhas e traço mais grosso que a comum', () => {
+    const conta = (svg: string) => (svg.match(/M0 /g) ?? []).length;
+    expect(conta(svgPautaA4(PAUTAS.ampliada))).toBeLessThan(conta(svgPautaA4()));
+    expect(svgPautaA4(PAUTAS.ampliada)).toContain(`stroke-width="${mm(0.8)}"`);
+  });
+
+  it('Bhaskara: raízes, vértice e os três casos de delta', () => {
+    expect(bhaskara({ a: 1, b: -2, c: -3 })).toEqual({ delta: 16, raizes: [-1, 3], vertice: { x: 1, y: -4 } });
+    expect(bhaskara({ a: 1, b: -4, c: 4 })).toEqual({ delta: 0, raizes: [2], vertice: { x: 2, y: 0 } });
+    expect(bhaskara({ a: 1, b: 0, c: 1 }).raizes).toEqual([]);
+    expect(bhaskara({ a: -1, b: 0, c: 4 }).raizes).toEqual([-2, 2]);
+    expect(() => bhaskara({ a: 0, b: 1, c: 1 })).toThrow();
+    expect(escreverQuadratica({ a: 1, b: -2, c: -3 })).toBe('y = x² – 2x – 3');
+    expect(escreverQuadratica({ a: -1, b: 0, c: 4 })).toBe('y = –x² + 4');
+    expect(escreverQuadratica({ a: 2, b: 1, c: 0 })).toBe('y = 2x² + x');
+    expect(passosBhaskara({ a: 1, b: -2, c: -3 })).toContain('x = –1 ou x = 3');
+    expect(passosBhaskara({ a: 1, b: 0, c: 1 }).join(' ')).toContain('não corta o eixo x');
+  });
+
+  it('calendário: semanas, Páscoa e feriados nacionais', () => {
+    // novembro de 2026 começa num domingo; fevereiro de 2027 começa numa segunda
+    expect(semanasDoMes(2026, 11)[0]).toEqual([1, 2, 3, 4, 5, 6, 7]);
+    expect(semanasDoMes(2026, 11)).toHaveLength(5);
+    expect(semanasDoMes(2027, 2)[0]).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    expect(semanasDoMes(2028, 2).flat().filter(Boolean)).toHaveLength(29);
+    expect(pascoa(2026)).toEqual({ mes: 4, dia: 5 });
+    expect(pascoa(2027)).toEqual({ mes: 3, dia: 28 });
+    expect(feriadosNacionais(2026, 4).map((f) => f.dia)).toEqual([3, 21]);
+    expect(feriadosNacionais(2026, 11).map((f) => f.dia)).toEqual([2, 15, 20]);
+    expect(feriadosNacionais(2026, 6)).toEqual([]);
+  });
+
+  it('calendário aceita figura só se for imagem embutida', () => {
+    const png = 'data:image/png;base64,iVBORw0KGgo=';
+    expect(svgCalendarioA4({ ano: 2026, mes: 12, imagem: png })).toContain('<image');
+    expect(svgCalendarioA4({ ano: 2026, mes: 12, imagem: 'https://exemplo.com/x.png' })).not.toContain('<image');
+    expect(svgCalendarioA4({ ano: 2026, mes: 12, imagem: 'data:image/svg+xml;base64,AAAA' })).not.toContain('<image');
+  });
+});
