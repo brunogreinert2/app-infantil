@@ -24,6 +24,7 @@ import {
   svgPecasXadrezA4,
   svgTabuleiroA4,
 } from './jogosDeMesa';
+import { lerHoras, svgRelogioDeMontarA4, svgRelogiosA4, svgRetasA4 } from './matematica';
 
 export { FOLHAS_LIGADAS } from './ligado';
 
@@ -41,10 +42,20 @@ export const NOMES_DOS_JOGOS: Record<JogoDeMesa, string> = {
   xadrez: 'Xadrez: tabuleiro e peças',
 };
 
+export type ModeloMatematica = 'ler' | 'marcar' | 'montar' | 'reta';
+
+export const NOMES_DA_MATEMATICA: Record<ModeloMatematica, string> = {
+  ler: 'Relógios: que horas são?',
+  marcar: 'Relógios: marque a hora',
+  montar: 'Relógio grande de montar',
+  reta: 'Reta numérica',
+};
+
 export type Pedido =
   | { tipo: 'caca'; titulo: string; palavras: string; nivel: Nivel; semente: number; respostas: boolean }
   | { tipo: 'cruzadinha'; titulo: string; itens: string; respostas: boolean }
   | { tipo: 'jogo'; jogo: JogoDeMesa; pecas: string; cartelas: number; lado: 3 | 4; verso: boolean; semente: number }
+  | { tipo: 'matematica'; modelo: ModeloMatematica; horas: string; respostas: boolean; de: number; ate: number; completar: boolean }
   | { tipo: 'pauta'; modelo: ModeloPauta; margem: boolean }
   | { tipo: 'grade'; modelo: ModeloGrade }
   | { tipo: 'reguas' }
@@ -57,6 +68,7 @@ export const TIPOS: Array<{ tipo: TipoDeFolha; nome: string }> = [
   { tipo: 'caca', nome: 'Caça-palavras' },
   { tipo: 'cruzadinha', nome: 'Cruzadinha' },
   { tipo: 'jogo', nome: 'Jogos de mesa: memória, dominó, bingo, damas, xadrez' },
+  { tipo: 'matematica', nome: 'Relógio e reta numérica' },
   { tipo: 'pauta', nome: 'Folha pautada' },
   { tipo: 'grade', nome: 'Quadriculado, milimetrado, pontilhado' },
   { tipo: 'reguas', nome: 'Réguas de recortar' },
@@ -110,6 +122,8 @@ export function pedidoInicial(tipo: TipoDeFolha, hoje: Date = new Date()): Pedid
         verso: false,
         semente: 0,
       };
+    case 'matematica':
+      return { tipo, modelo: 'ler', horas: '7:00\n7:15\n12:30\n3:45\n9:10\n6:50', respostas: true, de: 0, ate: 20, completar: true };
     case 'pauta':
       return { tipo, modelo: 'ampliada', margem: true };
     case 'grade':
@@ -215,6 +229,23 @@ export function fazerFolhas(p: Pedido): Resultado {
       if (pecas.length > 24) avisos.push('A memória usa as 24 primeiras palavras.');
       const folhas = pecas.length < 2 ? [] : svgMemoriaA4(pecas, { par: p.jogo === 'memoria-leitura' ? 'leitura' : 'igual', verso: p.verso });
       return { titulo: 'Jogo da memória', folhas, avisos };
+    }
+    case 'matematica': {
+      if (p.modelo === 'montar') {
+        return { titulo: 'Relógio de montar', folhas: [{ titulo: 'Relógio de montar', svg: svgRelogioDeMontarA4() }], avisos };
+      }
+      if (p.modelo === 'reta') {
+        const de = numeroOu(p.de, 0);
+        const ate = numeroOu(p.ate, 10);
+        if (Math.abs(ate - de) > 30) avisos.push('A reta mostra no máximo 31 números: cortei no trigésimo.');
+        const svg = svgRetasA4({ de, ate, semNumeroDesde: p.completar ? 3 : 0 });
+        return { titulo: 'Reta numérica', folhas: [{ titulo: 'Reta numérica', svg }], avisos };
+      }
+      const horas = lerHoras(p.horas);
+      if (!horas.length) avisos.push('Escreva as horas, uma por linha, assim: 7:15');
+      if (horas.length > 12) avisos.push('Cabem 12 relógios: usei as 12 primeiras horas.');
+      const folhas = svgRelogiosA4(horas, { modo: p.modelo === 'marcar' ? 'marcar' : 'ler', respostas: p.respostas });
+      return { titulo: 'Relógios', folhas, avisos };
     }
     case 'pauta': {
       const nome = NOMES_DAS_PAUTAS[p.modelo] ?? NOMES_DAS_PAUTAS.comum;

@@ -13,6 +13,8 @@ try {
   const cruz = await server.ssrLoadModule('/src/geradores/cruzadinha.ts');
   const p = await server.ssrLoadModule('/src/geradores/papeis.ts');
   const j = await server.ssrLoadModule('/src/geradores/jogosDeMesa.ts');
+  const mat = await server.ssrLoadModule('/src/geradores/matematica.ts');
+  const horas = mat.lerHoras('7:00\n7:15\n12:30\n3:45\n9:10\n6:50');
   const pecas = j.lerPecas('FELIZ\nTRISTE\nBRAVO\nCASA\nÔNIBUS\nÁGUA\nSUCO\nPÃO\nFRUTA\nLIVRO\nLÁPIS\nMÚSICA\nTHEO');
 
   const transporte = ['ÔNIBUS', 'PARADA', 'LINHA', 'CENTRO', 'BAIRRO', 'TERMINAL', 'PASSAGEM', 'MOTORISTA'];
@@ -60,6 +62,11 @@ try {
     'tabuleiro': j.svgTabuleiroA4({ titulo: 'Xadrez' }),
     'pecas-damas': j.svgPecasDamasA4(),
     'pecas-xadrez': j.svgPecasXadrezA4(),
+    'relogios-ler': mat.svgRelogiosA4(horas)[0].svg,
+    'relogios-marcar': mat.svgRelogiosA4(horas, { modo: 'marcar' })[0].svg,
+    'relogio-de-montar': mat.svgRelogioDeMontarA4(),
+    'reta-numerica': mat.svgRetasA4({ de: 0, ate: 20, semNumeroDesde: 3 }),
+    'reta-negativos': mat.svgRetasA4({ de: -10, ate: 10 }),
   };
   for (const [nome, svg] of Object.entries(folhas)) writeFileSync(join(destino, `${nome}.svg`), svg);
   const figuras = Object.keys(folhas)

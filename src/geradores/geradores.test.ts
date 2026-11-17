@@ -365,3 +365,51 @@ describe('jogos de mesa', () => {
     expect(fazerFolhas({ ...base, jogo: 'domino', pecas: 'A' }).folhas).toEqual([]);
   });
 });
+
+describe('relógio e reta numérica', () => {
+  it('lê as horas como a pessoa escreve', async () => {
+    const { escreverHora, lerHoras } = await import('./matematica');
+    expect(lerHoras('7:15\n7h30, 19h; 07.05\n25:00\nabc\n8')).toEqual([
+      { h: 7, m: 15 },
+      { h: 7, m: 30 },
+      { h: 19, m: 0 },
+      { h: 7, m: 5 },
+      { h: 8, m: 0 },
+    ]);
+    expect(escreverHora({ h: 7, m: 5 })).toBe('7:05');
+  });
+
+  it('relógios: seis por folha; ponteiros só onde devem estar', async () => {
+    const { lerHoras, svgRelogioDeMontarA4, svgRelogiosA4 } = await import('./matematica');
+    const horas = lerHoras('7:00\n7:15\n12:30\n3:45\n9:10\n6:50\n1:00');
+    const ponteiros = (svg: string) => (svg.match(/stroke-linecap="round"\/>/g) ?? []).length;
+    const ler = svgRelogiosA4(horas, { respostas: true });
+    expect(ler).toHaveLength(4);
+    expect(ler[0].svg).not.toContain('aria-label="7:15"');
+    expect(ler[2].svg).toContain('aria-label="7:15"');
+    const marcar = svgRelogiosA4(horas.slice(0, 6), { modo: 'marcar' });
+    expect(marcar).toHaveLength(1);
+    expect(marcar[0].svg).toContain('aria-label="12:30"');
+    expect(ponteiros(marcar[0].svg)).toBe(0);
+    expect(ponteiros(svgRelogiosA4(horas.slice(0, 6), { modo: 'marcar', respostas: true })[1].svg)).toBe(12);
+    for (const f of [...ler, ...marcar]) folhaSa(f.svg);
+    folhaSa(svgRelogioDeMontarA4());
+    // às 3:00 o ponteiro das horas aponta para a direita; às 6:00, para baixo
+    const tres = svgRelogiosA4([{ h: 3, m: 0 }])[0].svg;
+    expect(tres).toContain('M224 300L273.68 300');
+    expect(svgRelogiosA4([{ h: 18, m: 0 }])[0].svg).toContain('M224 300L224 349.68');
+  });
+
+  it('reta numérica: marcas certas, com e sem número, e limites seguros', async () => {
+    const { svgRetasA4 } = await import('./matematica');
+    const reta = svgRetasA4({ de: 0, ate: 10, quantas: 2 });
+    folhaSa(reta);
+    expect((reta.match(/aria-label="10"/g) ?? []).length).toBe(4); // 2 retas, número + contorno branco
+    const completar = svgRetasA4({ de: 0, ate: 10, quantas: 4, semNumeroDesde: 3 });
+    expect((completar.match(/aria-label="7"/g) ?? []).length).toBe(4);
+    folhaSa(svgRetasA4({ de: -10, ate: 10 }));
+    folhaSa(svgRetasA4({ de: 50, ate: 0 }));
+    expect(svgRetasA4({ de: 0, ate: 500 })).toContain('de 0 a 30');
+    folhaSa(svgRetasA4({ de: 3, ate: 3 }));
+  });
+});

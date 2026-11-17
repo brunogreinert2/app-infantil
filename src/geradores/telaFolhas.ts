@@ -12,6 +12,7 @@ import { silabasComHifens } from '../conteudo/silabas';
 import { NOMES_COM_DESENHO } from './jogosDeMesa';
 import {
   NOMES_DAS_GRADES,
+  NOMES_DA_MATEMATICA,
   NOMES_DOS_JOGOS,
   NOMES_DAS_PAUTAS,
   TIPOS,
@@ -277,6 +278,32 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           outras.type = 'button';
           outras.addEventListener('click', () => ((p.semente = (p.semente || 0) + 1), atualizar(true)));
           campos.appendChild(outras);
+        }
+        break;
+      }
+      case 'matematica': {
+        campos.appendChild(
+          rotulado(
+            'Qual folha?',
+            lista(
+              (Object.keys(NOMES_DA_MATEMATICA) as Array<keyof typeof NOMES_DA_MATEMATICA>).map((valor) => ({ valor, nome: NOMES_DA_MATEMATICA[valor] })),
+              p.modelo,
+              (v) => ((p.modelo = v), desenharCampos(), atualizar(true)),
+            ),
+          ),
+        );
+        if (p.modelo === 'ler' || p.modelo === 'marcar') {
+          campos.appendChild(
+            rotulado('Horas', areaDeTexto(p.horas, 7, (v) => ((p.horas = v), atualizar())), 'Uma por linha, assim: 7:15. Seis relógios por folha.'),
+          );
+          campos.appendChild(marcar('Folha de respostas junto', p.respostas, (v) => ((p.respostas = v), atualizar(true))));
+        }
+        if (p.modelo === 'reta') {
+          const faixa = el('div', 'folhas-abc');
+          faixa.appendChild(rotulado('De', campoNumero(p.de, (v) => ((p.de = v), atualizar()), -100, 1000)));
+          faixa.appendChild(rotulado('Até', campoNumero(p.ate, (v) => ((p.ate = v), atualizar()), -100, 1000)));
+          campos.appendChild(faixa);
+          campos.appendChild(marcar('Deixar retas sem número, para completar', p.completar, (v) => ((p.completar = v), atualizar(true))));
         }
         break;
       }

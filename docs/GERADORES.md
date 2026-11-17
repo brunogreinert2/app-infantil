@@ -30,15 +30,16 @@ com muita variedade, tudo gerado na hora a partir de dados simples.
 | `cruzadinha.ts` | `gerarCruzadinha([{ palavra, dica }])` + `svgCruzadinhaA4`. Numeração de jornal; grade de até 15 casas |
 | `papeis.ts` | `svgPautaA4` (`PAUTAS.comum / larga / ampliada / muitoAmpliada`), `svgCaligrafiaA4`, `svgQuadriculadoA4`, `svgMilimetradoA4`, `svgPontilhadoA4`, `svgReguasA4`, `svgPlanoCartesianoA4` (com `curva` e `respostas`), `bhaskara`, `passosBhaskara`, `svgCalendarioA4` (modelos `figura` e `anotar`), `svgCalendarioAnoA4`, `feriadosNacionais`, `pascoa` |
 | `jogosDeMesa.ts` | `lerPecas` (palavra vira peça; ganha desenho se a prancha tiver), `svgMemoriaA4` (pares iguais ou de leitura, com folha de verso), `gerarDomino`/`svgDominoA4` (7 palavras = 28 pedras), `gerarBingo`/`svgBingoA4` (cartelas todas diferentes + fichas de chamar), `svgTabuleiroA4`, `svgPecasDamasA4`, `svgPecasXadrezA4` |
+| `matematica.ts` | `lerHoras`, `svgRelogiosA4` (ler a hora ou marcar os ponteiros, com respostas), `svgRelogioDeMontarA4` (relógio grande com ponteiros de recortar), `svgRetasA4` (reta numérica, com retas para completar) |
 | `pedido.ts`, `telaFolhas.ts`, `ligado.ts` | a tela (ver abaixo) |
-| `geradores.test.ts` | 27 testes |
+| `geradores.test.ts` | 30 testes |
 | `../conteudo/silabas.ts` | separador de sílabas (sugestão que a professora confere) |
 | `scripts/exportar-geradores.mjs` | `node scripts/exportar-geradores.mjs <pasta>`: 20 SVGs de amostra + `amostra.html` |
 
 ## Conferido
 
-- `npm test`: 204 testes; `npm run build` limpo.
-- De olho, em imagem (Chromium sem janela): as 29 folhas de amostra.
+- `npm test`: 207 testes; `npm run build` limpo.
+- De olho, em imagem (Chromium sem janela): as 34 folhas de amostra.
 
 **NÃO conferido:** impressão em papel (nenhuma folha foi impressa nem medida
 com régua); o caminho pelo `motorImpressao.ts` (só o SVG avulso foi visto);
@@ -106,6 +107,8 @@ figura do calendário com foto real.
    `src/caa/pictogramas.ts`).
 4. Mais jogos de mesa: trilha (tabuleiro de percurso), jogo da velha, ludo,
    quebra-cabeça de recortar, dominó de figura com palavra.
-5. Mais matemática: reta numérica, relógio, função do 1º grau, folha de
-   exercícios de Bhaskara com gabarito (a conta já existe em `passosBhaskara`).
+5. Mais matemática: função do 1º grau, folha de exercícios de Bhaskara com
+   gabarito (a conta já existe em `passosBhaskara`), contas armadas, troco com
+   dinheiro de brincadeira, "quanto falta para o ônibus das 7:15" (o relógio
+   já existe em `matematica.ts`).
 6. Frase → tira de pictogramas; diário de uso da prancha.

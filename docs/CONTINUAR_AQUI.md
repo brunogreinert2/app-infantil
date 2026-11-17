@@ -32,7 +32,8 @@ Nenhuma professora conferiu ainda.
 com gabarito, pautas (comum e ampliada), caligrafia, quadriculado, milimetrado,
 pontilhado, réguas de recortar, plano cartesiano com parábola e Bhaskara,
 calendário do mês (com espaço para figura) e do ano, e os jogos de mesa
-(memória, dominó, bingo, tabuleiro e peças de damas e xadrez). Tudo motor puro com teste. Receita, lista do que existe, o que NÃO foi conferido e o
+(memória, dominó, bingo, tabuleiro e peças de damas e xadrez), relógios e
+reta numérica. Tudo motor puro com teste. Receita, lista do que existe, o que NÃO foi conferido e o
 que falta: **`docs/GERADORES.md`**. Para ver: `node scripts/exportar-geradores.mjs
 <pasta>` e abrir `amostra.html`.
 
