@@ -12,9 +12,12 @@ const server=await createServer({root:raiz,configFile:false,resolve:{preserveSym
 try {
   const {gerarCadernoAlfabeto}=await server.ssrLoadModule('/src/conteudo/alfabetos.ts');
   const {gerarCadernoNumeros}=await server.ssrLoadModule('/src/conteudo/numeros.ts');
+  const {gerarCadernoLerOMundo}=await server.ssrLoadModule('/src/conteudo/lerOMundo.ts');
+  const {gerarCadernoComunicacao}=await server.ssrLoadModule('/src/conteudo/pranchaCaa.ts');
+  const outros={numeros:gerarCadernoNumeros,'ler-o-mundo':gerarCadernoLerOMundo,comunicacao:gerarCadernoComunicacao};
   const indice=[];
-  for(const id of ['alfabeto','alfabeto-grego','numeros']){
-    const fichas=id==='numeros'?gerarCadernoNumeros():gerarCadernoAlfabeto(id);
+  for(const id of ['alfabeto','alfabeto-grego','numeros','ler-o-mundo','comunicacao']){
+    const fichas=outros[id]?outros[id]():gerarCadernoAlfabeto(id);
     await mkdir(join(destino,'svg',id),{recursive:true});
     for(const [n,f] of fichas.entries()){
       await writeFile(join(destino,'svg',id,f.arquivo),f.svg);

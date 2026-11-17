@@ -463,3 +463,5 @@ export function svgTabuadaDoA4(n: number): string {
   return base(`Tabuada do ${nome}`, 'Números · tabuadas', corpo);
 }
 
+// Legenda com algarismos da Cardo (sem o zero cortado): também usada em lerOMundoArte.ts.
+export { texto as textoComAlgarismos };

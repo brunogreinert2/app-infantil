@@ -1,0 +1,381 @@
+// Folhas A4 de Ler o Mundo (letramento para jovens e adultos).
+// Mesmas peças das folhas de alfabeto (alfabetoArte.ts): contorno preto,
+// regiões brancas com id="regiao-*" e class="colorir-alvo", legendas em
+// caminhos vetoriais. A mesma arte serve ao app, ao SVG avulso e à impressão.
+//
+// O que muda é a cara: outra marca no cabeçalho, verbos de adulto (destaque,
+// circule, marque) e molduras de sinalização em vez de bichos.
+
+import {
+  base,
+  largura,
+  letras,
+  linha,
+  linhasTexto,
+  quadro,
+  regiao,
+  texto,
+  type Identidade,
+} from './alfabetoArte';
+import { textoComAlgarismos } from './numeroArte';
+import glifos from './glifos.json';
+import { parecidasDe, type Contexto, type GrupoDePalavras, type PalavraDoMundo } from './lerOMundo';
+
+const TINTA = '#000000';
+const GLIFO = glifos as Record<string, { d: string; adv: number; y1: number }>;
+
+// NOME PROVISÓRIO. Sem endereço no rodapé de propósito: "historinhas.app.br"
+// na folha de um adolescente desfaz o cuidado todo. Ver docs/LER_O_MUNDO.md.
+export const IDENTIDADE_LER_O_MUNDO: Identidade = {
+  marca: 'LER O MUNDO',
+  descricao:
+    'Folha A4 de Ler o Mundo. {categoria}. Destaque, circule, aponte, fale ou escreva, do seu jeito.',
+  rodapeEsquerda: '',
+  rodapeDireita: 'Seu jeito de participar também conta.',
+};
+
+const folha = (titulo: string, categoria: string, corpo: string, identificacao = true) =>
+  base(titulo, categoria, corpo, identificacao, IDENTIDADE_LER_O_MUNDO);
+
+/** traço que não é região de destacar (seta, maçaneta, haste) */
+function risco(d: string, grossura = 4): string {
+  return `<path d="${d}" fill="none" stroke="${TINTA}" stroke-width="${grossura}" pointer-events="none"/>`;
+}
+
+/** texto cheio (Atkinson), no maior tamanho que couber em `max` */
+function textoQueCabe(s: string, cx: number, y: number, max: number, teto: number): string {
+  const tamanho = Math.min(teto, (max / largura(s, 100)) * 100);
+  return texto(s, cx, y + tamanho * 0.36, Math.floor(tamanho), 'middle');
+}
+
+// ---------------------------------------------------------------------------
+// Passo 1: a palavra como ela aparece no mundo. Área útil: x 48–752, y 216–478.
+// ---------------------------------------------------------------------------
+
+function seta(x: number, y: number, comprimento: number): string {
+  const p = x + comprimento;
+  return risco(`M${x} ${y} H${p} M${p - 26} ${y - 22} L${p} ${y} L${p - 26} ${y + 22}`, 9);
+}
+
+function moldura(contexto: Contexto, palavra: string): string {
+  switch (contexto) {
+    case 'octogono': {
+      const pontos = Array.from({ length: 8 }, (_, i) => {
+        const a = ((22.5 + i * 45) * Math.PI) / 180;
+        return `${(400 + 132 * Math.cos(a)).toFixed(1)} ${(347 + 132 * Math.sin(a)).toFixed(1)}`;
+      });
+      return (
+        regiao('regiao-placa', `<path d="M${pontos.join(' L')} Z"/>`) +
+        textoQueCabe(palavra, 400, 347, 196, 84)
+      );
+    }
+    case 'alerta':
+      return (
+        regiao('regiao-sinal', '<path d="M170 232 L286 446 H54 Z"/>') +
+        texto('!', 170, 420, 130, 'middle') +
+        quadro('regiao-placa', 318, 284, 434, 126, 14) +
+        textoQueCabe(palavra, 535, 347, 390, 62)
+      );
+    case 'proibido':
+      return (
+        regiao('regiao-sinal', '<circle cx="160" cy="347" r="104"/>') +
+        risco('M88 275 L232 419', 16) +
+        quadro('regiao-placa', 300, 284, 452, 126, 14) +
+        textoQueCabe(palavra, 526, 347, 408, 62)
+      );
+    case 'seta':
+      return (
+        quadro('regiao-placa', 78, 262, 644, 170, 16) +
+        textoQueCabe(palavra, 330, 347, 400, 82) +
+        seta(570, 347, 112)
+      );
+    case 'porta':
+      return (
+        quadro('regiao-porta', 84, 226, 150, 252, 6) +
+        `<circle cx="212" cy="356" r="8" fill="${TINTA}" pointer-events="none"/>` +
+        quadro('regiao-placa', 286, 284, 466, 126, 14) +
+        textoQueCabe(palavra, 519, 347, 422, 64)
+      );
+    case 'letreiro':
+      return (
+        quadro('regiao-onibus', 130, 222, 540, 258, 30) +
+        quadro('regiao-placa', 172, 242, 456, 88, 8) +
+        textoQueCabe(palavra, 400, 286, 420, 64) +
+        quadro('regiao-para-brisa', 172, 346, 456, 72, 8) +
+        risco('M400 346 V418', 3) +
+        regiao('regiao-farol-1', '<circle cx="198" cy="450" r="14"/>') +
+        regiao('regiao-farol-2', '<circle cx="602" cy="450" r="14"/>') +
+        risco('M130 300 H102 V352 M670 300 H698 V352', 5)
+      );
+    case 'poste':
+      return (
+        risco('M400 380 V478', 12) +
+        quadro('regiao-placa', 176, 232, 448, 150, 16) +
+        textoQueCabe(palavra, 400, 307, 400, 76)
+      );
+    case 'etiqueta':
+      return (
+        regiao('regiao-placa', '<path d="M236 262 H700 Q716 262 716 278 V416 Q716 432 700 432 H236 L132 347 Z"/>') +
+        `<circle cx="206" cy="347" r="13" fill="#ffffff" stroke="${TINTA}" stroke-width="3" pointer-events="none"/>` +
+        risco('M132 347 H72', 3) +
+        textoQueCabe(palavra, 478, 347, 400, 72)
+      );
+    case 'tela':
+      return (
+        quadro('regiao-celular', 254, 220, 292, 260, 28) +
+        risco('M368 242 H432', 5) +
+        quadro('regiao-placa', 282, 306, 236, 88, 44) +
+        textoQueCabe(palavra, 400, 350, 200, 46) +
+        `<circle cx="400" cy="448" r="11" fill="none" stroke="${TINTA}" stroke-width="3" pointer-events="none"/>`
+      );
+    case 'documento': {
+      const tamanho = Math.min(54, (300 / largura(palavra, 100)) * 100);
+      const fim = 96 + largura(`${palavra}:`, tamanho);
+      return (
+        quadro('regiao-placa', 60, 248, 680, 198, 8) +
+        texto(`${palavra}:`, 96, 366, Math.floor(tamanho)) +
+        linha(fim + 18, 370, 706, 370)
+      );
+    }
+    case 'placa':
+      return quadro('regiao-placa', 110, 270, 580, 154, 16) + textoQueCabe(palavra, 400, 347, 530, 84);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// A ficha de uma palavra
+// ---------------------------------------------------------------------------
+
+/**
+ * Caixas lado a lado, centralizadas, cada uma com um pedaço da palavra.
+ * Todas as letras na MESMA escala (a palavra é uma só, cortada em partes) e
+ * cada letra é uma região: dá para destacar a caixa inteira ou letra por letra.
+ */
+function partes(pedacos: string[], y: number): string {
+  const n = pedacos.length;
+  const folga = n > 8 ? 6 : 12; // entre caixas
+  const margem = 13; // dentro da caixa, de cada lado
+  const respiro = 110; // entre letras, em unidades da fonte (evita contornos encostados)
+  const avanco = (s: string) =>
+    [...s].reduce((t, c) => {
+      if (!GLIFO[c]) throw new Error(`Falta letra vetorial: ${c}`);
+      return t + GLIFO[c].adv;
+    }, 0) + ([...s].length - 1) * respiro;
+  const total = pedacos.reduce((t, s) => t + avanco(s), 0);
+  const altura = -GLIFO.E.y1; // altura das maiúsculas
+  const f = Math.min(70 / altura, (704 - n * 2 * margem - (n - 1) * folga) / total);
+  const larguraTotal = total * f + n * 2 * margem + (n - 1) * folga;
+  let x = 400 - larguraTotal / 2;
+  const base = y + 94;
+  return pedacos
+    .map((s, i) => {
+      const w = avanco(s) * f + 2 * margem;
+      let lx = x + margem;
+      const desenhadas = [...s]
+        .map((c, j) => {
+          const g = GLIFO[c];
+          const d = `<g role="img" lang="pt-BR" aria-label="${c}"><path d="${g.d}" transform="translate(${lx.toFixed(2)} ${base}) scale(${f.toFixed(5)})" stroke-width="${(3 / f).toFixed(3)}"/></g>`;
+          lx += (g.adv + respiro) * f;
+          return regiao(`regiao-parte-${i + 1}-letra-${j + 1}`, d);
+        })
+        .join('');
+      const caixa = quadro(`regiao-parte-quadro-${i + 1}`, x, y, w, 118, 12) + desenhadas;
+      x += w + folga;
+      return caixa;
+    })
+    .join('');
+}
+
+export function svgPalavraA4(p: PalavraDoMundo): string {
+  const { palavra } = p;
+  const emSilabas = Boolean(p.silabas?.length);
+  const pedacos = emSilabas ? p.silabas! : [...palavra];
+
+  let corpo = texto('1. Leia a palavra inteira. É assim que ela aparece.', 48, 197, 24);
+  corpo += moldura(p.contexto, palavra);
+
+  corpo += texto(
+    emSilabas
+      ? `2. A palavra em ${pedacos.length} ${pedacos.length === 1 ? 'parte' : 'partes'}. Fale ou bata na mesa a cada parte.`
+      : '2. A palavra letra por letra. Diga o nome ou o som de cada uma.',
+    48, 527, 22,
+  );
+  corpo += partes(pedacos, 548);
+
+  // alvo duas vezes entre quatro parecidas, em lugares fixos (nada de sorte)
+  const outras = parecidasDe(p);
+  const seis = [outras[0], palavra, outras[1], outras[2], outras[3], palavra];
+  corpo += texto(`3. Encontre ${palavra}. Circule ou destaque.`, 48, 718, 22);
+  seis.forEach((s, i) => {
+    const x = 48 + (i % 3) * 240;
+    const y = 738 + Math.floor(i / 3) * 76;
+    corpo += quadro(`regiao-busca-${i + 1}`, x, y, 224, 62, 10);
+    corpo += textoQueCabe(s, x + 112, y + 31, 196, 30);
+  });
+
+  corpo += texto('4. Escreva a palavra.', 48, 928, 22);
+  // modelo em traço cheio, na mesma letra das placas: contorno vazado miúdo
+  // embola as letras e atrapalha a cópia
+  const modelo = Math.floor(Math.min(46, (236 / largura(palavra, 100)) * 100));
+  corpo += texto(palavra, 48, 994, modelo);
+  corpo += linha(306, 968, 752, 968) + linha(306, 1014, 752, 1014);
+
+  const onde = p.onde ? `5. Onde você vê essa palavra? ${p.onde}` : '5. Onde você vê essa palavra?';
+  corpo += texto(onde, 48, 1052, largura(onde, 19) > 704 ? 16 : 19);
+
+  return folha(palavra, 'Palavras do dia a dia', corpo);
+}
+
+// ---------------------------------------------------------------------------
+// Folha de consulta: as palavras de um grupo, juntas
+// ---------------------------------------------------------------------------
+
+export function svgCatalogoA4(grupo: GrupoDePalavras): string {
+  const n = grupo.palavras.length;
+  const linhasDaGrade = Math.ceil(n / 2);
+  const passo = Math.min(205, 830 / linhasDaGrade);
+  let corpo = texto('Leia, aponte ou destaque as que você já reconhece.', 48, 154, 21);
+  grupo.palavras.forEach((p, i) => {
+    const x = 48 + (i % 2) * 360;
+    const y = 182 + Math.floor(i / 2) * passo;
+    corpo += quadro(`regiao-quadro-${i + 1}`, x, y, 344, passo - 16, 12);
+    corpo += textoQueCabe(p.palavra, x + 172, y + (passo - 16) / 2, 300, Math.min(58, passo * 0.4));
+  });
+  corpo += texto('Qual delas você viu hoje?', 48, 1042, 19);
+  return folha(grupo.titulo, 'Palavras do dia a dia · consulta', corpo, false);
+}
+
+// ---------------------------------------------------------------------------
+// Preencher uma ficha (nome, data, assinatura)
+// ---------------------------------------------------------------------------
+
+export function svgFormularioA4(): string {
+  let corpo = linhasTexto(
+    'Toda ficha pede quase as mesmas coisas. Encontre cada palavra e preencha com os seus dados. Vale copiar de um documento seu.',
+    48, 190, 704, 20, 29,
+  );
+  corpo += quadro('regiao-ficha', 48, 262, 704, 590, 8);
+  corpo += texto('FICHA DE CADASTRO', 400, 312, 24, 'middle') + linha(84, 330, 716, 330);
+  const campos: [string, number][] = [
+    ['NOME:', 400],
+    ['DATA DE NASCIMENTO:', 478],
+    ['ENDEREÇO:', 556],
+    ['TELEFONE:', 634],
+  ];
+  for (const [rotulo, y] of campos) {
+    corpo += textoComAlgarismos(rotulo, 84, y, 21) + linha(84 + largura(rotulo, 21) + 14, y + 3, 716, y + 3);
+  }
+  corpo += linha(84, 598, 716, 598);
+  corpo += textoComAlgarismos('DATA:', 84, 726, 21) + linha(158, 729, 360, 729);
+  corpo += linha(400, 790, 716, 790) + texto('ASSINATURA', 558, 818, 17, 'middle');
+  corpo += texto('Assinatura é o seu nome escrito do seu jeito. Treine a sua:', 48, 908, 20);
+  corpo += linha(48, 962, 752, 962) + linha(48, 1020, 752, 1020);
+  return folha('Preencher uma ficha', 'Documentos', corpo, false);
+}
+
+// ---------------------------------------------------------------------------
+// Dinheiro
+// ---------------------------------------------------------------------------
+
+function nota(id: string, valor: number, x: number, y: number, w = 160, h = 76): string {
+  return (
+    quadro(`regiao-${id}`, x, y, w, h, 6) +
+    risco(`M${x + 10} ${y + 10} H${x + w - 10} V${y + h - 10} H${x + 10} Z`, 1.5) +
+    textoComAlgarismos(String(valor), x + w / 2, y + h / 2 + 16, 44, 'middle') +
+    texto('R$', x + 18, y + 30, 14)
+  );
+}
+function moeda(id: string, rotulo: string, cx: number, cy: number, r = 36): string {
+  return (
+    regiao(`regiao-${id}`, `<circle cx="${cx}" cy="${cy}" r="${r}"/>`) +
+    textoComAlgarismos(rotulo, cx, cy + 11, 30, 'middle')
+  );
+}
+
+export function svgDinheiroA4(): string {
+  let corpo = texto('1. As notas. Destaque as que você já usou.', 48, 197, 23);
+  [2, 5, 10, 20].forEach((v, i) => (corpo += nota(`nota-${v}`, v, 48 + i * 181, 216)));
+  [50, 100, 200].forEach((v, i) => (corpo += nota(`nota-${v}`, v, 138 + i * 181, 306)));
+
+  corpo += texto('2. As moedas. Abaixo de 1 real, são centavos.', 48, 438, 23);
+  const moedas: [string, string, string][] = [
+    ['moeda-5', '5', '5 centavos'],
+    ['moeda-10', '10', '10 centavos'],
+    ['moeda-25', '25', '25 centavos'],
+    ['moeda-50', '50', '50 centavos'],
+    ['moeda-1', '1', '1 real'],
+  ];
+  moedas.forEach(([id, rotulo, nome], i) => {
+    const cx = 108 + i * 146;
+    corpo += moeda(id, rotulo, cx, 498) + textoComAlgarismos(nome, cx, 560, 15, 'middle');
+  });
+
+  corpo += texto('3. Quanto tem aqui? Some e escreva.', 48, 622, 23);
+  corpo += nota('soma1-nota-10', 10, 48, 644, 132, 66) + nota('soma1-nota-5', 5, 196, 644, 132, 66);
+  corpo += moeda('soma1-moeda-1', '1', 380, 677, 31);
+  corpo += texto('R$', 470, 690, 26) + quadro('regiao-resposta-1', 516, 644, 236, 66, 10);
+  corpo += nota('soma2-nota-20', 20, 48, 730, 132, 66) + nota('soma2-nota-2', 2, 196, 730, 132, 66);
+  corpo += nota('soma2-nota-2-outra', 2, 344, 730, 132, 66);
+  corpo += texto('R$', 492, 776, 26) + quadro('regiao-resposta-2', 538, 730, 214, 66, 10);
+
+  corpo += texto('4. A passagem de ônibus.', 48, 858, 23);
+  corpo += texto('Hoje a passagem custa R$', 48, 908, 21) + linha(300, 911, 440, 911);
+  corpo += texto('Quais notas e moedas você usaria? Desenhe, escreva ou mostre.', 48, 952, 19);
+  corpo += quadro('regiao-passagem', 48, 972, 704, 76, 10);
+  return folha('Dinheiro: notas e moedas', 'Números do dia a dia', corpo);
+}
+
+// ---------------------------------------------------------------------------
+// Hora e horário de ônibus
+// ---------------------------------------------------------------------------
+
+/** mostrador digital: quatro algarismos para destacar e os dois pontos */
+function mostrador(id: string, hora: string, x: number, y: number, w = 212, h = 92): string {
+  const [hh, mm] = hora.split(':');
+  const meio = x + w / 2;
+  return (
+    quadro(`regiao-${id}-fundo`, x, y, w, h, 12) +
+    letras(`regiao-${id}-hora`, hh, x + 16, y + 20, w / 2 - 34, h - 40) +
+    letras(`regiao-${id}-minuto`, mm, meio + 18, y + 20, w / 2 - 34, h - 40) +
+    `<circle cx="${meio}" cy="${y + h / 2 - 13}" r="5" fill="${TINTA}" pointer-events="none"/>` +
+    `<circle cx="${meio}" cy="${y + h / 2 + 13}" r="5" fill="${TINTA}" pointer-events="none"/>`
+  );
+}
+
+export const HORARIOS_DE_EXEMPLO = ['06:40', '07:10', '07:40', '08:10', '08:40', '09:10', '09:40', '10:10'];
+
+export function svgHoraA4(): string {
+  let corpo = texto('1. A hora no celular e no relógio digital. Leia cada uma.', 48, 197, 22);
+  const horas: [string, string][] = [
+    ['07:00', 'sete horas da manhã'],
+    ['12:30', 'meio-dia e meia'],
+    ['19:15', 'sete e quinze da noite'],
+  ];
+  horas.forEach(([h, nome], i) => {
+    const x = 48 + i * 246;
+    corpo += mostrador(`relogio-${i + 1}`, h, x, 218) + texto(nome, x + 106, 340, 17, 'middle');
+  });
+  corpo += texto('Antes dos dois pontos: a hora. Depois: os minutos.', 48, 384, 19);
+
+  corpo += texto('2. A tabela de horários. Cada quadro é um ônibus saindo.', 48, 446, 22);
+  corpo += quadro('regiao-tabela-titulo', 48, 466, 704, 58, 8);
+  corpo += textoComAlgarismos('LINHA 10', 72, 504, 24) + texto('CENTRO', 728, 504, 24, 'end');
+  HORARIOS_DE_EXEMPLO.forEach((h, i) => {
+    const x = 48 + (i % 4) * 176;
+    const y = 536 + Math.floor(i / 4) * 78;
+    corpo += quadro(`regiao-horario-${i + 1}`, x, y, 176, 78, 0);
+    corpo += textoComAlgarismos(h, x + 88, y + 51, 34, 'middle');
+  });
+  corpo += textoComAlgarismos('Destaque o primeiro ônibus depois das 07:00.', 48, 730, 20);
+  corpo += textoComAlgarismos('Você chegou na parada às 08:20. Qual é o próximo? Circule.', 48, 764, 20);
+
+  corpo += texto('3. Os seus horários. Escreva ou peça para alguém anotar.', 48, 834, 22);
+  const rotina = ['Eu acordo às', 'A aula começa às', 'O meu ônibus passa às'];
+  rotina.forEach((frase, i) => {
+    const y = 892 + i * 58;
+    corpo += texto(frase, 48, y, 21);
+    corpo += quadro(`regiao-rotina-${i + 1}`, 330, y - 34, 150, 46, 8);
+    corpo += `<circle cx="405" cy="${y - 18}" r="3.5" fill="${TINTA}" pointer-events="none"/><circle cx="405" cy="${y - 4}" r="3.5" fill="${TINTA}" pointer-events="none"/>`;
+  });
+  return folha('Hora e horário de ônibus', 'Números do dia a dia', corpo);
+}

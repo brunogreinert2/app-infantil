@@ -60,16 +60,24 @@ export function letras(id: string, s: string, x: number, y: number, w: number, h
   // role="img": sem papel, um <g> não pode ter aria-label (o leitor de tela o ignoraria)
   return regiao(id,`<g role="img" lang="${idioma(s)}" aria-label="${esc(s)}">${formas(s,x,y,w,h)}</g>`);
 }
-export function base(titulo: string, categoria: string, corpo: string, identificacao = true): string {
+/** Outra marca no cabeçalho e outro rodapé: o material para jovens e adultos (lerOMundoArte.ts). */
+export interface Identidade { marca: string; descricao: string; rodapeEsquerda: string; rodapeDireita: string; }
+const HISTORINHAS: Identidade = {
+  marca: 'HISTORINHAS',
+  descricao: 'Folha A4 de Historinhas. {categoria}. Pinte, aponte, fale ou escreva com a mediação da professora.',
+  rodapeEsquerda: 'historinhas.app.br',
+  rodapeDireita: 'Seu jeito de participar também conta.',
+};
+export function base(titulo: string, categoria: string, corpo: string, identificacao = true, identidade: Identidade = HISTORINHAS): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1131" data-folha-a4="true" role="img" aria-label="${esc(titulo)}" stroke-linecap="round" stroke-linejoin="round">
   <!-- Gerado por src/conteudo/alfabetoArte.ts a partir dos dados de alfabetos.ts e alfabetoComplementos.ts. -->
-  <title>${esc(titulo)}</title><desc>Folha A4 de Historinhas. ${esc(categoria)}. Pinte, aponte, fale ou escreva com a mediação da professora.</desc>
+  <title>${esc(titulo)}</title><desc>${esc(identidade.descricao.replace('{categoria}', categoria))}</desc>
   ${quadro('regiao-fundo',0,0,800,1131,0)}
-  ${texto('HISTORINHAS',48,43,17)}${texto(categoria,752,43,15,'end')}
+  ${texto(identidade.marca,48,43,17)}${texto(categoria,752,43,15,'end')}
   ${linha(48,58,752,58)}${texto(titulo,48,108,largura(titulo,38)>704?29:38)}
   ${identificacao ? texto('Nome:',48,147,18)+linha(112,148,515,148)+texto('Data:',540,147,18)+linha(594,148,752,148) : ''}
   ${corpo}
-  ${linha(48,1065,752,1065)}${texto('historinhas.app.br',48,1096,16)}${texto('Seu jeito de participar também conta.',752,1096,16,'end')}
+  ${linha(48,1065,752,1065)}${identidade.rodapeEsquerda ? texto(identidade.rodapeEsquerda,48,1096,16) : ''}${texto(identidade.rodapeDireita,752,1096,16,'end')}
   </svg>`;
 }
 

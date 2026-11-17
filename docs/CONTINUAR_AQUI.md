@@ -1,5 +1,15 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Ler o Mundo e Prancha de CAA (2026-11-16) — piloto, NÃO publicado
+
+Encomenda de uma professora de AEE: letramento para adolescentes e adultos
+(sem cara infantil) e prancha de comunicação. Branch
+`fable/ler-o-mundo-e-caa`: 53 folhas de palavras do dia a dia (PARE, SAÍDA,
+ÔNIBUS…), dinheiro, hora, ficha de cadastro e 2 pranchas, só em papel por
+enquanto. Falta a parte de tela (prancha tocável com voz, formulário da
+professora) e seis decisões do Bruno. Tudo em **`docs/LER_O_MUNDO.md`**.
+
+
 ## Versão de verdade (2026-11-15)
 
 O "Sobre" dizia v0.2.0 desde julho: o número estava escrito à mão no texto.

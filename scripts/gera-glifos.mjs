@@ -20,7 +20,9 @@ const GREGAS = 'ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩαβγδεζηθ
 const LATINAS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 // algarismos: as folhas de Números (src/conteudo/numeroArte.ts)
 const ALGARISMOS = '0123456789';
-const TODAS = GREGAS + LATINAS + 'çÇãõáéíóúâêôàᾳῃῳἀἁάὰᾶ' + ALGARISMOS;
+// maiúsculas acentuadas: as fichas de palavra de Ler o Mundo (SAÍDA, ÔNIBUS, ATENÇÃO…)
+const MAIUSCULAS_ACENTUADAS = 'ÁÉÍÓÚÂÊÔÃÕÀ';
+const TODAS = GREGAS + LATINAS + 'çÇãõáéíóúâêôàᾳῃῳἀἁάὰᾶ' + ALGARISMOS + MAIUSCULAS_ACENTUADAS;
 
 function lerFonte(caminho) {
   const bytes = readFileSync(caminho);
