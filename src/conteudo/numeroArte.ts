@@ -9,6 +9,7 @@
 
 import {
   base,
+  caixaDasLetras,
   letras,
   linha,
   linhasTexto,
@@ -246,6 +247,61 @@ export function svgRomanosA4(): string {
     ],
     'Letra menor DEPOIS da maior: junta. VI é cinco mais um. Letra menor ANTES da maior: tira. IV é cinco menos um; IX é dez menos um.',
   );
+}
+
+// Depois do M (mil), os romanos não inventaram letra nova: puseram um TRAÇO
+// em cima (o vinculum), e o traço quer dizer "vezes mil". Pergunta do Theo
+// (7 anos), em casa, ao aprender os romanos: "e como escreve mais que 4000?"
+// O traço é uma região pintável própria, medida pela largura real das letras.
+export const ROMANOS_COM_TRACO: Array<[string, string, string]> = [
+  ['IV', 'quatro mil', '4.000'],
+  ['V', 'cinco mil', '5.000'],
+  ['X', 'dez mil', '10.000'],
+  ['L', 'cinquenta mil', '50.000'],
+  ['C', 'cem mil', '100.000'],
+  ['D', 'quinhentos mil', '500.000'],
+  ['M', 'um milhão', '1.000.000'],
+];
+
+export function svgRomanosGrandesA4(): string {
+  let corpo = texto('O M vale mil. E para escrever mais do que isso?', 48, 192, 22);
+
+  // --- até três mil: repete o M ---
+  corpo += texto('Até três mil: repita o M', 48, 246, 24);
+  const milhares: Array<[string, string, string]> = [['M', 'mil', '1.000'], ['MM', 'dois mil', '2.000'], ['MMM', 'três mil', '3.000']];
+  // caixas largas: MMM em caixa estreita ficava espremido
+  milhares.forEach(([s, nome, alg], i) => {
+    const x = 48 + i * 240;
+    corpo += quadro(`regiao-quadro-mil-${i + 1}`, x, 266, 224, 160);
+    corpo += letras(`regiao-letra-mil-${i + 1}`, s, x + 18, 282, 188, 78);
+    corpo += texto(nome, x + 112, 390, 17, 'middle') + texto(alg, x + 112, 414, 17, 'middle');
+  });
+
+  // --- o traço em cima: vezes mil ---
+  corpo += texto('E quatro mil? Entra o traço: vale mil vezes', 48, 478, 24);
+  const itens = [...ROMANOS_COM_TRACO, null];
+  itens.forEach((it, i) => {
+    const x = 48 + (i % 4) * 180;
+    const y = 498 + Math.floor(i / 4) * 205;
+    corpo += quadro(`regiao-quadro-traco-${i + 1}`, x, y, 164, 192);
+    if (!it) {
+      // a última casa fica para a criança: inventar o próprio número grande
+      corpo += texto('Invente', x + 82, y + 80, 19, 'middle') + texto('o seu!', x + 82, y + 108, 19, 'middle');
+      return;
+    }
+    const [s, nome, alg] = it;
+    const c = caixaDasLetras(s, x + 25, y + 46, 114, 84);
+    corpo += letras(`regiao-letra-traco-${i + 1}`, s, x + 25, y + 46, 114, 84);
+    const sobra = 6;
+    corpo += quadro(`regiao-traco-${i + 1}`, c.x - sobra, c.y - 24, c.largura + 2 * sobra, 11, 4);
+    corpo += texto(nome, x + 82, y + 158, 17, 'middle') + texto(alg, x + 82, y + 181, 17, 'middle');
+  });
+
+  corpo += linhasTexto(
+    'O traço em cima quer dizer: vezes mil. V é cinco; V com traço é cinco mil. X é dez; X com traço é dez mil. Sem traço, o maior número é MMMCMXCIX: três mil, novecentos e noventa e nove. Desafio: como você escreveria seis mil? E vinte mil?',
+    48, 945, 704, 19, 27,
+  );
+  return base('Romanos grandes: o traço vale mil', 'Números · romanos', corpo);
 }
 
 export function svgRelogioRomanoA4(): string {

@@ -56,6 +56,13 @@ function formas(s: string, x: number, y: number, w: number, h: number): string {
     dx+=g.adv*scale;return p;
   }).join('');
 }
+/** Onde as letras de `letras()` caem de fato na caixa (para desenhar algo colado nelas, como o traço romano). */
+export function caixaDasLetras(s: string, x: number, y: number, w: number, h: number): { x: number; y: number; largura: number; altura: number } {
+  const gs=[...s].map(c=>{ if(!G[c])throw new Error(`Falta letra vetorial: ${c}`); return G[c]; });
+  const total=gs.reduce((v,g)=>v+g.adv,0), top=Math.min(...gs.map(g=>g.y1)), bottom=Math.max(...gs.map(g=>g.y2));
+  const scale=Math.min(w/total,h/(bottom-top));
+  return { x: x+(w-total*scale)/2, y: y+(h-(bottom-top)*scale)/2, largura: total*scale, altura: (bottom-top)*scale };
+}
 export function letras(id: string, s: string, x: number, y: number, w: number, h: number): string {
   // role="img": sem papel, um <g> não pode ter aria-label (o leitor de tela o ignoraria)
   return regiao(id,`<g role="img" lang="${idioma(s)}" aria-label="${esc(s)}">${formas(s,x,y,w,h)}</g>`);

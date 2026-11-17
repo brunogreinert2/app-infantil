@@ -22,6 +22,7 @@ import {
   svgRelogioRomanoA4,
   svgRepartirA4,
   svgRomanosA4,
+  svgRomanosGrandesA4,
   svgTabuadaA4,
   svgTirarA4,
   svgVezesA4,
@@ -59,6 +60,7 @@ const CONVITES_DAS_OUTRAS: Record<string, string> = {
   dezenas: 'De dez em dez a gente chega longe! Dez, vinte, trinta… É como subir uma escada pulando degraus. Até onde você consegue ir?',
   romanos: 'Os romanos antigos escreviam números com letras. I é um, V é cinco, X é dez. Olhe a sua mão aberta: o V parece a mão com o polegar afastado!',
   relogio: 'Tic, tac! Muitos relógios antigos usam números romanos. Pinte cada hora e desenhe os ponteiros na hora de que você mais gosta.',
+  milhares: 'E depois do mil? Os romanos tiveram uma ideia esperta: um tracinho em cima da letra. V é cinco; V com tracinho é cinco mil! Um tracinho só, e o número fica mil vezes maior.',
   juntar: 'Juntar é a conta de mais. Duas bolinhas chegam, três bolinhas chegam também… quantas ficaram brincando juntas? Conte todas!',
   tirar: 'Tirar é a conta de menos. Algumas bolinhas vão embora para casa. Risque as que foram e conte as que ficaram.',
   vezes: 'Vezes é juntar grupos iguais. Dois saquinhos com três balas cada um: quantas balas? Conte grupo por grupo.',
@@ -83,6 +85,8 @@ export function gerarCadernoNumeros(): FichaAlfabeto[] {
   add('dezenas', 'De dez em dez até cem', svgDezenasA4(), 'Consulta');
   add('romanos', 'Números romanos', svgRomanosA4(), 'Romanos');
   add('relogio', 'O relógio romano', svgRelogioRomanoA4(), 'Romanos');
+  // depois do relógio, para não mexer na ordem das folhas que já existiam
+  add('milhares', 'Romanos grandes: o traço vale mil', svgRomanosGrandesA4(), 'Romanos');
   add('juntar', 'Juntar: a conta de mais', svgJuntarA4(), 'Operações');
   add('tirar', 'Tirar: a conta de menos', svgTirarA4(), 'Operações');
   add('vezes', 'Grupos iguais: a conta de vezes', svgVezesA4(), 'Operações');

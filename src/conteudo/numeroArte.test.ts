@@ -49,11 +49,11 @@ describe('folhas de números', () => {
 describe('o livro Os Números', () => {
   const fichas = gerarCadernoNumeros();
 
-  it('tem as quarenta folhas, com ids de asset únicos', () => {
+  it('tem as quarenta e uma folhas, com ids de asset únicos', () => {
     expect(fichas.map((f) => f.id)).toEqual([
       'tabela',
       ...Array.from({ length: 21 }, (_, n) => `numero${String(n).padStart(2, '0')}`),
-      'dezenas', 'romanos', 'relogio', 'juntar', 'tirar', 'vezes', 'repartir', 'tabuada',
+      'dezenas', 'romanos', 'relogio', 'milhares', 'juntar', 'tirar', 'vezes', 'repartir', 'tabuada',
       ...Array.from({ length: 10 }, (_, n) => `tabuada${String(n + 1).padStart(2, '0')}`),
     ]);
     expect(new Set(fichas.map((f) => f.arquivo)).size).toBe(fichas.length);
@@ -109,6 +109,16 @@ describe('o livro Os Números', () => {
     }
   });
 
+  it('romanos grandes: todo número com traço tem o traço por cima das letras, da largura delas', () => {
+    const svg = fichas.find((f) => f.id === 'milhares')!.svg;
+    for (let i = 1; i <= 7; i++) {
+      const traco = svg.match(new RegExp(`id="regiao-traco-${i}"[^>]*><rect x="([\\d.]+)" y="([\\d.]+)" width="([\\d.]+)"`));
+      expect(traco, `traço ${i}`).toBeTruthy();
+      expect(Number(traco![3]), `traço ${i}`).toBeGreaterThan(20);
+    }
+    expect(svg).toContain('aria-label="1.000.000"');
+  });
+
   it('a reta é feita de pedaços: nenhum traço atravessa uma casinha', () => {
     // casinhas em x = 70 + 66·i, raio 23; a linha só pode existir ENTRE elas
     for (const f of fichas) {
@@ -130,7 +140,7 @@ describe('o livro Os Números', () => {
   it('entra no catálogo pelo pipeline comum, com cada folha ancorada no texto', () => {
     const livro = livros.find((l) => l.id === 'numeros')!;
     expect(livro.metadados.titulo).toBe('Os Números');
-    expect(livro.metadados.assets).toHaveLength(40);
+    expect(livro.metadados.assets).toHaveLength(41);
     const { arquivos } = gerarNumeros();
     for (const a of livro.metadados.assets!) expect(arquivos[a.arquivo_interativo!]).toBeTruthy();
     expect(livro.metadados.quiz).toHaveLength(1);

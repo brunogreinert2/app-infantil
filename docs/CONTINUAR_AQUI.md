@@ -1,5 +1,16 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Romanos grandes (2026-11-17, branch `fable/ler-o-mundo-e-caa`)
+
+O Theo aprendeu os romanos em segundos e perguntou como se escreve mais que
+4000. Folha nova `milhares` ("Romanos grandes: o traço vale mil"), logo depois
+do relógio romano: M/MM/MMM, depois IV̄ V̄ X̄ L̄ C̄ D̄ M̄ (4 mil a 1 milhão) com o
+traço como região pintável própria, medido pela largura real das letras
+(`caixaDasLetras` em `alfabetoArte.ts`), e uma casa "Invente o seu!". O livro
+Os Números passou a ter **41 folhas** (as menções a 40 abaixo são de antes).
+Ids antigos intocados. Não publicado. Pendência visual pequena: na Cardo os
+serifs de MMM se encostam (o mesmo acontece em qualquer romano longo).
+
 ## Rumo: app infanto-juvenil (ideia do Bruno, 2026-11-16)
 
 O Ler o Mundo (alfabetização sem cara infantil) e a prancha de CAA levaram o
