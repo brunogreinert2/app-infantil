@@ -20,7 +20,7 @@ Não registrar nome nem dado de aluno em lugar nenhum do repositório.
 |---|---|
 | `src/caa/modelo.ts` | O motor, puro: tipos (conjunto → pranchas → casas), a frase, a validação do que vem de fora, o formato de arquivo |
 | `src/caa/padrao.ts` | O conjunto **essencial**: Início 5 × 6 (núcleo) + 4 pranchas de assunto (Sinto, Lugares, Comida, Escola) |
-| `src/caa/pictogramas.ts` | 60 desenhos geométricos nossos (caixa 100 × 100, traço `currentColor`) e o nome de cada um |
+| `src/caa/pictogramas.ts` | 75 desenhos geométricos nossos (60 da prancha + 15 de rotina e higiene, de 2026-11-18, para a rotina visual de `src/geradores/rotina.ts`) (caixa 100 × 100, traço `currentColor`) e o nome de cada um |
 | `src/caa/cores.ts` | Cor por categoria (Fitzgerald adaptada), todas ≥ 7:1 com a tinta |
 | `src/caa/guardar.ts` | Onde fica: chaves `caa:conjuntos` e `caa:ativo` (do aparelho, não do perfil) |
 | `src/caa/figura.ts` | Foto/figura da professora reduzida no aparelho (320 px, JPEG ~20–40 KB) |
@@ -115,7 +115,7 @@ leitor de tela (VoiceOver/TalkBack) na prancha; uso por um aluno.
 
 ## Decisões em aberto (do Bruno)
 
-1. **Arte.** Os 60 desenhos são provisórios; o motor só conhece a chave, então
+1. **Arte.** Os 75 desenhos são provisórios; o motor só conhece a chave, então
    trocar a arte não estraga prancha guardada. Fracos: QUERO, ESTOU, POR FAVOR,
    SINTO. ARASAAC continua a questão de licença (ver `LER_O_MUNDO.md`, dec. 4).
 2. **Vocabulário da essencial.** Escrito por IA; pede revisão da professora (e,

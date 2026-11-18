@@ -116,6 +116,69 @@ export const PICTOGRAMAS: Record<string, string> = {
   recreio: '<circle cx="50" cy="50" r="38"/><path d="M14 40 Q50 56 86 40 M14 60 Q50 44 86 60"/>',
   computador: '<rect x="10" y="12" width="80" height="54" rx="6"/>' + grosso('M50 66 V80 M28 86 H72', 6),
   musica: grosso('M38 76 V16 L80 8 V66', 6) + '<ellipse cx="28" cy="78" rx="12" ry="9" fill="currentColor"/><ellipse cx="70" cy="68" rx="12" ry="9" fill="currentColor"/>',
+
+  // --- rotina e higiene (2026-11-18): agenda visual e "passo a passo" ---
+  acordar:
+    '<path d="M8 74 H92"/><path d="M26 74 A24 24 0 0 1 74 74"/>' +
+    grosso('M50 40 V26 M26 50 L16 40 M74 50 L84 40 M18 66 H6 M82 66 H94', 5),
+  dormir:
+    '<path d="M46 14 A36 36 0 1 0 86 64 A28 28 0 1 1 46 14 Z"/>' + grosso('M64 14 H80 L64 30 H80', 4),
+  banho:
+    grosso('M16 92 V14 H52 V24', 6) +
+    '<path d="M38 24 H66 L74 38 H30 Z"/>' +
+    grosso('M36 50 L33 60 M52 50 V60 M68 50 L71 60 M42 70 L39 80 M60 70 L63 80', 4),
+  'escovar-dentes':
+    '<path d="M28 26 Q28 10 42 12 Q50 16 58 12 Q72 10 72 26 Q72 42 66 56 Q62 66 58 56 L54 44 Q50 40 46 44 L42 56 Q38 66 34 56 Q28 42 28 26 Z"/>' +
+    grosso('M10 84 H58', 8) +
+    '<rect x="58" y="76" width="32" height="14" rx="4"/>' +
+    grosso('M64 76 V68 M71 76 V68 M78 76 V68 M85 76 V68', 3),
+  vestir:
+    '<path d="M32 14 L12 28 L22 44 L32 38 V88 H68 V38 L78 44 L88 28 L68 14 Q62 26 50 26 Q38 26 32 14 Z"/>',
+  cafe:
+    '<path d="M18 42 H70 V62 Q70 84 44 84 Q18 84 18 62 Z"/>' +
+    '<path d="M70 50 Q88 50 88 61 Q88 72 70 70"/>' +
+    grosso('M10 92 H80', 5) +
+    '<path d="M34 32 Q28 24 34 16 Q40 8 34 2 M52 32 Q46 24 52 16 Q58 8 52 2"/>',
+  mochila:
+    '<path d="M22 30 Q22 18 50 18 Q78 18 78 30 V88 H22 Z"/>' +
+    '<path d="M40 18 Q40 6 50 6 Q60 6 60 18"/>' +
+    '<path d="M32 54 H68 V80 H32 Z"/><path d="M32 54 Q50 46 68 54"/>',
+  torneira:
+    grosso('M6 30 H46 Q62 30 62 46 V54', 10) +
+    grosso('M30 30 V16 M18 16 H42', 6) +
+    grosso('M58 66 V76 M66 66 V76 M58 86 V94 M66 86 V94', 4),
+  'fechar-torneira':
+    grosso('M6 46 H46 Q62 46 62 62 V70', 10) +
+    grosso('M30 46 V32 M18 32 H42', 6) +
+    '<path d="M16 22 A16 16 0 0 1 46 18"/>' +
+    '<path d="M46 18 L46 6 M46 18 L34 18" stroke-width="5"/>',
+  sabonete:
+    '<rect x="10" y="52" width="62" height="34" rx="15"/>' +
+    '<circle cx="72" cy="34" r="11"/><circle cx="86" cy="14" r="7"/><circle cx="54" cy="24" r="7"/>',
+  esfregar:
+    '<g transform="translate(14 12) scale(0.72)">' + maoAberta(0) + '</g>' +
+    '<circle cx="12" cy="30" r="7"/><circle cx="88" cy="26" r="8"/><circle cx="84" cy="54" r="6"/><circle cx="14" cy="60" r="5"/>' +
+    grosso('M6 84 Q16 76 26 84 M74 84 Q84 76 94 84', 4),
+  enxaguar:
+    grosso('M4 10 H34 Q46 10 46 22', 8) +
+    grosso('M42 32 V44 M50 32 V44', 4) +
+    '<g transform="translate(20 34) scale(0.62)">' + maoAberta(0) + '</g>',
+  toalha:
+    grosso('M8 14 H92', 7) +
+    '<path d="M24 14 V88 H76 V14"/>' +
+    grosso('M24 70 H76 M24 78 H76', 3) +
+    '<path d="M24 30 H76"/>',
+  pasta:
+    '<path d="M8 22 H54 L64 30 V38 L54 46 H8 Z"/><rect x="64" y="28" width="10" height="12" rx="2"/>' +
+    '<path d="M8 22 V46" stroke-width="7"/>' +
+    grosso('M10 86 H56', 8) +
+    '<rect x="56" y="78" width="34" height="14" rx="4"/>' +
+    '<path d="M60 78 Q60 66 70 68 Q78 60 86 70 Q90 74 88 78" fill="currentColor"/>',
+  pia:
+    '<path d="M8 44 H92 Q92 84 50 84 Q8 84 8 44 Z"/>' +
+    '<circle cx="50" cy="68" r="4" fill="currentColor"/>' +
+    grosso('M50 44 V20 Q50 12 60 12 H70', 6) +
+    grosso('M50 96 V84', 6),
 };
 
 /** Nome que aparece no seletor do editor (a professora lê isto). */
@@ -131,6 +194,10 @@ export const NOMES_DOS_PICTOGRAMAS: Record<string, string> = {
   fruta: 'fruta', pao: 'pão', leite: 'leite', doce: 'doce', professora: 'professora', colega: 'colega',
   lapis: 'lápis', caderno: 'caderno', livro: 'livro', recreio: 'recreio', computador: 'computador',
   musica: 'música',
+  acordar: 'acordar', dormir: 'dormir', banho: 'tomar banho', 'escovar-dentes': 'escovar os dentes',
+  vestir: 'vestir a roupa', cafe: 'café da manhã', mochila: 'mochila', torneira: 'abrir a torneira',
+  'fechar-torneira': 'fechar a torneira', sabonete: 'sabonete', esfregar: 'esfregar as mãos',
+  enxaguar: 'enxaguar as mãos', toalha: 'secar com a toalha', pasta: 'pasta na escova', pia: 'cuspir na pia',
 };
 
 /** O desenho como SVG pronto, em traço da cor do texto (`currentColor`). */

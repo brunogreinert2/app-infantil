@@ -30,6 +30,7 @@ import { gerarContas, svgContasA4, svgTabuaA4, svgTabuadaA4, type Operacao } fro
 import { folhasDeRecortar, type ModeloRecortar } from './recortar';
 import { lerNomes, svgCrachasA4, svgEtiquetasA4, svgHqA4, svgMarcadoresA4, svgTesouraA4, svgTracarA4 } from './cartoes';
 import { comLetra, textoSeguro, type Letra } from './comum';
+import { folhasDaRotina, lerPassos, type ModeloRotina } from './rotina';
 import { lerHoras, svgRelogioDeMontarA4, svgRelogiosA4, svgRetasA4 } from './matematica';
 
 export { FOLHAS_LIGADAS } from './ligado';
@@ -98,6 +99,13 @@ export const NOMES_DOS_CARTOES: Record<ModeloCartoes, string> = {
   etiquetas: 'Etiquetas de caderno',
 };
 
+export const NOMES_DA_ROTINA: Record<ModeloRotina, string> = {
+  lista: 'Rotina do dia (lista com hora e caixa de feito)',
+  passos: 'Passo a passo para a parede',
+  cartoes: 'Cartões para recortar (velcro)',
+  primeiroDepois: 'Quadro primeiro → depois',
+};
+
 export type Pedido =
   | { tipo: 'caca'; titulo: string; palavras: string; nivel: Nivel; semente: number; respostas: boolean }
   | { tipo: 'cruzadinha'; titulo: string; itens: string; respostas: boolean }
@@ -120,6 +128,7 @@ export type Pedido =
   | { tipo: 'recortar'; modelo: ModeloRecortar; ordens: 3 | 4 | 6 }
   | { tipo: 'motora'; modelo: ModeloMotora }
   | { tipo: 'cartoes'; modelo: ModeloCartoes; quadros: 3 | 4 | 6; linhas: boolean; nomes: string; linha2: string; materia?: string }
+  | { tipo: 'rotina'; modelo: ModeloRotina; titulo: string; passos: string; maiusculas: boolean; hora: boolean }
   | { tipo: 'pauta'; modelo: ModeloPauta; margem: boolean }
   | { tipo: 'grade'; modelo: ModeloGrade }
   | { tipo: 'reguas' }
@@ -144,6 +153,7 @@ export const TIPOS: Array<{ tipo: TipoDeFolha; nome: string }> = [
   { tipo: 'cruzadinha', nome: 'Cruzadinha' },
   { tipo: 'jogo', nome: 'Jogos de mesa: memória, dominó, bingo, damas, xadrez' },
   { tipo: 'matematica', nome: 'Relógio e reta numérica' },
+  { tipo: 'rotina', nome: 'Rotina visual: agenda do dia, passo a passo, primeiro → depois' },
   { tipo: 'silabas', nome: 'Sílabas: famílias, monte a palavra, bingo, dominó' },
   { tipo: 'logica', nome: 'Labirinto e sudoku' },
   { tipo: 'contas', nome: 'Contas armadas e tabuada' },
@@ -205,6 +215,15 @@ export function pedidoInicial(tipo: TipoDeFolha, hoje: Date = new Date()): Pedid
       };
     case 'matematica':
       return { tipo, modelo: 'ler', horas: '7:00\n7:15\n12:30\n3:45\n9:10\n6:50', respostas: true, de: 0, ate: 20, completar: true };
+    case 'rotina':
+      return {
+        tipo,
+        modelo: 'lista',
+        titulo: 'Minha manhã',
+        passos: '7:00 Acordar\n7:10 Ir ao banheiro\n7:15 Vestir a roupa\n7:30 Café da manhã\n7:45 Escovar os dentes\n7:50 Pegar a mochila\n8:00 Ônibus\n8:30 Escola',
+        maiusculas: true,
+        hora: true,
+      };
     case 'silabas':
       return {
         tipo,
@@ -352,6 +371,15 @@ function fazerNaLetraAtual(p: Pedido): Resultado {
       if (horas.length > 12) avisos.push('Cabem 12 relógios: usei as 12 primeiras horas.');
       const folhas = svgRelogiosA4(horas, { modo: p.modelo === 'marcar' ? 'marcar' : 'ler', respostas: p.respostas });
       return { titulo: 'Relógios', folhas, avisos };
+    }
+    case 'rotina': {
+      const passos = lerPassos(p.passos);
+      if (!passos.length) avisos.push('Escreva os passos, um por linha. A hora é opcional: 7:00 Acordar.');
+      const sem = passos.filter((x) => !x.figura).map((x) => x.texto);
+      if (sem.length) avisos.push(`Sem desenho no app (fica a moldura para desenhar ou colar uma foto): ${sem.join(', ')}.`);
+      if (p.modelo === 'primeiroDepois' && passos.length > 2) avisos.push('Com dois passos, o quadro já sai preenchido. Com mais, saem os cartões para colar.');
+      const titulo = textoSeguro(p.titulo) || 'Minha rotina';
+      return { titulo, folhas: folhasDaRotina(p.modelo, passos, { titulo, maiusculas: p.maiusculas, hora: p.hora }), avisos };
     }
     case 'silabas': {
       if (p.modelo === 'familias') {

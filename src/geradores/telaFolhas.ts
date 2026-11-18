@@ -10,10 +10,12 @@ import { corpoCadernoA4, cssCadernoA4, imprimirDocumento } from '../impressao/mo
 import { el } from '../telas/comum';
 import { silabasComHifens } from '../conteudo/silabas';
 import { NOMES_COM_DESENHO } from './jogosDeMesa';
+import { MODELOS as MODELOS_DE_ROTINA } from './rotina';
 import {
   NOMES_DAS_CONTAS,
   NOMES_DAS_GRADES,
   NOMES_DAS_SILABAS,
+  NOMES_DA_ROTINA,
   NOMES_DA_LOGICA,
   NOMES_DA_MOTORA,
   NOMES_DOS_CARTOES,
@@ -330,6 +332,34 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           faixa.appendChild(rotulado('Até', campoNumero(p.ate, (v) => ((p.ate = v), atualizar()), -100, 1000)));
           campos.appendChild(faixa);
           campos.appendChild(marcar('Deixar retas sem número, para completar', p.completar, (v) => ((p.completar = v), atualizar(true))));
+        }
+        break;
+      }
+      case 'rotina': {
+        campos.appendChild(rotulado('Qual folha?', lista(opcoes(NOMES_DA_ROTINA), p.modelo, (v) => ((p.modelo = v), desenharCampos(), atualizar(true)))));
+        const modelos = el('div', 'folhas-botoes');
+        for (const m of Object.values(MODELOS_DE_ROTINA)) {
+          modelos.appendChild(
+            botao(m.nome, () => {
+              p.titulo = m.titulo;
+              p.passos = m.passos;
+              desenharCampos();
+              atualizar(true);
+            }),
+          );
+        }
+        campos.appendChild(rotulado('Começar de um modelo', modelos));
+        campos.appendChild(rotulado('Título', campoTexto(p.titulo, (v) => ((p.titulo = v), atualizar()))));
+        const passos = areaDeTexto(p.passos, 9, (v) => ((p.passos = v), atualizar()));
+        passos.autocapitalize = 'sentences';
+        campos.appendChild(rotulado('Passos', passos, 'Um por linha, na ordem. A hora é opcional: 7:00 Acordar.'));
+        const desenhos = el('details', 'folhas-silabas');
+        desenhos.appendChild(el('summary', undefined, 'Palavras que têm desenho'));
+        desenhos.appendChild(el('p', 'texto-sobre', NOMES_COM_DESENHO.join(' · ')));
+        campos.appendChild(desenhos);
+        campos.appendChild(marcar('Letra de forma maiúscula', p.maiusculas, (v) => ((p.maiusculas = v), atualizar(true))));
+        if (p.modelo === 'cartoes' || p.modelo === 'primeiroDepois') {
+          campos.appendChild(marcar('Hora nos cartões', p.hora, (v) => ((p.hora = v), atualizar(true))));
         }
         break;
       }

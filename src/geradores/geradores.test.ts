@@ -629,3 +629,57 @@ describe('letra das folhas', () => {
     expect(fazerFolhas(pedidoInicial('caca'), 'opendyslexic').folhas[0].svg).toContain('aria-label="MOTORISTA"');
   });
 });
+
+describe('rotina visual', () => {
+  it('lê hora e passo, e acha o desenho pela frase ou pela palavra mais longa', async () => {
+    const { figuraDoPasso, lerPassos } = await import('./rotina');
+    expect(lerPassos('7:00 Acordar\n7h30 café da manhã\n8 - Pegar o ônibus\nIr para a escola\n\n19h Jantar')).toEqual([
+      { hora: '7:00', texto: 'Acordar', figura: 'acordar' },
+      { hora: '7:30', texto: 'café da manhã', figura: 'cafe' },
+      { hora: '8:00', texto: 'Pegar o ônibus', figura: 'onibus' },
+      { hora: '', texto: 'Ir para a escola', figura: 'escola' },
+      { hora: '19:00', texto: 'Jantar', figura: 'comer' },
+    ]);
+    expect(figuraDoPasso('Escovar os dentes')).toBe('escovar-dentes');
+    expect(figuraDoPasso('Lavar as mãos')).toBe('esfregar');
+    expect(figuraDoPasso('Natação')).toBeUndefined();
+    // número sozinho não é hora de um passo vazio
+    expect(lerPassos('25 Acordar')[0].hora).toBe('');
+  });
+
+  it('os modelos prontos têm desenho em todos os passos', async () => {
+    const { MODELOS, lerPassos } = await import('./rotina');
+    for (const [nome, m] of Object.entries(MODELOS)) {
+      for (const p of lerPassos(m.passos)) expect(p.figura, `${nome}: ${p.texto}`).toBeTruthy();
+    }
+  });
+
+  it('as quatro folhas cabem no A4, com e sem hora, com muitos e poucos passos', async () => {
+    const { MODELOS, folhasDaRotina, lerPassos } = await import('./rotina');
+    const manha = lerPassos(MODELOS.manha.passos);
+    const maos = lerPassos(MODELOS.maos.passos);
+    const muitos = lerPassos(Array.from({ length: 13 }, (_, i) => `Passo ${i + 1} da escola`).join('\n'));
+    for (const modelo of ['lista', 'passos', 'cartoes', 'primeiroDepois'] as const) {
+      for (const passos of [manha, maos, muitos, manha.slice(0, 2), manha.slice(0, 1)]) {
+        for (const f of folhasDaRotina(modelo, passos, { titulo: 'Teste', hora: true })) folhaSa(f.svg);
+      }
+    }
+    expect(folhasDaRotina('lista', muitos)).toHaveLength(2);
+    expect(folhasDaRotina('passos', maos)[0].svg).toContain('aria-label="SECAR COM A TOALHA"');
+    expect(folhasDaRotina('passos', maos, { maiusculas: false })[0].svg).toContain('aria-label="Secar com a toalha"');
+    // primeiro → depois com dois passos já vem preenchido; com mais, traz os cartões
+    expect(folhasDaRotina('primeiroDepois', manha.slice(0, 2))).toHaveLength(1);
+    expect(folhasDaRotina('primeiroDepois', manha.slice(0, 2))[0].svg).toContain('aria-label="ACORDAR"');
+    expect(folhasDaRotina('primeiroDepois', manha).length).toBeGreaterThan(1);
+  });
+
+  it('pelo formulário: avisa o que ficou sem desenho', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('rotina');
+    if (base.tipo !== 'rotina') throw new Error('tipo');
+    expect(fazerFolhas(base).avisos).toEqual([]);
+    const r = fazerFolhas({ ...base, passos: 'Natação\nAcordar' });
+    expect(r.avisos.join(' ')).toContain('Natação');
+    expect(fazerFolhas({ ...base, passos: '' }).avisos[0]).toContain('Escreva os passos');
+  });
+});

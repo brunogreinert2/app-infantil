@@ -36,6 +36,7 @@ com muita variedade, tudo gerado na hora a partir de dados simples.
 | `logica.ts` | `gerarLabirinto` (labirinto perfeito por semente, 3 tamanhos, com caminho de resposta), `gerarSudoku` (4 × 4, 6 × 6 e de figuras, sempre com uma solução só) |
 | `contas.ts` | `gerarContas` (as quatro operações, com ou sem "vai um"/"empresta", divisão exata à brasileira), `svgTabuadaA4`, `svgTabuaA4` (tábua de Pitágoras) |
 | `recortar.ts` | material dourado, frações em barras (1 a 1/12) e em círculos, quadro de valor posicional, tangram — em mm de verdade |
+| `rotina.ts` | **rotina visual**: lista do dia (hora, desenho, palavra, caixa de "feito"), passo a passo para a parede (numerado, 4, 6 ou 9 por folha), cartões de 60 mm para recortar e usar com velcro, quadro "primeiro → depois". Modelos prontos: manhã de escola, tarde, noite, dia na escola, como lavar as mãos, como escovar os dentes. O desenho sai da frase ou da palavra mais longa que tenha desenho (`figuraDoPasso`, com sinônimos: jantar → comer, brincar → recreio); sem desenho, fica a moldura para desenhar ou colar foto |
 | `cartoes.ts` | treino de tesoura, "siga o caminho" (traçado entre dois desenhos), HQ em branco (3, 4 ou 6 quadros), crachás, marcadores de página, etiquetas de caderno |
 | `geradores.test.ts` | 37 testes |
 | `../conteudo/silabas.ts` | separador de sílabas (sugestão que a professora confere) |
@@ -96,6 +97,13 @@ do primeiro lote (silabário em diante) ainda não foram impressas.
   figura na prévia para escolher o que aparece (`encaixeDaFigura` em
   `papeis.ts`). A figura não é guardada no aparelho entre uma visita e outra
   (é grande); tamanho e posição, sim.
+- **Rotina visual** (2026-11-18): os 15 desenhos novos (acordar, dormir,
+  banho, escovar os dentes, roupa, café, mochila, torneira aberta e fechada,
+  sabonete, esfregar e enxaguar as mãos, toalha, pasta na escova, pia) entraram
+  na MESMA biblioteca da prancha (`src/caa/pictogramas.ts`), então também
+  servem para as pranchas de comunicação. Mãos seguem a regra de `CAA.md`
+  (quatro dedos parelhos). Os modelos prontos são ponto de partida: a rotina se
+  monta para a pessoa, com quem a conhece. Sem nome de aluno em lugar nenhum.
 - Folhas sem marca de criança (`IDENTIDADE_NEUTRA`): servem do 1º ano ao
   ensino médio. Passar `identidade` para pôr a marca do Historinhas.
 
@@ -142,7 +150,7 @@ figura do calendário com foto real.
 7. **Sugestões das outras IAs ainda não feitas** (lista avaliada em 2026-11-18):
    - médias: ligue os pontos (pontos tirados do contorno dos desenhos),
      simetria no quadriculado, pintura por código (conta ou sílaba), letras
-     vazadas para cobrir, rotina visual "primeiro → depois";
+     vazadas para cobrir (a rotina visual foi feita em 2026-11-18);
    - a maior: **sequência didática a partir de um livro da estante** (texto,
      perguntas do quiz, caça-palavras do vocabulário, desenho para colorir,
      gabarito) — uma sessão inteira só para ela;
