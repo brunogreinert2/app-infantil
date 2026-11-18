@@ -44,7 +44,12 @@ com gabarito, pautas (comum e ampliada), caligrafia, quadriculado, milimetrado,
 pontilhado, réguas de recortar, plano cartesiano com parábola e Bhaskara,
 calendário do mês (com espaço para figura) e do ano, e os jogos de mesa
 (memória, dominó, bingo, tabuleiro e peças de damas e xadrez), relógios e
-reta numérica. Tudo motor puro com teste. Receita, lista do que existe, o que NÃO foi conferido e o
+reta numérica. Em 2026-11-18, o primeiro lote das sugestões de outras IAs:
+silabário (famílias, monte a palavra, bingo e dominó de sílabas), labirinto,
+sudoku, contas armadas e tabuada, material dourado, frações, valor
+posicional, tangram, tesoura, "siga o caminho", HQ em branco, crachás,
+marcadores e etiquetas. O Bruno imprimiu muitas folhas: a régua bate no
+milímetro. Tudo motor puro com teste. Receita, lista do que existe, o que NÃO foi conferido e o
 que falta: **`docs/GERADORES.md`**. Para ver: `node scripts/exportar-geradores.mjs
 <pasta>` e abrir `amostra.html`.
 

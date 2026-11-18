@@ -11,7 +11,13 @@ import { el } from '../telas/comum';
 import { silabasComHifens } from '../conteudo/silabas';
 import { NOMES_COM_DESENHO } from './jogosDeMesa';
 import {
+  NOMES_DAS_CONTAS,
   NOMES_DAS_GRADES,
+  NOMES_DAS_SILABAS,
+  NOMES_DA_LOGICA,
+  NOMES_DA_MOTORA,
+  NOMES_DOS_CARTOES,
+  NOMES_DO_RECORTAR,
   NOMES_DA_MATEMATICA,
   NOMES_DOS_JOGOS,
   NOMES_DAS_PAUTAS,
@@ -86,6 +92,17 @@ function lista<T extends string | number>(opcoes: Array<{ valor: T; nome: string
     if (o) aoMudar(o.valor);
   });
   return sel;
+}
+
+function botao(texto: string, aoClicar: () => void): HTMLButtonElement {
+  const b = el('button', 'botao-opcao', texto);
+  b.type = 'button';
+  b.addEventListener('click', aoClicar);
+  return b;
+}
+
+function opcoes<T extends string>(nomes: Record<T, string>): Array<{ valor: T; nome: string }> {
+  return (Object.keys(nomes) as T[]).map((valor) => ({ valor, nome: nomes[valor] }));
 }
 
 function marcar(nome: string, marcado: boolean, aoMudar: (v: boolean) => void): HTMLElement {
@@ -304,6 +321,122 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           faixa.appendChild(rotulado('Até', campoNumero(p.ate, (v) => ((p.ate = v), atualizar()), -100, 1000)));
           campos.appendChild(faixa);
           campos.appendChild(marcar('Deixar retas sem número, para completar', p.completar, (v) => ((p.completar = v), atualizar(true))));
+        }
+        break;
+      }
+      case 'silabas': {
+        campos.appendChild(rotulado('Qual folha?', lista(opcoes(NOMES_DAS_SILABAS), p.modelo, (v) => ((p.modelo = v), desenharCampos(), atualizar(true)))));
+        if (p.modelo === 'familias') {
+          campos.appendChild(rotulado('Famílias', campoTexto(p.familias, (v) => ((p.familias = v), atualizar()), 80), 'O começo de cada família, separado por espaço: B C D, ou CH LH NH QU.'));
+          campos.appendChild(marcar('Só a primeira sílaba escrita (para completar)', p.completar, (v) => ((p.completar = v), atualizar(true))));
+        } else {
+          const dica =
+            p.modelo === 'moveis'
+              ? 'Uma palavra por linha. O desenho entra se o app tiver.'
+              : 'Palavras (o app separa) ou sílabas soltas: BA BE BI BO BU.';
+          campos.appendChild(rotulado(p.modelo === 'moveis' ? 'Palavras' : 'Palavras ou sílabas', areaDeTexto(p.palavras, 8, (v) => ((p.palavras = v), atualizar())), dica));
+        }
+        if (p.modelo === 'bingo') {
+          campos.appendChild(rotulado('Quantas cartelas', campoNumero(p.cartelas, (v) => ((p.cartelas = v), atualizar()), 1, 40)));
+          campos.appendChild(botao('🔀 Outras cartelas', () => ((p.semente = (p.semente || 0) + 1), atualizar(true))));
+        }
+        break;
+      }
+      case 'logica': {
+        campos.appendChild(rotulado('Qual folha?', lista(opcoes(NOMES_DA_LOGICA), p.modelo, (v) => ((p.modelo = v), desenharCampos(), atualizar(true)))));
+        if (p.modelo === 'labirinto') {
+          campos.appendChild(
+            rotulado(
+              'Tamanho',
+              lista(
+                [
+                  { valor: 'facil' as const, nome: 'Pequeno (6 × 8)' },
+                  { valor: 'medio' as const, nome: 'Médio (12 × 15)' },
+                  { valor: 'dificil' as const, nome: 'Grande (20 × 26)' },
+                ],
+                p.nivel,
+                (v) => ((p.nivel = v), atualizar(true)),
+              ),
+            ),
+          );
+        }
+        campos.appendChild(botao(p.modelo === 'labirinto' ? '🔀 Outro labirinto' : '🔀 Outro sudoku', () => ((p.semente = (p.semente || 0) + 1), atualizar(true))));
+        campos.appendChild(marcar('Folha de respostas junto', p.respostas, (v) => ((p.respostas = v), atualizar(true))));
+        break;
+      }
+      case 'contas': {
+        campos.appendChild(rotulado('Qual folha?', lista(opcoes(NOMES_DAS_CONTAS), p.modelo, (v) => ((p.modelo = v), desenharCampos(), atualizar(true)))));
+        if (p.modelo === 'armadas') {
+          campos.appendChild(
+            rotulado(
+              'Operação',
+              lista(
+                [
+                  { valor: '+' as const, nome: 'Adição (+)' },
+                  { valor: '-' as const, nome: 'Subtração (–)' },
+                  { valor: 'x' as const, nome: 'Multiplicação (×) por um algarismo' },
+                  { valor: '/' as const, nome: 'Divisão (÷) exata, por um algarismo' },
+                ],
+                p.operacao,
+                (v) => ((p.operacao = v), desenharCampos(), atualizar(true)),
+              ),
+            ),
+          );
+          campos.appendChild(
+            rotulado('Algarismos do primeiro número', lista([1, 2, 3, 4].map((v) => ({ valor: v, nome: String(v) })), p.algarismos, (v) => ((p.algarismos = v), atualizar(true)))),
+          );
+          if (p.operacao === '+' || p.operacao === '-') {
+            campos.appendChild(marcar(p.operacao === '+' ? 'Com "vai um"' : 'Com "empresta"', p.reagrupar, (v) => ((p.reagrupar = v), atualizar(true))));
+          }
+          campos.appendChild(rotulado('Quantas contas', campoNumero(p.quantas, (v) => ((p.quantas = v), atualizar()), 1, 40), 'Doze por folha.'));
+          campos.appendChild(botao('🔀 Outras contas', () => ((p.semente = (p.semente || 0) + 1), atualizar(true))));
+          campos.appendChild(marcar('Folha de respostas junto', p.respostas, (v) => ((p.respostas = v), atualizar(true))));
+        } else {
+          if (p.modelo === 'tabuada') campos.appendChild(rotulado('Tabuada do', campoNumero(p.numero, (v) => ((p.numero = v), atualizar()), 1, 20)));
+          campos.appendChild(marcar('Para completar', p.completar, (v) => ((p.completar = v), atualizar(true))));
+        }
+        break;
+      }
+      case 'recortar': {
+        campos.appendChild(rotulado('Qual folha?', lista(opcoes(NOMES_DO_RECORTAR), p.modelo, (v) => ((p.modelo = v), desenharCampos(), atualizar(true)))));
+        if (p.modelo === 'posicional') {
+          campos.appendChild(
+            rotulado(
+              'Até qual ordem',
+              lista(
+                [
+                  { valor: 3 as const, nome: 'Centena (C D U)' },
+                  { valor: 4 as const, nome: 'Unidade de milhar (UM C D U)' },
+                  { valor: 6 as const, nome: 'Centena de milhar (CM DM UM C D U)' },
+                ],
+                p.ordens,
+                (v) => ((p.ordens = v), atualizar(true)),
+              ),
+            ),
+          );
+        }
+        break;
+      }
+      case 'motora':
+        campos.appendChild(rotulado('Qual folha?', lista(opcoes(NOMES_DA_MOTORA), p.modelo, (v) => ((p.modelo = v), atualizar(true)))));
+        break;
+      case 'cartoes': {
+        campos.appendChild(rotulado('Qual folha?', lista(opcoes(NOMES_DOS_CARTOES), p.modelo, (v) => ((p.modelo = v), desenharCampos(), atualizar(true)))));
+        if (p.modelo === 'hq') {
+          campos.appendChild(
+            rotulado(
+              'Quadros',
+              lista([3, 4, 6].map((v) => ({ valor: v as 3 | 4 | 6, nome: `${v} quadros` })), p.quadros, (v) => ((p.quadros = v), atualizar(true))),
+            ),
+          );
+          campos.appendChild(marcar('Linhas para escrever embaixo de cada quadro', p.linhas, (v) => ((p.linhas = v), atualizar(true))));
+          break;
+        }
+        const nomes = areaDeTexto(p.nomes, 8, (v) => ((p.nomes = v), atualizar()));
+        nomes.autocapitalize = 'words';
+        campos.appendChild(rotulado('Nomes', nomes, 'Um por linha. Sem nomes, sai em branco para escrever à mão.'));
+        if (p.modelo !== 'marcadores') {
+          campos.appendChild(rotulado(p.modelo === 'crachas' ? 'Segunda linha (turma, escola)' : 'Turma', campoTexto(p.linha2, (v) => ((p.linha2 = v), atualizar()), 40)));
         }
         break;
       }

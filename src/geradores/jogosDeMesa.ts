@@ -42,10 +42,10 @@ export function lerPecas(texto: string): Peca[] {
   return pecas;
 }
 
-type Face = 'ambos' | 'figura' | 'palavra';
+export type Face = 'ambos' | 'figura' | 'palavra';
 
 /** O conteúdo de uma peça, centrado na caixa (sem a borda). */
-function face(p: Peca, x: number, y: number, w: number, h: number, mostrar: Face = 'ambos'): string {
+export function face(p: Peca, x: number, y: number, w: number, h: number, mostrar: Face = 'ambos'): string {
   const temFigura = Boolean(p.figura && PICTOGRAMAS[p.figura]) && mostrar !== 'palavra';
   const temPalavra = mostrar !== 'figura' || !temFigura;
   const folga = Math.min(w, h) * 0.08;
@@ -66,14 +66,14 @@ function face(p: Peca, x: number, y: number, w: number, h: number, mostrar: Face
 }
 
 /** Linhas de recorte de uma grade de peças coladas umas nas outras. */
-function recorte(x0: number, y0: number, w: number, h: number, colunas: number, linhas: number): string {
+export function recorte(x0: number, y0: number, w: number, h: number, colunas: number, linhas: number): string {
   let d = '';
   for (let c = 0; c <= colunas; c++) d += `M${n(x0 + c * w)} ${n(y0)}V${n(y0 + linhas * h)}`;
   for (let l = 0; l <= linhas; l++) d += `M${n(x0)} ${n(y0 + l * h)}H${n(x0 + colunas * w)}`;
   return `<path d="${d}" fill="none" stroke="${TINTA}" stroke-width="1.6" stroke-dasharray="9 7"/>`;
 }
 
-const cabecalho = (titulo: string, como: string): string =>
+export const cabecalho = (titulo: string, como: string): string =>
   escrever(titulo, 48, 56, 26) + escrever(como, 48, 86, 16, 'start', 704);
 
 export interface Folha {
@@ -81,7 +81,7 @@ export interface Folha {
   svg: string;
 }
 
-function paginar<T>(itens: T[], porFolha: number): T[][] {
+export function paginar<T>(itens: T[], porFolha: number): T[][] {
   const paginas: T[][] = [];
   for (let i = 0; i < itens.length; i += porFolha) paginas.push(itens.slice(i, i + porFolha));
   return paginas;

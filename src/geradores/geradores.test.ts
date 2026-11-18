@@ -32,6 +32,10 @@ function folhaSa(svg: string): void {
     expect(Number(m[1])).toBeGreaterThanOrEqual(-1);
     expect(Number(m[1])).toBeLessThanOrEqual(801);
   }
+  for (const m of svg.matchAll(/<rect[^>]*?\by="(-?[\d.]+)"[^>]*?\bheight="([\d.]+)"[^>]*?>/g)) {
+    if (m[0].includes('transform=')) continue;
+    expect(Number(m[1]) + Number(m[2])).toBeLessThanOrEqual(1131.5);
+  }
   for (const m of svg.matchAll(/translate\((-?[\d.]+) (-?[\d.]+)\)/g)) {
     expect(Number(m[1])).toBeGreaterThanOrEqual(-1);
     expect(Number(m[1])).toBeLessThanOrEqual(801);
@@ -411,5 +415,151 @@ describe('relógio e reta numérica', () => {
     folhaSa(svgRetasA4({ de: 50, ate: 0 }));
     expect(svgRetasA4({ de: 0, ate: 500 })).toContain('de 0 a 30');
     folhaSa(svgRetasA4({ de: 3, ate: 3 }));
+  });
+});
+
+describe('primeiro lote das sugestões', () => {
+  it('silabário: famílias, monte a palavra e peças de sílaba sem desenho', async () => {
+    const s = await import('./silabario');
+    const { lerPecas } = await import('./jogosDeMesa');
+    expect(s.lerFamilias('b, c qu QU lh 9 abcd')).toEqual(['B', 'C', 'QU', 'LH']);
+    expect(s.familia('QU')).toEqual(['QUA', 'QUE', 'QUI', 'QUO', 'QUU']);
+    const fam = s.svgFamiliasA4(s.lerFamilias('B C D F G L M N P'), { completar: true });
+    expect(fam).toHaveLength(2);
+    expect(fam[0].svg).toContain('aria-label="BA"');
+    expect(fam[0].svg).not.toContain('aria-label="BE"');
+    for (const f of fam) folhaSa(f.svg);
+    const palavras = s.emSilabas(lerPecas('CASA\nMACACO\nTHEO\nLINHA 10'));
+    expect(palavras.map((p) => p.silabas.join('-'))).toEqual(['CA-SA', 'MA-CA-CO', 'THE-O']);
+    const moveis = s.svgSilabasMoveisA4(palavras);
+    expect(moveis).toHaveLength(1);
+    folhaSa(moveis[0].svg);
+    const { pecas, separadas } = s.pecasDeSilabas('BA BE bola casa');
+    expect(pecas.map((p) => p.texto)).toEqual(['BA', 'BE', 'BO', 'LA', 'CA', 'SA']);
+    expect(pecas.every((p) => !p.figura)).toBe(true);
+    expect(separadas).toEqual(['BO-LA', 'CA-SA']);
+    // "IR" é sílaba, não o desenho de "ir"
+    expect(s.pecasDeSilabas('IR').pecas[0].figura).toBeUndefined();
+  });
+
+  it('labirinto: todas as casas alcançáveis e o caminho só atravessa paredes abertas', async () => {
+    const { gerarLabirinto, svgLabirintoA4 } = await import('./logica');
+    for (const nivel of ['facil', 'medio', 'dificil'] as const) {
+      const lab = gerarLabirinto(nivel, 3);
+      // labirinto perfeito é uma árvore: casas − 1 passagens internas
+      let abertas = 0;
+      for (let l = 0; l < lab.linhas; l++) {
+        for (let c = 0; c < lab.colunas; c++) {
+          if (!lab.paredes[l][c][1] && c < lab.colunas - 1) abertas++;
+          if (!lab.paredes[l][c][2] && l < lab.linhas - 1) abertas++;
+        }
+      }
+      expect(abertas).toBe(lab.linhas * lab.colunas - 1);
+      expect(lab.solucao[0]).toEqual([0, 0]);
+      expect(lab.solucao[lab.solucao.length - 1]).toEqual([lab.linhas - 1, lab.colunas - 1]);
+      for (let i = 1; i < lab.solucao.length; i++) {
+        const [l0, c0] = lab.solucao[i - 1];
+        const [l1, c1] = lab.solucao[i];
+        expect(Math.abs(l1 - l0) + Math.abs(c1 - c0)).toBe(1);
+        const lado = l1 < l0 ? 0 : c1 > c0 ? 1 : l1 > l0 ? 2 : 3;
+        expect(lab.paredes[l0][c0][lado]).toBe(false);
+      }
+      folhaSa(svgLabirintoA4(lab, { respostas: true }));
+    }
+    expect(gerarLabirinto('medio', 1)).toEqual(gerarLabirinto('medio', 1));
+    expect(gerarLabirinto('medio', 2).paredes).not.toEqual(gerarLabirinto('medio', 1).paredes);
+  });
+
+  it('sudoku: solução válida, pistas dentro dela e uma solução só', async () => {
+    const { gerarSudoku, svgSudokuA4 } = await import('./logica');
+    for (const lado of [4, 6] as const) {
+      for (const semente of [0, 1, 2]) {
+        const s = gerarSudoku(lado, semente);
+        const certo = Array.from({ length: lado }, (_, i) => i + 1).join();
+        for (let i = 0; i < lado; i++) {
+          expect([...s.solucao[i]].sort().join()).toBe(certo);
+          expect(s.solucao.map((l) => l[i]).sort().join()).toBe(certo);
+        }
+        const [bl, bc] = s.bloco;
+        for (let l0 = 0; l0 < lado; l0 += bl) {
+          for (let c0 = 0; c0 < lado; c0 += bc) {
+            const b: number[] = [];
+            for (let i = 0; i < bl; i++) for (let j = 0; j < bc; j++) b.push(s.solucao[l0 + i][c0 + j]);
+            expect(b.sort().join()).toBe(certo);
+          }
+        }
+        s.pistas.forEach((linha, l) => linha.forEach((v, c) => v && expect(v).toBe(s.solucao[l][c])));
+        const vazias = s.pistas.flat().filter((v) => !v).length;
+        expect(vazias).toBeGreaterThan(lado === 4 ? 6 : 12);
+        folhaSa(svgSudokuA4(s, { figuras: lado === 4 }));
+        folhaSa(svgSudokuA4(s, { respostas: true }));
+      }
+    }
+  });
+
+  it('contas: resultados certos, "vai um" respeitado, divisão exata', async () => {
+    const { gerarContas, svgContasA4, svgTabuaA4, svgTabuadaA4 } = await import('./contas');
+    const sem = gerarContas({ operacao: '+', algarismos: 2, reagrupar: false, quantas: 12 });
+    expect(sem).toHaveLength(12);
+    for (const c of sem) {
+      expect(c.resultado).toBe(c.a + c.b);
+      expect((c.a % 10) + (c.b % 10)).toBeLessThan(10);
+      expect(Math.floor(c.a / 10) + Math.floor(c.b / 10)).toBeLessThan(10);
+    }
+    const com = gerarContas({ operacao: '-', algarismos: 3, reagrupar: true, quantas: 12 });
+    for (const c of com) {
+      expect(c.resultado).toBe(c.a - c.b);
+      expect(c.resultado).toBeGreaterThanOrEqual(0);
+    }
+    for (const c of gerarContas({ operacao: '/', algarismos: 3, reagrupar: false, quantas: 20 })) {
+      expect(c.a).toBe(c.b * c.resultado);
+      expect(String(c.a)).toHaveLength(3);
+    }
+    for (const c of gerarContas({ operacao: 'x', algarismos: 2, reagrupar: false, quantas: 20 })) expect(c.resultado).toBe(c.a * c.b);
+    expect(gerarContas({ operacao: '+', algarismos: 2, reagrupar: false, quantas: 12, semente: 0 })).toEqual(sem);
+    const folhas = svgContasA4(gerarContas({ operacao: '/', algarismos: 4, reagrupar: false, quantas: 14 }), { respostas: true });
+    expect(folhas).toHaveLength(4);
+    for (const f of folhas) folhaSa(f.svg);
+    folhaSa(svgContasA4(com)[0].svg);
+    folhaSa(svgTabuadaA4(7, { completar: true }));
+    expect(svgTabuadaA4(7)).toContain('aria-label="63"');
+    folhaSa(svgTabuaA4());
+    expect(svgTabuaA4({ completar: true })).toContain('aria-label="49"');
+    expect(svgTabuaA4({ completar: true })).not.toContain('aria-label="42"');
+  });
+
+  it('recortar: medidas de verdade e as sete peças do tangram', async () => {
+    const r = await import('./recortar');
+    const dourado = r.svgMaterialDouradoA4();
+    folhaSa(dourado);
+    expect(dourado).toContain(`width="${mm(100)}" height="${mm(100)}"`);
+    expect((dourado.match(new RegExp(`width="${mm(10)}" height="${mm(100)}"`, 'g')) ?? []).length).toBe(7);
+    for (const f of [r.svgFracoesBarrasA4(), r.svgFracoesCirculosA4(), r.svgValorPosicionalA4({ ordens: 6 }), r.svgTangramA4()]) folhaSa(f);
+    expect((r.svgTangramA4().match(/Z" fill="#ffffff"/g) ?? []).length).toBe(7);
+    expect(r.svgValorPosicionalA4({ ordens: 3 })).not.toContain('aria-label="UM"');
+  });
+
+  it('coordenação, quadrinhos e cartões', async () => {
+    const c = await import('./cartoes');
+    for (const f of [c.svgTesouraA4(), c.svgTracarA4(), c.svgHqA4(3), c.svgHqA4(4), c.svgHqA4(6, { linhas: false })]) folhaSa(f);
+    expect(c.lerNomes('  Ana \n\nTheo\n')).toEqual(['Ana', 'Theo']);
+    const crachas = c.svgCrachasA4(c.lerNomes('Ana\nTheo\nDavi\nLuiza\nBruno\nMaria\nJoão\nPedro\nCarla'), '2º ano B');
+    expect(crachas).toHaveLength(2);
+    expect(crachas[1].svg).toContain('aria-label="Carla"');
+    for (const f of [...crachas, ...c.svgCrachasA4([]), ...c.svgMarcadoresA4(['Theo']), ...c.svgEtiquetasA4([], '3º ano')]) folhaSa(f.svg);
+  });
+
+  it('pelo formulário: cada novo tipo dá folha com o pedido de partida', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    for (const tipo of ['silabas', 'logica', 'contas', 'recortar', 'motora', 'cartoes'] as const) {
+      const r = fazerFolhas(pedidoInicial(tipo));
+      expect(r.folhas.length, tipo).toBeGreaterThan(0);
+    }
+    const silabas = pedidoInicial('silabas');
+    if (silabas.tipo !== 'silabas') throw new Error('tipo');
+    for (const modelo of ['familias', 'moveis', 'bingo', 'domino'] as const) {
+      expect(fazerFolhas({ ...silabas, modelo }).folhas.length, modelo).toBeGreaterThan(0);
+    }
+    expect(fazerFolhas({ ...silabas, modelo: 'bingo', palavras: 'BA BE' }).folhas).toEqual([]);
   });
 });

@@ -24,6 +24,12 @@ import {
   svgPecasXadrezA4,
   svgTabuleiroA4,
 } from './jogosDeMesa';
+import { emSilabas, lerFamilias, pecasDeSilabas, svgFamiliasA4, svgSilabasMoveisA4 } from './silabario';
+import { folhasDeLogica, type NivelLabirinto } from './logica';
+import { gerarContas, svgContasA4, svgTabuaA4, svgTabuadaA4, type Operacao } from './contas';
+import { folhasDeRecortar, type ModeloRecortar } from './recortar';
+import { lerNomes, svgCrachasA4, svgEtiquetasA4, svgHqA4, svgMarcadoresA4, svgTesouraA4, svgTracarA4 } from './cartoes';
+import { textoSeguro } from './comum';
 import { lerHoras, svgRelogioDeMontarA4, svgRelogiosA4, svgRetasA4 } from './matematica';
 
 export { FOLHAS_LIGADAS } from './ligado';
@@ -51,11 +57,69 @@ export const NOMES_DA_MATEMATICA: Record<ModeloMatematica, string> = {
   reta: 'Reta numérica',
 };
 
+export type ModeloSilabas = 'familias' | 'moveis' | 'bingo' | 'domino';
+export type ModeloLogica = 'labirinto' | 'sudoku4' | 'sudoku6' | 'sudokuFiguras';
+export type ModeloContas = 'armadas' | 'tabuada' | 'tabua';
+export type ModeloMotora = 'tesoura' | 'tracar';
+export type ModeloCartoes = 'hq' | 'crachas' | 'marcadores' | 'etiquetas';
+
+export const NOMES_DAS_SILABAS: Record<ModeloSilabas, string> = {
+  familias: 'Famílias silábicas (BA BE BI BO BU)',
+  moveis: 'Sílabas móveis: monte a palavra',
+  bingo: 'Bingo de sílabas',
+  domino: 'Dominó de sílabas',
+};
+export const NOMES_DA_LOGICA: Record<ModeloLogica, string> = {
+  labirinto: 'Labirinto',
+  sudoku4: 'Sudoku 4 × 4',
+  sudoku6: 'Sudoku 6 × 6',
+  sudokuFiguras: 'Sudoku de figuras (4 × 4)',
+};
+export const NOMES_DAS_CONTAS: Record<ModeloContas, string> = {
+  armadas: 'Contas armadas',
+  tabuada: 'Tabuada de um número',
+  tabua: 'Tábua da multiplicação (10 × 10)',
+};
+export const NOMES_DO_RECORTAR: Record<ModeloRecortar, string> = {
+  dourado: 'Material dourado',
+  barras: 'Frações em barras',
+  circulos: 'Frações em círculos',
+  posicional: 'Quadro de valor posicional',
+  tangram: 'Tangram',
+};
+export const NOMES_DA_MOTORA: Record<ModeloMotora, string> = {
+  tesoura: 'Treino de tesoura',
+  tracar: 'Siga o caminho (lápis)',
+};
+export const NOMES_DOS_CARTOES: Record<ModeloCartoes, string> = {
+  hq: 'História em quadrinhos em branco',
+  crachas: 'Crachás',
+  marcadores: 'Marcadores de página',
+  etiquetas: 'Etiquetas de caderno',
+};
+
 export type Pedido =
   | { tipo: 'caca'; titulo: string; palavras: string; nivel: Nivel; semente: number; respostas: boolean }
   | { tipo: 'cruzadinha'; titulo: string; itens: string; respostas: boolean }
   | { tipo: 'jogo'; jogo: JogoDeMesa; pecas: string; cartelas: number; lado: 3 | 4; verso: boolean; semente: number }
   | { tipo: 'matematica'; modelo: ModeloMatematica; horas: string; respostas: boolean; de: number; ate: number; completar: boolean }
+  | { tipo: 'silabas'; modelo: ModeloSilabas; familias: string; palavras: string; completar: boolean; cartelas: number; semente: number }
+  | { tipo: 'logica'; modelo: ModeloLogica; nivel: NivelLabirinto; semente: number; respostas: boolean }
+  | {
+      tipo: 'contas';
+      modelo: ModeloContas;
+      operacao: Operacao;
+      algarismos: number;
+      reagrupar: boolean;
+      quantas: number;
+      numero: number;
+      completar: boolean;
+      semente: number;
+      respostas: boolean;
+    }
+  | { tipo: 'recortar'; modelo: ModeloRecortar; ordens: 3 | 4 | 6 }
+  | { tipo: 'motora'; modelo: ModeloMotora }
+  | { tipo: 'cartoes'; modelo: ModeloCartoes; quadros: 3 | 4 | 6; linhas: boolean; nomes: string; linha2: string }
   | { tipo: 'pauta'; modelo: ModeloPauta; margem: boolean }
   | { tipo: 'grade'; modelo: ModeloGrade }
   | { tipo: 'reguas' }
@@ -69,6 +133,12 @@ export const TIPOS: Array<{ tipo: TipoDeFolha; nome: string }> = [
   { tipo: 'cruzadinha', nome: 'Cruzadinha' },
   { tipo: 'jogo', nome: 'Jogos de mesa: memória, dominó, bingo, damas, xadrez' },
   { tipo: 'matematica', nome: 'Relógio e reta numérica' },
+  { tipo: 'silabas', nome: 'Sílabas: famílias, monte a palavra, bingo, dominó' },
+  { tipo: 'logica', nome: 'Labirinto e sudoku' },
+  { tipo: 'contas', nome: 'Contas armadas e tabuada' },
+  { tipo: 'recortar', nome: 'Matemática de recortar: material dourado, frações, tangram' },
+  { tipo: 'motora', nome: 'Coordenação: tesoura e caminhos' },
+  { tipo: 'cartoes', nome: 'Quadrinhos, crachás, marcadores, etiquetas' },
   { tipo: 'pauta', nome: 'Folha pautada' },
   { tipo: 'grade', nome: 'Quadriculado, milimetrado, pontilhado' },
   { tipo: 'reguas', nome: 'Réguas de recortar' },
@@ -124,6 +194,26 @@ export function pedidoInicial(tipo: TipoDeFolha, hoje: Date = new Date()): Pedid
       };
     case 'matematica':
       return { tipo, modelo: 'ler', horas: '7:00\n7:15\n12:30\n3:45\n9:10\n6:50', respostas: true, de: 0, ate: 20, completar: true };
+    case 'silabas':
+      return {
+        tipo,
+        modelo: 'familias',
+        familias: 'B C D F G L M N P R S T V',
+        palavras: 'CASA\nBOLA\nPATO\nSAPO\nCAVALO\nMACACO\nJANELA\nTOMATE',
+        completar: false,
+        cartelas: 6,
+        semente: 0,
+      };
+    case 'logica':
+      return { tipo, modelo: 'labirinto', nivel: 'facil', semente: 0, respostas: true };
+    case 'contas':
+      return { tipo, modelo: 'armadas', operacao: '+', algarismos: 2, reagrupar: false, quantas: 12, numero: 7, completar: true, semente: 0, respostas: true };
+    case 'recortar':
+      return { tipo, modelo: 'dourado', ordens: 4 };
+    case 'motora':
+      return { tipo, modelo: 'tesoura' };
+    case 'cartoes':
+      return { tipo, modelo: 'hq', quadros: 4, linhas: true, nomes: '', linha2: '' };
     case 'pauta':
       return { tipo, modelo: 'ampliada', margem: true };
     case 'grade':
@@ -246,6 +336,83 @@ export function fazerFolhas(p: Pedido): Resultado {
       if (horas.length > 12) avisos.push('Cabem 12 relógios: usei as 12 primeiras horas.');
       const folhas = svgRelogiosA4(horas, { modo: p.modelo === 'marcar' ? 'marcar' : 'ler', respostas: p.respostas });
       return { titulo: 'Relógios', folhas, avisos };
+    }
+    case 'silabas': {
+      if (p.modelo === 'familias') {
+        const familias = lerFamilias(p.familias);
+        if (!familias.length) avisos.push('Escreva o começo de cada família: B C D, ou QU, LH, CH.');
+        return { titulo: 'Famílias silábicas', folhas: svgFamiliasA4(familias, { completar: p.completar }), avisos };
+      }
+      if (p.modelo === 'moveis') {
+        const palavras = emSilabas(lerPecas(p.palavras));
+        if (!palavras.length) avisos.push('Escreva as palavras, uma por linha.');
+        const duvida = palavras.filter((x) => x.conferir).map((x) => x.silabas.join('-'));
+        avisos.push(`Separação sugerida pelo app${duvida.length ? `; confira com atenção: ${duvida.join(', ')}` : ''}.`);
+        const longas = palavras.filter((x) => x.silabas.length > 6).map((x) => x.peca.texto);
+        if (longas.length) avisos.push(`Com mais de 6 sílabas, ficaram de fora: ${longas.join(', ')}.`);
+        const sem = palavras.filter((x) => !x.peca.figura).map((x) => x.peca.texto);
+        if (sem.length) avisos.push(`Sem desenho no app (vai um ponto de interrogação): ${sem.join(', ')}.`);
+        return { titulo: 'Monte a palavra', folhas: svgSilabasMoveisA4(palavras), avisos };
+      }
+      const { pecas, separadas } = pecasDeSilabas(p.palavras);
+      if (separadas.length) avisos.push(`Separei estas palavras (confira): ${separadas.join(', ')}.`);
+      if (p.modelo === 'domino') {
+        if (pecas.length < 3) {
+          avisos.push('O dominó precisa de pelo menos 3 sílabas.');
+          return { titulo: 'Dominó de sílabas', folhas: [], avisos };
+        }
+        if (pecas.length > 7) avisos.push('O dominó usa as 7 primeiras sílabas (28 pedras).');
+        return { titulo: 'Dominó de sílabas', folhas: svgDominoA4(pecas), avisos };
+      }
+      if (pecas.length < 12) {
+        avisos.push(`Para o bingo, escreva palavras ou sílabas que deem pelo menos 12 sílabas diferentes (há ${pecas.length}).`);
+        return { titulo: 'Bingo de sílabas', folhas: [], avisos };
+      }
+      const cartelas = Math.min(40, Math.max(1, Math.round(numeroOu(p.cartelas, 6))));
+      return { titulo: 'Bingo de sílabas', folhas: svgBingoA4(pecas, { cartelas, semente: numeroOu(p.semente, 0) }), avisos };
+    }
+    case 'logica': {
+      const titulo = NOMES_DA_LOGICA[p.modelo] ?? 'Labirinto';
+      return { titulo, folhas: folhasDeLogica(p.modelo, { nivel: p.nivel, semente: numeroOu(p.semente, 0), respostas: p.respostas }), avisos };
+    }
+    case 'contas': {
+      if (p.modelo === 'tabua') {
+        return { titulo: 'Tábua da multiplicação', folhas: [{ titulo: 'Tábua da multiplicação', svg: svgTabuaA4({ completar: p.completar }) }], avisos };
+      }
+      if (p.modelo === 'tabuada') {
+        const t = Math.min(20, Math.max(1, Math.round(numeroOu(p.numero, 7))));
+        return { titulo: `Tabuada do ${t}`, folhas: [{ titulo: `Tabuada do ${t}`, svg: svgTabuadaA4(t, { completar: p.completar }) }], avisos };
+      }
+      const algarismos = Math.min(4, Math.max(1, Math.round(numeroOu(p.algarismos, 2))));
+      const quantas = Math.min(40, Math.max(1, Math.round(numeroOu(p.quantas, 12))));
+      const contas = gerarContas({ operacao: p.operacao, algarismos, reagrupar: p.reagrupar, quantas, semente: numeroOu(p.semente, 0) });
+      if (contas.length < quantas) avisos.push(`Só existem ${contas.length} contas diferentes com essas escolhas.`);
+      if (algarismos === 1 && (p.operacao === '+' || p.operacao === '-')) avisos.push('Com um algarismo não há "vai um" para escolher.');
+      return { titulo: 'Contas armadas', folhas: svgContasA4(contas, { respostas: p.respostas }), avisos };
+    }
+    case 'recortar': {
+      avisos.push('Imprima em tamanho real (escala 100%): as peças têm medida de verdade.');
+      if (p.modelo === 'tangram') avisos.push('As figuras para montar (silhuetas) ainda não estão no app.');
+      return { titulo: NOMES_DO_RECORTAR[p.modelo] ?? 'Recortar', folhas: folhasDeRecortar(p.modelo, p.ordens), avisos };
+    }
+    case 'motora':
+      return p.modelo === 'tracar'
+        ? { titulo: 'Siga o caminho', folhas: [{ titulo: 'Siga o caminho', svg: svgTracarA4() }], avisos }
+        : { titulo: 'Treino de tesoura', folhas: [{ titulo: 'Treino de tesoura', svg: svgTesouraA4() }], avisos };
+    case 'cartoes': {
+      const nomes = lerNomes(p.nomes);
+      switch (p.modelo) {
+        case 'hq':
+          return { titulo: 'Quadrinhos', folhas: [{ titulo: 'Quadrinhos', svg: svgHqA4(p.quadros, { linhas: p.linhas }) }], avisos };
+        case 'crachas':
+          if (!nomes.length) avisos.push('Sem nomes, saem crachás em branco para escrever à mão.');
+          return { titulo: 'Crachás', folhas: svgCrachasA4(nomes, textoSeguro(p.linha2)), avisos };
+        case 'marcadores':
+          return { titulo: 'Marcadores de página', folhas: svgMarcadoresA4(nomes), avisos };
+        case 'etiquetas':
+          return { titulo: 'Etiquetas de caderno', folhas: svgEtiquetasA4(nomes, textoSeguro(p.linha2)), avisos };
+      }
+      return { titulo: 'Cartões', folhas: [], avisos };
     }
     case 'pauta': {
       const nome = NOMES_DAS_PAUTAS[p.modelo] ?? NOMES_DAS_PAUTAS.comum;

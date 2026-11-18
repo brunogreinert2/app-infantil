@@ -32,19 +32,28 @@ com muita variedade, tudo gerado na hora a partir de dados simples.
 | `jogosDeMesa.ts` | `lerPecas` (palavra vira peça; ganha desenho se a prancha tiver), `svgMemoriaA4` (pares iguais ou de leitura, com folha de verso), `gerarDomino`/`svgDominoA4` (7 palavras = 28 pedras), `gerarBingo`/`svgBingoA4` (cartelas todas diferentes + fichas de chamar), `svgTabuleiroA4`, `svgPecasDamasA4`, `svgPecasXadrezA4` |
 | `matematica.ts` | `lerHoras`, `svgRelogiosA4` (ler a hora ou marcar os ponteiros, com respostas), `svgRelogioDeMontarA4` (relógio grande com ponteiros de recortar), `svgRetasA4` (reta numérica, com retas para completar) |
 | `pedido.ts`, `telaFolhas.ts`, `ligado.ts` | a tela (ver abaixo) |
-| `geradores.test.ts` | 30 testes |
+| `silabario.ts` | `svgFamiliasA4` (BA BE BI BO BU, inteiras ou para completar), `svgSilabasMoveisA4` (monte a palavra: desenho + caixas + sílabas para recortar), `pecasDeSilabas` (peças de bingo e dominó de sílabas, sem desenho) |
+| `logica.ts` | `gerarLabirinto` (labirinto perfeito por semente, 3 tamanhos, com caminho de resposta), `gerarSudoku` (4 × 4, 6 × 6 e de figuras, sempre com uma solução só) |
+| `contas.ts` | `gerarContas` (as quatro operações, com ou sem "vai um"/"empresta", divisão exata à brasileira), `svgTabuadaA4`, `svgTabuaA4` (tábua de Pitágoras) |
+| `recortar.ts` | material dourado, frações em barras (1 a 1/12) e em círculos, quadro de valor posicional, tangram — em mm de verdade |
+| `cartoes.ts` | treino de tesoura, "siga o caminho" (traçado entre dois desenhos), HQ em branco (3, 4 ou 6 quadros), crachás, marcadores de página, etiquetas de caderno |
+| `geradores.test.ts` | 37 testes |
 | `../conteudo/silabas.ts` | separador de sílabas (sugestão que a professora confere) |
 | `scripts/exportar-geradores.mjs` | `node scripts/exportar-geradores.mjs <pasta>`: 20 SVGs de amostra + `amostra.html` |
 
 ## Conferido
 
-- `npm test`: 207 testes; `npm run build` limpo.
-- De olho, em imagem (Chromium sem janela): as 34 folhas de amostra.
+- `npm test`: 216 testes; `npm run build` limpo.
+- De olho, em imagem (Chromium sem janela): as 34 folhas de amostra
+  (`scripts/exportar-geradores.mjs`) e as 23 do primeiro lote das sugestões
+  (`scripts/exportar-lote.mjs`).
+- **Em papel, pelo Bruno (2026-11-18):** imprimiu muitas folhas; "a régua
+  ficou perfeita, na casa dos milímetros".
 
-**NÃO conferido:** impressão em papel (nenhuma folha foi impressa nem medida
-com régua); o caminho pelo `motorImpressao.ts` (só o SVG avulso foi visto);
-iPhone, onde o fator 0,86 **quebra as medidas reais** da régua, do
-quadriculado e do milimetrado; uso por aluno ou professora.
+**NÃO conferido:** uso por aluno ou professora (nenhuma passou pela mão de uma
+professora ainda); iPhone, onde o fator 0,86 **quebra as medidas reais** da
+régua, do quadriculado, do milimetrado e da matemática de recortar; as folhas
+do primeiro lote (silabário em diante) ainda não foram impressas.
 
 ## Decisões e ressalvas
 
@@ -108,7 +117,19 @@ figura do calendário com foto real.
 4. Mais jogos de mesa: trilha (tabuleiro de percurso), jogo da velha, ludo,
    quebra-cabeça de recortar, dominó de figura com palavra.
 5. Mais matemática: função do 1º grau, folha de exercícios de Bhaskara com
-   gabarito (a conta já existe em `passosBhaskara`), contas armadas, troco com
+   gabarito (a conta já existe em `passosBhaskara`), troco com
    dinheiro de brincadeira, "quanto falta para o ônibus das 7:15" (o relógio
    já existe em `matematica.ts`).
 6. Frase → tira de pictogramas; diário de uso da prancha.
+7. **Sugestões das outras IAs ainda não feitas** (lista avaliada em 2026-11-18):
+   - médias: ligue os pontos (pontos tirados do contorno dos desenhos),
+     simetria no quadriculado, pintura por código (conta ou sílaba), letras
+     vazadas para cobrir, rotina visual "primeiro → depois";
+   - a maior: **sequência didática a partir de um livro da estante** (texto,
+     perguntas do quiz, caça-palavras do vocabulário, desenho para colorir,
+     gabarito) — uma sessão inteira só para ela;
+   - silhuetas do tangram (figuras para montar);
+   - **não fazer**: "melhor leitor", semáforo e quadro de comportamento
+     (ranking e pressão contrariam os princípios 4 e 7 do CLAUDE.md); diploma
+     só de participação ("Terminei o livro X"). Mapas mudos e máscaras ficam
+     para depois (dados geográficos pesados; arte à mão).
