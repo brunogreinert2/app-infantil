@@ -160,7 +160,7 @@ export function svgMarcadoresA4(nomes: string[]): Folha[] {
 }
 
 /** Etiquetas de caderno de 90 × 50 mm, dez por folha: nome, turma e matéria. */
-export function svgEtiquetasA4(nomes: string[], turma = ''): Folha[] {
+export function svgEtiquetasA4(nomes: string[], turma = '', materia = ''): Folha[] {
   const w = mm(90);
   const h = mm(50);
   const x0 = 400 - w;
@@ -175,7 +175,7 @@ export function svgEtiquetasA4(nomes: string[], turma = ''): Folha[] {
       [
         ['Nome:', nome],
         ['Turma:', turma],
-        ['Matéria:', ''],
+        ['Matéria:', materia],
       ].forEach(([rotulo, valor], j) => {
         const yy = y + 56 + j * 52;
         corpo += escrever(rotulo, x + 24, yy, 17);

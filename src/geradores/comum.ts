@@ -8,10 +8,71 @@
 //  - o modelo (onde está cada palavra) é separado do desenho, para um dia a
 //    mesma brincadeira existir também na tela.
 
-import { largura, linha, quadro, texto, type Identidade } from '../conteudo/alfabetoArte';
-
 export const TINTA = '#000000';
 export const FOLHA = { largura: 800, altura: 1131, esquerda: 48, direita: 752 };
+
+import { linha, quadro, type Identidade } from '../conteudo/alfabetoArte';
+import legendas from '../conteudo/glifos-legendas.json';
+import outras from './letras.json';
+
+// ---------------------------------------------------------------------------
+// A letra das folhas. Sempre em caminhos vetoriais (nunca <text>): a folha sai
+// igual em qualquer aparelho e no papel. Atkinson Hyperlegible é a padrão (a
+// mesma das legendas do app); Cardo e OpenDyslexic vêm de scripts/gera-glifos.mjs.
+// ---------------------------------------------------------------------------
+
+type Glifo = { d: string; adv: number };
+export type Letra = 'atkinson' | 'cardo' | 'opendyslexic';
+
+export const NOMES_DAS_LETRAS: Record<Letra, string> = {
+  atkinson: 'Atkinson Hyperlegible (sem serifa, a padrão)',
+  cardo: 'Cardo (com serifa, zero sem risco)',
+  opendyslexic: 'OpenDyslexic (para dislexia)',
+};
+
+const TABELAS: Record<Letra, Record<string, Glifo>> = {
+  atkinson: legendas as Record<string, Glifo>,
+  cardo: (outras as Record<string, Record<string, Glifo>>).cardo,
+  opendyslexic: (outras as Record<string, Record<string, Glifo>>).opendyslexic,
+};
+
+let letraAtual: Letra = 'atkinson';
+
+/** Faz as folhas com outra letra e volta para a de antes, aconteça o que acontecer. */
+export function comLetra<T>(letra: Letra | undefined, fazer: () => T): T {
+  const antes = letraAtual;
+  letraAtual = letra && TABELAS[letra] ? letra : 'atkinson';
+  try {
+    return fazer();
+  } finally {
+    letraAtual = antes;
+  }
+}
+
+/** O desenho de um caractere: da letra escolhida ou, se ela não tiver, da Atkinson. */
+const glifo = (c: string): Glifo | undefined => TABELAS[letraAtual][c] ?? TABELAS.atkinson[c];
+
+export function largura(s: string, tamanho: number): number {
+  return [...s].reduce((soma, c) => soma + (glifo(c)?.adv ?? 0) * (tamanho / 1000), 0);
+}
+
+const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const idioma = (s: string) => (/[Ͱ-Ͽἀ-῿]/u.test(s) ? 'grc' : 'pt-BR');
+
+function texto(s: string, x: number, y: number, tamanho = 22, ancora: 'start' | 'middle' | 'end' = 'start'): string {
+  let atual = x - (ancora === 'middle' ? largura(s, tamanho) / 2 : ancora === 'end' ? largura(s, tamanho) : 0);
+  const caminhos = [...s]
+    .map((c) => {
+      const g = glifo(c);
+      if (!g) return '';
+      const p = g.d ? `<path d="${g.d}" transform="translate(${atual.toFixed(2)} ${y}) scale(${tamanho / 1000})"/>` : '';
+      atual += (g.adv * tamanho) / 1000;
+      return p;
+    })
+    .join('');
+  return `<g role="img" aria-label="${escHtml(s)}" lang="${idioma(s)}" fill="${TINTA}" stroke="none" pointer-events="none">${caminhos}</g>`;
+}
+
 
 /**
  * A folha de 800 unidades é impressa com 190 mm de largura (A4 menos 10 mm de
@@ -56,14 +117,14 @@ export function sorteador(semente: number): () => number {
 export function soLetras(s: string): string {
   return s
     .normalize('NFD')
-    .replace(/[̀-ͯ]/gu, '')
+    .replace(/[\u0300-\u036f]/gu, '')
     .toUpperCase()
     .replace(/[^A-Z]/g, '');
 }
 
-/** Tira o que a letra das legendas não sabe desenhar (emoji, símbolo raro). */
+/** Tira o que a letra não sabe desenhar (emoji, símbolo raro). */
 export function textoSeguro(s: string): string {
-  return [...s.normalize('NFC')].filter((c) => c === ' ' || largura(c, 1000) > 0).join('').replace(/\s+/g, ' ').trim();
+  return [...s.normalize('NFC')].filter((c) => c === ' ' || (glifo(c)?.adv ?? 0) > 0).join('').replace(/\s+/g, ' ').trim();
 }
 
 /** `texto()` que nunca lança e encolhe até caber em `max`. */

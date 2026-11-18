@@ -4,3 +4,4 @@ dist/
 
 # Gerado por pretest/prebuild a partir de Cardo e Atkinson licenciadas
 src/conteudo/glifos-legendas.json
+src/geradores/letras.json

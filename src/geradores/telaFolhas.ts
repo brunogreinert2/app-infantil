@@ -29,6 +29,8 @@ import {
   type Resultado,
   type TipoDeFolha,
 } from './pedido';
+import { NOMES_DAS_LETRAS, type Letra } from './comum';
+import { MOLDURA_DA_FIGURA, encaixeDaFigura, zoomFiguraInteira } from './papeis';
 
 // do aparelho, não do perfil (como as pranchas): é material de quem ensina
 const CHAVE = 'folhas:pedidos';
@@ -36,6 +38,7 @@ const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julh
 
 interface Guardado {
   tipo: TipoDeFolha;
+  letra?: Letra;
   pedidos: Partial<Record<TipoDeFolha, Pedido>>;
 }
 
@@ -116,13 +119,17 @@ function marcar(nome: string, marcado: boolean, aoMudar: (v: boolean) => void): 
 }
 
 /** Reduz a foto no aparelho (até 1400 px, JPEG) para caber no calendário e no que se guarda. */
-async function reduzirParaCalendario(arquivo: File): Promise<string | undefined> {
+async function reduzirParaCalendario(arquivo: File): Promise<{ url: string; aspecto: number } | undefined> {
   if (!/^image\/(png|jpeg|webp)$/.test(arquivo.type)) return undefined;
   const url = URL.createObjectURL(arquivo);
   try {
     const img = new Image();
-    img.src = url;
-    await img.decode();
+    // onload, e não decode(): decode() pode ficar parado com a aba em segundo plano
+    await new Promise<void>((ok, falha) => {
+      img.onload = () => ok();
+      img.onerror = () => falha(new Error('imagem ilegível'));
+      img.src = url;
+    });
     const escala = Math.min(1, 1400 / Math.max(img.naturalWidth, img.naturalHeight));
     const canvas = document.createElement('canvas');
     canvas.width = Math.max(1, Math.round(img.naturalWidth * escala));
@@ -132,7 +139,7 @@ async function reduzirParaCalendario(arquivo: File): Promise<string | undefined>
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    return canvas.toDataURL('image/jpeg', 0.85);
+    return { url: canvas.toDataURL('image/jpeg', 0.85), aspecto: canvas.width / canvas.height };
   } catch {
     return undefined;
   } finally {
@@ -144,6 +151,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   const guardado = (await armazenamento.obter<Guardado>(CHAVE)) ?? { tipo: 'caca', pedidos: {} };
   let tipo: TipoDeFolha = TIPOS.some((t) => t.tipo === guardado.tipo) ? guardado.tipo : 'caca';
   const pedidos: Partial<Record<TipoDeFolha, Pedido>> = guardado.pedidos ?? {};
+  let letra: Letra = guardado.letra && guardado.letra in NOMES_DAS_LETRAS ? guardado.letra : 'atkinson';
   let resultado: Resultado | undefined;
 
   raiz.innerHTML = '';
@@ -177,7 +185,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     espera = window.setTimeout(
       () => {
         try {
-          resultado = fazerFolhas(pedido());
+          resultado = fazerFolhas(pedido(), letra);
         } catch (erro) {
           resultado = { titulo: 'Folha', folhas: [], avisos: [`Não deu para fazer esta folha: ${String((erro as Error).message ?? erro)}`] };
         }
@@ -190,12 +198,13 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           // O SVG é nosso: texto de quem digita entra como caminho de letra ou
           // escapado; a figura do calendário só passa se for data: de imagem.
           papel.innerHTML = f.svg;
+          if (figuraArrastavel() && previa.childElementCount === 0) papel.classList.add('folhas-papel-arrastar');
           figura.append(papel, el('figcaption', undefined, f.titulo));
           previa.appendChild(figura);
         }
         imprimir.disabled = !resultado.folhas.length;
         // a figura do calendário pode ser grande demais para guardar: sem ela
-        const paraGuardar: Guardado = { tipo, pedidos: { ...pedidos } };
+        const paraGuardar: Guardado = { tipo, letra, pedidos: { ...pedidos } };
         const cal = paraGuardar.pedidos.calendario;
         if (cal?.tipo === 'calendario' && cal.imagem) paraGuardar.pedidos.calendario = { ...cal, imagem: undefined };
         void armazenamento.definir(CHAVE, paraGuardar);
@@ -388,7 +397,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           if (p.operacao === '+' || p.operacao === '-') {
             campos.appendChild(marcar(p.operacao === '+' ? 'Com "vai um"' : 'Com "empresta"', p.reagrupar, (v) => ((p.reagrupar = v), atualizar(true))));
           }
-          campos.appendChild(rotulado('Quantas contas', campoNumero(p.quantas, (v) => ((p.quantas = v), atualizar()), 1, 40), 'Doze por folha.'));
+          campos.appendChild(rotulado('Quantas contas', campoNumero(p.quantas, (v) => ((p.quantas = v), atualizar()), 1, 40), p.operacao === '/' ? 'Dez por folha.' : 'Doze por folha.'));
           campos.appendChild(botao('🔀 Outras contas', () => ((p.semente = (p.semente || 0) + 1), atualizar(true))));
           campos.appendChild(marcar('Folha de respostas junto', p.respostas, (v) => ((p.respostas = v), atualizar(true))));
         } else {
@@ -436,7 +445,10 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
         nomes.autocapitalize = 'words';
         campos.appendChild(rotulado('Nomes', nomes, 'Um por linha. Sem nomes, sai em branco para escrever à mão.'));
         if (p.modelo !== 'marcadores') {
-          campos.appendChild(rotulado(p.modelo === 'crachas' ? 'Segunda linha (turma, escola)' : 'Turma', campoTexto(p.linha2, (v) => ((p.linha2 = v), atualizar()), 40)));
+          campos.appendChild(rotulado(p.modelo === 'crachas' ? 'Segunda linha (turma, escola)' : 'Turma', campoTexto(p.linha2 ?? '', (v) => ((p.linha2 = v), atualizar()), 40)));
+          if (p.modelo === 'etiquetas') {
+            campos.appendChild(rotulado('Matéria', campoTexto(p.materia ?? '', (v) => ((p.materia = v), atualizar()), 40), 'Vazia, fica a linha para escrever.'));
+          }
         }
         break;
       }
@@ -520,12 +532,47 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           arquivo.accept = 'image/png,image/jpeg,image/webp';
           arquivo.addEventListener('change', async () => {
             const f = arquivo.files?.[0];
-            p.imagem = f ? await reduzirParaCalendario(f) : undefined;
+            const reduzida = f ? await reduzirParaCalendario(f) : undefined;
+            p.imagem = reduzida?.url;
+            p.aspecto = reduzida?.aspecto;
+            p.zoom = 1;
+            p.posX = 50;
+            p.posY = 50;
             desenharCampos();
             atualizar(true);
           });
           campos.appendChild(rotulado('Figura do alto', arquivo, 'Uma foto ou desenho do aparelho. Sem figura, fica a moldura para desenhar ou colar.'));
           if (p.imagem) {
+            if (p.aspecto) {
+              const aspecto = p.aspecto;
+              const tamanho = el('input');
+              tamanho.type = 'range';
+              tamanho.min = String(Math.round(zoomFiguraInteira(aspecto) * 100));
+              tamanho.max = '300';
+              tamanho.value = String(Math.round((p.zoom ?? 1) * 100));
+              tamanho.addEventListener('input', () => ((p.zoom = Number(tamanho.value) / 100), atualizar(true)));
+              campos.appendChild(rotulado('Tamanho da figura', tamanho, 'Para mudar o que aparece, arraste a figura na prévia ao lado.'));
+              const botoes = el('div', 'folhas-botoes');
+              botoes.appendChild(
+                botao('Figura inteira', () => {
+                  p.zoom = zoomFiguraInteira(aspecto);
+                  p.posX = 50;
+                  p.posY = 50;
+                  tamanho.value = String(Math.round(p.zoom * 100));
+                  atualizar(true);
+                }),
+              );
+              botoes.appendChild(
+                botao('Preencher a moldura', () => {
+                  p.zoom = 1;
+                  p.posX = 50;
+                  p.posY = 50;
+                  tamanho.value = '100';
+                  atualizar(true);
+                }),
+              );
+              campos.appendChild(botoes);
+            }
             const tirar = el('button', 'botao-opcao', 'Tirar a figura');
             tirar.type = 'button';
             tirar.addEventListener('click', () => ((p.imagem = undefined), desenharCampos(), atualizar(true)));
@@ -548,6 +595,9 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     ),
   );
   formulario.appendChild(campos);
+  formulario.appendChild(
+    rotulado('Letra das folhas', lista(opcoes(NOMES_DAS_LETRAS), letra, (v) => ((letra = v), atualizar(true)))),
+  );
   formulario.appendChild(avisos);
 
   const imprimir = el('button', 'botao-grande', '🖨️ Imprimir ou guardar em PDF');
@@ -562,6 +612,46 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   );
 
   corpo.append(formulario, previa);
+
+  // Arrastar a figura do calendário na prévia: muda a posição (posX/posY).
+  const figuraArrastavel = (): (Pedido & { tipo: 'calendario' }) | undefined => {
+    const p = pedido();
+    return p.tipo === 'calendario' && p.modelo === 'figura' && p.imagem && p.aspecto ? p : undefined;
+  };
+  let arrasto: { x: number; y: number; posX: number; posY: number; unidade: number } | undefined;
+  previa.addEventListener('pointerdown', (ev) => {
+    const p = figuraArrastavel();
+    const svg = previa.querySelector('svg');
+    if (!p || !svg) return;
+    const caixa = svg.getBoundingClientRect();
+    const unidade = 800 / caixa.width; // unidades da folha por pixel da tela
+    const fx = (ev.clientX - caixa.left) * unidade;
+    const fy = (ev.clientY - caixa.top) * unidade;
+    const m = MOLDURA_DA_FIGURA;
+    if (fx < m.x || fx > m.x + m.w || fy < m.y || fy > m.y + m.h) return;
+    arrasto = { x: ev.clientX, y: ev.clientY, posX: p.posX ?? 50, posY: p.posY ?? 50, unidade };
+    previa.setPointerCapture(ev.pointerId);
+    ev.preventDefault();
+  });
+  previa.addEventListener('pointermove', (ev) => {
+    const p = figuraArrastavel();
+    if (!arrasto || !p) return;
+    const e = encaixeDaFigura(p.aspecto!, p.zoom);
+    const m = MOLDURA_DA_FIGURA;
+    // posição 0..100 ↔ a figura percorre a sobra (moldura − figura)
+    const sobraX = m.w - e.w;
+    const sobraY = m.h - e.h;
+    const dx = (ev.clientX - arrasto.x) * arrasto.unidade;
+    const dy = (ev.clientY - arrasto.y) * arrasto.unidade;
+    if (Math.abs(sobraX) > 0.5) p.posX = Math.min(100, Math.max(0, arrasto.posX + (dx / sobraX) * 100));
+    if (Math.abs(sobraY) > 0.5) p.posY = Math.min(100, Math.max(0, arrasto.posY + (dy / sobraY) * 100));
+    atualizar(true);
+  });
+  const soltar = (): void => {
+    arrasto = undefined;
+  };
+  previa.addEventListener('pointerup', soltar);
+  previa.addEventListener('pointercancel', soltar);
   raiz.appendChild(corpo);
   desenharCampos();
   atualizar(true);

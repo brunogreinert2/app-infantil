@@ -29,7 +29,7 @@ import { folhasDeLogica, type NivelLabirinto } from './logica';
 import { gerarContas, svgContasA4, svgTabuaA4, svgTabuadaA4, type Operacao } from './contas';
 import { folhasDeRecortar, type ModeloRecortar } from './recortar';
 import { lerNomes, svgCrachasA4, svgEtiquetasA4, svgHqA4, svgMarcadoresA4, svgTesouraA4, svgTracarA4 } from './cartoes';
-import { textoSeguro } from './comum';
+import { comLetra, textoSeguro, type Letra } from './comum';
 import { lerHoras, svgRelogioDeMontarA4, svgRelogiosA4, svgRetasA4 } from './matematica';
 
 export { FOLHAS_LIGADAS } from './ligado';
@@ -119,12 +119,23 @@ export type Pedido =
     }
   | { tipo: 'recortar'; modelo: ModeloRecortar; ordens: 3 | 4 | 6 }
   | { tipo: 'motora'; modelo: ModeloMotora }
-  | { tipo: 'cartoes'; modelo: ModeloCartoes; quadros: 3 | 4 | 6; linhas: boolean; nomes: string; linha2: string }
+  | { tipo: 'cartoes'; modelo: ModeloCartoes; quadros: 3 | 4 | 6; linhas: boolean; nomes: string; linha2: string; materia?: string }
   | { tipo: 'pauta'; modelo: ModeloPauta; margem: boolean }
   | { tipo: 'grade'; modelo: ModeloGrade }
   | { tipo: 'reguas' }
   | { tipo: 'plano'; alcance: number; curva: boolean; a: number; b: number; c: number; respostas: boolean }
-  | { tipo: 'calendario'; modelo: 'figura' | 'anotar' | 'ano'; ano: number; mes: number; imagem?: string; feriados: boolean };
+  | {
+      tipo: 'calendario';
+      modelo: 'figura' | 'anotar' | 'ano';
+      ano: number;
+      mes: number;
+      imagem?: string;
+      aspecto?: number;
+      zoom?: number;
+      posX?: number;
+      posY?: number;
+      feriados: boolean;
+    };
 
 export type TipoDeFolha = Pedido['tipo'];
 
@@ -258,7 +269,12 @@ export interface Resultado {
 
 const numeroOu = (v: number, padrao: number): number => (Number.isFinite(v) ? v : padrao);
 
-export function fazerFolhas(p: Pedido): Resultado {
+/** As folhas do pedido, com a letra escolhida (Atkinson, se nada for dito). */
+export function fazerFolhas(p: Pedido, letra?: Letra): Resultado {
+  return comLetra(letra, () => fazerNaLetraAtual(p));
+}
+
+function fazerNaLetraAtual(p: Pedido): Resultado {
   const avisos: string[] = [];
   switch (p.tipo) {
     case 'caca': {
@@ -410,7 +426,7 @@ export function fazerFolhas(p: Pedido): Resultado {
         case 'marcadores':
           return { titulo: 'Marcadores de página', folhas: svgMarcadoresA4(nomes), avisos };
         case 'etiquetas':
-          return { titulo: 'Etiquetas de caderno', folhas: svgEtiquetasA4(nomes, textoSeguro(p.linha2)), avisos };
+          return { titulo: 'Etiquetas de caderno', folhas: svgEtiquetasA4(nomes, textoSeguro(p.linha2 ?? ''), textoSeguro(p.materia ?? '')), avisos };
       }
       return { titulo: 'Cartões', folhas: [], avisos };
     }
@@ -461,7 +477,7 @@ export function fazerFolhas(p: Pedido): Resultado {
         return { titulo: `Calendário ${ano}`, folhas: [{ titulo: `Calendário ${ano}`, svg: svgCalendarioAnoA4(ano) }], avisos };
       }
       const mes = Math.min(12, Math.max(1, Math.round(numeroOu(p.mes, 1))));
-      const svg = svgCalendarioA4({ ano, mes, modelo: p.modelo, imagem: p.imagem, feriados: p.feriados });
+      const svg = svgCalendarioA4({ ano, mes, modelo: p.modelo, imagem: p.imagem, aspecto: p.aspecto, zoom: p.zoom, posX: p.posX, posY: p.posY, feriados: p.feriados });
       if (p.feriados) avisos.push('Só os feriados nacionais aparecem; os do estado e da cidade, não.');
       const titulo = `Calendário ${String(mes).padStart(2, '0')}-${ano}`;
       return { titulo, folhas: [{ titulo, svg }], avisos };

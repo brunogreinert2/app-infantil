@@ -32,6 +32,10 @@ function folhaSa(svg: string): void {
     expect(Number(m[1])).toBeGreaterThanOrEqual(-1);
     expect(Number(m[1])).toBeLessThanOrEqual(801);
   }
+  // círculo também não pode passar da borda de baixo (os das frações passavam)
+  for (const m of svg.matchAll(/<circle[^>]*?\bcy="(-?[\d.]+)"[^>]*?\br="([\d.]+)"[^>]*?>/g)) {
+    expect(Number(m[1]) + Number(m[2])).toBeLessThanOrEqual(1131.5);
+  }
   for (const m of svg.matchAll(/<rect[^>]*?\by="(-?[\d.]+)"[^>]*?\bheight="([\d.]+)"[^>]*?>/g)) {
     if (m[0].includes('transform=')) continue;
     expect(Number(m[1]) + Number(m[2])).toBeLessThanOrEqual(1131.5);
@@ -561,5 +565,67 @@ describe('primeiro lote das sugestões', () => {
       expect(fazerFolhas({ ...silabas, modelo }).folhas.length, modelo).toBeGreaterThan(0);
     }
     expect(fazerFolhas({ ...silabas, modelo: 'bingo', palavras: 'BA BE' }).folhas).toEqual([]);
+  });
+});
+
+describe('ajustes pedidos pelo Bruno (2026-11-18)', () => {
+  it('etiquetas levam a matéria quando ela é escrita', async () => {
+    const { svgEtiquetasA4 } = await import('./cartoes');
+    const [f] = svgEtiquetasA4(['Theo'], '2º ano', 'Ciências');
+    expect(f.svg).toContain('aria-label="Ciências"');
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('cartoes');
+    if (base.tipo !== 'cartoes') throw new Error('tipo');
+    expect(fazerFolhas({ ...base, modelo: 'etiquetas', nomes: 'Ana', materia: 'Português' }).folhas[0].svg).toContain('aria-label="Português"');
+    // pedido guardado por uma versão sem o campo
+    expect(fazerFolhas({ ...base, modelo: 'etiquetas', nomes: 'Ana' }).folhas).toHaveLength(1);
+  });
+
+  it('figura do calendário: preenche, cabe inteira e anda dentro da moldura', async () => {
+    const { MOLDURA_DA_FIGURA: m, encaixeDaFigura, svgCalendarioA4, zoomFiguraInteira } = await import('./papeis');
+    // foto deitada (4:3): no zoom 1 cobre a moldura toda
+    const cobre = encaixeDaFigura(4 / 3);
+    expect(cobre.w).toBeGreaterThanOrEqual(m.w - 0.01);
+    expect(cobre.h).toBeGreaterThanOrEqual(m.h - 0.01);
+    // inteira: cabe sem cortar
+    const inteira = encaixeDaFigura(4 / 3, zoomFiguraInteira(4 / 3));
+    expect(inteira.w).toBeLessThanOrEqual(m.w + 0.01);
+    expect(inteira.h).toBeLessThanOrEqual(m.h + 0.01);
+    // posição 0 encosta à esquerda; 100 encosta à direita
+    expect(encaixeDaFigura(2, 1, 0, 50).x).toBeCloseTo(m.x);
+    const direita = encaixeDaFigura(2, 1, 100, 50);
+    expect(direita.x + direita.w).toBeCloseTo(m.x + m.w);
+    // valores estragados não quebram
+    expect(Number.isFinite(encaixeDaFigura(NaN, NaN, NaN, NaN).x)).toBe(true);
+    const png = 'data:image/png;base64,iVBORw0KGgo=';
+    const svg = svgCalendarioA4({ ano: 2027, mes: 11, imagem: png, aspecto: 1.5, zoom: 2, posX: 0, posY: 100 });
+    expect(svg).toContain('preserveAspectRatio="none"');
+    folhaSa(svg);
+  });
+
+  it('frações em círculos cabem na folha', async () => {
+    const { svgFracoesCirculosA4 } = await import('./recortar');
+    folhaSa(svgFracoesCirculosA4());
+  });
+});
+
+describe('letra das folhas', () => {
+  it('as três letras desenham as mesmas folhas, cada uma do seu jeito, e voltam à padrão', async () => {
+    const { TIPOS, fazerFolhas, pedidoInicial } = await import('./pedido');
+    const { escrever } = await import('./comum');
+    const atkinson = escrever('Ação 2027', 0, 0, 100);
+    for (const letra of ['atkinson', 'cardo', 'opendyslexic'] as const) {
+      for (const t of TIPOS) {
+        const r = fazerFolhas(pedidoInicial(t.tipo, new Date(2026, 10, 18)), letra);
+        for (const f of r.folhas) folhaSa(f.svg);
+      }
+    }
+    const cardo = fazerFolhas(pedidoInicial('reguas'), 'cardo').folhas[0].svg;
+    const padrao = fazerFolhas(pedidoInicial('reguas')).folhas[0].svg;
+    expect(cardo).not.toBe(padrao);
+    // depois de fazer com outra letra, a padrão continua a mesma
+    expect(escrever('Ação 2027', 0, 0, 100)).toBe(atkinson);
+    // o texto continua legível para o leitor de tela, em qualquer letra
+    expect(fazerFolhas(pedidoInicial('caca'), 'opendyslexic').folhas[0].svg).toContain('aria-label="MOTORISTA"');
   });
 });

@@ -61,13 +61,13 @@ export function svgFracoesBarrasA4(): string {
   return folhaNua('Frações em barras', corpo);
 }
 
-/** Círculos de 76 mm divididos em 2, 3, 4, 5, 6 e 8 partes, com a fração em cada fatia. */
+/** Círculos de 72 mm divididos em 2, 3, 4, 5, 6 e 8 partes, com a fração em cada fatia. */
 export function svgFracoesCirculosA4(): string {
   let corpo = cabecalho('Frações em círculos', 'Recorte os círculos e depois as fatias. Junte fatias para formar o inteiro.');
-  const r = 38;
+  const r = 36;
   [2, 3, 4, 5, 6, 8].forEach((partes, i) => {
     const cx = 47.5 + (i % 2) * 95;
-    const cy = Y0 + 41 + Math.floor(i / 2) * 82;
+    const cy = Y0 + 39 + Math.floor(i / 2) * 78;
     corpo += `<circle cx="${n(mm(cx))}" cy="${n(mm(cy))}" r="${n(mm(r))}" fill="none" stroke="${TINTA}" stroke-width="${n(mm(0.6))}"/>`;
     let d = '';
     for (let k = 0; k < partes; k++) {

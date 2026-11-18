@@ -78,6 +78,24 @@ do primeiro lote (silabário em diante) ainda não foram impressas.
   brasileira), não figuras de rei e cavalo. É o que dá para recortar e ler; se
   o Bruno quiser silhuetas, é arte a desenhar. Casas de 22 mm, peças de 19 mm.
   As casas escuras são cinza (pouca tinta, e a peça preta aparece em cima).
+- **Letra das folhas** (2026-11-18, pedido do Bruno): quem ensina escolhe na
+  tela entre **Atkinson Hyperlegible** (a padrão, a mesma das legendas do app),
+  **Cardo** e **OpenDyslexic**. A letra é sempre desenhada em caminhos (nunca
+  `<text>`), então sai igual em qualquer aparelho. As tabelas da Cardo e da
+  OpenDyslexic (`src/geradores/letras.json`, ~220 KB, ignorado pelo git) saem
+  de `scripts/gera-glifos.mjs`, que roda sozinho antes de `npm test` e de
+  `npm run build`. Caractere que a fonte não tem cai na Atkinson. O texto é
+  feito em `comum.ts` (`comLetra`, `escrever`); `fazerFolhas(pedido, letra)`.
+  **Atenção ao zero:** o da Atkinson tem um risco no meio (decisão já
+  registrada em `ACESSIBILIDADE.md`: ruim para quem está aprendendo o zero). Nas
+  folhas de número para criança pequena, a Cardo ou a OpenDyslexic são
+  melhores. A OpenDyslexic ainda não foi impressa nem testada por quem tem
+  dislexia.
+- **Figura do calendário** (2026-11-18): controle de tamanho (da figura inteira
+  até 3×), botões "Figura inteira" e "Preencher a moldura", e arrastar a
+  figura na prévia para escolher o que aparece (`encaixeDaFigura` em
+  `papeis.ts`). A figura não é guardada no aparelho entre uma visita e outra
+  (é grande); tamanho e posição, sim.
 - Folhas sem marca de criança (`IDENTIDADE_NEUTRA`): servem do 1º ano ao
   ensino médio. Passar `identidade` para pôr a marca do Historinhas.
 

@@ -77,3 +77,28 @@ for (const c of caracteres) {
 }
 writeFileSync(new URL('../src/conteudo/glifos-legendas.json', import.meta.url), JSON.stringify(legendas));
 console.log(`ok: ${Object.keys(legendas).length} caracteres para legendas vetoriais`);
+
+// Letras das folhas geradas (src/geradores/): além da Atkinson das legendas,
+// a Cardo e a OpenDyslexic, para quem ensina escolher. Só o latim que as
+// folhas usam; o que faltar numa fonte cai na Atkinson (marcado em `fonte`).
+// Derivado ignorado pelo git, como as legendas.
+const opendyslexic = (() => {
+  const bytes = readFileSync(new URL('../src/fontes/opendyslexic-400.woff', import.meta.url));
+  return opentype.parse(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+})();
+const latim = new Set();
+for (const [inicio, fim] of [[32, 126], [160, 255]]) for (let n = inicio; n <= fim; n++) latim.add(String.fromCodePoint(n));
+for (const c of '–—“”‘’…•→×÷') latim.add(c);
+const letrasDasFolhas = {};
+for (const [nome, fonte] of [['cardo', cardo], ['opendyslexic', opendyslexic]]) {
+  const tabela = {};
+  for (const c of latim) {
+    const propria = fonte.charToGlyphIndex(c) ? fonte : atkinson.find(f => f.charToGlyphIndex(c));
+    if (!propria) continue;
+    const p = propria.getPath(c, 0, 0, 1000);
+    tabela[c] = { d: p.toPathData(1), adv: Math.round(propria.getAdvanceWidth(c, 1000) * 10) / 10, ...(propria === fonte ? {} : { fonte: 'Atkinson Hyperlegible' }) };
+  }
+  letrasDasFolhas[nome] = tabela;
+}
+writeFileSync(new URL('../src/geradores/letras.json', import.meta.url), JSON.stringify(letrasDasFolhas));
+console.log(`ok: letras das folhas (Cardo e OpenDyslexic, ${latim.size} caracteres cada)`);

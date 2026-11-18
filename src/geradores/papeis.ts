@@ -400,7 +400,40 @@ export interface OpcoesCalendario {
   modelo?: 'figura' | 'anotar';
   /** imagem para o alto (data: PNG/JPEG); sem ela fica a moldura para desenhar ou colar */
   imagem?: string;
+  /** largura ÷ altura da imagem; sem isto, a figura só preenche a moldura, centrada */
+  aspecto?: number;
+  /** 1 = preenche a moldura; menor mostra mais da figura; maior aproxima (0,2 a 4) */
+  zoom?: number;
+  /** de 0 a 100: que parte da figura aparece (50 = o meio) */
+  posX?: number;
+  posY?: number;
   feriados?: boolean;
+}
+
+/** A moldura da figura do calendário, nas unidades da folha. */
+export const MOLDURA_DA_FIGURA = { x: 48, y: 36, w: 704, h: 420 };
+
+/**
+ * Onde a figura fica dentro da moldura. O zoom 1 cobre a moldura toda; a
+ * posição diz o que sobra de cada lado (0 = encostada à esquerda/no alto).
+ */
+export function encaixeDaFigura(aspecto: number, zoom = 1, posX = 50, posY = 50): { x: number; y: number; w: number; h: number } {
+  const m = MOLDURA_DA_FIGURA;
+  const a = aspecto > 0 && Number.isFinite(aspecto) ? aspecto : 1;
+  const z = Math.min(4, Math.max(0.2, Number.isFinite(zoom) ? zoom : 1));
+  const cobre = Math.max(m.w / a, m.h);
+  const w = a * cobre * z;
+  const h = cobre * z;
+  const px = Math.min(100, Math.max(0, Number.isFinite(posX) ? posX : 50)) / 100;
+  const py = Math.min(100, Math.max(0, Number.isFinite(posY) ? posY : 50)) / 100;
+  return { x: m.x + (m.w - w) * px, y: m.y + (m.h - h) * py, w, h };
+}
+
+/** O zoom em que a figura aparece inteira, sem cortar nada. */
+export function zoomFiguraInteira(aspecto: number): number {
+  const m = MOLDURA_DA_FIGURA;
+  const a = aspecto > 0 && Number.isFinite(aspecto) ? aspecto : 1;
+  return Math.min(m.w / a, m.h) / Math.max(m.w / a, m.h);
 }
 
 export function svgCalendarioA4(op: OpcoesCalendario): string {
@@ -416,7 +449,12 @@ export function svgCalendarioA4(op: OpcoesCalendario): string {
     const img = op.imagem && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(op.imagem) ? op.imagem : '';
     corpo += `<clipPath id="recorte-figura"><rect x="48" y="36" width="704" height="420" rx="18"/></clipPath>`;
     if (img) {
-      corpo += `<image href="${img}" x="48" y="36" width="704" height="420" preserveAspectRatio="xMidYMid slice" clip-path="url(#recorte-figura)"/>`;
+      if (op.aspecto) {
+        const e = encaixeDaFigura(op.aspecto, op.zoom, op.posX, op.posY);
+        corpo += `<image href="${img}" x="${n(e.x)}" y="${n(e.y)}" width="${n(e.w)}" height="${n(e.h)}" preserveAspectRatio="none" clip-path="url(#recorte-figura)"/>`;
+      } else {
+        corpo += `<image href="${img}" x="48" y="36" width="704" height="420" preserveAspectRatio="xMidYMid slice" clip-path="url(#recorte-figura)"/>`;
+      }
     }
     corpo += `<rect x="48" y="36" width="704" height="420" rx="18" fill="none" stroke="${TINTA}" stroke-width="2.5"${img ? '' : ' stroke-dasharray="10 8"'}/>`;
     yTitulo = 536;

@@ -2307,6 +2307,11 @@ button.casa-caa.vazia { cursor: pointer; }
 /* o papel é sempre branco com tinta preta, em qualquer tema: é o que vai sair na impressora */
 .folhas-papel { background: #ffffff; border: 1px solid var(--borda); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); line-height: 0; }
 .folhas-papel svg { display: block; width: 100%; height: auto; }
+/* calendário com figura: arrastar a figura na prévia (o toque não rola a página ali) */
+.folhas-papel-arrastar { cursor: grab; touch-action: none; }
+.folhas-papel-arrastar:active { cursor: grabbing; }
+.folhas-botoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.folhas-formulario input[type='range'] { width: 100%; min-height: 40px; }
 @media (max-width: 760px) {
   .folhas-corpo { grid-template-columns: 1fr; }
 }
