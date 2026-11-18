@@ -23,7 +23,10 @@ import { mm, soLetras } from './comum';
 import { TODAS_AS_PALAVRAS } from '../conteudo/lerOMundo';
 
 /** folha inteira, sem número estragado e sem nada desenhado fora do A4 */
-function folhaSa(svg: string): void {
+function folhaSa(svgInteiro: string): void {
+  // um desenho de livro aninhado (folha de pintar) tem as coordenadas dele: fica de fora da conta
+  const aninhado = svgInteiro.indexOf('<svg', 1);
+  const svg = aninhado < 0 ? svgInteiro : svgInteiro.slice(0, aninhado) + svgInteiro.slice(svgInteiro.lastIndexOf('</svg>', svgInteiro.lastIndexOf('</svg>') - 1) + 6);
   expect(svg).toContain('data-folha-a4="true"');
   expect(svg).toContain('viewBox="0 0 800 1131"');
   expect(svg).not.toMatch(/NaN|undefined|Infinity/);
@@ -681,5 +684,70 @@ describe('rotina visual', () => {
     const r = fazerFolhas({ ...base, passos: 'Natação\nAcordar' });
     expect(r.avisos.join(' ')).toContain('Natação');
     expect(fazerFolhas({ ...base, passos: '' }).avisos[0]).toContain('Escreva os passos');
+  });
+});
+
+describe('sequência didática de um livro', () => {
+  it('serve para todos os livros de história da estante, e cada folha cabe no A4', async () => {
+    const { LIVROS_DA_SEQUENCIA, fazerFolhas, pedidoInicial } = await import('./pedido');
+    expect(LIVROS_DA_SEQUENCIA.length).toBeGreaterThan(20);
+    // em ordem alfabética e sem alfabetos nem números
+    const titulos = LIVROS_DA_SEQUENCIA.map((l) => l.titulo);
+    expect(titulos).toEqual([...titulos].sort((a, b) => a.localeCompare(b, 'pt-BR')));
+    expect(LIVROS_DA_SEQUENCIA.some((l) => /alfabeto|números/i.test(l.titulo))).toBe(false);
+    const base = pedidoInicial('sequencia');
+    if (base.tipo !== 'sequencia') throw new Error('tipo');
+    for (const l of LIVROS_DA_SEQUENCIA) {
+      const r = fazerFolhas({ ...base, livro: l.id });
+      expect(r.folhas.length, l.id).toBeGreaterThanOrEqual(6);
+      for (const f of r.folhas) if (f.titulo !== 'Para pintar') folhaSa(f.svg);
+    }
+  });
+
+  it('o caderno do Leão e o Ratinho: texto, perguntas do quiz, palavras, ordem e respostas', async () => {
+    const { obterLivro } = await import('../conteudo/catalogo');
+    const s = await import('./sequencia');
+    const livro = obterLivro('o-leao-e-o-ratinho')!;
+    const palavras = s.sugerirPalavras(livro);
+    expect(palavras).toHaveLength(8);
+    expect(palavras).toContain('LEÃO');
+    expect(palavras).toContain('RATINHO');
+    expect(palavras.some((p) => ['ELE', 'PARA', 'QUANDO', 'DISSE'].includes(p))).toBe(false);
+    const historia = s.svgHistoriaA4(livro);
+    expect(historia[0].svg).toContain('aria-label="O Leão e o Ratinho"');
+    expect(historia.map((f) => f.svg).join('')).toContain('Esopo');
+    const perguntas = s.svgPerguntasA4(livro)[0].svg;
+    expect(perguntas).toContain('Por que o leão soltou o ratinho?');
+    const momentos = s.momentosDaHistoria(livro);
+    expect(momentos).toHaveLength(4);
+    expect(momentos[0].startsWith('Num fim de tarde quente')).toBe(true);
+    for (const m of momentos) expect(m.startsWith('—')).toBe(false);
+    // a folha mostra as tiras fora de ordem, e a resposta diz a ordem certa
+    const ordem = s.svgOrdemA4(livro)!.svg;
+    expect(ordem.indexOf('Num fim de tarde')).toBeGreaterThan(ordem.indexOf(momentos[2].slice(0, 12)));
+    const respostas = s.svgRespostasA4(livro).map((f) => f.svg).join('');
+    expect(respostas).toContain(`as tiras são: ${s.EMBARALHO.map((i) => i + 1).join(', ')}.`);
+    expect(respostas).toContain('Porque achou graça de um bichinho tão pequeno prometer ajuda');
+    // sem sorte: o mesmo livro dá o mesmo caderno
+    const um = s.montarSequencia(livro, { partes: {} });
+    const dois = s.montarSequencia(livro, { partes: {} });
+    expect(um).toEqual(dois);
+  });
+
+  it('respeita as partes escolhidas e as palavras de quem ensina', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('sequencia');
+    if (base.tipo !== 'sequencia') throw new Error('tipo');
+    const nada = Object.fromEntries(['texto', 'perguntas', 'caca', 'ordem', 'final', 'colorir', 'respostas'].map((k) => [k, false]));
+    expect(fazerFolhas({ ...base, partes: nada }).folhas).toEqual([]);
+    const caca = fazerFolhas({ ...base, partes: { ...nada, caca: true }, palavras: 'juba\nrede, corda' });
+    expect(caca.folhas).toHaveLength(1);
+    expect(caca.folhas[0].svg).toContain('aria-label="JUBA"');
+    expect(caca.folhas[0].svg).toContain('aria-label="CORDA"');
+    // o desenho de pintar vem do próprio livro, dentro da folha A4
+    const pintar = fazerFolhas({ ...base, partes: { ...nada, colorir: true } });
+    expect(pintar.folhas[0].svg.match(/<svg/g)?.length).toBe(2);
+    expect(pintar.folhas[0].svg).toContain('x="48" y="186" width="704" height="870"');
+    expect(fazerFolhas({ ...base, livro: 'nao-existe' }).avisos[0]).toContain('Escolha um livro');
   });
 });

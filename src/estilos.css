@@ -2311,6 +2311,7 @@ button.casa-caa.vazia { cursor: pointer; }
 .folhas-papel-arrastar { cursor: grab; touch-action: none; }
 .folhas-papel-arrastar:active { cursor: grabbing; }
 .folhas-botoes { display: flex; flex-wrap: wrap; gap: 8px; }
+.folhas-partes { display: flex; flex-direction: column; gap: 2px; }
 .folhas-formulario input[type='range'] { width: 100%; min-height: 40px; }
 @media (max-width: 760px) {
   .folhas-corpo { grid-template-columns: 1fr; }

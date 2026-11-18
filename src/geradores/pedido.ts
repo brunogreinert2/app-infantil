@@ -31,6 +31,17 @@ import { folhasDeRecortar, type ModeloRecortar } from './recortar';
 import { lerNomes, svgCrachasA4, svgEtiquetasA4, svgHqA4, svgMarcadoresA4, svgTesouraA4, svgTracarA4 } from './cartoes';
 import { comLetra, textoSeguro, type Letra } from './comum';
 import { folhasDaRotina, lerPassos, type ModeloRotina } from './rotina';
+import { arquivosAssets, livros, obterLivro } from '../conteudo/catalogo';
+import { arquivoDeColorir, lerPalavrasDaSequencia, montarSequencia, textoDoLivro, type ParteDaSequencia } from './sequencia';
+
+/** Os livros que dão sequência didática: história com texto corrido (não os alfabetos e números). */
+// alfabetos e números são livros gerados por código: têm texto, mas não são histórias
+const NAO_SAO_HISTORIA = (id: string) => id.startsWith('alfabeto') || id === 'numeros';
+export const LIVROS_DA_SEQUENCIA = livros
+  .filter((l) => !NAO_SAO_HISTORIA(l.id))
+  .filter((l) => textoDoLivro(l).filter((p) => p.tipo === 'paragrafo').length >= 3 && (l.metadados.quiz?.length ?? 0) > 0)
+  .map((l) => ({ id: l.id, titulo: l.metadados.titulo }))
+  .sort((a, b) => a.titulo.localeCompare(b.titulo, 'pt-BR'));
 import { lerHoras, svgRelogioDeMontarA4, svgRelogiosA4, svgRetasA4 } from './matematica';
 
 export { FOLHAS_LIGADAS } from './ligado';
@@ -129,6 +140,7 @@ export type Pedido =
   | { tipo: 'motora'; modelo: ModeloMotora }
   | { tipo: 'cartoes'; modelo: ModeloCartoes; quadros: 3 | 4 | 6; linhas: boolean; nomes: string; linha2: string; materia?: string }
   | { tipo: 'rotina'; modelo: ModeloRotina; titulo: string; passos: string; maiusculas: boolean; hora: boolean }
+  | { tipo: 'sequencia'; livro: string; partes: Partial<Record<ParteDaSequencia, boolean>>; palavras: string }
   | { tipo: 'pauta'; modelo: ModeloPauta; margem: boolean }
   | { tipo: 'grade'; modelo: ModeloGrade }
   | { tipo: 'reguas' }
@@ -148,7 +160,7 @@ export type Pedido =
 
 export type TipoDeFolha = Pedido['tipo'];
 
-export const TIPOS: Array<{ tipo: TipoDeFolha; nome: string }> = [
+export const TIPOS: Array<{ tipo: TipoDeFolha; nome: string }> = (<Array<{ tipo: TipoDeFolha; nome: string }>>[
   { tipo: 'caca', nome: 'Caça-palavras' },
   { tipo: 'cruzadinha', nome: 'Cruzadinha' },
   { tipo: 'jogo', nome: 'Jogos de mesa: memória, dominó, bingo, damas, xadrez' },
@@ -165,7 +177,9 @@ export const TIPOS: Array<{ tipo: TipoDeFolha; nome: string }> = [
   { tipo: 'reguas', nome: 'Réguas de recortar' },
   { tipo: 'plano', nome: 'Plano cartesiano e parábola' },
   { tipo: 'calendario', nome: 'Calendário' },
-];
+  { tipo: 'sequencia', nome: 'Sequência didática de um livro da estante' },
+  // em ordem alfabética na tela (pedido do Bruno, 2026-11-18)
+]).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 
 export const NOMES_DAS_PAUTAS: Record<ModeloPauta, string> = {
   comum: 'Comum (8 mm)',
@@ -215,6 +229,8 @@ export function pedidoInicial(tipo: TipoDeFolha, hoje: Date = new Date()): Pedid
       };
     case 'matematica':
       return { tipo, modelo: 'ler', horas: '7:00\n7:15\n12:30\n3:45\n9:10\n6:50', respostas: true, de: 0, ate: 20, completar: true };
+    case 'sequencia':
+      return { tipo, livro: LIVROS_DA_SEQUENCIA.some((l) => l.id === 'o-leao-e-o-ratinho') ? 'o-leao-e-o-ratinho' : (LIVROS_DA_SEQUENCIA[0]?.id ?? ''), partes: {}, palavras: '' };
     case 'rotina':
       return {
         tipo,
@@ -371,6 +387,21 @@ function fazerNaLetraAtual(p: Pedido): Resultado {
       if (horas.length > 12) avisos.push('Cabem 12 relógios: usei as 12 primeiras horas.');
       const folhas = svgRelogiosA4(horas, { modo: p.modelo === 'marcar' ? 'marcar' : 'ler', respostas: p.respostas });
       return { titulo: 'Relógios', folhas, avisos };
+    }
+    case 'sequencia': {
+      const livro = obterLivro(p.livro);
+      if (!livro) {
+        avisos.push('Escolha um livro da estante.');
+        return { titulo: 'Sequência didática', folhas: [], avisos };
+      }
+      const arquivo = arquivoDeColorir(livro);
+      const r = montarSequencia(livro, {
+        partes: p.partes ?? {},
+        palavras: lerPalavrasDaSequencia(p.palavras ?? ''),
+        arteColorir: arquivo ? arquivosAssets[arquivo] : undefined,
+      });
+      if (!r.folhas.length) avisos.push('Marque pelo menos uma parte do caderno.');
+      return { titulo: `Sequência didática - ${livro.metadados.titulo}`, folhas: r.folhas, avisos: [...avisos, ...r.avisos] };
     }
     case 'rotina': {
       const passos = lerPassos(p.passos);

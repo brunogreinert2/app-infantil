@@ -11,11 +11,14 @@ import { el } from '../telas/comum';
 import { silabasComHifens } from '../conteudo/silabas';
 import { NOMES_COM_DESENHO } from './jogosDeMesa';
 import { MODELOS as MODELOS_DE_ROTINA } from './rotina';
+import { NOMES_DAS_PARTES, sugerirPalavras, type ParteDaSequencia } from './sequencia';
+import { obterLivro } from '../conteudo/catalogo';
 import {
   NOMES_DAS_CONTAS,
   NOMES_DAS_GRADES,
   NOMES_DAS_SILABAS,
   NOMES_DA_ROTINA,
+  LIVROS_DA_SEQUENCIA,
   NOMES_DA_LOGICA,
   NOMES_DA_MOTORA,
   NOMES_DOS_CARTOES,
@@ -332,6 +335,46 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           faixa.appendChild(rotulado('Até', campoNumero(p.ate, (v) => ((p.ate = v), atualizar()), -100, 1000)));
           campos.appendChild(faixa);
           campos.appendChild(marcar('Deixar retas sem número, para completar', p.completar, (v) => ((p.completar = v), atualizar(true))));
+        }
+        break;
+      }
+      case 'sequencia': {
+        campos.appendChild(
+          rotulado(
+            'Livro',
+            lista(LIVROS_DA_SEQUENCIA.map((l) => ({ valor: l.id, nome: l.titulo })), p.livro, (v) => {
+              p.livro = v;
+              p.palavras = '';
+              desenharCampos();
+              atualizar(true);
+            }),
+          ),
+        );
+        const partes = el('div', 'folhas-partes');
+        for (const parte of Object.keys(NOMES_DAS_PARTES) as ParteDaSequencia[]) {
+          partes.appendChild(
+            marcar(NOMES_DAS_PARTES[parte], p.partes?.[parte] ?? true, (v) => {
+              p.partes = { ...p.partes, [parte]: v };
+              atualizar(true);
+            }),
+          );
+        }
+        campos.appendChild(rotulado('O que vai no caderno', partes));
+        if (p.partes?.caca ?? true) {
+          const livro = obterLivro(p.livro);
+          const sugeridas = livro ? sugerirPalavras(livro) : [];
+          const palavras = areaDeTexto(p.palavras ?? '', 6, (v) => ((p.palavras = v), atualizar()));
+          palavras.placeholder = sugeridas.join('\n');
+          campos.appendChild(
+            rotulado('Palavras do caça-palavras', palavras, 'Vazio: vão as que mais aparecem na história (em cinza). Troque à vontade, uma por linha.'),
+          );
+          campos.appendChild(
+            botao('Começar das sugeridas', () => {
+              p.palavras = sugeridas.join('\n');
+              desenharCampos();
+              atualizar(true);
+            }),
+          );
         }
         break;
       }

@@ -36,6 +36,7 @@ com muita variedade, tudo gerado na hora a partir de dados simples.
 | `logica.ts` | `gerarLabirinto` (labirinto perfeito por semente, 3 tamanhos, com caminho de resposta), `gerarSudoku` (4 × 4, 6 × 6 e de figuras, sempre com uma solução só) |
 | `contas.ts` | `gerarContas` (as quatro operações, com ou sem "vai um"/"empresta", divisão exata à brasileira), `svgTabuadaA4`, `svgTabuaA4` (tábua de Pitágoras) |
 | `recortar.ts` | material dourado, frações em barras (1 a 1/12) e em círculos, quadro de valor posicional, tangram — em mm de verdade |
+| `sequencia.ts` | **sequência didática de um livro da estante** (2026-11-18): um caderno com a história para ler (na letra escolhida, com o crédito do texto), perguntas de compreensão (o quiz do livro + "Quem aparece na história?" + caixa "Do que você mais gostou?"), caça-palavras com o vocabulário (`sugerirPalavras`: as que mais se repetem, sem palavras de ligação; quem ensina troca), "O que aconteceu primeiro?" (`momentosDaHistoria`: a primeira frase de quatro parágrafos narrados, sem falas nem notas sobre o livro, mostrados na ordem fixa `EMBARALHO`), "Invente outro final", o desenho de pintar do próprio livro, e as respostas separadas no fim. Cada parte se liga e desliga. Serve aos 28 livros de história (não aos alfabetos e números) |
 | `rotina.ts` | **rotina visual**: lista do dia (hora, desenho, palavra, caixa de "feito"), passo a passo para a parede (numerado, 4, 6 ou 9 por folha), cartões de 60 mm para recortar e usar com velcro, quadro "primeiro → depois". Modelos prontos: manhã de escola, tarde, noite, dia na escola, como lavar as mãos, como escovar os dentes. O desenho sai da frase ou da palavra mais longa que tenha desenho (`figuraDoPasso`, com sinônimos: jantar → comer, brincar → recreio); sem desenho, fica a moldura para desenhar ou colar foto |
 | `cartoes.ts` | treino de tesoura, "siga o caminho" (traçado entre dois desenhos), HQ em branco (3, 4 ou 6 quadros), crachás, marcadores de página, etiquetas de caderno |
 | `geradores.test.ts` | 37 testes |
@@ -104,6 +105,14 @@ do primeiro lote (silabário em diante) ainda não foram impressas.
   servem para as pranchas de comunicação. Mãos seguem a regra de `CAA.md`
   (quatro dedos parelhos). Os modelos prontos são ponto de partida: a rotina se
   monta para a pessoa, com quem a conhece. Sem nome de aluno em lugar nenhum.
+- **Sequência didática** (2026-11-18): tudo sai do que o livro já tem (texto,
+  quiz, desenho). As perguntas abertas não têm gabarito ("valem as ideias da
+  criança"). Os momentos da folha de ordem são escolhidos por regra (parágrafos
+  narrados espalhados pela história): numa história com muito diálogo, podem
+  sair momentos pouco marcantes — quem ensina confere antes de imprimir. Um
+  dos livros (Os Três Porquinhos) abria com uma nota "Uma adaptação livre do
+  Historinhas", que a regra agora pula. A lista "O que você quer fazer?" está
+  em ordem alfabética (pedido do Bruno). Novo pictograma: carro.
 - Folhas sem marca de criança (`IDENTIDADE_NEUTRA`): servem do 1º ano ao
   ensino médio. Passar `identidade` para pôr a marca do Historinhas.
 
@@ -151,9 +160,9 @@ figura do calendário com foto real.
    - médias: ligue os pontos (pontos tirados do contorno dos desenhos),
      simetria no quadriculado, pintura por código (conta ou sílaba), letras
      vazadas para cobrir (a rotina visual foi feita em 2026-11-18);
-   - a maior: **sequência didática a partir de um livro da estante** (texto,
-     perguntas do quiz, caça-palavras do vocabulário, desenho para colorir,
-     gabarito) — uma sessão inteira só para ela;
+   - a sequência didática foi feita em 2026-11-18 (`sequencia.ts`); falta
+     escolher só um capítulo nos livros longos e a cruzadinha com as palavras
+     da história;
    - silhuetas do tangram (figuras para montar);
    - **não fazer**: "melhor leitor", semáforo e quadro de comportamento
      (ranking e pressão contrariam os princípios 4 e 7 do CLAUDE.md); diploma

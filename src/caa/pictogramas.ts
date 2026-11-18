@@ -174,6 +174,12 @@ export const PICTOGRAMAS: Record<string, string> = {
     grosso('M10 86 H56', 8) +
     '<rect x="56" y="78" width="34" height="14" rx="4"/>' +
     '<path d="M60 78 Q60 66 70 68 Q78 60 86 70 Q90 74 88 78" fill="currentColor"/>',
+  carro:
+    '<path d="M8 66 V52 Q8 46 14 44 L26 42 L36 26 Q38 22 44 22 H66 Q72 22 75 27 L84 42 Q92 44 92 52 V66 Z"/>' +
+    '<path d="M32 42 L41 30 H54 V42 Z"/><path d="M60 42 V30 H70 L77 42 Z"/>' +
+    '<circle cx="28" cy="68" r="10"/><circle cx="72" cy="68" r="10"/>' +
+    '<circle cx="28" cy="68" r="3" fill="currentColor"/><circle cx="72" cy="68" r="3" fill="currentColor"/>' +
+    grosso('M86 52 H92 M8 54 H12', 4),
   pia:
     '<path d="M8 44 H92 Q92 84 50 84 Q8 84 8 44 Z"/>' +
     '<circle cx="50" cy="68" r="4" fill="currentColor"/>' +
@@ -198,6 +204,7 @@ export const NOMES_DOS_PICTOGRAMAS: Record<string, string> = {
   vestir: 'vestir a roupa', cafe: 'café da manhã', mochila: 'mochila', torneira: 'abrir a torneira',
   'fechar-torneira': 'fechar a torneira', sabonete: 'sabonete', esfregar: 'esfregar as mãos',
   enxaguar: 'enxaguar as mãos', toalha: 'secar com a toalha', pasta: 'pasta na escova', pia: 'cuspir na pia',
+  carro: 'carro',
 };
 
 /** O desenho como SVG pronto, em traço da cor do texto (`currentColor`). */
