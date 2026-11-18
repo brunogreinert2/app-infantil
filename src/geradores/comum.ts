@@ -52,21 +52,28 @@ export function comLetra<T>(letra: Letra | undefined, fazer: () => T): T {
 /** O desenho de um caractere: da letra escolhida ou, se ela não tiver, da Atkinson. */
 const glifo = (c: string): Glifo | undefined => TABELAS[letraAtual][c] ?? TABELAS.atkinson[c];
 
-export function largura(s: string, tamanho: number): number {
-  return [...s].reduce((soma, c) => soma + (glifo(c)?.adv ?? 0) * (tamanho / 1000), 0);
+/**
+ * Largura do texto. `espaco` é o ar extra entre as letras, em fração do
+ * tamanho (0,2 = um quinto da letra), como nos títulos espaçados das capas.
+ */
+export function largura(s: string, tamanho: number, espaco = 0): number {
+  const letras = [...s];
+  const ar = espaco * tamanho * Math.max(0, letras.length - 1);
+  return letras.reduce((soma, c) => soma + (glifo(c)?.adv ?? 0) * (tamanho / 1000), 0) + ar;
 }
 
 const escHtml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
-const idioma = (s: string) => (/[Ͱ-Ͽἀ-῿]/u.test(s) ? 'grc' : 'pt-BR');
+const idioma = (s: string) => (/[\u0370-\u03ff\u1f00-\u1fff]/u.test(s) ? 'grc' : 'pt-BR');
 
-function texto(s: string, x: number, y: number, tamanho = 22, ancora: 'start' | 'middle' | 'end' = 'start'): string {
-  let atual = x - (ancora === 'middle' ? largura(s, tamanho) / 2 : ancora === 'end' ? largura(s, tamanho) : 0);
+function texto(s: string, x: number, y: number, tamanho = 22, ancora: 'start' | 'middle' | 'end' = 'start', espaco = 0): string {
+  const total = largura(s, tamanho, espaco);
+  let atual = x - (ancora === 'middle' ? total / 2 : ancora === 'end' ? total : 0);
   const caminhos = [...s]
     .map((c) => {
       const g = glifo(c);
       if (!g) return '';
       const p = g.d ? `<path d="${g.d}" transform="translate(${atual.toFixed(2)} ${y}) scale(${tamanho / 1000})"/>` : '';
-      atual += (g.adv * tamanho) / 1000;
+      atual += (g.adv * tamanho) / 1000 + espaco * tamanho;
       return p;
     })
     .join('');
@@ -135,11 +142,12 @@ export function escrever(
   tamanho: number,
   ancora: 'start' | 'middle' | 'end' = 'start',
   max = Infinity,
+  espaco = 0,
 ): string {
   const limpo = textoSeguro(s);
   if (!limpo) return '';
-  const cabe = Math.min(tamanho, (max / largura(limpo, 1000)) * 1000);
-  return texto(limpo, x, y, Number(cabe.toFixed(2)), ancora);
+  const cabe = Math.min(tamanho, (max / largura(limpo, 1000, espaco)) * 1000);
+  return texto(limpo, x, y, Number(cabe.toFixed(2)), ancora, espaco);
 }
 
 /** Engrossa um texto já desenhado (a letra das legendas só tem um peso). */

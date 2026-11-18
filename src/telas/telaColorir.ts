@@ -222,6 +222,17 @@ export async function montarTelaColorir(
     b.addEventListener('click', () => zoom.mover(dx, dy));
     setas.appendChild(b);
   }
+  // mão: arrastar anda pelo desenho em vez de pintar (mouse ou um dedo)
+  const mao = el('button', 'botao-ferramenta botao-seta', '✋');
+  mao.setAttribute('aria-label', 'Mover o desenho arrastando, em vez de pintar');
+  mao.setAttribute('aria-pressed', 'false');
+  mao.title = 'Arrastar para andar pelo desenho (ou segure a barra de espaço)';
+  mao.addEventListener('click', () => {
+    const ligado = zoom.modoMover(!zoom.modoMover());
+    mao.setAttribute('aria-pressed', String(ligado));
+    mao.classList.toggle('ativa', ligado);
+  });
+  setas.appendChild(mao);
   barra.appendChild(setas);
 
   const atualizarZoom = () => {
@@ -230,6 +241,12 @@ export async function montarTelaColorir(
     lupa.textContent = `🔍 ${texto}×`;
     lupa.setAttribute('aria-label', `Lupa: aumento de ${texto} vezes. Tocar muda o aumento.`);
     setas.hidden = fator <= 1.01;
+    // sem zoom não há para onde andar: a mão desliga junto
+    if (fator <= 1.01) {
+      zoom.modoMover(false);
+      mao.setAttribute('aria-pressed', 'false');
+      mao.classList.remove('ativa');
+    }
   };
   zoom.aoMudar(atualizarZoom);
   atualizarZoom();

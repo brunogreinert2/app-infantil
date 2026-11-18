@@ -81,6 +81,41 @@ export function gerarContas(p: PedidoContas): Conta[] {
   return contas;
 }
 
+/**
+ * As contas que a professora escreve, uma por linha: "345 + 278", "50 - 7",
+ * "12 x 3" (ou * ou ×), "84 ÷ 4" (ou / ou :). Mistura de operações vale.
+ * O que não serve volta em `fora`, com o motivo: subtração que fica negativa,
+ * divisão que não é exata, número grande demais.
+ */
+export function lerContas(texto: string): { contas: Conta[]; fora: Array<{ linha: string; motivo: string }> } {
+  const contas: Conta[] = [];
+  const fora: Array<{ linha: string; motivo: string }> = [];
+  for (const bruta of texto.split('\n')) {
+    const linha = bruta.trim();
+    if (!linha) continue;
+    const m = linha.replace(/\s+/g, '').match(/^(\d{1,6})([+\-–−xX×*÷/:])(\d{1,6})=?$/u);
+    if (!m) {
+      fora.push({ linha, motivo: 'não entendi; escreva assim: 345 + 278' });
+      continue;
+    }
+    const a = Number(m[1]);
+    const b = Number(m[3]);
+    const sinal = m[2];
+    const op: Operacao = sinal === '+' ? '+' : /[-–−]/u.test(sinal) ? '-' : /[xX×*]/u.test(sinal) ? 'x' : '/';
+    if (op === '-' && b > a) {
+      fora.push({ linha, motivo: 'o resultado ficaria negativo' });
+      continue;
+    }
+    if (op === '/' && (b === 0 || a % b !== 0)) {
+      fora.push({ linha, motivo: b === 0 ? 'não se divide por zero' : `a divisão não é exata (sobra ${a % b})` });
+      continue;
+    }
+    const resultado = op === '+' ? a + b : op === '-' ? a - b : op === 'x' ? a * b : a / b;
+    contas.push({ a, b, op, resultado });
+  }
+  return { contas: contas.slice(0, 40), fora };
+}
+
 /** Uma conta armada, com uma casa por algarismo; `x`,`y` = canto de cima à esquerda. */
 function contaArmada(c: Conta, x: number, y: number, w: number, respostas: boolean): string {
   const casa = 40;
@@ -129,9 +164,10 @@ const NOMES: Record<Operacao, string> = { '+': 'Adição', '-': 'Subtração', x
 /** Doze contas por folha (três colunas, quatro linhas); dez, se for divisão. */
 export function svgContasA4(contas: Conta[], op: { respostas?: boolean } = {}): Folha[] {
   if (!contas.length) return [];
-  const titulo = NOMES[contas[0].op];
+  // contas misturadas (as da professora podem ser) levam o título geral
+  const titulo = contas.every((c) => c.op === contas[0].op) ? NOMES[contas[0].op] : 'Contas';
   // a divisão armada é larga (dividendo, chave e quociente lado a lado): duas por linha
-  const divisao = contas[0].op === '/';
+  const divisao = contas.some((c) => c.op === '/');
   const colunas = divisao ? 2 : 3;
   const porFolha = divisao ? 10 : 12;
   const w = 704 / colunas;

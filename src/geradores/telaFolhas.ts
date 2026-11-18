@@ -18,6 +18,8 @@ import {
   NOMES_DAS_GRADES,
   NOMES_DAS_SILABAS,
   NOMES_DA_ROTINA,
+  NOMES_DAS_CAPAS,
+  ORNAMENTOS,
   LIVROS_DA_SEQUENCIA,
   NOMES_DA_LOGICA,
   NOMES_DA_MOTORA,
@@ -33,6 +35,10 @@ import {
   type Pedido,
   type Resultado,
   type TipoDeFolha,
+  NOMES_PARA_QUEM,
+  ehDoProfessor,
+  folhasPara,
+  type ParaQuem,
 } from './pedido';
 import { NOMES_DAS_LETRAS, type Letra } from './comum';
 import { MOLDURA_DA_FIGURA, encaixeDaFigura, zoomFiguraInteira } from './papeis';
@@ -44,6 +50,7 @@ const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julh
 interface Guardado {
   tipo: TipoDeFolha;
   letra?: Letra;
+  paraQuem?: ParaQuem;
   pedidos: Partial<Record<TipoDeFolha, Pedido>>;
 }
 
@@ -157,6 +164,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   let tipo: TipoDeFolha = TIPOS.some((t) => t.tipo === guardado.tipo) ? guardado.tipo : 'caca';
   const pedidos: Partial<Record<TipoDeFolha, Pedido>> = guardado.pedidos ?? {};
   let letra: Letra = guardado.letra && guardado.letra in NOMES_DAS_LETRAS ? guardado.letra : 'atkinson';
+  let paraQuem: ParaQuem = guardado.paraQuem && guardado.paraQuem in NOMES_PARA_QUEM ? guardado.paraQuem : 'duas';
   let resultado: Resultado | undefined;
 
   raiz.innerHTML = '';
@@ -204,12 +212,13 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           // escapado; a figura do calendário só passa se for data: de imagem.
           papel.innerHTML = f.svg;
           if (figuraArrastavel() && previa.childElementCount === 0) papel.classList.add('folhas-papel-arrastar');
-          figura.append(papel, el('figcaption', undefined, f.titulo));
+          // a folha do professor leva a marca na legenda da prévia
+          figura.append(papel, el('figcaption', undefined, ehDoProfessor(f) ? `${f.titulo} · professor` : f.titulo));
           previa.appendChild(figura);
         }
-        imprimir.disabled = !resultado.folhas.length;
+        imprimir.disabled = !folhasPara(resultado.folhas, paraQuem).length;
         // a figura do calendário pode ser grande demais para guardar: sem ela
-        const paraGuardar: Guardado = { tipo, letra, pedidos: { ...pedidos } };
+        const paraGuardar: Guardado = { tipo, letra, paraQuem, pedidos: { ...pedidos } };
         const cal = paraGuardar.pedidos.calendario;
         if (cal?.tipo === 'calendario' && cal.imagem) paraGuardar.pedidos.calendario = { ...cal, imagem: undefined };
         void armazenamento.definir(CHAVE, paraGuardar);
@@ -336,6 +345,31 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           campos.appendChild(faixa);
           campos.appendChild(marcar('Deixar retas sem número, para completar', p.completar, (v) => ((p.completar = v), atualizar(true))));
         }
+        break;
+      }
+      case 'capa': {
+        campos.appendChild(rotulado('Qual capa?', lista(opcoes(NOMES_DAS_CAPAS), p.modelo, (v) => ((p.modelo = v), desenharCampos(), atualizar(true)))));
+        if (p.modelo !== 'abnt') {
+          campos.appendChild(rotulado('Ornamento', lista(opcoes(ORNAMENTOS), p.ornamento, (v) => ((p.ornamento = v), atualizar(true)))));
+        }
+        const alto = areaDeTexto(p.alto, 3, (v) => ((p.alto = v), atualizar()));
+        alto.autocapitalize = 'words';
+        campos.appendChild(
+          rotulado(p.modelo === 'abnt' ? 'Instituição (escola, faculdade, curso)' : 'No alto (escola, turma, disciplina)', alto, 'Uma linha por linha da capa. Pode ficar vazio.'),
+        );
+        campos.appendChild(rotulado('Título', campoTexto(p.titulo, (v) => ((p.titulo = v), atualizar()), 120)));
+        campos.appendChild(rotulado('Subtítulo', campoTexto(p.subtitulo, (v) => ((p.subtitulo = v), atualizar()), 160)));
+        campos.appendChild(
+          rotulado(p.modelo === 'abnt' ? 'Autor ou autores' : 'Nome', campoTexto(p.nome, (v) => ((p.nome = v), atualizar()), 120), p.modelo === 'moldura' ? 'Vazio: sai a linha para escrever o nome à mão.' : undefined),
+        );
+        if (p.modelo === 'leituras') {
+          const itens = areaDeTexto(p.itens, 6, (v) => ((p.itens = v), atualizar()));
+          itens.autocapitalize = 'sentences';
+          campos.appendChild(rotulado('Leituras', itens, 'Uma por linha, assim: Autor — Título do texto. Até oito.'));
+        }
+        const rodape = areaDeTexto(p.rodape, 2, (v) => ((p.rodape = v), atualizar()));
+        rodape.autocapitalize = 'words';
+        campos.appendChild(rotulado('Embaixo (cidade, ano)', rodape));
         break;
       }
       case 'sequencia': {
@@ -472,6 +506,13 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           }
           campos.appendChild(rotulado('Quantas contas', campoNumero(p.quantas, (v) => ((p.quantas = v), atualizar()), 1, 40), p.operacao === '/' ? 'Dez por folha.' : 'Doze por folha.'));
           campos.appendChild(botao('🔀 Outras contas', () => ((p.semente = (p.semente || 0) + 1), atualizar(true))));
+          const proprias = areaDeTexto(p.proprias ?? '', 5, (v) => ((p.proprias = v), atualizar()));
+          proprias.placeholder = '345 + 278\n502 - 167\n36 x 4\n84 ÷ 4';
+          proprias.autocapitalize = 'off';
+          proprias.inputMode = 'text';
+          campos.appendChild(
+            rotulado('Ou escreva as suas contas', proprias, 'Uma por linha (pode misturar + – × ÷). Com contas aqui, a folha usa estas; vazia, o app inventa.'),
+          );
           campos.appendChild(marcar('Folha de respostas junto', p.respostas, (v) => ((p.respostas = v), atualizar(true))));
         } else {
           if (p.modelo === 'tabuada') campos.appendChild(rotulado('Tabuada do', campoNumero(p.numero, (v) => ((p.numero = v), atualizar()), 1, 20)));
@@ -671,13 +712,23 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   formulario.appendChild(
     rotulado('Letra das folhas', lista(opcoes(NOMES_DAS_LETRAS), letra, (v) => ((letra = v), atualizar(true)))),
   );
+  formulario.appendChild(
+    rotulado(
+      'Imprimir',
+      lista(opcoes(NOMES_PARA_QUEM), paraQuem, (v) => ((paraQuem = v), atualizar(true))),
+      'A versão do professor são as folhas de respostas. Folha sem resposta sai igual nas duas.',
+    ),
+  );
   formulario.appendChild(avisos);
 
   const imprimir = el('button', 'botao-grande', '🖨️ Imprimir ou guardar em PDF');
   imprimir.type = 'button';
   imprimir.addEventListener('click', () => {
     if (!resultado?.folhas.length) return;
-    imprimirDocumento(resultado.titulo, corpoCadernoA4(resultado.folhas), cssCadernoA4());
+    const vao = folhasPara(resultado.folhas, paraQuem);
+    if (!vao.length) return;
+    const sufixo = paraQuem === 'aluno' ? ' - aluno' : paraQuem === 'professor' ? ' - professor' : '';
+    imprimirDocumento(resultado.titulo + sufixo, corpoCadernoA4(vao), cssCadernoA4());
   });
   formulario.appendChild(imprimir);
   formulario.appendChild(

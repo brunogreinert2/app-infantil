@@ -26,11 +26,13 @@ import {
 } from './jogosDeMesa';
 import { emSilabas, lerFamilias, pecasDeSilabas, svgFamiliasA4, svgSilabasMoveisA4 } from './silabario';
 import { folhasDeLogica, type NivelLabirinto } from './logica';
-import { gerarContas, svgContasA4, svgTabuaA4, svgTabuadaA4, type Operacao } from './contas';
+import { gerarContas, lerContas, svgContasA4, svgTabuaA4, svgTabuadaA4, type Operacao } from './contas';
 import { folhasDeRecortar, type ModeloRecortar } from './recortar';
 import { lerNomes, svgCrachasA4, svgEtiquetasA4, svgHqA4, svgMarcadoresA4, svgTesouraA4, svgTracarA4 } from './cartoes';
 import { comLetra, textoSeguro, type Letra } from './comum';
 import { folhasDaRotina, lerPassos, type ModeloRotina } from './rotina';
+import { svgCapaA4, type ModeloCapa } from './capas';
+import { ORNAMENTOS, type Ornamento } from './ornamentos';
 import { arquivosAssets, livros, obterLivro } from '../conteudo/catalogo';
 import { arquivoDeColorir, lerPalavrasDaSequencia, montarSequencia, textoDoLivro, type ParteDaSequencia } from './sequencia';
 
@@ -117,6 +119,13 @@ export const NOMES_DA_ROTINA: Record<ModeloRotina, string> = {
   primeiroDepois: 'Quadro primeiro → depois',
 };
 
+export const NOMES_DAS_CAPAS: Record<ModeloCapa, string> = {
+  moldura: 'Capa com moldura (caderno, apostila, trabalho)',
+  abnt: 'Capa de trabalho escolar (modelo ABNT)',
+  leituras: 'Capa de tópico com a lista de leituras',
+};
+export { ORNAMENTOS };
+
 export type Pedido =
   | { tipo: 'caca'; titulo: string; palavras: string; nivel: Nivel; semente: number; respostas: boolean }
   | { tipo: 'cruzadinha'; titulo: string; itens: string; respostas: boolean }
@@ -135,12 +144,25 @@ export type Pedido =
       completar: boolean;
       semente: number;
       respostas: boolean;
+      /** as contas escritas pela professora; vazio = o app inventa */
+      proprias?: string;
     }
   | { tipo: 'recortar'; modelo: ModeloRecortar; ordens: 3 | 4 | 6 }
   | { tipo: 'motora'; modelo: ModeloMotora }
   | { tipo: 'cartoes'; modelo: ModeloCartoes; quadros: 3 | 4 | 6; linhas: boolean; nomes: string; linha2: string; materia?: string }
   | { tipo: 'rotina'; modelo: ModeloRotina; titulo: string; passos: string; maiusculas: boolean; hora: boolean }
   | { tipo: 'sequencia'; livro: string; partes: Partial<Record<ParteDaSequencia, boolean>>; palavras: string }
+  | {
+      tipo: 'capa';
+      modelo: ModeloCapa;
+      ornamento: Ornamento;
+      alto: string;
+      titulo: string;
+      subtitulo: string;
+      nome: string;
+      rodape: string;
+      itens: string;
+    }
   | { tipo: 'pauta'; modelo: ModeloPauta; margem: boolean }
   | { tipo: 'grade'; modelo: ModeloGrade }
   | { tipo: 'reguas' }
@@ -177,6 +199,7 @@ export const TIPOS: Array<{ tipo: TipoDeFolha; nome: string }> = (<Array<{ tipo:
   { tipo: 'reguas', nome: 'Réguas de recortar' },
   { tipo: 'plano', nome: 'Plano cartesiano e parábola' },
   { tipo: 'calendario', nome: 'Calendário' },
+  { tipo: 'capa', nome: 'Capas: caderno, trabalho escolar (ABNT), lista de leituras' },
   { tipo: 'sequencia', nome: 'Sequência didática de um livro da estante' },
   // em ordem alfabética na tela (pedido do Bruno, 2026-11-18)
 ]).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
@@ -229,6 +252,18 @@ export function pedidoInicial(tipo: TipoDeFolha, hoje: Date = new Date()): Pedid
       };
     case 'matematica':
       return { tipo, modelo: 'ler', horas: '7:00\n7:15\n12:30\n3:45\n9:10\n6:50', respostas: true, de: 0, ate: 20, completar: true };
+    case 'capa':
+      return {
+        tipo,
+        modelo: 'moldura',
+        ornamento: 'meandro',
+        alto: '',
+        titulo: 'Meu caderno de histórias',
+        subtitulo: '',
+        nome: '',
+        rodape: String(hoje.getFullYear()),
+        itens: '',
+      };
     case 'sequencia':
       return { tipo, livro: LIVROS_DA_SEQUENCIA.some((l) => l.id === 'o-leao-e-o-ratinho') ? 'o-leao-e-o-ratinho' : (LIVROS_DA_SEQUENCIA[0]?.id ?? ''), partes: {}, palavras: '' };
     case 'rotina':
@@ -292,6 +327,28 @@ export function lerItens(texto: string): ItemCruzadinha[] {
         : { palavra: linha.slice(0, corte).trim(), dica: linha.slice(corte + 1).trim() };
     })
     .filter((i) => i.palavra);
+}
+
+/**
+ * A folha é do professor? Toda folha de respostas tem "respostas" no título
+ * (é a regra de todos os geradores; um teste confere).
+ */
+export const ehDoProfessor = (f: { titulo: string }): boolean => /respostas/i.test(f.titulo);
+
+export type ParaQuem = 'duas' | 'aluno' | 'professor';
+
+export const NOMES_PARA_QUEM: Record<ParaQuem, string> = {
+  duas: 'As duas versões (aluno e professor)',
+  aluno: 'Só a do aluno (sem respostas)',
+  professor: 'Só a do professor (respostas)',
+};
+
+/** As folhas que vão para a impressora, conforme a versão escolhida. */
+export function folhasPara<F extends { titulo: string }>(folhas: F[], paraQuem: ParaQuem): F[] {
+  if (paraQuem === 'aluno') return folhas.filter((f) => !ehDoProfessor(f));
+  // folha que não tem respostas (capa, pauta, régua) sai igual nas duas versões
+  if (paraQuem === 'professor') return folhas.some(ehDoProfessor) ? folhas.filter(ehDoProfessor) : folhas;
+  return folhas;
 }
 
 export interface Resultado {
@@ -388,6 +445,20 @@ function fazerNaLetraAtual(p: Pedido): Resultado {
       const folhas = svgRelogiosA4(horas, { modo: p.modelo === 'marcar' ? 'marcar' : 'ler', respostas: p.respostas });
       return { titulo: 'Relógios', folhas, avisos };
     }
+    case 'capa': {
+      const titulo = textoSeguro(p.titulo) || 'Capa';
+      if (p.modelo === 'abnt' && !p.alto.trim()) avisos.push('Na capa ABNT, o alto costuma levar a instituição (escola, faculdade), uma linha por nível.');
+      const svg = svgCapaA4(p.modelo, {
+        alto: p.alto,
+        titulo: p.titulo,
+        subtitulo: p.subtitulo,
+        nome: p.nome,
+        rodape: p.rodape,
+        itens: p.itens,
+        ornamento: p.ornamento in ORNAMENTOS ? p.ornamento : 'meandro',
+      });
+      return { titulo: `Capa - ${titulo}`, folhas: [{ titulo: 'Capa', svg }], avisos };
+    }
     case 'sequencia': {
       const livro = obterLivro(p.livro);
       if (!livro) {
@@ -457,6 +528,13 @@ function fazerNaLetraAtual(p: Pedido): Resultado {
       if (p.modelo === 'tabuada') {
         const t = Math.min(20, Math.max(1, Math.round(numeroOu(p.numero, 7))));
         return { titulo: `Tabuada do ${t}`, folhas: [{ titulo: `Tabuada do ${t}`, svg: svgTabuadaA4(t, { completar: p.completar }) }], avisos };
+      }
+      if (p.proprias?.trim()) {
+        const { contas, fora } = lerContas(p.proprias);
+        for (const f of fora) avisos.push(`"${f.linha}" ficou de fora: ${f.motivo}.`);
+        if (!contas.length) avisos.push('Nenhuma conta para mostrar. Escreva uma por linha, assim: 345 + 278');
+        else avisos.push('Usando as contas que você escreveu (as outras escolhas não valem enquanto houver contas na caixa).');
+        return { titulo: 'Contas armadas', folhas: svgContasA4(contas, { respostas: p.respostas }), avisos };
       }
       const algarismos = Math.min(4, Math.max(1, Math.round(numeroOu(p.algarismos, 2))));
       const quantas = Math.min(40, Math.max(1, Math.round(numeroOu(p.quantas, 12))));

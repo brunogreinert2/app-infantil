@@ -751,3 +751,95 @@ describe('sequência didática de um livro', () => {
     expect(fazerFolhas({ ...base, livro: 'nao-existe' }).avisos[0]).toContain('Escolha um livro');
   });
 });
+
+describe('contas da professora', () => {
+  it('lê as quatro operações escritas de vários jeitos, e diz o que ficou de fora', async () => {
+    const { lerContas } = await import('./contas');
+    const { contas, fora } = lerContas('345 + 278\n502 - 167\n36 x 4\n12*3\n7 × 8\n84 ÷ 4\n90/9\n56 : 7\n5 - 9\n85 ÷ 4\n7 ÷ 0\nbanana\n\n2 + 2 =');
+    expect(contas.map((c) => `${c.a}${c.op}${c.b}=${c.resultado}`)).toEqual([
+      '345+278=623', '502-167=335', '36x4=144', '12x3=36', '7x8=56', '84/4=21', '90/9=10', '56/7=8', '2+2=4',
+    ]);
+    expect(fora.map((f) => f.linha)).toEqual(['5 - 9', '85 ÷ 4', '7 ÷ 0', 'banana']);
+    expect(fora[1].motivo).toContain('sobra 1');
+  });
+
+  it('a folha usa as contas escritas, misturadas, e cabe no A4', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('contas');
+    if (base.tipo !== 'contas') throw new Error('tipo');
+    const r = fazerFolhas({ ...base, proprias: '345 + 278\n84 ÷ 4\n123456 - 1\n9 x 9' });
+    expect(r.folhas).toHaveLength(2); // a folha e as respostas
+    expect(r.folhas[0].titulo).toBe('Contas');
+    // a resposta vai algarismo por algarismo, uma caixa cada: a folha de respostas tem
+    // os 3 + 2 + 6 + 2 algarismos dos resultados (623, 21, 123455, 81) a mais
+    const algarismos = (svg: string) => (svg.match(/aria-label="\d"/g) ?? []).length;
+    expect(algarismos(r.folhas[1].svg) - algarismos(r.folhas[0].svg)).toBe(13);
+    for (const f of r.folhas) folhaSa(f.svg);
+    expect(fazerFolhas({ ...base, proprias: '   ' }).folhas[0].titulo).toBe('Adição');
+  });
+});
+
+describe('versão do aluno e do professor', () => {
+  it('toda folha de respostas é reconhecida, e só elas', async () => {
+    const { TIPOS, ehDoProfessor, fazerFolhas, folhasPara, pedidoInicial } = await import('./pedido');
+    let doProfessor = 0;
+    for (const t of TIPOS) {
+      const r = fazerFolhas(pedidoInicial(t.tipo, new Date(2026, 10, 18)));
+      for (const f of r.folhas) {
+        // uma folha de respostas nunca tem a linha de "Nome:" do aluno
+        const temNome = f.svg.includes('aria-label="Nome:"');
+        if (ehDoProfessor(f)) {
+          doProfessor++;
+          expect(temNome, f.titulo).toBe(false);
+        }
+      }
+      const aluno = folhasPara(r.folhas, 'aluno');
+      const professor = folhasPara(r.folhas, 'professor');
+      if (r.folhas.some(ehDoProfessor)) expect(aluno.length + professor.length, t.tipo).toBe(r.folhas.length);
+      else expect(professor, t.tipo).toEqual(r.folhas); // sem respostas: igual nas duas
+      expect(aluno.some(ehDoProfessor)).toBe(false);
+    }
+    expect(doProfessor).toBeGreaterThanOrEqual(5);
+  });
+});
+
+describe('capas e ornamentos', () => {
+  it('as três capas, com cada ornamento, cabem na folha e não levam selo nem coleção', async () => {
+    const { svgCapaA4 } = await import('./capas');
+    const { ORNAMENTOS } = await import('./ornamentos');
+    const dados = {
+      alto: 'Escola Exemplo\n3º ano B',
+      titulo: 'Meu caderno de histórias com um título bem comprido para quebrar',
+      subtitulo: 'Subtítulo',
+      nome: 'Theo',
+      rodape: 'Porto Alegre\n2026',
+      itens: 'Autora Um — Primeiro texto\nAutor Dois — Segundo texto',
+    };
+    for (const modelo of ['moldura', 'abnt', 'leituras'] as const) {
+      for (const ornamento of Object.keys(ORNAMENTOS) as Array<keyof typeof ORNAMENTOS>) {
+        const svg = svgCapaA4(modelo, { ...dados, ornamento });
+        folhaSa(svg);
+        expect(svg).not.toMatch(/Pedra Angular|Διαφορεύς|PEDRA ANGULAR/);
+      }
+    }
+    // sem nome, a capa de moldura traz a linha para escrever
+    expect(svgCapaA4('moldura', { titulo: 'X' })).toContain('aria-label="Nome:"');
+    // a ABNT não tem moldura, mesmo se pedirem
+    expect(svgCapaA4('abnt', { titulo: 'X', ornamento: 'meandro' })).not.toContain('scale(5.67)');
+  });
+
+  it('letra espaçada: as palavras continuam separadas', async () => {
+    const { escrever, largura } = await import('./comum');
+    expect(largura('AB', 100, 0.5)).toBeCloseTo(largura('AB', 100) + 50, 5);
+    expect(escrever('Escola Exemplo', 0, 0, 20, 'start', Infinity, 0.3)).toContain('aria-label="Escola Exemplo"');
+  });
+
+  it('pelo formulário', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('capa');
+    if (base.tipo !== 'capa') throw new Error('tipo');
+    expect(fazerFolhas(base).folhas).toHaveLength(1);
+    expect(fazerFolhas({ ...base, modelo: 'abnt' }).avisos[0]).toContain('instituição');
+    expect(fazerFolhas({ ...base, ornamento: 'inexistente' as never }).folhas[0].svg).toContain('<path d="M-2 2.2');
+  });
+});

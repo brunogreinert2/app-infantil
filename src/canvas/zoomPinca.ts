@@ -3,6 +3,10 @@
 // Pinça pede dois dedos e coordenação; por isso TUDO o que ela faz também
 // existe sem ela: `definir()` (botão da lupa, Ctrl+roda, teclas + e −) e
 // `mover()` (botões de seta, teclas de seta).
+// No computador, arrastar o mouse PINTA. Para andar pela arte ampliada sem as
+// setas (pedido do Bruno, 2026-11-18): segurar a barra de espaço e arrastar,
+// arrastar com o botão do meio, a roda do mouse (Shift + roda = para o lado),
+// ou ligar o modo "mover" (botão ✋), que vale também para um dedo no tablet.
 // A "lente" (camadas base+pincel+linhas) recebe transform; a moldura fica
 // fixa e recorta. Os listeners rodam em fase de CAPTURA para interceptar
 // o gesto antes das camadas de pintura — e um clique fantasma logo após a
@@ -16,6 +20,8 @@ export interface ControleZoom {
   /** Anda pela arte ampliada; 1 = uma tela inteira para a direita/baixo. */
   mover(dx: number, dy: number): void;
   aoMudar(cb: () => void): void;
+  /** Liga/desliga o modo "mover": arrastar anda pela arte em vez de pintar. */
+  modoMover(ativo?: boolean): boolean;
 }
 
 export const ZOOM_MAXIMO = 4;
@@ -37,6 +43,14 @@ export function instalarZoomPinca(
   } | null = null;
   let houvePinca = false;
   let avisar: (() => void) | null = null;
+  // arrastar a vista (espaço, botão do meio ou modo mover)
+  let moverLigado = false;
+  let espaco = false;
+  let arrasto: { id: number; x: number; y: number; tx0: number; ty0: number } | null = null;
+  let houveArrasto = false;
+  const cursor = () => {
+    moldura.style.cursor = arrasto ? 'grabbing' : moverLigado || espaco ? 'grab' : '';
+  };
 
   const aplicar = () => {
     // nunca deixar a arte descolar da moldura
@@ -73,17 +87,94 @@ export function instalarZoomPinca(
   };
 
   // Ctrl+roda (e a pinça do touchpad, que o navegador entrega como Ctrl+roda).
-  // Roda sozinha NÃO: ela é da página, para rolar até a paleta.
+  // Roda sozinha: com o desenho em tamanho normal, é da página (rolar até a
+  // paleta); com zoom, anda pela arte (Shift + roda = para o lado).
   moldura.addEventListener(
     'wheel',
     (ev) => {
-      if (!ev.ctrlKey && !ev.metaKey) return;
+      if (ev.ctrlKey || ev.metaKey) {
+        ev.preventDefault();
+        const r = moldura.getBoundingClientRect();
+        definir(escala * (ev.deltaY < 0 ? 1.2 : 1 / 1.2), { x: ev.clientX - r.x, y: ev.clientY - r.y });
+        return;
+      }
+      if (escala <= 1.01) return;
       ev.preventDefault();
-      const r = moldura.getBoundingClientRect();
-      definir(escala * (ev.deltaY < 0 ? 1.2 : 1 / 1.2), { x: ev.clientX - r.x, y: ev.clientY - r.y });
+      const dx = ev.shiftKey ? ev.deltaY : ev.deltaX;
+      const dy = ev.shiftKey ? 0 : ev.deltaY;
+      tx -= dx;
+      ty -= dy;
+      aplicar();
     },
     { passive: false },
   );
+
+  // barra de espaço segurada = mão de arrastar (como nos programas de desenho)
+  const emCampo = (alvo: EventTarget | null) =>
+    alvo instanceof HTMLElement && (/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(alvo.tagName) || alvo.isContentEditable);
+  const aoTeclar = (ev: KeyboardEvent) => {
+    if (!moldura.isConnected) {
+      document.removeEventListener('keydown', aoTeclar, true);
+      document.removeEventListener('keyup', aoTeclar, true);
+      return;
+    }
+    if (ev.key !== ' ' || emCampo(ev.target)) return;
+    const apertado = ev.type === 'keydown';
+    if (apertado && escala <= 1.01) return;
+    ev.preventDefault(); // não rolar a página
+    if (espaco !== apertado) {
+      espaco = apertado;
+      cursor();
+    }
+  };
+  document.addEventListener('keydown', aoTeclar, true);
+  document.addEventListener('keyup', aoTeclar, true);
+  // o botão do meio abre a "rolagem automática" do navegador: aqui não
+  moldura.addEventListener('mousedown', (ev) => {
+    if (ev.button === 1) ev.preventDefault();
+  });
+
+  moldura.addEventListener(
+    'pointerdown',
+    (ev) => {
+      const querArrastar = (ev.pointerType === 'mouse' && (ev.button === 1 || espaco)) || (moverLigado && ev.isPrimary);
+      if (!querArrastar || escala <= 1.01) return;
+      arrasto = { id: ev.pointerId, x: ev.clientX, y: ev.clientY, tx0: tx, ty0: ty };
+      houveArrasto = false;
+      try {
+        moldura.setPointerCapture(ev.pointerId); // seguir o arrasto mesmo fora do desenho
+      } catch {
+        /* ponteiro que o navegador não reconhece: segue sem captura */
+      }
+      cursor();
+      ev.stopPropagation();
+      ev.preventDefault();
+    },
+    { capture: true },
+  );
+  moldura.addEventListener(
+    'pointermove',
+    (ev) => {
+      if (!arrasto || ev.pointerId !== arrasto.id) return;
+      ev.stopPropagation();
+      ev.preventDefault();
+      const dx = ev.clientX - arrasto.x;
+      const dy = ev.clientY - arrasto.y;
+      if (Math.abs(dx) + Math.abs(dy) > 3) houveArrasto = true;
+      tx = arrasto.tx0 + dx;
+      ty = arrasto.ty0 + dy;
+      aplicar();
+    },
+    { capture: true },
+  );
+  const fimDoArrasto = (ev: PointerEvent) => {
+    if (!arrasto || ev.pointerId !== arrasto.id) return;
+    arrasto = null;
+    cursor();
+    ev.stopPropagation();
+  };
+  moldura.addEventListener('pointerup', fimDoArrasto, { capture: true });
+  moldura.addEventListener('pointercancel', fimDoArrasto, { capture: true });
 
   moldura.addEventListener(
     'pointerdown',
@@ -107,6 +198,8 @@ export function instalarZoomPinca(
           py: (cy - ty) / escala,
         };
         houvePinca = true;
+        arrasto = null; // o segundo dedo vira pinça: a mão para de arrastar
+        cursor();
         aoComecarPinca(); // cancela traço de pincel iniciado pelo 1º dedo
         ev.stopPropagation();
       }
@@ -158,10 +251,12 @@ export function instalarZoomPinca(
   moldura.addEventListener(
     'click',
     (ev) => {
-      if (houvePinca) {
+      if (houvePinca || houveArrasto || moverLigado) {
+        // o clique que sobra de uma pinça ou de um arrasto não pinta nada
         ev.stopPropagation();
         ev.preventDefault();
         houvePinca = false;
+        houveArrasto = false;
       }
     },
     { capture: true },
@@ -170,6 +265,8 @@ export function instalarZoomPinca(
   return {
     reiniciar() {
       esquecerGesto();
+      moverLigado = false;
+      cursor();
       escala = 1;
       tx = 0;
       ty = 0;
@@ -189,6 +286,13 @@ export function instalarZoomPinca(
     },
     aoMudar(cb) {
       avisar = cb;
+    },
+    modoMover(ativo) {
+      if (ativo !== undefined) {
+        moverLigado = ativo;
+        cursor();
+      }
+      return moverLigado;
     },
   };
 }

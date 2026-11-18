@@ -1,5 +1,12 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Brainstorm do Bruno decidido (2026-11-18)
+
+Ordem combinada e o que ficou pendente em **`docs/BRAINSTORM_2026-11-18.md`**:
+zoom com mouse → contas com números próprios → versão aluno/professor →
+capas (sem colofão, meandro como opção de ornamento) → código da folha →
+folhas interativas. GoatCounter espera decisão dele.
+
 ## Romanos grandes (2026-11-17, branch `fable/ler-o-mundo-e-caa`)
 
 O Theo aprendeu os romanos em segundos e perguntou como se escreve mais que
