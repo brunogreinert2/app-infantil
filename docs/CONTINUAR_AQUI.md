@@ -5,9 +5,13 @@
 Ordem combinada e o que ficou pendente em **`docs/BRAINSTORM_2026-11-18.md`**:
 zoom com mouse → contas com números próprios → versão aluno/professor →
 capas (sem colofão, meandro como opção de ornamento) → código da folha →
-folhas interativas. GoatCounter em stand-by (decisão dele). Feitos até o código
-da folha e "Fazer no app" (folhas interativas, etapa 1) em 2026-11-18; o próximo é a
-etapa 2, jogo a jogo (ver `docs/GERADORES.md`).
+folhas interativas. GoatCounter em stand-by (decisão dele). Feitos em 2026-11-18:
+tudo até o código da folha (discreto, num cantinho, fora do padrão), o 🎨 Pintar
+(etapa 1, casas e desenhos separados, balde em todas da mesma cor) e a etapa 2
+começada: 🎮 Jogar no caça-palavras e na cruzadinha, com 12 CRUZADINHAS PRONTAS
+(palavras escondidas, «Outra cruzadinha» em ordem). Imprimir colorido = Pintar →
+🖨️ → «Do jeito que eu pintei». Próximos jogos na tela, se o Bruno pedir: sudoku,
+contas, labirinto, memória (ver `docs/GERADORES.md` e o BRAINSTORM, item 6d).
 
 ## Romanos grandes (2026-11-17, branch `fable/ler-o-mundo-e-caa`)
 
