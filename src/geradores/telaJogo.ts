@@ -45,7 +45,7 @@ export async function montarTelaJogo(
   raiz: HTMLElement,
   alvo: JogoNaTela,
   chave: string,
-  nav: { voltar: () => void; /** a próxima cruzadinha pronta (sem voltar ao formulário) */ outra?: () => void },
+  nav: { voltar: () => void; /** o próximo tema pronto (sem voltar ao formulário) */ outra?: () => void },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-jogo';
@@ -59,7 +59,7 @@ export async function montarTelaJogo(
   if (alvo.tipo === 'caca') await montarCaca(corpo, aviso, alvo.jogo, chave);
   else await montarCruzadinha(corpo, aviso, alvo.jogo, chave);
   if (nav.outra) {
-    const outra = botaoDoJogo('➡️ Outra cruzadinha', nav.outra);
+    const outra = botaoDoJogo(alvo.tipo === 'caca' ? '➡️ Outro caça-palavras' : '➡️ Outra cruzadinha', nav.outra);
     outra.classList.add('jogo-outra');
     corpo.appendChild(outra);
   }

@@ -2366,3 +2366,30 @@ button.casa-caa.vazia { cursor: pointer; }
 .jogo-dicas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 12px; width: min(94vw, 760px); }
 .jogo-dicas .jogo-lista { flex-direction: column; align-items: stretch; }
 .jogo-ajudas { justify-content: center; }
+
+/* ---------- a oficina em quatro seções (2026-11-19) ---------- */
+.folhas-secoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: 4px; }
+.folhas-secoes .botao-opcao { min-height: 48px; padding: 6px 8px; white-space: normal; line-height: 1.2; }
+.folhas-secoes .botao-opcao.ativa { border-color: var(--destaque); box-shadow: inset 0 0 0 3px var(--destaque); text-decoration: underline; text-underline-offset: 4px; }
+
+/* ---------- Jogos, a tela da criança (2026-11-19) ---------- */
+.jogos-corpo { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px 16px 40px; }
+.jogos-instrucao { margin: 0; font-size: 1.15rem; font-weight: 700; text-align: center; }
+.jogos-niveis { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.jogos-niveis .botao-opcao.ativa { border-color: var(--destaque); box-shadow: inset 0 0 0 3px var(--destaque); text-decoration: underline; text-underline-offset: 4px; }
+.jogos-temas {
+  list-style: none; margin: 0; padding: 0; width: min(100%, 760px);
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
+}
+.jogos-tema {
+  position: relative; width: 100%; min-height: 104px; padding: 10px 8px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  background: var(--cartao); color: var(--texto); border: 3px solid var(--borda); border-radius: 16px;
+  box-shadow: var(--sombra); font: inherit; font-weight: 700; cursor: pointer;
+}
+.jogos-tema-emoji { font-size: 2.4rem; line-height: 1; }
+.jogos-tema-nome { font-size: 1.05rem; text-align: center; }
+.jogos-tema-feito {
+  position: absolute; top: 6px; right: 8px; font-size: 1.1rem;
+  background: #d8f3dc; color: #000000; border-radius: 999px; padding: 0 7px;
+}

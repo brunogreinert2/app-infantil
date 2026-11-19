@@ -302,3 +302,24 @@ figura do calendário com foto real.
      (ranking e pressão contrariam os princípios 4 e 7 do CLAUDE.md); diploma
      só de participação ("Terminei o livro X"). Mapas mudos e máscaras ficam
      para depois (dados geográficos pesados; arte à mão).
+
+## A oficina em quatro seções e os Jogos da criança (2026-11-19)
+
+A oficina foi LIGADA (`FOLHAS_LIGADAS = true` em `ligado.ts`): a Luiza olha o app
+na semana seguinte e o Bruno quis «acesso total das funcionalidades».
+
+- **Quatro seções** no alto da oficina, no lugar da lista única de 18:
+  🎲 Jogos para imprimir · ✏️ Atividades · 📄 Papéis e modelos · 🧑‍🏫 Planejar.
+  O registro é a própria `TIPOS` (`pedido.ts`): cada tipo tem `secao` e, se
+  aparece também noutra, `tambem` (as sílabas, com bingo e dominó, aparecem em
+  Atividades e em Jogos — o mesmo gerador, dois caminhos). Tipo novo entra
+  em `TIPOS` com a sua seção; o teste barra seção vazia.
+- **Barra lateral da criança:** 🎮 Jogos (pasta com Caça-palavras e Cruzadinha)
+  e 🖨️ Para quem ensina (abre a trava dos adultos e, depois dela, a oficina;
+  desistir volta à estante). Os dois só existem com a oficina ligada.
+- **Tela Jogos** (`telaJogos.ts`; regras puras em `jogosDaCrianca.ts`): sem
+  formulário. Os 12 temas das cruzadinhas prontas servem os DOIS jogos; o
+  caça-palavras tem «Mais fácil / Mais difícil» (quem tem 9+ começa no mais
+  difícil; a escolha fica lembrada). ✓ no tema terminado. Progresso POR PERFIL:
+  `<perfil>:jogo:<caca|cruzadinha>:<tema>[:<nível>]`.
+- Damas e xadrez ficam só na oficina (na tela não são jogáveis).

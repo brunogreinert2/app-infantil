@@ -186,27 +186,51 @@ export type Pedido =
 
 export type TipoDeFolha = Pedido['tipo'];
 
-export const TIPOS: Array<{ tipo: TipoDeFolha; nome: string }> = (<Array<{ tipo: TipoDeFolha; nome: string }>>[
-  { tipo: 'caca', nome: 'Caça-palavras' },
-  { tipo: 'cruzadinha', nome: 'Cruzadinha' },
-  { tipo: 'jogo', nome: 'Jogos de mesa: memória, dominó, bingo, damas, xadrez' },
-  { tipo: 'matematica', nome: 'Relógio e reta numérica' },
-  { tipo: 'rotina', nome: 'Rotina visual: agenda do dia, passo a passo, primeiro → depois' },
-  { tipo: 'silabas', nome: 'Sílabas: famílias, monte a palavra, bingo, dominó' },
-  { tipo: 'logica', nome: 'Labirinto e sudoku' },
-  { tipo: 'contas', nome: 'Contas armadas e tabuada' },
-  { tipo: 'recortar', nome: 'Matemática de recortar: material dourado, frações, tangram' },
-  { tipo: 'motora', nome: 'Coordenação: tesoura e caminhos' },
-  { tipo: 'cartoes', nome: 'Quadrinhos, crachás, marcadores, etiquetas' },
-  { tipo: 'pauta', nome: 'Folha pautada' },
-  { tipo: 'grade', nome: 'Quadriculado, milimetrado, pontilhado' },
-  { tipo: 'reguas', nome: 'Réguas de recortar' },
-  { tipo: 'plano', nome: 'Plano cartesiano e parábola' },
-  { tipo: 'calendario', nome: 'Calendário' },
-  { tipo: 'capa', nome: 'Capas: caderno, trabalho escolar (ABNT), lista de leituras' },
-  { tipo: 'sequencia', nome: 'Sequência didática de um livro da estante' },
+// AS SEÇÕES DA OFICINA (Bruno, 2026-11-19): a lista única de 18 virou quatro
+// gavetas, para quem ensina não procurar o caça-palavras no meio das pautas.
+// Um tipo mora numa seção e pode aparecer também em outra (`tambem`) — o mesmo
+// gerador por dois caminhos, sem repetir código.
+export type SecaoDaOficina = 'jogos' | 'atividades' | 'papeis' | 'planejar';
+
+export const SECOES: Array<{ id: SecaoDaOficina; nome: string; emoji: string }> = [
+  { id: 'jogos', nome: 'Jogos para imprimir', emoji: '🎲' },
+  { id: 'atividades', nome: 'Atividades', emoji: '✏️' },
+  { id: 'papeis', nome: 'Papéis e modelos', emoji: '📄' },
+  { id: 'planejar', nome: 'Planejar', emoji: '🧑‍🏫' },
+];
+
+export interface TipoNaOficina {
+  tipo: TipoDeFolha;
+  nome: string;
+  secao: SecaoDaOficina;
+  tambem?: SecaoDaOficina[];
+}
+
+export const TIPOS: TipoNaOficina[] = (<TipoNaOficina[]>[
+  { tipo: 'caca', nome: 'Caça-palavras', secao: 'jogos' },
+  { tipo: 'cruzadinha', nome: 'Cruzadinha', secao: 'jogos' },
+  { tipo: 'jogo', nome: 'Jogos de mesa: memória, dominó, bingo, damas, xadrez', secao: 'jogos' },
+  { tipo: 'logica', nome: 'Labirinto e sudoku', secao: 'jogos' },
+  { tipo: 'silabas', nome: 'Sílabas: famílias, monte a palavra, bingo, dominó', secao: 'atividades', tambem: ['jogos'] },
+  { tipo: 'contas', nome: 'Contas armadas e tabuada', secao: 'atividades' },
+  { tipo: 'matematica', nome: 'Relógio e reta numérica', secao: 'atividades' },
+  { tipo: 'recortar', nome: 'Matemática de recortar: material dourado, frações, tangram', secao: 'atividades' },
+  { tipo: 'motora', nome: 'Coordenação: tesoura e caminhos', secao: 'atividades' },
+  { tipo: 'pauta', nome: 'Folha pautada', secao: 'papeis' },
+  { tipo: 'grade', nome: 'Quadriculado, milimetrado, pontilhado', secao: 'papeis' },
+  { tipo: 'reguas', nome: 'Réguas de recortar', secao: 'papeis' },
+  { tipo: 'plano', nome: 'Plano cartesiano e parábola', secao: 'papeis' },
+  { tipo: 'calendario', nome: 'Calendário', secao: 'papeis' },
+  { tipo: 'capa', nome: 'Capas: caderno, trabalho escolar (ABNT), lista de leituras', secao: 'papeis' },
+  { tipo: 'cartoes', nome: 'Quadrinhos, crachás, marcadores, etiquetas', secao: 'papeis' },
+  { tipo: 'sequencia', nome: 'Sequência didática de um livro da estante', secao: 'planejar' },
+  { tipo: 'rotina', nome: 'Rotina visual: agenda do dia, passo a passo, primeiro → depois', secao: 'planejar' },
   // em ordem alfabética na tela (pedido do Bruno, 2026-11-18)
 ]).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+
+/** Os tipos de uma seção (os que moram nela e os que aparecem também nela), em ordem alfabética. */
+export const tiposDaSecao = (secao: SecaoDaOficina): TipoNaOficina[] =>
+  TIPOS.filter((t) => t.secao === secao || t.tambem?.includes(secao));
 
 export const NOMES_DAS_PAUTAS: Record<ModeloPauta, string> = {
   comum: 'Comum (8 mm)',

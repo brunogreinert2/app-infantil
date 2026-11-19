@@ -28,6 +28,7 @@ import {
   atualizarTextosDoPainel,
   localDoTexto,
   LOCAL_PINTURAS,
+  localDoJogo,
   configurarPainel,
   marcarLocal,
   prepararPainel,
@@ -92,6 +93,23 @@ async function irFolhas(voltar: () => void = abrirAjustes): Promise<void> {
   window.scrollTo(0, 0);
   const { montarTelaFolhas } = await import('./geradores/telaFolhas');
   await montarTelaFolhas(raiz, { voltar });
+}
+
+// 🎮 Jogos da criança (barra lateral): escolhe o tema e joga. Vem com a oficina.
+async function irJogos(tipo: 'caca' | 'cruzadinha'): Promise<void> {
+  pararFala();
+  window.scrollTo(0, 0);
+  carregarPreferencias(); // pode ter vindo de um livro tematizado, pelo menu
+  marcarLocal(localDoJogo(tipo));
+  const { montarTelaJogos } = await import('./geradores/telaJogos');
+  await montarTelaJogos(raiz, tipo, { perfis: irPerfis, estante: irEstante });
+}
+
+// 🖨️ Para quem ensina (barra lateral): a trava sempre; desistir volta à estante
+function irEnsinar(): void {
+  pararFala();
+  removerPainel();
+  montarTravaParental(raiz, () => void irFolhas(irEstante), irEstante);
 }
 
 // já dentro da área dos adultos (a trava ficou para trás): ajustes ⇄ guia
@@ -278,6 +296,8 @@ configurarPainel({
   pasta: irEstante,
   pinturas: irPinturas,
   perfis: irPerfis,
+  jogos: FOLHAS_LIGADAS ? (tipo) => void irJogos(tipo) : undefined,
+  ensinar: FOLHAS_LIGADAS ? irEnsinar : undefined,
 });
 
 if (location.hash === '#prancha') void irPrancha();

@@ -6,12 +6,17 @@
 //
 // Vocabulário do dia a dia de 6 a 9 anos, dicas curtas e concretas. Conteúdo
 // nosso. Cada tema foi conferido por teste: todas as palavras cabem na grade.
+//
+// Desde 2026-11-19 os mesmos temas servem também o CAÇA-PALAVRAS da tela
+// Jogos (a da criança, na barra lateral): uma lista, dois jogos.
 
 import type { ItemCruzadinha } from './cruzadinha';
 
 export interface CruzadinhaPronta {
   id: string;
   tema: string;
+  /** o botão do tema na tela Jogos */
+  emoji: string;
   itens: ItemCruzadinha[];
 }
 
@@ -21,6 +26,7 @@ const i = (palavra: string, dica: string): ItemCruzadinha => ({ palavra, dica })
 export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   {
     id: 'bichos',
+    emoji: '🐶',
     tema: 'Bichos',
     itens: [
       i('GATO', 'Mia e gosta de leite.'),
@@ -35,6 +41,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'frutas',
+    emoji: '🍎',
     tema: 'Frutas',
     itens: [
       i('BANANA', 'Amarela, o macaco adora.'),
@@ -49,6 +56,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'corpo',
+    emoji: '🖐️',
     tema: 'O corpo',
     itens: [
       i('MÃO', 'Tem cinco dedos.'),
@@ -63,6 +71,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'casa',
+    emoji: '🏠',
     tema: 'A casa',
     itens: [
       i('CAMA', 'Onde a gente dorme.'),
@@ -77,6 +86,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'escola',
+    emoji: '🏫',
     tema: 'A escola',
     itens: [
       i('CADERNO', 'Onde a gente escreve na aula.'),
@@ -91,6 +101,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'transporte',
+    emoji: '🚌',
     tema: 'Transporte',
     itens: [
       i('ÔNIBUS', 'Leva muita gente pela cidade.'),
@@ -105,6 +116,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'natureza',
+    emoji: '🌳',
     tema: 'Natureza',
     itens: [
       i('SOL', 'Brilha e esquenta de dia.'),
@@ -119,6 +131,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'cores',
+    emoji: '🎨',
     tema: 'Cores',
     itens: [
       i('AZUL', 'A cor do céu sem nuvens.'),
@@ -133,6 +146,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'profissoes',
+    emoji: '🧑‍🚒',
     tema: 'Profissões',
     itens: [
       i('MÉDICO', 'Cuida de quem está doente.'),
@@ -147,6 +161,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'comidas',
+    emoji: '🍲',
     tema: 'Comidas',
     itens: [
       i('ARROZ', 'Branquinho, vai com o feijão.'),
@@ -161,6 +176,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'brinquedos',
+    emoji: '🪁',
     tema: 'Brinquedos',
     itens: [
       i('BOLA', 'Redonda, a gente chuta.'),
@@ -175,6 +191,7 @@ export const CRUZADINHAS_PRONTAS: CruzadinhaPronta[] = [
   },
   {
     id: 'sentimentos',
+    emoji: '😊',
     tema: 'Sentimentos',
     itens: [
       i('FELIZ', 'Com um sorriso no rosto.'),

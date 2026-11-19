@@ -3,7 +3,7 @@
 // Escolhe o tipo, preenche, vê a prévia ao lado e imprime (no computador, a
 // janela de impressão guarda em PDF). Tudo acontece no aparelho, sem rede.
 //
-// Desligada por enquanto: ver FOLHAS_LIGADAS em pedido.ts.
+// Ligada desde 2026-11-19 (FOLHAS_LIGADAS em ligado.ts), em quatro seções.
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { corpoCadernoA4, cssCadernoA4, imprimirDocumento } from '../impressao/motorImpressao';
@@ -30,6 +30,9 @@ import {
   NOMES_DOS_JOGOS,
   NOMES_DAS_PAUTAS,
   TIPOS,
+  SECOES,
+  tiposDaSecao,
+  type SecaoDaOficina,
   fazerFolhas,
   lerPalavras,
   pedidoInicial,
@@ -59,6 +62,8 @@ const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julh
 
 interface Guardado {
   tipo: TipoDeFolha;
+  /** a seção da oficina aberta por último */
+  secao?: SecaoDaOficina;
   letra?: Letra;
   paraQuem?: ParaQuem;
   /** imprimir o código no pé da folha do professor (desligado por padrão) */
@@ -180,6 +185,11 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   let resultado: Resultado | undefined;
   let codigoAtual = '';
   let imprimirCodigo = guardado.imprimirCodigo === true;
+  // a seção: a guardada, se o tipo guardado aparece nela; senão, a casa do tipo
+  let secao: SecaoDaOficina =
+    guardado.secao && tiposDaSecao(guardado.secao).some((t) => t.tipo === tipo)
+      ? guardado.secao
+      : (TIPOS.find((t) => t.tipo === tipo)?.secao ?? 'jogos');
 
   raiz.innerHTML = '';
   raiz.className = 'tela tela-folhas';
@@ -271,7 +281,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
         }
         imprimir.disabled = !folhasPara(resultado.folhas, paraQuem).length;
         // a figura do calendário pode ser grande demais para guardar: sem ela
-        const paraGuardar: Guardado = { tipo, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } };
+        const paraGuardar: Guardado = { tipo, secao, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } };
         const cal = paraGuardar.pedidos.calendario;
         if (cal?.tipo === 'calendario' && cal.imagem) paraGuardar.pedidos.calendario = { ...cal, imagem: undefined };
         void armazenamento.definir(CHAVE, paraGuardar);
@@ -292,7 +302,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
             const prox = proximaPronta(p.pronta);
             const novo = { ...p, pronta: prox.id, titulo: prox.tema, itens: textoDaPronta(prox) };
             pedidos.cruzadinha = novo;
-            void armazenamento.definir(CHAVE, { tipo, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } });
+            void armazenamento.definir(CHAVE, { tipo, secao, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } });
             abrirJogo(novo, svgDaFolha + prox.id);
           }
         : undefined;
@@ -824,12 +834,42 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     }
   };
 
-  const seletorTipo = lista(TIPOS.map((t) => ({ valor: t.tipo, nome: t.nome })), tipo, (v) => {
-    tipo = v;
-    desenharCampos();
-    atualizar(true);
-  });
-  formulario.appendChild(rotulado('O que você quer fazer?', seletorTipo));
+  // as quatro seções no alto; a lista de baixo mostra só o que é da seção
+  const abas = el('div', 'folhas-secoes');
+  abas.setAttribute('role', 'group');
+  abas.setAttribute('aria-label', 'Seções da oficina');
+  const lugarDoSeletor = el('div');
+  const desenharSeletor = (): void => {
+    for (const b of abas.querySelectorAll<HTMLButtonElement>('button')) {
+      const ativa = b.dataset.secao === secao;
+      b.setAttribute('aria-pressed', String(ativa));
+      b.classList.toggle('ativa', ativa);
+    }
+    lugarDoSeletor.innerHTML = '';
+    const seletorTipo = lista(tiposDaSecao(secao).map((t) => ({ valor: t.tipo, nome: t.nome })), tipo, (v) => {
+      tipo = v;
+      desenharCampos();
+      atualizar(true);
+    });
+    lugarDoSeletor.appendChild(rotulado('O que você quer fazer?', seletorTipo));
+  };
+  for (const s of SECOES) {
+    const b = botao(`${s.emoji} ${s.nome}`, () => {
+      secao = s.id;
+      const daqui = tiposDaSecao(secao);
+      if (!daqui.some((t) => t.tipo === tipo)) {
+        tipo = daqui[0].tipo;
+        desenharCampos();
+      }
+      desenharSeletor();
+      atualizar(true);
+    });
+    b.dataset.secao = s.id;
+    abas.appendChild(b);
+  }
+  desenharSeletor();
+  formulario.appendChild(abas);
+  formulario.appendChild(lugarDoSeletor);
   formulario.appendChild(campos);
   const seletorLetra = lista(opcoes(NOMES_DAS_LETRAS), letra, (v) => ((letra = v), atualizar(true)));
   formulario.appendChild(rotulado('Letra das folhas', seletorLetra));
@@ -890,7 +930,9 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     tipo = d.pedido.tipo;
     pedidos[tipo] = d.pedido;
     letra = d.letra;
-    seletorTipo.value = tipo;
+    // o código pode ser de outra seção: a oficina vai até ela
+    if (!tiposDaSecao(secao).some((t) => t.tipo === tipo)) secao = TIPOS.find((t) => t.tipo === tipo)?.secao ?? secao;
+    desenharSeletor();
     seletorLetra.value = letra;
     entradaCodigo.value = '';
     desenharCampos();

@@ -1,5 +1,16 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## Oficina LIGADA e organizada (2026-11-19)
+
+`FOLHAS_LIGADAS = true`. A oficina tem quatro seções (Jogos para imprimir,
+Atividades, Papéis e modelos, Planejar); a barra lateral da criança ganhou
+🎮 Jogos (caça-palavras e cruzadinha com os 12 temas, progresso por perfil) e
+🖨️ Para quem ensina (pede a trava). Detalhes em `docs/GERADORES.md`, no fim.
+Por quê agora: a Luiza olha o app na semana de 2026-11-23, e o Bruno apresenta
+o app na disciplina «Intervenção» em 2026-12-01 ou 2026-12-08 (trabalho
+digital, confirmado com a professora). Ainda NÃO publicado: está na branch
+`fable/ler-o-mundo-e-caa`.
+
 ## Brainstorm do Bruno decidido (2026-11-18)
 
 Ordem combinada e o que ficou pendente em **`docs/BRAINSTORM_2026-11-18.md`**:

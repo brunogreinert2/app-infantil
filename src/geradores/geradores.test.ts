@@ -278,9 +278,9 @@ describe('do formulário à folha', () => {
     expect(ano.folhas).toHaveLength(1);
   });
 
-  it('a tela nasce desligada', async () => {
+  it('a oficina está ligada (desde 2026-11-19)', async () => {
     const { FOLHAS_LIGADAS } = await import('./ligado');
-    expect(FOLHAS_LIGADAS).toBe(false);
+    expect(FOLHAS_LIGADAS).toBe(true);
   });
 });
 
@@ -1204,5 +1204,59 @@ describe('pedido de partida congelado', () => {
     const { TIPOS_NO_CODIGO, DATA_DE_REFERENCIA } = await import('./codigo');
     const { semear } = await import('./comum');
     expect(semear(JSON.stringify(TIPOS_NO_CODIGO.map((t) => pedidoInicial(t, DATA_DE_REFERENCIA))))).toBe(1418603485);
+  });
+});
+
+describe('a oficina em seções e os Jogos da criança (2026-11-19)', () => {
+  it('cada tipo mora numa seção, e nenhuma seção fica vazia', async () => {
+    const { TIPOS, SECOES, TIPOS_DE_FOLHA_TODOS, tiposDaSecao } = await import('./pedido').then((m) => ({
+      ...m,
+      TIPOS_DE_FOLHA_TODOS: m.TIPOS.map((t) => t.tipo),
+    }));
+    expect(new Set(TIPOS_DE_FOLHA_TODOS).size).toBe(TIPOS.length);
+    for (const t of TIPOS) expect(SECOES.map((s) => s.id)).toContain(t.secao);
+    for (const s of SECOES) expect(tiposDaSecao(s.id).length).toBeGreaterThan(0);
+    // as sílabas (bingo e dominó) aparecem também nos jogos
+    expect(tiposDaSecao('jogos').map((t) => t.tipo)).toContain('silabas');
+    expect(tiposDaSecao('atividades').map((t) => t.tipo)).toContain('silabas');
+  });
+
+  it('todo tema pronto vira caça-palavras com as 8 palavras, nos dois níveis', async () => {
+    const { CRUZADINHAS_PRONTAS } = await import('./cruzadinhasProntas');
+    const { jogoDoTema } = await import('./jogosDaCrianca');
+    for (const pronta of CRUZADINHAS_PRONTAS) {
+      expect(pronta.emoji).toBeTruthy();
+      for (const nivel of ['facil', 'medio'] as const) {
+        const alvo = jogoDoTema('caca', pronta, nivel);
+        expect(alvo.tipo).toBe('caca');
+        if (alvo.tipo !== 'caca') continue;
+        expect(alvo.jogo.fora, `${pronta.id} ${nivel}`).toEqual([]);
+        expect(alvo.jogo.achados).toHaveLength(8);
+        // a mesma grade, sempre
+        expect(JSON.stringify(jogoDoTema('caca', pronta, nivel))).toBe(JSON.stringify(alvo));
+      }
+      const cruz = jogoDoTema('cruzadinha', pronta);
+      expect(cruz.tipo === 'cruzadinha' && cruz.jogo.entradas.length).toBe(8);
+    }
+  });
+
+  it('o progresso é de cada criança, e o ✓ só vem com o tema inteiro', async () => {
+    const { CRUZADINHAS_PRONTAS } = await import('./cruzadinhasProntas');
+    const { chaveDoJogo, jogoDoTema, terminado } = await import('./jogosDaCrianca');
+    expect(chaveDoJogo('theo', 'cruzadinha', 'bichos', 'facil')).not.toBe(chaveDoJogo('davi', 'cruzadinha', 'bichos', 'facil'));
+    expect(chaveDoJogo('theo', 'caca', 'bichos', 'facil')).not.toBe(chaveDoJogo('theo', 'caca', 'bichos', 'medio'));
+    const caca = jogoDoTema('caca', CRUZADINHAS_PRONTAS[0], 'facil');
+    if (caca.tipo !== 'caca') throw new Error('caça');
+    const todas = caca.jogo.achados.map((a) => a.letras);
+    expect(terminado(caca, { achadas: todas.slice(1) })).toBe(false);
+    expect(terminado(caca, { achadas: todas })).toBe(true);
+    expect(terminado(caca, undefined)).toBe(false);
+    const cruz = jogoDoTema('cruzadinha', CRUZADINHAS_PRONTAS[0]);
+    if (cruz.tipo !== 'cruzadinha') throw new Error('cruz');
+    const letras: Record<string, string> = {};
+    for (const e of cruz.jogo.entradas)
+      [...e.letras].forEach((l, k) => (letras[e.direcao === 'horizontal' ? `${e.linha},${e.coluna + k}` : `${e.linha + k},${e.coluna}`] = l));
+    expect(terminado(cruz, { letras })).toBe(true);
+    expect(terminado(cruz, { letras: {} })).toBe(false);
   });
 });

@@ -39,6 +39,10 @@ export interface NavPainel {
   pasta?: (id: string) => void;
   pinturas: () => void;
   perfis: () => void;
+  /** 🎮 Jogos (só com a oficina ligada): abre a tela do jogo escolhido */
+  jogos?: (tipo: 'caca' | 'cruzadinha') => void;
+  /** 🖨️ Para quem ensina: a trava dos adultos e, depois dela, a oficina */
+  ensinar?: () => void;
 }
 
 /** id do item "Minhas anotações" (não é pasta: é um lugar) */
@@ -47,6 +51,14 @@ export const LOCAL_ANOTACOES = 'anotacoes';
 export const LOCAL_PINTURAS = 'pinturas';
 /** a PASTA "Minhas anotações" no menu (o item de dentro, LOCAL_ANOTACOES, abre a tela) */
 const PASTA_ANOTACOES = 'pasta-anotacoes';
+/** a PASTA "Jogos" no menu */
+const PASTA_JOGOS = 'pasta-jogos';
+/** onde a criança está quando escolhe o tema de um jogo */
+export const localDoJogo = (tipo: string) => `jogos:${tipo}`;
+const JOGOS_NO_MENU: Array<{ tipo: 'caca' | 'cruzadinha'; rotulo: string; emoji: string }> = [
+  { tipo: 'caca', rotulo: 'Caça-palavras', emoji: '🔎' },
+  { tipo: 'cruzadinha', rotulo: 'Cruzadinha', emoji: '✏️' },
+];
 /** onde a criança está quando lê/edita um texto próprio */
 export const localDoTexto = (id: string) => `texto:${id}`;
 
@@ -81,6 +93,7 @@ export function painelConfigurado(): boolean {
 // as pastas que levam até um lugar (livro ou pasta), de fora para dentro
 function caminhoAte(id: string): string[] {
   if (id.startsWith('texto:') || id === LOCAL_ANOTACOES) return [PASTA_ANOTACOES];
+  if (id.startsWith('jogos:')) return [PASTA_JOGOS];
   const descer = (pastas: Pasta[], trilha: string[]): string[] | null => {
     for (const p of pastas) {
       const aqui = [...trilha, p.id];
@@ -251,6 +264,27 @@ function ramo(pasta: Pasta, nivel: number): HTMLLIElement {
   return li;
 }
 
+// "Jogos" é pasta: abre ali mesmo, com cada jogo dentro (2026-11-19)
+function ramoDosJogos(abrirJogo: (tipo: 'caca' | 'cruzadinha') => void): HTMLLIElement {
+  const aberta = abertas.has(PASTA_JOGOS);
+  const { li, botao } = item('Jogos', '🎮', PASTA_JOGOS, 1, () => alternarPasta(PASTA_JOGOS));
+  botao.classList.add('item-pasta');
+  botao.dataset.pasta = PASTA_JOGOS;
+  botao.setAttribute('aria-expanded', String(aberta));
+  const seta = el('span', 'seta-painel', aberta ? '▾' : '▸');
+  seta.setAttribute('aria-hidden', 'true');
+  botao.appendChild(seta);
+  if (aberta) {
+    const ul = el('ul');
+    ul.setAttribute('role', 'group');
+    for (const j of JOGOS_NO_MENU) {
+      ul.appendChild(item(j.rotulo, j.emoji, localDoJogo(j.tipo), 2, () => ir(() => abrirJogo(j.tipo))).li);
+    }
+    li.appendChild(ul);
+  }
+  return li;
+}
+
 // "Minhas anotações" é pasta: abre ali mesmo, com cada texto dentro
 function ramoDasAnotacoes(): HTMLLIElement {
   const aberta = abertas.has(PASTA_ANOTACOES);
@@ -379,10 +413,14 @@ function desenhar(comoGaveta: boolean): void {
   arvore.setAttribute('role', 'tree');
   arvore.setAttribute('aria-label', 'Estante');
   for (const pasta of PASTAS) arvore.appendChild(ramo(pasta, 1));
+  if (nav?.jogos) arvore.appendChild(ramoDosJogos(nav.jogos));
   arvore.appendChild(
     item('Minhas pinturas', '🖼️', LOCAL_PINTURAS, 1, () => ir(() => nav?.pinturas())).li,
   );
   arvore.appendChild(ramoDasAnotacoes());
+  // a oficina de quem ensina: o item fica à vista, mas abre a trava dos adultos
+  const ensinar = nav?.ensinar;
+  if (ensinar) arvore.appendChild(item('Para quem ensina', '🖨️', 'ensinar', 1, () => ir(ensinar)).li);
 
   // --- pesquisa: com algo escrito, a árvore dá lugar à lista do que achou ---
   const busca = el('input', 'campo-busca busca-painel') as HTMLInputElement;

@@ -12,4 +12,9 @@
  *
  * Fica num arquivo só seu para o main.ts ler a chave sem carregar os geradores.
  */
-export const FOLHAS_LIGADAS: boolean = false;
+//
+// LIGADO em 2026-11-19 (Bruno: «já gostaria que ela tivesse acesso total das
+// funcionalidades» — a Luiza olha o app na semana seguinte). Com ele ligado
+// aparecem também, na barra lateral da criança, 🎮 Jogos e 🖨️ Para quem
+// ensina (este pede a trava dos adultos).
+export const FOLHAS_LIGADAS: boolean = true;
