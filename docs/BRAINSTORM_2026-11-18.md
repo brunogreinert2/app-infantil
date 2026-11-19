@@ -27,7 +27,9 @@ especialistas em impressões, A4, tudo relacionado a isso".
   `comum.ts`), escolha por parte da capa com os padrões da Oficina; dica das
   leituras neutra ("antes do travessão sai maior, em cima"). GoatCounter: em
   stand-by, por decisão do Bruno.
-- [ ] 5. Código da folha.
+- [x] 5. Código da folha — `src/geradores/codigo.ts`. Ver "O código da folha"
+  em `GERADORES.md`. QR Code ainda não (o código mais longo, de uma lista de
+  palavras, passa de 100 caracteres: é o caso que pede QR).
 - [ ] 6. Folhas interativas (etapa 1, depois etapa 2).
 
 ## Decidido — fazer, nesta ordem (do mais fácil ao maior)

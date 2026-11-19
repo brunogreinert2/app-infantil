@@ -42,6 +42,7 @@ import {
   type ParaQuem,
 } from './pedido';
 import { NOMES_DAS_LETRAS, NOMES_DOS_ESTILOS, type Letra } from './comum';
+import { codificar, decodificar, folhasComCodigo } from './codigo';
 import type { ParteDaCapa } from './capas';
 import { MOLDURA_DA_FIGURA, encaixeDaFigura, zoomFiguraInteira } from './papeis';
 
@@ -168,6 +169,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   let letra: Letra = guardado.letra && guardado.letra in NOMES_DAS_LETRAS ? guardado.letra : 'atkinson';
   let paraQuem: ParaQuem = guardado.paraQuem && guardado.paraQuem in NOMES_PARA_QUEM ? guardado.paraQuem : 'duas';
   let resultado: Resultado | undefined;
+  let codigoAtual = '';
 
   raiz.innerHTML = '';
   raiz.className = 'tela tela-folhas';
@@ -204,6 +206,12 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
         } catch (erro) {
           resultado = { titulo: 'Folha', folhas: [], avisos: [`Não deu para fazer esta folha: ${String((erro as Error).message ?? erro)}`] };
         }
+        // o código da folha: mostrado aqui e impresso na folha do professor
+        const r = resultado.folhas.length ? codificar(pedido(), letra) : { erro: '' };
+        codigoAtual = 'codigo' in r ? r.codigo : '';
+        textoDoCodigo.textContent = codigoAtual || ('erro' in r ? r.erro : '');
+        copiar.hidden = !codigoAtual;
+        if (codigoAtual) resultado = { ...resultado, folhas: folhasComCodigo(resultado.folhas, codigoAtual) };
         avisos.innerHTML = '';
         for (const a of resultado.avisos) avisos.appendChild(el('li', undefined, a));
         previa.innerHTML = '';
@@ -717,20 +725,15 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     }
   };
 
-  formulario.appendChild(
-    rotulado(
-      'O que você quer fazer?',
-      lista(TIPOS.map((t) => ({ valor: t.tipo, nome: t.nome })), tipo, (v) => {
-        tipo = v;
-        desenharCampos();
-        atualizar(true);
-      }),
-    ),
-  );
+  const seletorTipo = lista(TIPOS.map((t) => ({ valor: t.tipo, nome: t.nome })), tipo, (v) => {
+    tipo = v;
+    desenharCampos();
+    atualizar(true);
+  });
+  formulario.appendChild(rotulado('O que você quer fazer?', seletorTipo));
   formulario.appendChild(campos);
-  formulario.appendChild(
-    rotulado('Letra das folhas', lista(opcoes(NOMES_DAS_LETRAS), letra, (v) => ((letra = v), atualizar(true)))),
-  );
+  const seletorLetra = lista(opcoes(NOMES_DAS_LETRAS), letra, (v) => ((letra = v), atualizar(true)));
+  formulario.appendChild(rotulado('Letra das folhas', seletorLetra));
   formulario.appendChild(
     rotulado(
       'Imprimir',
@@ -753,6 +756,52 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   formulario.appendChild(
     el('p', 'folhas-dica', 'No computador, a janela de impressão tem "Salvar como PDF". Deixe a escala em 100% para as medidas saírem certas.'),
   );
+
+  // --- o código da folha: guardar esta folha numa linha, e montar uma folha por ele ---
+  const caixaCodigo = el('section', 'folhas-codigo');
+  caixaCodigo.setAttribute('aria-label', 'Código da folha');
+  caixaCodigo.appendChild(el('h2', 'caa-campo-nome', 'Código desta folha'));
+  const linhaCodigo = el('div', 'folhas-botoes');
+  const textoDoCodigo = el('code', 'folhas-codigo-texto');
+  const copiar = botao('Copiar', () => {
+    void navigator.clipboard?.writeText(codigoAtual).then(
+      () => (copiar.textContent = 'Copiado'),
+      () => (copiar.textContent = 'Não deu para copiar'),
+    );
+    window.setTimeout(() => (copiar.textContent = 'Copiar'), 1800);
+  });
+  linhaCodigo.append(textoDoCodigo, copiar);
+  caixaCodigo.appendChild(linhaCodigo);
+  caixaCodigo.appendChild(
+    el('p', 'folhas-dica', 'Ele vai impresso no pé da folha do professor. Digitado aqui, monta a mesma folha de novo, com as respostas.'),
+  );
+  const entradaCodigo = campoTexto('', () => undefined, 400);
+  entradaCodigo.placeholder = 'H1-…';
+  entradaCodigo.autocapitalize = 'characters';
+  entradaCodigo.spellcheck = false;
+  const montar = botao('Montar a folha', () => {
+    const d = decodificar(entradaCodigo.value);
+    if ('erro' in d) {
+      avisos.innerHTML = '';
+      avisos.appendChild(el('li', undefined, d.erro));
+      return;
+    }
+    tipo = d.pedido.tipo;
+    pedidos[tipo] = d.pedido;
+    letra = d.letra;
+    seletorTipo.value = tipo;
+    seletorLetra.value = letra;
+    entradaCodigo.value = '';
+    desenharCampos();
+    atualizar(true);
+    for (const a of d.avisos) window.setTimeout(() => avisos.appendChild(el('li', undefined, a)), 50);
+  });
+  entradaCodigo.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') montar.click();
+  });
+  caixaCodigo.appendChild(rotulado('Montar uma folha pelo código', entradaCodigo));
+  caixaCodigo.appendChild(montar);
+  formulario.appendChild(caixaCodigo);
 
   corpo.append(formulario, previa);
 

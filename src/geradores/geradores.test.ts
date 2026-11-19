@@ -890,3 +890,101 @@ describe('meandro e estilos (2026-11-18)', () => {
     expect(normal).not.toContain(primeiraLetra(italico)!);
   });
 });
+
+describe('código da folha', () => {
+  it('todo tipo de folha vai e volta pelo código, sem mudar nada', async () => {
+    const { TIPOS, fazerFolhas, pedidoInicial } = await import('./pedido');
+    const { codificar, decodificar, CAMPOS_NO_CODIGO, TIPOS_NO_CODIGO } = await import('./codigo');
+    expect([...TIPOS_NO_CODIGO].sort()).toEqual(TIPOS.map((t) => t.tipo).sort());
+    for (const t of TIPOS) {
+      const p = pedidoInicial(t.tipo, new Date(2027, 4, 9)); // outra data: o mês e o ano entram no código
+      for (const k of Object.keys(p)) if (k !== 'tipo') expect(CAMPOS_NO_CODIGO, `${t.tipo}.${k}`).toContain(k);
+      for (const letra of ['atkinson', 'cardo'] as const) {
+        const r = codificar(p, letra);
+        if ('erro' in r) throw new Error(`${t.tipo}: ${r.erro}`);
+        expect(r.codigo).toMatch(/^H1(-[0-9A-HJKMNP-TV-Z]{1,4})+$/);
+        const d = decodificar(r.codigo);
+        if ('erro' in d) throw new Error(`${t.tipo}: ${d.erro}`);
+        expect(d.pedido, t.tipo).toEqual(p);
+        expect(d.letra).toBe(letra);
+        expect(fazerFolhas(d.pedido, d.letra).folhas).toEqual(fazerFolhas(p, letra).folhas);
+      }
+    }
+  });
+
+  it('lê como se digita, e pega erro de digitação', async () => {
+    const { codificar, decodificar } = await import('./codigo');
+    const { pedidoInicial } = await import('./pedido');
+    const p = { ...pedidoInicial('contas', new Date(2026, 0, 1)), semente: 3 };
+    const r = codificar(p);
+    if ('erro' in r) throw new Error(r.erro);
+    // minúscula, sem traço, com espaço, e O/I/L no lugar de 0/1
+    const solto = r.codigo.toLowerCase().replace(/-/g, ' ').replace(/0/g, 'o').replace(/1/g, 'l');
+    expect(decodificar(solto)).toMatchObject({ pedido: p });
+    // um caractere trocado não passa
+    const k = r.codigo.length - 4;
+    const trocado = r.codigo.slice(0, k) + (r.codigo[k] === 'A' ? 'B' : 'A') + r.codigo.slice(k + 1);
+    expect(decodificar(trocado)).toMatchObject({ erro: expect.stringContaining('não confere') });
+    expect(decodificar('')).toMatchObject({ erro: expect.stringContaining('Digite') });
+    expect(decodificar('banana')).toMatchObject({ erro: expect.stringContaining('H1') });
+    expect(decodificar('H2-AAAA')).toMatchObject({ erro: expect.stringContaining('outra versão') });
+  });
+
+  it('não há código com nome de aluno, nem com a figura do calendário dentro', async () => {
+    const { codificar, decodificar } = await import('./codigo');
+    const { pedidoInicial } = await import('./pedido');
+    const cartoes = pedidoInicial('cartoes');
+    if (cartoes.tipo !== 'cartoes') throw new Error('tipo');
+    expect(codificar({ ...cartoes, modelo: 'crachas', nomes: 'Theo\nDavi' })).toMatchObject({ erro: expect.stringContaining('nomes') });
+    expect(codificar({ ...cartoes, modelo: 'crachas', nomes: '' })).toHaveProperty('codigo');
+    const cal = pedidoInicial('calendario', new Date(2026, 0, 1));
+    if (cal.tipo !== 'calendario') throw new Error('tipo');
+    const r = codificar({ ...cal, imagem: 'data:image/png;base64,AAAA', aspecto: 1.5 });
+    if ('erro' in r) throw new Error(r.erro);
+    const d = decodificar(r.codigo);
+    if ('erro' in d) throw new Error(d.erro);
+    expect(d.pedido).not.toHaveProperty('imagem');
+  });
+
+  it('o código vai na folha do professor; na do aluno, não', async () => {
+    const { fazerFolhas, pedidoInicial, ehDoProfessor } = await import('./pedido');
+    const { folhasComCodigo } = await import('./codigo');
+    const r = fazerFolhas(pedidoInicial('contas'));
+    const com = folhasComCodigo(r.folhas, 'H1-TEST-E');
+    for (const f of com) expect(f.svg.includes('Código desta folha: H1-TEST-E'), f.titulo).toBe(ehDoProfessor(f));
+    // folha sem respostas (pauta): leva em todas
+    const pauta = folhasComCodigo(fazerFolhas(pedidoInicial('pauta')).folhas, 'H1-TEST-E');
+    expect(pauta.every((f) => f.svg.includes('H1-TEST-E'))).toBe(true);
+    for (const f of [...com, ...pauta]) folhaSa(f.svg);
+  });
+
+  // FOLHAS DE REFERÊNCIA: códigos de verdade, de 2026-11-18, e a impressão
+  // digital das folhas que eles montam. Se um destes reprovar, um código já
+  // impresso passaria a montar OUTRA folha. Ou se conserta o gerador, ou se
+  // sobe a versão do código (H2) — nunca se troca o número aqui por conveniência.
+  it('códigos antigos montam exatamente as mesmas folhas', async () => {
+    const { decodificar } = await import('./codigo');
+    const { fazerFolhas } = await import('./pedido');
+    const { semear } = await import('./comum');
+    const referencia: Array<[string, string, number]> = [
+      ['contas, semente 3', 'H1-64RQ-WC3Y-6CYK-6V', 3069774258],
+      ['contas da professora', 'H1-64RQ-WCBY-6GV3-T9SK-6GTJ-0AS0-68VK-G2HR-6GGC-7DS0-6GY', 4258368771],
+      ['caça-palavras de partida', 'H1-61Z3-0Q', 3530621921],
+      [
+        'caça difícil',
+        'H1-61Z3-4ZHH-7MKM-RHE3-GD7G-MMJ1-AH4M-WJ2F-1994-AH25-1934-RKTJ-8N9N-8GBY-68YJ-ES39-CSMP-6TBC-FRSK-TCG9',
+        3320072605,
+      ],
+      ['labirinto grande', 'H1-64R7-WC3Y-68YJ-ES39-CSMP-6TBC-FRSK-TD85', 2720904972],
+      ['sudoku 6', 'H1-64R7-WC3Y-6MYJ-EWVN-CHQP-PX9P-FRSK-TC8P', 547246054],
+      ['parábola', 'H1-6XZ3-0ZHJ-74YN-8ZHM-7NA0-3', 1988075199],
+      ['sequência do Leão', 'H1-64V7-WC8V', 142976344],
+    ];
+    for (const [nome, codigo, impressao] of referencia) {
+      const d = decodificar(codigo);
+      if ('erro' in d) throw new Error(`${nome}: ${d.erro}`);
+      const folhas = fazerFolhas(d.pedido, d.letra).folhas;
+      expect(semear(folhas.map((f) => f.svg).join('|')), nome).toBe(impressao);
+    }
+  });
+});

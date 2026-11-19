@@ -120,6 +120,34 @@ do primeiro lote (silabário em diante) ainda não foram impressas.
 - Folhas sem marca de criança (`IDENTIDADE_NEUTRA`): servem do 1º ano ao
   ensino médio. Passar `identidade` para pôr a marca do Historinhas.
 
+## O código da folha (2026-11-18)
+
+`src/geradores/codigo.ts`. Cada folha tem um código (`H1-64RQ-WC3Y-6CYK-6V`)
+que, digitado na tela ("Montar uma folha pelo código"), monta **a mesma
+folha**, com as respostas. Funciona porque nada é sorteado: o código carrega a
+própria escolha do formulário, compacta, sem servidor e sem internet.
+
+- **Formato:** `H1` (versão) + o pedido em texto curto
+  (`tipo~letra~campo=valor…`, só o que difere do pedido de partida) em base 32
+  de Crockford (sem I, L, O, U) + um caractere de conferência. Lê minúscula,
+  espaço, sem traço, e O/I/L no lugar de 0/1; um caractere trocado é recusado.
+- **Tamanho medido:** caça-palavras de partida `H1-61Z3-0Q` (10); contas com
+  outra semente, 20; parábola, 29; labirinto grande, 42; lista de palavras
+  própria, ~100 (é o caso que um QR Code resolveria — ainda não feito).
+- **Onde vai impresso:** no pé da folha do professor (as de respostas). Na do
+  aluno, não: o código monta também as respostas. Tipo sem respostas (pauta,
+  capa) leva em todas. Sempre na Atkinson (o zero com risco é o certo num código).
+- **Sem código:** folha com nomes de alunos (crachás, etiquetas, marcadores com
+  nome) — o nome iria impresso dentro dele. A figura do calendário não entra
+  (grande demais); o código guarda o resto.
+- **Regras para nunca quebrar um código já impresso:** `TIPOS_NO_CODIGO` e
+  `CAMPOS_NO_CODIGO` só crescem NO FIM; o pedido de partida é o de uma data fixa
+  (`DATA_DE_REFERENCIA`); e o teste **"códigos antigos montam exatamente as
+  mesmas folhas"** guarda oito códigos de verdade com a impressão digital das
+  folhas. Se um gerador mudar a folha que um código monta, ele reprova: ou se
+  conserta o gerador, ou se sobe a versão (`H2`) — **nunca se troca o número do
+  teste por conveniência**.
+
 ## A tela "Fazer uma folha" — pronta e DESLIGADA
 
 `src/geradores/telaFolhas.ts` (a tela), `pedido.ts` (do formulário à folha,
