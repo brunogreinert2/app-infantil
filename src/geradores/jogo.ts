@@ -8,6 +8,7 @@ import type { Achado, CacaPalavras } from './cacaPalavras';
 import type { Cruzadinha, Entrada } from './cruzadinha';
 import type { Labirinto, Sudoku } from './logica';
 import type { Conta } from './contas';
+import type { CartaDaMemoria } from './jogosDeMesa';
 import { soLetras } from './comum';
 
 export type Casa = [linha: number, coluna: number];
@@ -279,4 +280,34 @@ export function umAlgarismo(c: Conta, caixas: string[], deitada: boolean): strin
     }
   }
   return novo;
+}
+
+// ---------------------------------------------------------------------------
+// Memória (2026-11-19)
+// ---------------------------------------------------------------------------
+//
+// Toca uma carta, toca outra. Par: ficam abertas para sempre. Não par: ficam
+// abertas até o próximo toque (a criança olha o quanto quiser; nada de
+// relógio). Nenhuma conta de tentativas aparece.
+
+export interface EstadoDaMemoria {
+  /** as cartas viradas agora (0, 1 ou 2), pelo índice na mesa */
+  abertas: number[];
+  /** os pares já achados */
+  achados: number[];
+}
+
+export function virarCarta(cartas: CartaDaMemoria[], estado: EstadoDaMemoria, i: number): { estado: EstadoDaMemoria; achou?: number } {
+  const carta = cartas[i];
+  if (!carta || estado.achados.includes(carta.par) || estado.abertas.includes(i)) return { estado };
+  // duas abertas que não eram par: o toque seguinte as fecha e vira a nova
+  const abertas = estado.abertas.length >= 2 ? [i] : [...estado.abertas, i];
+  if (abertas.length === 2 && cartas[abertas[0]].par === cartas[abertas[1]].par) {
+    return { estado: { abertas: [], achados: [...estado.achados, carta.par] }, achou: carta.par };
+  }
+  return { estado: { abertas, achados: estado.achados } };
+}
+
+export function memoriaCompleta(cartas: CartaDaMemoria[], achados: number[]): boolean {
+  return cartas.length > 0 && cartas.every((c) => achados.includes(c.par));
 }

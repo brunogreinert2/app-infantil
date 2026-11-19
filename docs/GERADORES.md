@@ -385,3 +385,23 @@ na semana seguinte e o Bruno quis «acesso total das funcionalidades».
   valorDasCaixas, contaCerta, ordemDasCaixas, umAlgarismo); progresso
   `{ caixas, atual }`.
 
+## 🃏 Memória na tela (2026-11-19)
+
+- Toca uma carta, toca outra. Par: fica aberto (verde), a palavra é falada,
+  «Achou: CASA!». Não par: as duas ficam abertas até o próximo toque (a
+  criança olha o quanto quiser; nada de relógio). Nenhuma conta de tentativas.
+  Confete no último par. 💡 Um par (as duas cartas do primeiro par que falta
+  piscam), Mostrar todas, Recomeçar.
+- A mesa é embaralhada pela SEMENTE (`cartasDaMemoria`): a mesma lista com a
+  mesma semente dá sempre a mesma mesa. Na de leitura, uma carta do par é a
+  figura (o app fala a palavra ao virá-la) e a outra só a palavra.
+- Na oficina: 🎮 Jogar na memória e na memória de leitura (as peças da folha,
+  até 12 pares); «Outra memória» = semente seguinte (outra mesa). O Jogar
+  agora só aparece na PRIMEIRA folha do aluno (a memória tem várias folhas de
+  cartas e o verso).
+- Na barra da criança: 🃏 Memória — Pares iguais / Figura e palavra; 6 ou 10
+  pares (até 8 anos começa com 6, 9+ com 10); 12 memórias numeradas, com as
+  figuras de `FIGURAS_DA_MEMORIA` (30 coisas do dia a dia com desenho na
+  prancha) tomadas em ordem. Progresso `{ achados }`.
+- Publicado junto com o botão Jogos no alto e as contas, na 0.12.0.
+

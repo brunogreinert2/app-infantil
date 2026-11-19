@@ -41,12 +41,15 @@ import {
   respostaEmCaixas,
   umAlgarismo,
   valorDasCaixas,
+  memoriaCompleta,
+  virarCarta,
+  type EstadoDaMemoria,
   type Casa,
 } from './jogo';
 import type { Conta } from './contas';
 import { FIGURAS_DO_SUDOKU, type Labirinto, type Sudoku } from './logica';
 import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
-import { face } from './jogosDeMesa';
+import { face, type CartaDaMemoria } from './jogosDeMesa';
 import type { JogoNaTela } from './pedido';
 import type { CacaPalavras } from './cacaPalavras';
 import type { Cruzadinha, Entrada } from './cruzadinha';
@@ -82,6 +85,7 @@ export async function montarTelaJogo(
   else if (alvo.tipo === 'sudoku') await montarSudoku(corpo, aviso, alvo.jogo, alvo.figuras, chave);
   else if (alvo.tipo === 'labirinto') await montarLabirinto(corpo, aviso, alvo.jogo, chave);
   else if (alvo.tipo === 'contas') await montarContas(corpo, aviso, alvo.jogo, alvo.tabuada, chave);
+  else if (alvo.tipo === 'memoria') await montarMemoria(corpo, aviso, alvo.jogo, alvo.leitura, chave);
   else await montarCruzadinha(corpo, aviso, alvo.jogo, chave);
   if (nav.outra) {
     const rotulo = {
@@ -90,6 +94,7 @@ export async function montarTelaJogo(
       sudoku: '➡️ Outro sudoku',
       labirinto: '➡️ Outro labirinto',
       contas: '➡️ Outras contas',
+      memoria: '➡️ Outra memória',
     }[alvo.tipo];
     const outra = botaoDoJogo(rotulo, nav.outra);
     outra.classList.add('jogo-outra');
@@ -1010,4 +1015,110 @@ async function montarContas(corpo: HTMLElement, aviso: HTMLElement, contas: Cont
   corpo.appendChild(ajudas);
   desenharConta();
   corpo.focus({ preventScroll: true });
+}
+
+// ---------------------------------------------------------------------------
+// Memória (2026-11-19)
+// ---------------------------------------------------------------------------
+//
+// Toca uma carta, toca outra. O par fica aberto e a palavra é falada; o que
+// não é par fica aberto até o próximo toque. Nenhuma conta de tentativas.
+
+async function montarMemoria(corpo: HTMLElement, aviso: HTMLElement, cartas: CartaDaMemoria[], leitura: boolean, chave: string): Promise<void> {
+  const guardado = (await armazenamento.obter<{ achados: number[] }>(chave))?.achados ?? [];
+  let estado: EstadoDaMemoria = { abertas: [], achados: guardado.filter((p) => cartas.some((c) => c.par === p)) };
+  const salvar = () => void armazenamento.definir(chave, { achados: estado.achados });
+
+  corpo.appendChild(
+    el(
+      'p',
+      'jogo-instrucao',
+      leitura ? 'Toque em duas cartas. O par é a figura com a sua palavra.' : 'Toque em duas cartas. Ache os pares iguais.',
+    ),
+  );
+  const mesa = el('div', 'memoria-mesa');
+  // 4 colunas a partir de 16 cartas; menos que isso, 3 (ou 4 se a conta fechar melhor)
+  mesa.style.setProperty('--colunas', String(cartas.length >= 16 || cartas.length % 3 !== 0 ? 4 : 3));
+  const botoes: HTMLButtonElement[] = [];
+  const desenhoDaCarta = (c: CartaDaMemoria) =>
+    `<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">${face(c.peca, 0, 0, 100, 100, c.mostrar)}</svg>`;
+
+  const desenhar = () => {
+    cartas.forEach((c, i) => {
+      const b = botoes[i];
+      const achada = estado.achados.includes(c.par);
+      const aberta = achada || estado.abertas.includes(i);
+      b.classList.toggle('aberta', aberta);
+      b.classList.toggle('achada', achada);
+      if (aberta && !b.dataset.mostrando) {
+        b.innerHTML = desenhoDaCarta(c);
+        b.dataset.mostrando = '1';
+      } else if (!aberta && b.dataset.mostrando) {
+        b.innerHTML = '';
+        delete b.dataset.mostrando;
+      }
+      b.setAttribute('aria-label', aberta ? `Carta ${i + 1}: ${c.peca.texto}${achada ? ', par achado' : ''}` : `Carta ${i + 1}, virada para baixo`);
+    });
+  };
+
+  cartas.forEach((c, i) => {
+    const b = el('button', 'memoria-carta');
+    b.type = 'button';
+    b.addEventListener('click', () => {
+      const antes = estado;
+      const r = virarCarta(cartas, estado, i);
+      if (r.estado === antes) return;
+      estado = r.estado;
+      desenhar();
+      if (r.achou !== undefined) {
+        salvar();
+        const palavra = c.peca.texto;
+        falar(palavra.toLocaleLowerCase('pt-BR'));
+        if (memoriaCompleta(cartas, estado.achados)) {
+          // a festa é uma vez, na hora do último par
+          aviso.textContent = 'Achou todos os pares!';
+          soltarConfetes();
+        } else aviso.textContent = `Achou: ${palavra}!`;
+      } else if (estado.abertas.length === 1) {
+        aviso.textContent = '';
+        // na de leitura, ouvir a palavra ajuda a ler
+        if (leitura && c.mostrar === 'figura') falar(c.peca.texto.toLocaleLowerCase('pt-BR'));
+      }
+    });
+    botoes.push(b);
+    mesa.appendChild(b);
+  });
+  desenhar();
+  corpo.append(mesa, aviso);
+  if (memoriaCompleta(cartas, estado.achados)) aviso.textContent = 'Achou todos os pares!';
+
+  const ajudas = el('div', 'folhas-botoes jogo-ajudas');
+  ajudas.append(
+    botaoDoJogo('💡 Um par', () => {
+      // o primeiro par que falta, na ordem da mesa: as duas cartas piscam
+      const k = cartas.findIndex((c) => !estado.achados.includes(c.par));
+      if (k < 0) return;
+      const par = cartas[k].par;
+      cartas.forEach((c, i) => {
+        if (c.par !== par) return;
+        botoes[i].classList.remove('dica');
+        void botoes[i].offsetWidth; // reinicia a piscada
+        botoes[i].classList.add('dica');
+      });
+      aviso.textContent = 'Olhe as duas cartas que piscam.';
+    }),
+    botaoDoJogo('Mostrar todas', () => {
+      estado = { abertas: [], achados: [...new Set(cartas.map((c) => c.par))] };
+      salvar();
+      desenhar();
+      aviso.textContent = 'Aqui estão todos os pares.';
+    }),
+    botaoDoJogo('Recomeçar', () => {
+      estado = { abertas: [], achados: [] };
+      salvar();
+      desenhar();
+      aviso.textContent = '';
+    }),
+  );
+  corpo.appendChild(ajudas);
 }

@@ -1454,3 +1454,67 @@ describe('contas na tela (2026-11-19)', () => {
     expect(terminado(alvo, { caixas })).toBe(false);
   });
 });
+
+describe('memória na tela (2026-11-19)', () => {
+  it('a mesa é sempre a mesma para a mesma semente; cada par tem duas cartas', async () => {
+    const { cartasDaMemoria, lerPecas } = await import('./jogosDeMesa');
+    const pecas = lerPecas('CASA\nESCOLA\nÔNIBUS\nSUCO');
+    const a = cartasDaMemoria(pecas, false, 0);
+    expect(cartasDaMemoria(pecas, false, 0)).toEqual(a);
+    expect(cartasDaMemoria(pecas, false, 1)).not.toEqual(a);
+    expect(a).toHaveLength(8);
+    for (let par = 0; par < 4; par++) expect(a.filter((c) => c.par === par)).toHaveLength(2);
+    // na de leitura, uma carta do par é a figura e a outra a palavra
+    const l = cartasDaMemoria(pecas, true, 0);
+    for (let par = 0; par < 4; par++) expect(l.filter((c) => c.par === par).map((c) => c.mostrar).sort()).toEqual(['figura', 'palavra']);
+  });
+
+  it('virar: par fica aberto; não par fica até o próximo toque', async () => {
+    const { cartasDaMemoria, lerPecas } = await import('./jogosDeMesa');
+    const { virarCarta, memoriaCompleta } = await import('./jogo');
+    const cartas = cartasDaMemoria(lerPecas('CASA\nESCOLA'), false, 0);
+    const i0 = cartas.findIndex((c) => c.par === 0);
+    const j0 = cartas.findIndex((c, k) => c.par === 0 && k !== i0);
+    const i1 = cartas.findIndex((c) => c.par === 1);
+    const j1 = cartas.findIndex((c, k) => c.par === 1 && k !== i1);
+    let e = { abertas: [] as number[], achados: [] as number[] };
+    e = virarCarta(cartas, e, i0).estado;
+    e = virarCarta(cartas, e, i1).estado;
+    expect(e.abertas).toEqual([i0, i1]);
+    // tocar de novo numa aberta não faz nada
+    expect(virarCarta(cartas, e, i1).estado).toBe(e);
+    // o próximo toque fecha as duas e vira a nova
+    e = virarCarta(cartas, e, j0).estado;
+    expect(e.abertas).toEqual([j0]);
+    const r = virarCarta(cartas, e, i0);
+    expect(r.achou).toBe(0);
+    e = r.estado;
+    expect(e).toEqual({ abertas: [], achados: [0] });
+    e = virarCarta(cartas, e, i1).estado;
+    e = virarCarta(cartas, e, j1).estado;
+    expect(memoriaCompleta(cartas, e.achados)).toBe(true);
+  });
+
+  it('as memórias da criança têm figura em todas as cartas, e o ✓ só no fim', async () => {
+    const { memoriaDaCrianca, terminado, SUDOKUS_NA_TELA } = await import('./jogosDaCrianca');
+    const { jogoDoPedido, pedidoInicial } = await import('./pedido');
+    for (const modo of ['iguais', 'leitura'] as const) {
+      for (const tam of ['6', '10'] as const) {
+        for (let n = 1; n <= SUDOKUS_NA_TELA; n++) {
+          const alvo = memoriaDaCrianca(modo, tam, n);
+          if (alvo.tipo !== 'memoria') throw new Error('memoria');
+          expect(alvo.jogo).toHaveLength(Number(tam) * 2);
+          expect(alvo.jogo.every((c) => c.peca.figura)).toBe(true);
+          expect(new Set(alvo.jogo.map((c) => c.peca.texto)).size).toBe(Number(tam));
+        }
+      }
+    }
+    const alvo = memoriaDaCrianca('iguais', '6', 1);
+    if (alvo.tipo !== 'memoria') throw new Error('memoria');
+    expect(terminado(alvo, { achados: [0, 1, 2, 3, 4] })).toBe(false);
+    expect(terminado(alvo, { achados: [0, 1, 2, 3, 4, 5] })).toBe(true);
+    // a folha da memória também se joga (a de partida tem 12 palavras = 12 pares)
+    const daFolha = jogoDoPedido(pedidoInicial('jogo'));
+    expect(daFolha?.tipo === 'memoria' && daFolha.jogo.length).toBe(24);
+  });
+});

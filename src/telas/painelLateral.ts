@@ -40,7 +40,7 @@ export interface NavPainel {
   pinturas: () => void;
   perfis: () => void;
   /** 🎮 Jogos (só com a oficina ligada): abre a tela do jogo escolhido */
-  jogos?: (tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas') => void;
+  jogos?: (tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas' | 'memoria') => void;
   /** 🖨️ Para quem ensina: a trava dos adultos e, depois dela, a oficina */
   ensinar?: () => void;
 }
@@ -55,12 +55,13 @@ const PASTA_ANOTACOES = 'pasta-anotacoes';
 const PASTA_JOGOS = 'pasta-jogos';
 /** onde a criança está quando escolhe o tema de um jogo */
 export const localDoJogo = (tipo: string) => `jogos:${tipo}`;
-const JOGOS_NO_MENU: Array<{ tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas'; rotulo: string; emoji: string }> = [
+const JOGOS_NO_MENU: Array<{ tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas' | 'memoria'; rotulo: string; emoji: string }> = [
   { tipo: 'caca', rotulo: 'Caça-palavras', emoji: '🔎' },
   { tipo: 'cruzadinha', rotulo: 'Cruzadinha', emoji: '✏️' },
   { tipo: 'sudoku', rotulo: 'Sudoku', emoji: '🔢' },
   { tipo: 'labirinto', rotulo: 'Labirinto', emoji: '🌀' },
   { tipo: 'contas', rotulo: 'Contas', emoji: '🧮' },
+  { tipo: 'memoria', rotulo: 'Memória', emoji: '🃏' },
 ];
 /** onde a criança está quando lê/edita um texto próprio */
 export const localDoTexto = (id: string) => `texto:${id}`;
@@ -268,7 +269,7 @@ function ramo(pasta: Pasta, nivel: number): HTMLLIElement {
 }
 
 // "Jogos" é pasta: abre ali mesmo, com cada jogo dentro (2026-11-19)
-function ramoDosJogos(abrirJogo: (tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas') => void): HTMLLIElement {
+function ramoDosJogos(abrirJogo: (tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas' | 'memoria') => void): HTMLLIElement {
   const aberta = abertas.has(PASTA_JOGOS);
   const { li, botao } = item('Jogos', '🎮', PASTA_JOGOS, 1, () => alternarPasta(PASTA_JOGOS));
   botao.classList.add('item-pasta');

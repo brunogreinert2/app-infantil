@@ -269,8 +269,9 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
               void montarTelaQuebraCabeca(raiz, fonte(), '', voltarParaCa);
             }),
           );
-          // caça-palavras, cruzadinha, sudoku e labirinto: também se JOGAM na tela (só a folha do aluno)
-          const jogavel = !ehDoProfessor(f) ? jogoDoPedido(pedido()) : undefined;
+          // caça-palavras, cruzadinha, sudoku, labirinto, contas e memória: também se JOGAM na tela
+          // só na primeira folha do aluno (a memória tem várias folhas de cartas e o verso)
+          const jogavel = !ehDoProfessor(f) && indice === 0 ? jogoDoPedido(pedido()) : undefined;
           if (jogavel) {
             fazer.prepend(
               botao('🎮 Jogar', () => abrirJogo(pedido(), f.svg)),
@@ -295,9 +296,9 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     if (!jogavel) return;
     const r = codificar(p, letra);
     const chave = `folhas:jogo:${'codigo' in r ? r.codigo : semear(svgDaFolha)}`;
-    // sudoku, labirinto e contas do app: «Outro» é a semente seguinte (a mesma que «outra folha» daria)
+    // sudoku, labirinto, memória e contas do app: «Outro» é a semente seguinte (na memória, a mesa embaralha de outro jeito)
     const outroSudoku =
-      p.tipo === 'logica' || (p.tipo === 'contas' && p.modelo === 'armadas' && !p.proprias?.trim())
+      p.tipo === 'logica' || p.tipo === 'jogo' || (p.tipo === 'contas' && p.modelo === 'armadas' && !p.proprias?.trim())
         ? () => {
             const novo = { ...p, semente: (Number(p.semente) || 0) + 1 };
             pedidos[novo.tipo] = novo;

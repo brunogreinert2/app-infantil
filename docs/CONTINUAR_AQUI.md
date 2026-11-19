@@ -13,8 +13,10 @@ digital, confirmado com a professora). PUBLICADO como 0.10.0 em 2026-11-19
 historinhas.app.br traz 0.10.0 e o menu novo). Depois disso, na branch
 `fable/ler-o-mundo-e-caa`: 🔢 SUDOKU e 🌀 LABIRINTO na tela (oficina e Jogos
 da criança), publicados juntos na 0.11.0. Depois: 🎮 Jogos no alto da
-estante (tela com todos os jogos) e 🧮 CONTAS na tela — na branch, NÃO
-publicados. Falta da lista do Bruno: memória. Publicar de novo = subir a versão, `git merge --ff-only` da branch
+estante (tela com todos os jogos), 🧮 CONTAS e 🃏 MEMÓRIA na tela —
+publicados juntos na 0.12.0 («junta com a memória e publica»). A lista de
+jogos do Bruno está completa: caça-palavras, cruzadinha, sudoku, labirinto,
+contas e memória (damas e xadrez só para imprimir). Publicar de novo = subir a versão, `git merge --ff-only` da branch
 na master e push (só com ordem dele).
 
 ## Brainstorm do Bruno decidido (2026-11-18)

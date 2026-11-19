@@ -3,10 +3,11 @@
 // Separadas da tela para o teste não precisar de navegador.
 
 import { textoDaPronta, type CruzadinhaPronta } from './cruzadinhasProntas';
-import { caminhoValido, chegou, contaCerta, entradaCompleta, sudokuCompleto } from './jogo';
+import { caminhoValido, chegou, contaCerta, entradaCompleta, memoriaCompleta, sudokuCompleto } from './jogo';
+import { cartasDaMemoria, pecasDaMemoria } from './jogosDeMesa';
 import { jogoDoPedido, type JogoNaTela } from './pedido';
 
-export type JogoDaCrianca = 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas';
+export type JogoDaCrianca = 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas' | 'memoria';
 /** os jogos que se escolhem por TEMA (os 12 das cruzadinhas prontas) */
 export type JogoDeTema = 'caca' | 'cruzadinha';
 export type NivelDoCaca = 'facil' | 'medio';
@@ -14,6 +15,8 @@ export type ModeloDoSudoku = 'sudokuFiguras' | 'sudoku4' | 'sudoku6';
 export type TamanhoDoLabirinto = 'facil' | 'medio' | 'dificil';
 export type OperacaoDaCrianca = '+' | '-' | 'x' | '/' | 'tabuada';
 export type TamanhoDasContas = 'pequenas' | 'medias' | 'grandes';
+export type ModoDaMemoria = 'iguais' | 'leitura';
+export type TamanhoDaMemoria = '6' | '10';
 
 export const JOGOS_DA_CRIANCA: Record<JogoDaCrianca, { nome: string; emoji: string }> = {
   caca: { nome: 'Caça-palavras', emoji: '🔎' },
@@ -21,6 +24,7 @@ export const JOGOS_DA_CRIANCA: Record<JogoDaCrianca, { nome: string; emoji: stri
   sudoku: { nome: 'Sudoku', emoji: '🔢' },
   labirinto: { nome: 'Labirinto', emoji: '🌀' },
   contas: { nome: 'Contas', emoji: '🧮' },
+  memoria: { nome: 'Memória', emoji: '🃏' },
 };
 
 export const NOMES_DO_NIVEL: Record<NivelDoCaca, string> = {
@@ -53,6 +57,15 @@ export const NOMES_DAS_CONTAS_DA_CRIANCA: Record<TamanhoDasContas, string> = {
   pequenas: 'Pequenas',
   medias: 'Médias',
   grandes: 'Grandes',
+};
+
+export const NOMES_DO_MODO_DA_MEMORIA: Record<ModoDaMemoria, string> = {
+  iguais: 'Pares iguais',
+  leitura: 'Figura e palavra',
+};
+export const NOMES_DO_TAMANHO_DA_MEMORIA: Record<TamanhoDaMemoria, string> = {
+  '6': '6 pares',
+  '10': '10 pares',
 };
 
 /** Quantos sudokus (e labirintos) numerados cada modelo oferece na tela (1, 2, 3…). */
@@ -109,6 +122,18 @@ export function contasDaCrianca(operacao: OperacaoDaCrianca, tamanho: TamanhoDas
   return { ...alvo, titulo: `${NOMES_DAS_OPERACOES[operacao].replace(/^\S+\s/u, '')} · ${numero}` };
 }
 
+/** A memória número `numero`: figuras do dia a dia, em ordem, e a mesa embaralhada pela semente. */
+export function memoriaDaCrianca(modo: ModoDaMemoria, tamanho: TamanhoDaMemoria, numero: number): JogoNaTela {
+  const leitura = modo === 'leitura';
+  const pecas = pecasDaMemoria(numero, Number(tamanho));
+  return {
+    tipo: 'memoria',
+    titulo: `${leitura ? 'Memória de leitura' : 'Memória'} · ${numero}`,
+    jogo: cartasDaMemoria(pecas, leitura, numero - 1),
+    leitura,
+  };
+}
+
 /** Onde fica o progresso: por perfil, por jogo, por tema (e por nível, no caça). */
 export const chaveDoJogo = (perfil: string | number, tipo: JogoDaCrianca, tema: string, nivel: NivelDoCaca = 'facil'): string =>
   `${perfil}:jogo:${tipo}:${tema}${tipo === 'caca' ? `:${nivel}` : ''}`;
@@ -121,6 +146,7 @@ export function terminado(alvo: JogoNaTela, guardado: unknown): boolean {
     return alvo.jogo.achados.length > 0 && alvo.jogo.achados.every((a) => achadas.has(a.letras));
   }
   if (alvo.tipo === 'sudoku') return sudokuCompleto(alvo.jogo, (guardado as { valores?: Record<string, number> }).valores ?? {});
+  if (alvo.tipo === 'memoria') return memoriaCompleta(alvo.jogo, (guardado as { achados?: number[] }).achados ?? []);
   if (alvo.tipo === 'contas') {
     const caixas = (guardado as { caixas?: Record<string, string[]> }).caixas ?? {};
     return alvo.jogo.length > 0 && alvo.jogo.every((c, i) => contaCerta(c, caixas[String(i)]));

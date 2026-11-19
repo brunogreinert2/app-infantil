@@ -21,6 +21,11 @@ import {
   SUDOKUS_NA_TELA,
   labirintoDaCrianca,
   contasDaCrianca,
+  memoriaDaCrianca,
+  NOMES_DO_MODO_DA_MEMORIA,
+  NOMES_DO_TAMANHO_DA_MEMORIA,
+  type ModoDaMemoria,
+  type TamanhoDaMemoria,
   NOMES_DAS_OPERACOES,
   NOMES_DAS_CONTAS_DA_CRIANCA,
   type OperacaoDaCrianca,
@@ -109,6 +114,7 @@ export async function montarTelaJogos(raiz: HTMLElement, tipo: JogoDaCrianca | u
   if (tipo === 'sudoku') await escolherSudoku(raiz, corpo, nav);
   else if (tipo === 'labirinto') await escolherLabirinto(raiz, corpo, nav);
   else if (tipo === 'contas') await escolherContas(raiz, corpo, nav);
+  else if (tipo === 'memoria') await escolherMemoria(raiz, corpo, nav);
   else await escolherTema(raiz, corpo, tipo, nav);
 }
 
@@ -224,6 +230,37 @@ async function escolherContas(raiz: HTMLElement, corpo: HTMLElement, nav: Nav): 
   for (let numero = 1; numero <= SUDOKUS_NA_TELA; numero++) {
     const nome = operacao === 'tabuada' ? `Tabuada do ${numero}` : `Lista ${numero}`;
     lista.appendChild(await botaoDeEscolha(String(numero), nome, contasDaCrianca(operacao, tamanho, numero), chave(numero), () => abrir(numero)));
+  }
+  corpo.appendChild(lista);
+}
+
+async function escolherMemoria(raiz: HTMLElement, corpo: HTMLElement, nav: Nav): Promise<void> {
+  const perfil = perfilAtivo();
+  const chaveModo = `${perfil.id}:jogos:modoDaMemoria`;
+  const chaveTamanho = `${perfil.id}:jogos:tamanhoDaMemoria`;
+  const modoGuardado = await armazenamento.obter<ModoDaMemoria>(chaveModo);
+  const modo: ModoDaMemoria = modoGuardado && modoGuardado in NOMES_DO_MODO_DA_MEMORIA ? modoGuardado : 'iguais';
+  // até 8 anos começa com 6 pares; 9 ou mais, com 10
+  const tamGuardado = await armazenamento.obter<TamanhoDaMemoria>(chaveTamanho);
+  const tamanho: TamanhoDaMemoria =
+    tamGuardado && tamGuardado in NOMES_DO_TAMANHO_DA_MEMORIA ? tamGuardado : /^(9|1\d)/.test(perfil.faixaEtaria) ? '10' : '6';
+  const voltarAqui = () => void montarTelaJogos(raiz, 'memoria', nav);
+  const chave = (numero: number) => chaveDoJogo(perfil.id, 'memoria', `${modo}:${tamanho}:${numero}`);
+  const abrir = (numero: number): void => {
+    void montarTelaJogo(raiz, memoriaDaCrianca(modo, tamanho, numero), chave(numero), {
+      voltar: voltarAqui,
+      outra: () => abrir((numero % SUDOKUS_NA_TELA) + 1),
+    });
+  };
+
+  corpo.appendChild(escolhas(NOMES_DO_MODO_DA_MEMORIA, modo, 'Que memória', (m) => void armazenamento.definir(chaveModo, m).then(voltarAqui)));
+  corpo.appendChild(
+    escolhas(NOMES_DO_TAMANHO_DA_MEMORIA, tamanho, 'Quantos pares', (t) => void armazenamento.definir(chaveTamanho, t).then(voltarAqui)),
+  );
+  corpo.appendChild(el('p', 'jogos-instrucao', 'Escolha uma memória.'));
+  const lista = el('ul', 'jogos-temas jogos-numerados');
+  for (let numero = 1; numero <= SUDOKUS_NA_TELA; numero++) {
+    lista.appendChild(await botaoDeEscolha(String(numero), `Memória ${numero}`, memoriaDaCrianca(modo, tamanho, numero), chave(numero), () => abrir(numero)));
   }
   corpo.appendChild(lista);
 }

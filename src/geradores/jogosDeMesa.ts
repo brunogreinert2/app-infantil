@@ -375,3 +375,56 @@ export function svgPecasXadrezA4(): string {
   corpo += escrever('Na primeira fila: T C B D R B C T. Na frente, os oito peões. A dama começa na casa da sua cor.', 400, y + 4, 17, 'middle', 704);
   return folhaNua('Peças de xadrez', corpo);
 }
+
+// ---------------------------------------------------------------------------
+// Memória na tela (2026-11-19)
+// ---------------------------------------------------------------------------
+
+export interface CartaDaMemoria {
+  /** as duas cartas de um par têm o mesmo número */
+  par: number;
+  peca: Peca;
+  mostrar: Face;
+}
+
+/**
+ * As cartas da memória na tela, embaralhadas a partir da SEMENTE: a mesma
+ * lista com a mesma semente dá sempre a mesma mesa (nada sorteado de verdade).
+ * Na de leitura, uma carta do par tem a figura e a outra só a palavra.
+ */
+export function cartasDaMemoria(pecas: Peca[], leitura: boolean, semente = 0): CartaDaMemoria[] {
+  const cartas: CartaDaMemoria[] = [];
+  pecas.forEach((p, par) => {
+    cartas.push({ par, peca: p, mostrar: leitura && p.figura ? 'figura' : 'ambos' });
+    cartas.push({ par, peca: p, mostrar: leitura ? 'palavra' : 'ambos' });
+  });
+  const rnd = sorteador(semear(`memoria|${leitura}|` + pecas.map((p) => p.texto).join('|')) + semente);
+  for (let i = cartas.length - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    [cartas[i], cartas[j]] = [cartas[j], cartas[i]];
+  }
+  return cartas;
+}
+
+/**
+ * As figuras da memória da criança (tela Jogos): coisas do dia a dia que têm
+ * desenho na prancha, com a palavra curta da carta. A lista N pega, em ordem,
+ * as figuras a partir de (N − 1) × pares — nada sorteado.
+ */
+export const FIGURAS_DA_MEMORIA: Array<[chave: string, palavra: string]> = [
+  ['casa', 'CASA'], ['escola', 'ESCOLA'], ['onibus', 'ÔNIBUS'], ['carro', 'CARRO'], ['rua', 'RUA'],
+  ['agua', 'ÁGUA'], ['suco', 'SUCO'], ['fruta', 'FRUTA'], ['pao', 'PÃO'], ['leite', 'LEITE'],
+  ['doce', 'DOCE'], ['lanche', 'LANCHE'], ['lapis', 'LÁPIS'], ['caderno', 'CADERNO'], ['livro', 'LIVRO'],
+  ['mochila', 'MOCHILA'], ['computador', 'COMPUTADOR'], ['musica', 'MÚSICA'], ['sabonete', 'SABONETE'], ['toalha', 'TOALHA'],
+  ['medico', 'MÉDICO'], ['professora', 'PROFESSORA'], ['feliz', 'FELIZ'], ['triste', 'TRISTE'], ['bravo', 'BRAVO'],
+  ['medo', 'MEDO'], ['quarto', 'QUARTO'], ['frio', 'FRIO'], ['calor', 'CALOR'], ['comida', 'COMIDA'],
+];
+
+export function pecasDaMemoria(numero: number, pares: number): Peca[] {
+  const lista = FIGURAS_DA_MEMORIA.filter(([k]) => PICTOGRAMAS[k]);
+  const inicio = ((numero - 1) * pares) % lista.length;
+  return Array.from({ length: pares }, (_, k) => {
+    const [figura, texto] = lista[(inicio + k) % lista.length];
+    return { texto, figura };
+  });
+}

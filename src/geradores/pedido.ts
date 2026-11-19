@@ -16,7 +16,9 @@ import {
   svgReguasA4,
 } from './papeis';
 import {
+  cartasDaMemoria,
   lerPecas,
+  type CartaDaMemoria,
   svgBingoA4,
   svgDominoA4,
   svgMemoriaA4,
@@ -390,13 +392,21 @@ export type JogoNaTela =
   | { tipo: 'sudoku'; titulo: string; jogo: ReturnType<typeof gerarSudoku>; figuras: boolean }
   | { tipo: 'labirinto'; titulo: string; jogo: ReturnType<typeof gerarLabirinto> }
   /** `tabuada`: todas deitadas (7 × 3 =); senão a divisão deita e o resto se arma */
-  | { tipo: 'contas'; titulo: string; jogo: Conta[]; tabuada: boolean };
+  | { tipo: 'contas'; titulo: string; jogo: Conta[]; tabuada: boolean }
+  | { tipo: 'memoria'; titulo: string; jogo: CartaDaMemoria[]; leitura: boolean };
 
 /** O jogo para jogar na tela, quando o tipo de folha tem um (caça-palavras, cruzadinha, sudoku, labirinto, contas). */
 export function jogoDoPedido(p: Pedido): JogoNaTela | undefined {
   if (p.tipo === 'caca') return { tipo: 'caca', titulo: p.titulo.trim() || 'Caça-palavras', jogo: cacaDoPedido(p) };
   if (p.tipo === 'cruzadinha') return { tipo: 'cruzadinha', titulo: p.titulo.trim() || 'Cruzadinha', jogo: gerarCruzadinha(lerItens(p.itens)) };
   // o sudoku da tela é o MESMO da folha: mesmo lado, mesma semente (folhasDeLogica)
+  // a memória da tela usa as MESMAS peças da folha (até 12 pares), embaralhadas pela semente
+  if (p.tipo === 'jogo' && (p.jogo === 'memoria' || p.jogo === 'memoria-leitura')) {
+    const pecas = lerPecas(p.pecas).slice(0, 12);
+    if (pecas.length < 2) return undefined;
+    const leitura = p.jogo === 'memoria-leitura';
+    return { tipo: 'memoria', titulo: leitura ? 'Memória de leitura' : 'Memória', jogo: cartasDaMemoria(pecas, leitura, numeroOu(p.semente, 0)), leitura };
+  }
   // as contas da tela são as MESMAS da folha (as escritas pela professora, ou as do app)
   if (p.tipo === 'contas' && p.modelo === 'tabuada') {
     const t = Math.min(20, Math.max(1, Math.round(numeroOu(p.numero, 7))));

@@ -2451,3 +2451,17 @@ button.casa-caa.vazia { cursor: pointer; }
 .contas-tecla { height: 58px; font-size: 1.6rem; padding: 0; }
 .contas-teclado .contas-tecla:nth-child(10) { grid-column: 2; }
 .contas-apagar { grid-column: 3; }
+
+/* ---------- memória na tela (2026-11-19) ---------- */
+.memoria-mesa { display: grid; grid-template-columns: repeat(var(--colunas), 1fr); gap: 8px; width: min(94vw, 560px); }
+.memoria-carta {
+  aspect-ratio: 1; padding: 4px; border-radius: 12px; cursor: pointer;
+  border: 3px solid var(--borda); box-shadow: var(--sombra);
+  /* o verso: um desenho só, igual em todas (como o verso da folha) */
+  background: repeating-linear-gradient(45deg, #2a4d9b 0 8px, #3b62b8 8px 16px);
+}
+.memoria-carta.aberta { background: #ffffff; border-color: #000000; }
+.memoria-carta.achada { background: #d8f3dc; border-color: #14532d; }
+.memoria-carta svg { width: 100%; height: 100%; display: block; }
+.memoria-carta.dica { animation: jogo-pisca 0.5s ease-in-out 5 alternate; }
+@media (prefers-reduced-motion: reduce) { .memoria-carta.dica { animation: none; outline: 4px solid #ffd166; } }
