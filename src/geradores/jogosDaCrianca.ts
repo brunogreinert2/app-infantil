@@ -3,15 +3,19 @@
 // Separadas da tela para o teste não precisar de navegador.
 
 import { textoDaPronta, type CruzadinhaPronta } from './cruzadinhasProntas';
-import { entradaCompleta } from './jogo';
+import { entradaCompleta, sudokuCompleto } from './jogo';
 import { jogoDoPedido, type JogoNaTela } from './pedido';
 
-export type JogoDaCrianca = 'caca' | 'cruzadinha';
+export type JogoDaCrianca = 'caca' | 'cruzadinha' | 'sudoku';
+/** os jogos que se escolhem por TEMA (os 12 das cruzadinhas prontas) */
+export type JogoDeTema = 'caca' | 'cruzadinha';
 export type NivelDoCaca = 'facil' | 'medio';
+export type ModeloDoSudoku = 'sudokuFiguras' | 'sudoku4' | 'sudoku6';
 
 export const JOGOS_DA_CRIANCA: Record<JogoDaCrianca, { nome: string; emoji: string }> = {
   caca: { nome: 'Caça-palavras', emoji: '🔎' },
   cruzadinha: { nome: 'Cruzadinha', emoji: '✏️' },
+  sudoku: { nome: 'Sudoku', emoji: '🔢' },
 };
 
 export const NOMES_DO_NIVEL: Record<NivelDoCaca, string> = {
@@ -19,8 +23,17 @@ export const NOMES_DO_NIVEL: Record<NivelDoCaca, string> = {
   medio: 'Mais difícil',
 };
 
+export const NOMES_DO_SUDOKU: Record<ModeloDoSudoku, string> = {
+  sudokuFiguras: 'Figuras',
+  sudoku4: 'Números 4 × 4',
+  sudoku6: 'Números 6 × 6',
+};
+
+/** Quantos sudokus numerados cada modelo oferece na tela (1, 2, 3…). */
+export const SUDOKUS_NA_TELA = 12;
+
 /** O jogo de um tema: a mesma grade, sempre (nada sorteado). */
-export function jogoDoTema(tipo: JogoDaCrianca, pronta: CruzadinhaPronta, nivel: NivelDoCaca = 'facil'): JogoNaTela {
+export function jogoDoTema(tipo: JogoDeTema, pronta: CruzadinhaPronta, nivel: NivelDoCaca = 'facil'): JogoNaTela {
   const alvo =
     tipo === 'cruzadinha'
       ? jogoDoPedido({ tipo: 'cruzadinha', titulo: pronta.tema, itens: textoDaPronta(pronta), respostas: false, pronta: pronta.id })
@@ -35,8 +48,17 @@ export function jogoDoTema(tipo: JogoDaCrianca, pronta: CruzadinhaPronta, nivel:
   return alvo!;
 }
 
+/**
+ * O sudoku número `numero` (1, 2, 3…) de um modelo. É o MESMO da folha
+ * impressa com a semente `numero - 1`: quem ensina imprime, a criança joga.
+ */
+export function sudokuDaCrianca(modelo: ModeloDoSudoku, numero: number): JogoNaTela {
+  const alvo = jogoDoPedido({ tipo: 'logica', modelo, nivel: 'facil', semente: numero - 1, respostas: false })!;
+  return { ...alvo, titulo: `${alvo.titulo} · ${numero}` };
+}
+
 /** Onde fica o progresso: por perfil, por jogo, por tema (e por nível, no caça). */
-export const chaveDoJogo = (perfil: string | number, tipo: JogoDaCrianca, tema: string, nivel: NivelDoCaca): string =>
+export const chaveDoJogo = (perfil: string | number, tipo: JogoDaCrianca, tema: string, nivel: NivelDoCaca = 'facil'): string =>
   `${perfil}:jogo:${tipo}:${tema}${tipo === 'caca' ? `:${nivel}` : ''}`;
 
 /** O tema já foi terminado? (Lê o que a tela do jogo guardou.) */
@@ -46,6 +68,7 @@ export function terminado(alvo: JogoNaTela, guardado: unknown): boolean {
     const achadas = new Set((guardado as { achadas?: string[] }).achadas ?? []);
     return alvo.jogo.achados.length > 0 && alvo.jogo.achados.every((a) => achadas.has(a.letras));
   }
+  if (alvo.tipo === 'sudoku') return sudokuCompleto(alvo.jogo, (guardado as { valores?: Record<string, number> }).valores ?? {});
   const letras = (guardado as { letras?: Record<string, string> }).letras ?? {};
   return alvo.jogo.entradas.length > 0 && alvo.jogo.entradas.every((e) => entradaCompleta(e, letras));
 }

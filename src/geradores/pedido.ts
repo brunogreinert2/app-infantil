@@ -25,7 +25,7 @@ import {
   svgTabuleiroA4,
 } from './jogosDeMesa';
 import { emSilabas, lerFamilias, pecasDeSilabas, svgFamiliasA4, svgSilabasMoveisA4 } from './silabario';
-import { folhasDeLogica, type NivelLabirinto } from './logica';
+import { folhasDeLogica, gerarSudoku, type NivelLabirinto } from './logica';
 import { gerarContas, lerContas, svgContasA4, svgTabuaA4, svgTabuadaA4, type Operacao } from './contas';
 import { folhasDeRecortar, type ModeloRecortar } from './recortar';
 import { lerNomes, svgCrachasA4, svgEtiquetasA4, svgHqA4, svgMarcadoresA4, svgTesouraA4, svgTracarA4 } from './cartoes';
@@ -386,12 +386,19 @@ const cacaDoPedido = (p: Pedido & { tipo: 'caca' }) =>
 
 export type JogoNaTela =
   | { tipo: 'caca'; titulo: string; jogo: ReturnType<typeof gerarCacaPalavras> }
-  | { tipo: 'cruzadinha'; titulo: string; jogo: ReturnType<typeof gerarCruzadinha> };
+  | { tipo: 'cruzadinha'; titulo: string; jogo: ReturnType<typeof gerarCruzadinha> }
+  | { tipo: 'sudoku'; titulo: string; jogo: ReturnType<typeof gerarSudoku>; figuras: boolean };
 
-/** O jogo para jogar na tela, quando o tipo de folha tem um (caça-palavras e cruzadinha). */
+/** O jogo para jogar na tela, quando o tipo de folha tem um (caça-palavras, cruzadinha, sudoku). */
 export function jogoDoPedido(p: Pedido): JogoNaTela | undefined {
   if (p.tipo === 'caca') return { tipo: 'caca', titulo: p.titulo.trim() || 'Caça-palavras', jogo: cacaDoPedido(p) };
   if (p.tipo === 'cruzadinha') return { tipo: 'cruzadinha', titulo: p.titulo.trim() || 'Cruzadinha', jogo: gerarCruzadinha(lerItens(p.itens)) };
+  // o sudoku da tela é o MESMO da folha: mesmo lado, mesma semente (folhasDeLogica)
+  if (p.tipo === 'logica' && p.modelo !== 'labirinto') {
+    const figuras = p.modelo === 'sudokuFiguras';
+    const jogo = gerarSudoku(p.modelo === 'sudoku6' ? 6 : 4, numeroOu(p.semente, 0));
+    return { tipo: 'sudoku', titulo: figuras ? 'Sudoku de figuras' : `Sudoku ${jogo.lado} × ${jogo.lado}`, jogo, figuras };
+  }
   return undefined;
 }
 

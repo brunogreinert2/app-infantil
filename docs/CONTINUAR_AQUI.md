@@ -8,8 +8,13 @@ Atividades, Papéis e modelos, Planejar); a barra lateral da criança ganhou
 🖨️ Para quem ensina (pede a trava). Detalhes em `docs/GERADORES.md`, no fim.
 Por quê agora: a Luiza olha o app na semana de 2026-11-23, e o Bruno apresenta
 o app na disciplina «Intervenção» em 2026-12-01 ou 2026-12-08 (trabalho
-digital, confirmado com a professora). Ainda NÃO publicado: está na branch
-`fable/ler-o-mundo-e-caa`.
+digital, confirmado com a professora). PUBLICADO como 0.10.0 em 2026-11-19
+(master `0568aff`, Actions 44575609572 com sucesso; o pacote servido em
+historinhas.app.br traz 0.10.0 e o menu novo). Depois disso, na branch
+`fable/ler-o-mundo-e-caa`: 🔢 SUDOKU na tela (oficina e Jogos da criança),
+ainda não publicado. Próximos jogos pedidos pelo Bruno: contas, labirinto,
+memória. Publicar de novo = subir a versão, `git merge --ff-only` da branch
+na master e push (só com ordem dele).
 
 ## Brainstorm do Bruno decidido (2026-11-18)
 

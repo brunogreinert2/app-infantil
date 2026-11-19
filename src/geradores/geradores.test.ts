@@ -1260,3 +1260,63 @@ describe('a oficina em seções e os Jogos da criança (2026-11-19)', () => {
     expect(terminado(cruz, { letras: {} })).toBe(false);
   });
 });
+
+describe('sudoku na tela (2026-11-19)', () => {
+  it('a tela joga o MESMO sudoku da folha, e só o sudoku (o labirinto não)', async () => {
+    const { jogoDoPedido, pedidoInicial } = await import('./pedido');
+    const { gerarSudoku } = await import('./logica');
+    const base = pedidoInicial('logica');
+    expect(jogoDoPedido(base)).toBeUndefined(); // labirinto
+    for (const modelo of ['sudoku4', 'sudoku6', 'sudokuFiguras'] as const) {
+      const alvo = jogoDoPedido({ tipo: 'logica', modelo, nivel: 'facil', semente: 3, respostas: false });
+      expect(alvo?.tipo).toBe('sudoku');
+      if (alvo?.tipo !== 'sudoku') continue;
+      expect(alvo.jogo).toEqual(gerarSudoku(modelo === 'sudoku6' ? 6 : 4, 3));
+      expect(alvo.figuras).toBe(modelo === 'sudokuFiguras');
+    }
+  });
+
+  it('festeja só o que fecha certo; a ajuda vai sempre à mesma casa', async () => {
+    const { gerarSudoku } = await import('./logica');
+    const { casaDaAjuda, gruposCertos, proximaVazia, sudokuCompleto, valorDaCasa } = await import('./jogo');
+    const s = gerarSudoku(4, 0);
+    const valores: Record<string, number> = {};
+    expect(sudokuCompleto(s, valores)).toBe(false);
+    const primeira = casaDaAjuda(s, valores)!;
+    expect(s.pistas[primeira[0]][primeira[1]]).toBe(0);
+    expect(casaDaAjuda(s, valores)).toEqual(primeira);
+    // um valor errado: nada fecha, e a ajuda (sem vazias) iria até ele
+    for (let l = 0; l < 4; l++) for (let c = 0; c < 4; c++) if (!s.pistas[l][c]) valores[`${l},${c}`] = s.solucao[l][c];
+    expect(sudokuCompleto(s, valores)).toBe(true);
+    expect(casaDaAjuda(s, valores)).toBeUndefined();
+    const [l, c] = primeira;
+    valores[`${l},${c}`] = (s.solucao[l][c] % 4) + 1;
+    expect(gruposCertos(s, valores, l, c)).toEqual([]);
+    expect(casaDaAjuda(s, valores)).toEqual(primeira);
+    valores[`${l},${c}`] = s.solucao[l][c];
+    expect(gruposCertos(s, valores, l, c)).toEqual(['linha', 'coluna', 'bloco']);
+    expect(valorDaCasa(s, valores, l, c)).toBe(s.solucao[l][c]);
+    expect(proximaVazia(s, valores, [0, 0])).toBeUndefined();
+  });
+
+  it('os sudokus da criança: 12 por modelo, todos diferentes, ✓ só no completo', async () => {
+    const { SUDOKUS_NA_TELA, sudokuDaCrianca, terminado, chaveDoJogo } = await import('./jogosDaCrianca');
+    for (const modelo of ['sudokuFiguras', 'sudoku4', 'sudoku6'] as const) {
+      const vistos = new Set<string>();
+      for (let n = 1; n <= SUDOKUS_NA_TELA; n++) {
+        const alvo = sudokuDaCrianca(modelo, n);
+        if (alvo.tipo !== 'sudoku') throw new Error('sudoku');
+        vistos.add(JSON.stringify(alvo.jogo.pistas));
+        expect(alvo.titulo).toContain(String(n));
+      }
+      expect(vistos.size).toBe(SUDOKUS_NA_TELA);
+    }
+    const alvo = sudokuDaCrianca('sudoku4', 1);
+    if (alvo.tipo !== 'sudoku') throw new Error('sudoku');
+    const valores: Record<string, number> = {};
+    expect(terminado(alvo, { valores })).toBe(false);
+    alvo.jogo.solucao.forEach((linha, l) => linha.forEach((v, c) => (valores[`${l},${c}`] = v)));
+    expect(terminado(alvo, { valores })).toBe(true);
+    expect(chaveDoJogo(1, 'sudoku', 'sudoku4:1')).toBe('1:jogo:sudoku:sudoku4:1');
+  });
+});

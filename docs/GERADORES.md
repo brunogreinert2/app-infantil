@@ -323,3 +323,23 @@ na semana seguinte e o Bruno quis «acesso total das funcionalidades».
   difícil; a escolha fica lembrada). ✓ no tema terminado. Progresso POR PERFIL:
   `<perfil>:jogo:<caca|cruzadinha>:<tema>[:<nível>]`.
 - Damas e xadrez ficam só na oficina (na tela não são jogáveis).
+
+## Sudoku na tela (2026-11-19)
+
+- Na oficina: 🎮 Jogar aparece também na folha do sudoku (4 × 4, 6 × 6 e de
+  figuras; o labirinto ainda não). «➡️ Outro sudoku» = a semente seguinte, a
+  mesma que a folha daria.
+- Na barra da criança: 🎮 Jogos → 🔢 Sudoku. Três modelos (Figuras, Números
+  4 × 4, Números 6 × 6; até 8 anos começa nas figuras, 9+ no 4 × 4; a escolha
+  fica lembrada) e 12 sudokus numerados por modelo. O sudoku N da criança é a
+  folha impressa com semente N − 1.
+- Jogar: toca a casa vazia, depois o número ou a figura na fileira de baixo
+  (ou o teclado: números, ⌫, setas). A seleção anda sozinha para a próxima
+  vazia. Nada marca erro: só se festeja a linha, a coluna e o bloco que
+  FECHAM certos, e o sudoku inteiro (confete uma vez). 💡 Uma casa vai sempre
+  à primeira vazia, em ordem (sem vazia, à primeira que não fecha).
+- Regras puras em `jogo.ts` (valorDaCasa, gruposCertos, sudokuCompleto,
+  casaDaAjuda, proximaVazia); progresso `{ valores }`.
+- Publicado: 0.10.0 (master `0568aff`, Actions 44575609572 com sucesso, pacote
+  servido conferido). O sudoku veio DEPOIS: ainda não publicado.
+

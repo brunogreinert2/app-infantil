@@ -1,5 +1,5 @@
-// JOGAR NA TELA (folhas interativas, etapa 2 — 2026-11-18): o caça-palavras e
-// a cruzadinha da folha, de verdade, com o dedo.
+// JOGAR NA TELA (folhas interativas, etapa 2 — 2026-11-18): o caça-palavras,
+// a cruzadinha e (desde 2026-11-19) o sudoku da folha, de verdade, com o dedo.
 //
 //   caça-palavras  arrastar o dedo sobre a palavra — ou tocar a primeira letra
 //                  e depois a última (para quem não consegue arrastar)
@@ -23,8 +23,15 @@ import {
   linhaEntre,
   palavraNaLinha,
   proximaCasa,
+  casaDaAjuda,
+  gruposCertos,
+  proximaVazia,
+  sudokuCompleto,
+  valorDaCasa,
   type Casa,
 } from './jogo';
+import { FIGURAS_DO_SUDOKU, type Sudoku } from './logica';
+import { face } from './jogosDeMesa';
 import type { JogoNaTela } from './pedido';
 import type { CacaPalavras } from './cacaPalavras';
 import type { Cruzadinha, Entrada } from './cruzadinha';
@@ -57,9 +64,11 @@ export async function montarTelaJogo(
   aviso.setAttribute('role', 'status');
   aviso.setAttribute('aria-live', 'polite');
   if (alvo.tipo === 'caca') await montarCaca(corpo, aviso, alvo.jogo, chave);
+  else if (alvo.tipo === 'sudoku') await montarSudoku(corpo, aviso, alvo.jogo, alvo.figuras, chave);
   else await montarCruzadinha(corpo, aviso, alvo.jogo, chave);
   if (nav.outra) {
-    const outra = botaoDoJogo(alvo.tipo === 'caca' ? '➡️ Outro caça-palavras' : '➡️ Outra cruzadinha', nav.outra);
+    const rotulo = { caca: '➡️ Outro caça-palavras', cruzadinha: '➡️ Outra cruzadinha', sudoku: '➡️ Outro sudoku' }[alvo.tipo];
+    const outra = botaoDoJogo(rotulo, nav.outra);
     outra.classList.add('jogo-outra');
     corpo.appendChild(outra);
   }
@@ -415,4 +424,182 @@ async function montarCruzadinha(corpo: HTMLElement, aviso: HTMLElement, jogo: Cr
     atual = jogo.entradas[0];
     pintarSelecao();
   }
+}
+
+// ---------------------------------------------------------------------------
+// Sudoku (2026-11-19)
+// ---------------------------------------------------------------------------
+
+const NOMES_DAS_FIGURAS: Record<string, string> = { fruta: 'fruta', casa: 'casa', onibus: 'ônibus', livro: 'livro' };
+
+/** A figura do sudoku de figuras como desenho de tela (o mesmo pictograma da folha). */
+function desenhoDaFigura(v: number): string {
+  return `<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">${face({ texto: '', figura: FIGURAS_DO_SUDOKU[v - 1] }, 0, 0, 100, 100, 'figura')}</svg>`;
+}
+const nomeDoValor = (v: number, figuras: boolean) => (figuras ? (NOMES_DAS_FIGURAS[FIGURAS_DO_SUDOKU[v - 1]] ?? String(v)) : String(v));
+
+async function montarSudoku(corpo: HTMLElement, aviso: HTMLElement, s: Sudoku, figuras: boolean, chave: string): Promise<void> {
+  const valores: Record<string, number> = (await armazenamento.obter<{ valores: Record<string, number> }>(chave))?.valores ?? {};
+  const salvar = () => void armazenamento.definir(chave, { valores });
+
+  corpo.appendChild(
+    el(
+      'p',
+      'jogo-instrucao',
+      figuras
+        ? 'Toque numa casa vazia e depois na figura. Cada figura aparece uma vez em cada linha, coluna e quadrado grosso.'
+        : `Toque numa casa vazia e depois no número. De 1 a ${s.lado}, uma vez em cada linha, coluna e bloco grosso.`,
+    ),
+  );
+  const grade = el('div', 'jogo-grade jogo-grade-sudoku');
+  grade.style.setProperty('--colunas', String(s.lado));
+  grade.setAttribute('role', 'grid');
+  grade.setAttribute('aria-label', 'Sudoku');
+  const casas = new Map<string, HTMLButtonElement>();
+  let escolhida: Casa | undefined;
+
+  const desenharCasa = (l: number, c: number) => {
+    const b = casas.get(`${l},${c}`)!;
+    const v = valorDaCasa(s, valores, l, c);
+    if (figuras && v) b.innerHTML = desenhoDaFigura(v);
+    else b.textContent = v ? String(v) : '';
+    const onde = `linha ${l + 1}, coluna ${c + 1}`;
+    b.setAttribute('aria-label', v ? `${nomeDoValor(v, figuras)}, ${onde}${s.pistas[l][c] ? ' (já vem na folha)' : ''}` : `vazia, ${onde}`);
+  };
+  const marcar = () => {
+    for (const [k, b] of casas) b.classList.toggle('escolhida', !!escolhida && k === chaveCasa(escolhida));
+  };
+  const escolher = (casa: Casa | undefined, focar = true) => {
+    escolhida = casa;
+    marcar();
+    if (casa && focar) casas.get(chaveCasa(casa))?.focus();
+  };
+
+  for (let l = 0; l < s.lado; l++) {
+    for (let c = 0; c < s.lado; c++) {
+      const b = el('button', 'jogo-casa jogo-casa-sudoku');
+      b.type = 'button';
+      b.setAttribute('role', 'gridcell');
+      if (s.pistas[l][c]) b.classList.add('pista');
+      // os blocos grossos, como na folha
+      if ((c + 1) % s.bloco[1] === 0 && c < s.lado - 1) b.classList.add('fim-bloco-direita');
+      if ((l + 1) % s.bloco[0] === 0 && l < s.lado - 1) b.classList.add('fim-bloco-baixo');
+      b.addEventListener('click', () => {
+        if (s.pistas[l][c]) {
+          aviso.textContent = 'Essa já vem pronta. Escolha uma casa vazia.';
+          return;
+        }
+        escolher([l, c]);
+      });
+      casas.set(`${l},${c}`, b);
+      grade.appendChild(b);
+    }
+  }
+  for (let l = 0; l < s.lado; l++) for (let c = 0; c < s.lado; c++) desenharCasa(l, c);
+  corpo.appendChild(grade);
+  corpo.appendChild(aviso);
+
+  let completoAntes = sudokuCompleto(s, valores);
+  const por = (casa: Casa, v: number) => {
+    const [l, c] = casa;
+    if (s.pistas[l][c]) return;
+    if (v) valores[chaveCasa(casa)] = v;
+    else delete valores[chaveCasa(casa)];
+    desenharCasa(l, c);
+    salvar();
+    const completo = sudokuCompleto(s, valores);
+    if (completo && !completoAntes) {
+      // a festa é uma vez, na hora em que a última casa fecha
+      aviso.textContent = 'Sudoku completo!';
+      soltarConfetes();
+    } else if (v) {
+      const certos = gruposCertos(s, valores, l, c);
+      const nomes = { linha: 'a linha', coluna: 'a coluna', bloco: figuras ? 'o quadrado' : 'o bloco' } as const;
+      aviso.textContent = certos.length ? `Fechou ${certos.map((g) => nomes[g]).join(' e ')}!` : '';
+    } else aviso.textContent = '';
+    completoAntes = completo;
+    if (v && !completo) escolher(proximaVazia(s, valores, casa) ?? casa);
+  };
+
+  // a fileira de escolha: os números (ou as figuras) e apagar
+  const paleta = el('div', 'jogo-paleta');
+  paleta.setAttribute('role', 'group');
+  paleta.setAttribute('aria-label', figuras ? 'Figuras' : 'Números');
+  for (let v = 1; v <= s.lado; v++) {
+    const b = el('button', 'botao-opcao jogo-escolha');
+    b.type = 'button';
+    if (figuras) b.innerHTML = desenhoDaFigura(v);
+    else b.textContent = String(v);
+    b.setAttribute('aria-label', nomeDoValor(v, figuras));
+    b.addEventListener('click', () => {
+      if (!escolhida) {
+        aviso.textContent = 'Primeiro toque numa casa vazia.';
+        return;
+      }
+      if (figuras) falar(nomeDoValor(v, figuras));
+      por(escolhida, v);
+    });
+    paleta.appendChild(b);
+  }
+  const apagar = botaoDoJogo('⌫ Apagar', () => {
+    if (escolhida) por(escolhida, 0);
+  });
+  apagar.classList.add('jogo-escolha');
+  apagar.setAttribute('aria-label', 'Apagar a casa');
+  paleta.appendChild(apagar);
+  corpo.appendChild(paleta);
+
+  // no teclado: números, apagar e as setas
+  grade.addEventListener('keydown', (ev) => {
+    if (!escolhida) return;
+    const v = Number(ev.key);
+    if (Number.isInteger(v) && v >= 1 && v <= s.lado) {
+      ev.preventDefault();
+      por(escolhida, v);
+      return;
+    }
+    if (ev.key === 'Backspace' || ev.key === 'Delete') {
+      ev.preventDefault();
+      por(escolhida, 0);
+      return;
+    }
+    const setas: Record<string, [number, number]> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+    const passo = setas[ev.key];
+    if (passo) {
+      ev.preventDefault();
+      const l = Math.min(s.lado - 1, Math.max(0, escolhida[0] + passo[0]));
+      const c = Math.min(s.lado - 1, Math.max(0, escolhida[1] + passo[1]));
+      escolher([l, c]);
+    }
+  });
+
+  const ajudas = el('div', 'folhas-botoes jogo-ajudas');
+  ajudas.append(
+    botaoDoJogo('💡 Uma casa', () => {
+      const casa = casaDaAjuda(s, valores);
+      if (!casa) return;
+      escolher(casa, false);
+      por(casa, s.solucao[casa[0]][casa[1]]);
+      if (!sudokuCompleto(s, valores)) aviso.textContent = `Uma casa na linha ${casa[0] + 1}, coluna ${casa[1] + 1}.`;
+    }),
+    botaoDoJogo('Mostrar respostas', () => {
+      for (let l = 0; l < s.lado; l++) for (let c = 0; c < s.lado; c++) if (!s.pistas[l][c]) valores[`${l},${c}`] = s.solucao[l][c];
+      for (let l = 0; l < s.lado; l++) for (let c = 0; c < s.lado; c++) desenharCasa(l, c);
+      salvar();
+      completoAntes = true; // a resposta mostrada não ganha festa
+      escolher(undefined);
+      aviso.textContent = 'Aqui estão as respostas.';
+    }),
+    botaoDoJogo('Recomeçar', () => {
+      for (const k of Object.keys(valores)) delete valores[k];
+      for (let l = 0; l < s.lado; l++) for (let c = 0; c < s.lado; c++) desenharCasa(l, c);
+      salvar();
+      completoAntes = false;
+      aviso.textContent = '';
+      escolher(proximaVazia(s, valores, [s.lado - 1, s.lado - 1]), false);
+    }),
+  );
+  corpo.appendChild(ajudas);
+  // começa na primeira casa vazia, sem roubar o foco da página
+  escolher(proximaVazia(s, valores, [s.lado - 1, s.lado - 1]), false);
 }

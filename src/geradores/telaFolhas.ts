@@ -269,7 +269,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
               void montarTelaQuebraCabeca(raiz, fonte(), '', voltarParaCa);
             }),
           );
-          // caça-palavras e cruzadinha: também se JOGAM na tela (só a folha do aluno)
+          // caça-palavras, cruzadinha e sudoku: também se JOGAM na tela (só a folha do aluno)
           const jogavel = !ehDoProfessor(f) ? jogoDoPedido(pedido()) : undefined;
           if (jogavel) {
             fazer.prepend(
@@ -295,8 +295,19 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     if (!jogavel) return;
     const r = codificar(p, letra);
     const chave = `folhas:jogo:${'codigo' in r ? r.codigo : semear(svgDaFolha)}`;
+    // o sudoku: «Outro» é a semente seguinte (a mesma que «outra folha» daria)
+    const outroSudoku =
+      p.tipo === 'logica'
+        ? () => {
+            const novo = { ...p, semente: (Number(p.semente) || 0) + 1 };
+            pedidos.logica = novo;
+            void armazenamento.definir(CHAVE, { tipo, secao, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } });
+            abrirJogo(novo, svgDaFolha + novo.semente);
+          }
+        : undefined;
     const outra =
-      p.tipo === 'cruzadinha'
+      outroSudoku ??
+      (p.tipo === 'cruzadinha'
         ? () => {
             // a próxima pronta, em ordem; guardada como a escolha atual da tela
             const prox = proximaPronta(p.pronta);
@@ -305,7 +316,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
             void armazenamento.definir(CHAVE, { tipo, secao, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } });
             abrirJogo(novo, svgDaFolha + prox.id);
           }
-        : undefined;
+        : undefined);
     void montarTelaJogo(raiz, jogavel, chave, { voltar: () => void montarTelaFolhas(raiz, nav), outra });
   };
 

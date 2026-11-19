@@ -6,6 +6,7 @@
 
 import type { Achado, CacaPalavras } from './cacaPalavras';
 import type { Cruzadinha, Entrada } from './cruzadinha';
+import type { Sudoku } from './logica';
 import { soLetras } from './comum';
 
 export type Casa = [linha: number, coluna: number];
@@ -71,4 +72,70 @@ export function proximaCasa(e: Entrada, casa: Casa, passo: 1 | -1 = 1): Casa | u
   const casas = casasDaEntrada(e);
   const i = casas.findIndex((c) => mesmaCasa(c, casa));
   return i < 0 ? undefined : casas[i + passo];
+}
+
+// ---------------------------------------------------------------------------
+// Sudoku (2026-11-19)
+// ---------------------------------------------------------------------------
+//
+// A criança toca a casa e depois o número (ou a figura) na fileira de baixo.
+// Nada marca o erro: só se festeja a linha, a coluna, o bloco e o sudoku
+// inteiro que FECHAM certos.
+
+/** O que está na casa: a pista da folha ou o que a criança pôs (0 = vazia). */
+export const valorDaCasa = (s: Sudoku, valores: Record<string, number>, l: number, c: number): number =>
+  s.pistas[l][c] || valores[`${l},${c}`] || 0;
+
+/** As casas da mesma linha, coluna e bloco desta casa. */
+export function gruposDaCasa(s: Sudoku, l: number, c: number): Array<{ nome: 'linha' | 'coluna' | 'bloco'; casas: Casa[] }> {
+  const [bl, bc] = s.bloco;
+  const l0 = l - (l % bl);
+  const c0 = c - (c % bc);
+  const todas = Array.from({ length: s.lado }, (_, i) => i);
+  return [
+    { nome: 'linha', casas: todas.map((i): Casa => [l, i]) },
+    { nome: 'coluna', casas: todas.map((i): Casa => [i, c]) },
+    { nome: 'bloco', casas: todas.map((i): Casa => [l0 + Math.floor(i / bc), c0 + (i % bc)]) },
+  ];
+}
+
+/** Os grupos (linha, coluna, bloco) desta casa que estão completos E certos. */
+export function gruposCertos(s: Sudoku, valores: Record<string, number>, l: number, c: number): Array<'linha' | 'coluna' | 'bloco'> {
+  return gruposDaCasa(s, l, c)
+    .filter((g) => g.casas.every(([ll, cc]) => valorDaCasa(s, valores, ll, cc) === s.solucao[ll][cc]))
+    .map((g) => g.nome);
+}
+
+export function sudokuCompleto(s: Sudoku, valores: Record<string, number>): boolean {
+  return s.solucao.every((linha, l) => linha.every((v, c) => valorDaCasa(s, valores, l, c) === v));
+}
+
+/**
+ * A casa da ajuda «Uma casa»: a primeira vazia, em ordem de leitura; sem
+ * vazia, a primeira que não fecha. Sempre a mesma (nada sorteado).
+ */
+export function casaDaAjuda(s: Sudoku, valores: Record<string, number>): Casa | undefined {
+  let errada: Casa | undefined;
+  for (let l = 0; l < s.lado; l++) {
+    for (let c = 0; c < s.lado; c++) {
+      if (s.pistas[l][c]) continue;
+      const v = valores[`${l},${c}`] || 0;
+      if (!v) return [l, c];
+      if (v !== s.solucao[l][c] && !errada) errada = [l, c];
+    }
+  }
+  return errada;
+}
+
+/** A próxima casa vazia depois desta, em ordem de leitura (dando a volta). */
+export function proximaVazia(s: Sudoku, valores: Record<string, number>, de: Casa): Casa | undefined {
+  const total = s.lado * s.lado;
+  const inicio = de[0] * s.lado + de[1];
+  for (let k = 1; k <= total; k++) {
+    const i = (inicio + k) % total;
+    const l = Math.floor(i / s.lado);
+    const c = i % s.lado;
+    if (!valorDaCasa(s, valores, l, c)) return [l, c];
+  }
+  return undefined;
 }
