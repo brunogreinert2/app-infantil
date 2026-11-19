@@ -17,7 +17,7 @@ import {
 } from './espacamento';
 
 export { ENTRELINHAS, ESPACAMENTOS, PESOS } from './espacamento';
-import { perfilAtivo } from '../perfis/perfis';
+import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
 import { derivarPaleta } from './temaDerivado';
 
 export const TEMAS = [
@@ -247,12 +247,17 @@ export async function definirTemaSoberano(valor: boolean): Promise<void> {
 
 // Voz ao escolher uma cor de pintar. Desligada por padrão: quem usa leitor
 // de tela já ouve o nome pelo leitor, e duas vozes juntas atrapalham.
+// Sem perfil escolhido (a folha aberta em "Fazer no app", na área de quem
+// ensina), a escolha fica no aparelho — antes, a tela de pintura parava no
+// meio da montagem com "Nenhum perfil ativo" e saía sem paleta.
+const chaveFalarCores = () => `${temPerfilAtivo() ? perfilAtivo().id : 'aparelho'}:falarCores`;
+
 export async function obterFalarCores(): Promise<boolean> {
-  return (await armazenamento.obter<boolean>(`${perfilAtivo().id}:falarCores`)) ?? false;
+  return (await armazenamento.obter<boolean>(chaveFalarCores())) ?? false;
 }
 
 export async function definirFalarCores(valor: boolean): Promise<void> {
-  await armazenamento.definir(`${perfilAtivo().id}:falarCores`, valor);
+  await armazenamento.definir(chaveFalarCores(), valor);
 }
 
 export async function trocarTema(tema: string): Promise<void> {
