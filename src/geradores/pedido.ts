@@ -130,7 +130,7 @@ export { ORNAMENTOS };
 
 export type Pedido =
   | { tipo: 'caca'; titulo: string; palavras: string; nivel: Nivel; semente: number; respostas: boolean }
-  | { tipo: 'cruzadinha'; titulo: string; itens: string; respostas: boolean }
+  | { tipo: 'cruzadinha'; titulo: string; itens: string; respostas: boolean; /** id de uma cruzadinha pronta */ pronta?: string }
   | { tipo: 'jogo'; jogo: JogoDeMesa; pecas: string; cartelas: number; lado: 3 | 4; verso: boolean; semente: number }
   | { tipo: 'matematica'; modelo: ModeloMatematica; horas: string; respostas: boolean; de: number; ate: number; completar: boolean }
   | { tipo: 'silabas'; modelo: ModeloSilabas; familias: string; palavras: string; completar: boolean; cartelas: number; semente: number }

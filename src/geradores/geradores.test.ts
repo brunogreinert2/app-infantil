@@ -1160,3 +1160,49 @@ describe('jogos na tela: as regras', () => {
     expect(cruzamentos.length).toBeGreaterThan(0);
   });
 });
+
+describe('cruzadinhas prontas', () => {
+  it('cada tema encaixa todas as palavras, com dica, e a ordem dá a volta', async () => {
+    const { CRUZADINHAS_PRONTAS, proximaPronta, textoDaPronta } = await import('./cruzadinhasProntas');
+    const { gerarCruzadinha } = await import('./cruzadinha');
+    const { lerItens } = await import('./pedido');
+    expect(CRUZADINHAS_PRONTAS.length).toBeGreaterThanOrEqual(12);
+    expect(new Set(CRUZADINHAS_PRONTAS.map((p) => p.id)).size).toBe(CRUZADINHAS_PRONTAS.length);
+    for (const p of CRUZADINHAS_PRONTAS) {
+      const jogo = gerarCruzadinha(p.itens);
+      expect(jogo.fora, p.id).toEqual([]);
+      expect(p.itens.every((x) => x.dica.length > 5), p.id).toBe(true);
+      // o texto do formulário volta às mesmas palavras e dicas
+      expect(lerItens(textoDaPronta(p))).toEqual(p.itens);
+    }
+    expect(proximaPronta(CRUZADINHAS_PRONTAS[0].id).id).toBe(CRUZADINHAS_PRONTAS[1].id);
+    expect(proximaPronta(CRUZADINHAS_PRONTAS[CRUZADINHAS_PRONTAS.length - 1].id).id).toBe(CRUZADINHAS_PRONTAS[0].id);
+    expect(proximaPronta(undefined).id).toBe(CRUZADINHAS_PRONTAS[0].id);
+  });
+
+  it('a pronta vai e volta pelo código', async () => {
+    const { CRUZADINHAS_PRONTAS, textoDaPronta } = await import('./cruzadinhasProntas');
+    const { codificar, decodificar } = await import('./codigo');
+    const { pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('cruzadinha');
+    const pronta = CRUZADINHAS_PRONTAS[3];
+    const p = { ...base, pronta: pronta.id, titulo: pronta.tema, itens: textoDaPronta(pronta) } as never;
+    const r = codificar(p);
+    if ('erro' in r) throw new Error(r.erro);
+    const d = decodificar(r.codigo);
+    if ('erro' in d) throw new Error(d.erro);
+    expect(d.pedido).toEqual(p);
+  });
+});
+
+// O PEDIDO DE PARTIDA NÃO PODE MUDAR: o código guarda só o que difere dele, e
+// um código já impresso passaria a montar outra folha. Mudou de propósito?
+// Então é versão nova do código (H2). Nunca trocar este número por conveniência.
+describe('pedido de partida congelado', () => {
+  it('os pedidos de partida de todos os tipos são os de 2026-11-18', async () => {
+    const { pedidoInicial } = await import('./pedido');
+    const { TIPOS_NO_CODIGO, DATA_DE_REFERENCIA } = await import('./codigo');
+    const { semear } = await import('./comum');
+    expect(semear(JSON.stringify(TIPOS_NO_CODIGO.map((t) => pedidoInicial(t, DATA_DE_REFERENCIA))))).toBe(1418603485);
+  });
+});

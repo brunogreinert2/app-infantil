@@ -194,6 +194,17 @@ em `jogo.ts`; a tela em `telaJogo.ts`.
   «Mostrar respostas», «Recomeçar». A festa (confete) é uma vez, quando a
   última palavra fecha.
 - **Progresso guardado pelo código da folha** (`folhas:jogo:<código>`).
+- **Cruzadinhas prontas** (`cruzadinhasProntas.ts`, pedido do Bruno: quem
+  joga sozinho «cola na prova», porque as palavras estão escritas ao lado): 12
+  temas de 8 palavras (bichos, frutas, corpo, casa, escola, transporte,
+  natureza, cores, profissões, comidas, brinquedos, sentimentos), todos
+  conferidos por teste. Escolhida uma pronta, as palavras ficam escondidas
+  («Ver as palavras (para quem ensina)»); mexer nelas a torna «a minha».
+  «🔀 Outra cruzadinha pronta» no formulário e «➡️ Outra cruzadinha» no jogo
+  passam para a próxima EM ORDEM (nada sorteado). A lista só cresce no fim.
+- **Imprimir colorido:** já funcionava, e foi conferido: 🎨 Pintar → 🖨️ →
+  «Do jeito que eu pintei» manda a folha com as cores (o calendário com os
+  domingos vermelhos saiu com as cores e `print-color-adjust`).
 - **Conferido no app** (computador e 375 px, por eventos): arrastar, tocar
   começo e fim ao contrário, palavra repetida, dica, mostrar; cruzadinha
   digitando BORRACHA com o cursor andando, ajuda, respostas. **Não conferido:**
@@ -233,7 +244,11 @@ própria escolha do formulário, compacta, sem servidor e sem internet.
   mesmas folhas"** guarda oito códigos de verdade com a impressão digital das
   folhas. Se um gerador mudar a folha que um código monta, ele reprova: ou se
   conserta o gerador, ou se sobe a versão (`H2`) — **nunca se troca o número do
-  teste por conveniência**.
+  teste por conveniência**. E o PEDIDO DE PARTIDA de todos os tipos também está
+  congelado por teste («pedido de partida congelado»): o código guarda só o que
+  difere dele, então mudar um valor de partida mudaria o que um código antigo
+  monta. Campo novo entra como OPCIONAL (como `pronta`), nunca no pedido de
+  partida.
 
 ## A tela "Fazer uma folha" — pronta e DESLIGADA
 

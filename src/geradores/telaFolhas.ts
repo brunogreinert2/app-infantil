@@ -49,6 +49,7 @@ import { comCasas, semear } from './comum';
 import { montarTelaColorir } from '../telas/telaColorir';
 import { montarTelaQuebraCabeca } from '../telas/telaQuebraCabeca';
 import { montarTelaJogo } from './telaJogo';
+import { CRUZADINHAS_PRONTAS, proximaPronta, textoDaPronta } from './cruzadinhasProntas';
 import type { ParteDaCapa } from './capas';
 import { MOLDURA_DA_FIGURA, encaixeDaFigura, zoomFiguraInteira } from './papeis';
 
@@ -262,11 +263,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           const jogavel = !ehDoProfessor(f) ? jogoDoPedido(pedido()) : undefined;
           if (jogavel) {
             fazer.prepend(
-              botao('🎮 Jogar', () => {
-                const r = codificar(pedido(), letra);
-                const chave = `folhas:jogo:${'codigo' in r ? r.codigo : semear(f.svg)}`;
-                void montarTelaJogo(raiz, jogavel, chave, { voltar: () => void montarTelaFolhas(raiz, nav) });
-              }),
+              botao('🎮 Jogar', () => abrirJogo(pedido(), f.svg)),
             );
           }
           figura.appendChild(fazer);
@@ -281,6 +278,25 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
       },
       jaJa ? 0 : 180,
     );
+  };
+
+  const abrirJogo = (p: Pedido, svgDaFolha: string): void => {
+    const jogavel = jogoDoPedido(p);
+    if (!jogavel) return;
+    const r = codificar(p, letra);
+    const chave = `folhas:jogo:${'codigo' in r ? r.codigo : semear(svgDaFolha)}`;
+    const outra =
+      p.tipo === 'cruzadinha'
+        ? () => {
+            // a próxima pronta, em ordem; guardada como a escolha atual da tela
+            const prox = proximaPronta(p.pronta);
+            const novo = { ...p, pronta: prox.id, titulo: prox.tema, itens: textoDaPronta(prox) };
+            pedidos.cruzadinha = novo;
+            void armazenamento.definir(CHAVE, { tipo, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } });
+            abrirJogo(novo, svgDaFolha + prox.id);
+          }
+        : undefined;
+    void montarTelaJogo(raiz, jogavel, chave, { voltar: () => void montarTelaFolhas(raiz, nav), outra });
   };
 
   const desenharCampos = (): void => {
@@ -323,13 +339,50 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
         campos.appendChild(silabas);
         break;
       }
-      case 'cruzadinha':
-        campos.appendChild(rotulado('Título', campoTexto(p.titulo, (v) => ((p.titulo = v), atualizar()))));
+      case 'cruzadinha': {
+        // PRONTAS: a criança joga sem ver as palavras (sem "cola"); «Outra»
+        // passa para a próxima, em ordem
+        const escolherPronta = (id: string | undefined) => {
+          const pronta = CRUZADINHAS_PRONTAS.find((x) => x.id === id);
+          p.pronta = pronta?.id;
+          if (pronta) {
+            p.titulo = pronta.tema;
+            p.itens = textoDaPronta(pronta);
+          }
+          desenharCampos();
+          atualizar(true);
+        };
         campos.appendChild(
-          rotulado('Palavras e dicas', areaDeTexto(p.itens, 10, (v) => ((p.itens = v), atualizar())), 'Uma por linha, assim: PALAVRA: dica'),
+          rotulado(
+            'Cruzadinha',
+            lista(
+              [{ valor: '', nome: 'Escrever a minha' }, ...CRUZADINHAS_PRONTAS.map((x) => ({ valor: x.id, nome: `Pronta: ${x.tema}` }))],
+              p.pronta ?? '',
+              (v) => escolherPronta(v || undefined),
+            ),
+          ),
         );
+        if (p.pronta) {
+          campos.appendChild(botao('🔀 Outra cruzadinha pronta', () => escolherPronta(proximaPronta(p.pronta).id)));
+        }
+        campos.appendChild(rotulado('Título', campoTexto(p.titulo, (v) => ((p.titulo = v), atualizar()))));
+        const palavras = areaDeTexto(p.itens, 10, (v) => {
+          p.itens = v;
+          p.pronta = undefined; // mexeu nas palavras: virou a cruzadinha de quem escreveu
+          atualizar();
+        });
+        if (p.pronta) {
+          // escondidas, para quem vai jogar não ver as respostas
+          const ver = el('details', 'folhas-silabas');
+          ver.appendChild(el('summary', undefined, 'Ver as palavras (para quem ensina)'));
+          ver.appendChild(palavras);
+          campos.appendChild(ver);
+        } else {
+          campos.appendChild(rotulado('Palavras e dicas', palavras, 'Uma por linha, assim: PALAVRA: dica'));
+        }
         campos.appendChild(marcar('Folha de respostas junto', p.respostas, (v) => ((p.respostas = v), atualizar(true))));
         break;
+      }
       case 'jogo': {
         campos.appendChild(
           rotulado(
