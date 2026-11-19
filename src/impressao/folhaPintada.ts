@@ -55,7 +55,13 @@ export function aplicarPintura(svg: string, regioes: Record<string, string>): st
 /** Só o contorno preto: nenhuma região preenchida. */
 export function contornoPreto(svg: string): string {
   // casa de grade de folha gerada: sem contorno (a grade já está desenhada)
-  return mudarRegioes(svg, (_id, atributos): Record<string, string> => /\sdata-casa="1"/.test(atributos) ? { fill: 'none', stroke: 'none' } : ({
+  return mudarRegioes(svg, (_id, atributos): Record<string, string> =>
+    /\sdata-casa="1"/.test(atributos)
+      ? { fill: 'none', stroke: 'none' }
+      : // parte de desenho de folha gerada: o traço é o do próprio desenho
+        /\sdata-parte="1"/.test(atributos)
+        ? { fill: 'none' }
+        : ({
     fill: 'none',
     stroke: '#000000',
     'stroke-width': '3',

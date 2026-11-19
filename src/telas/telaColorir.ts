@@ -27,6 +27,8 @@ interface EstadoColorir {
 
 type Acao =
   | { tipo: 'balde'; regiaoId: string; corAnterior: string }
+  // o balde em todas as partes da mesma cor: um toque, um desfazer
+  | { tipo: 'baldeTodas'; anteriores: Array<{ regiaoId: string; cor: string }> }
   | { tipo: 'traco' }
   | { tipo: 'escrita'; antes: Escrita[] };
 
@@ -140,9 +142,36 @@ export async function montarTelaColorir(
     avisar(`Pintou de ${nomeDaCor(roteador.cor)}`);
     atualizarPartes();
   };
+  // BALDE EM TODAS DA MESMA COR (pedido do Bruno, 2026-11-18): no tabuleiro,
+  // trocar todas as casas cinza por outra cor num toque — sem perder o pintar
+  // uma a uma (é só desligar o botão). Vale para qualquer desenho.
+  let baldeEmTodas = false;
+  // o que ainda não foi pintado aparece branco, seja branco de verdade ou
+  // transparente (as casas das folhas): para a criança, é a mesma cor
+  const corVista = (c: string) => {
+    const t = c.trim().toLowerCase();
+    return t === 'transparent' || t === 'white' || t === '#fff' ? '#ffffff' : t;
+  };
+  const mesmaCor = (a: string, b: string) => corVista(a) === corVista(b);
+  const pintarTodasDaCor = (regiaoId: string) => {
+    const alvo = base.corDe(regiaoId);
+    const anteriores = base
+      .regioes()
+      .filter((id) => mesmaCor(base.corDe(id), alvo))
+      .map((id) => ({ regiaoId: id, cor: base.corDe(id) }));
+    acoes.push({ tipo: 'baldeTodas', anteriores });
+    for (const { regiaoId: id } of anteriores) {
+      base.pintar(id, roteador.cor);
+      estado.regioes[id] = roteador.cor;
+    }
+    salvar();
+    avisar(`Pintou ${anteriores.length} ${anteriores.length === 1 ? 'parte' : 'partes'} de ${nomeDaCor(roteador.cor)}`);
+    atualizarPartes();
+  };
   base.aoTocarRegiao((regiaoId) => {
     if (roteador.ferramenta !== 'balde') return;
-    pintarRegiao(regiaoId);
+    if (baldeEmTodas) pintarTodasDaCor(regiaoId);
+    else pintarRegiao(regiaoId);
   });
 
   escrita.aoMudar((antes) => {
@@ -163,6 +192,12 @@ export async function montarTelaColorir(
       base.pintar(acao.regiaoId, acao.corAnterior);
       if (acao.corAnterior === '#ffffff') delete estado.regioes[acao.regiaoId];
       else estado.regioes[acao.regiaoId] = acao.corAnterior;
+    } else if (acao.tipo === 'baldeTodas') {
+      for (const { regiaoId, cor } of acao.anteriores) {
+        base.pintar(regiaoId, cor);
+        if (cor === '#ffffff') delete estado.regioes[regiaoId];
+        else estado.regioes[regiaoId] = cor;
+      }
     } else if (acao.tipo === 'escrita') {
       escrita.carregar(acao.antes);
     } else {
@@ -191,6 +226,19 @@ export async function montarTelaColorir(
     b.addEventListener('click', () => roteador.definirFerramenta(f.id));
     grupoFerr.appendChild(b);
   }
+  // o balde em todas as partes da mesma cor: liga e desliga
+  const todas = el('button', 'botao-ferramenta botao-todas', '🪣🪣');
+  todas.setAttribute('aria-label', 'Balde em todas as partes da mesma cor');
+  todas.setAttribute('aria-pressed', 'false');
+  todas.title = 'Ligado: um toque troca a cor de todas as partes que têm a mesma cor (as casas cinza do tabuleiro, por exemplo)';
+  todas.addEventListener('click', () => {
+    baldeEmTodas = !baldeEmTodas;
+    todas.setAttribute('aria-pressed', String(baldeEmTodas));
+    todas.classList.toggle('ativa', baldeEmTodas);
+    roteador.definirFerramenta('balde');
+    avisar(baldeEmTodas ? 'Balde em todas da mesma cor' : 'Balde numa parte por vez');
+  });
+  grupoFerr.appendChild(todas);
   const desf = el('button', 'botao-ferramenta', '↩️');
   desf.setAttribute('aria-label', 'Desfazer');
   desf.addEventListener('click', desfazer);

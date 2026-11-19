@@ -155,6 +155,19 @@ como no papel.
   FIM da folha em `folhaParaPintar`, senão a moldura grossa (que também vira
   região) a tapava e roubava o clique — foi o que aconteceu no sudoku e no
   tabuleiro na primeira versão.
+- **Partes dos desenhos** (pedido do Bruno, 2026-11-18: «como nos
+  alfabetos»): na tela de pintura, `face()` marca o desenho da carta entre
+  `<!--desenho-->` e `<!--/desenho-->`; `folhaParaPintar` o leva para o FIM
+  (por cima das casas) e transforma cada forma FECHADA que herda «sem tinta» em
+  parte (`data-parte`, transparente): o rosto, a boca, a lataria e as janelas
+  do ônibus, os dedos da mão. Olho e detalhe cheios ficam pretos. Desenho feito
+  só de traço aberto (a casa) pinta só o fundo. Na camada de contorno a parte
+  guarda o traço do próprio desenho.
+- **Balde em todas da mesma cor** (🪣🪣 na barra da pintura, liga e desliga):
+  um toque troca a cor de todas as partes que têm a mesma cor daquela — as 32
+  casas cinza do tabuleiro de uma vez. Branco e transparente contam como a
+  mesma cor (é o que a criança vê). Desfaz num passo só. Vale também para os
+  desenhos dos livros.
 - Ainda sem casas: pauta, pontilhado e milimetrado (são para escrever e
   desenhar), reta numérica, relógio.
 - **Não conferido:** no tablet com o dedo (só no computador, por eventos), e uma

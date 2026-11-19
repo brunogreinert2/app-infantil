@@ -56,6 +56,8 @@ export function criarCamadaLinhas(container: HTMLElement, svgFonte: string): SVG
       el.setAttribute('stroke', 'none');
       continue;
     }
+    // parte de um desenho de folha gerada: o traço é o do próprio desenho
+    if (el.hasAttribute('data-parte')) continue;
     el.setAttribute('stroke', '#1a1a1a');
     el.setAttribute('stroke-width', '4');
     el.setAttribute('stroke-linejoin', 'round');
@@ -74,6 +76,7 @@ export function derivarContornoPB(svgFonte: string): string {
       el.setAttribute('stroke', 'none');
       continue;
     }
+    if (el.hasAttribute('data-parte')) continue;
     el.setAttribute('stroke', '#000000');
     el.setAttribute('stroke-width', '3');
     el.setAttribute('stroke-linejoin', 'round');

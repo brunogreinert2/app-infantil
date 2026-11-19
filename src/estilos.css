@@ -765,6 +765,8 @@ button {
   border: 3px solid transparent;
 }
 
+/* dois baldes num botão: a letra encolhe um pouco para caber */
+.botao-todas { font-size: 0.8em; letter-spacing: -0.15em; }
 .botao-ferramenta.ativa {
   border-color: var(--destaque);
   background: var(--fundo);

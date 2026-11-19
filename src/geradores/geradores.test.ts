@@ -1090,3 +1090,29 @@ describe('casas por cima da moldura', () => {
     }
   });
 });
+
+describe('partes dos desenhos (a carinha separada do fundo)', () => {
+  it('as formas fechadas do desenho viram partes, por cima das casas, sem mudar a folha impressa', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const { comCasas } = await import('./comum');
+    const { folhaParaPintar } = await import('./pintar');
+    const p = { ...pedidoInicial('jogo'), jogo: 'memoria' } as never;
+    expect(fazerFolhas(p).folhas[0].svg).not.toContain('<!--desenho-->');
+    const svg = folhaParaPintar(comCasas(() => fazerFolhas(p)).folhas[0].svg).svg;
+    const partes = svg.match(/data-parte="1"/g) ?? [];
+    expect(partes.length).toBeGreaterThanOrEqual(12); // os rostos, as bocas, o ônibus…
+    // todas as partes vêm depois de todas as casas (o toque no rosto pinta o rosto)
+    expect(svg.indexOf('data-parte="1"')).toBeGreaterThan(svg.lastIndexOf('data-casa="1"'));
+    // o olho cheio (detalhe preto) não vira parte
+    expect(svg).not.toMatch(/fill="currentColor"[^>]*data-parte/);
+    // o marcador não sobra na folha pronta
+    expect(svg).not.toContain('<!--desenho-->');
+  });
+
+  it('no contorno, a parte do desenho fica com o traço dele', async () => {
+    const { contornoPreto } = await import('../impressao/folhaPintada');
+    const c = contornoPreto('<svg><g stroke="#000" stroke-width="5"><circle id="regiao-f1" class="colorir-alvo" fill="transparent" data-parte="1" r="40"/></g></svg>');
+    expect(c).toMatch(/id="regiao-f1"[^>]*fill="none"/);
+    expect(c).not.toMatch(/id="regiao-f1"[^>]*stroke=/);
+  });
+});

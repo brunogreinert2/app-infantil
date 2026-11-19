@@ -39,8 +39,26 @@ function podeVirarRegiao(tag: string, atributos: string): boolean {
  * A folha pronta para a tela de pintura. Devolve também quantas regiões ela
  * ganhou: zero quer dizer que só dá para desenhar e escrever, não usar o balde.
  */
-export function folhaParaPintar(svg: string): { svg: string; regioes: number } {
+export function folhaParaPintar(svgOriginal: string): { svg: string; regioes: number } {
   let n = 0;
+  // Os desenhos marcados (as figuras das cartas) saem da folha e voltam no
+  // FIM, depois das casas: assim a parte do desenho fica por cima da casa da
+  // carta, e um toque no rosto pinta o rosto, fora dele pinta o fundo.
+  // Dentro do desenho, toda forma FECHADA que herda "sem tinta" do grupo vira
+  // parte (`data-parte`): transparente até ser pintada, e o contorno do
+  // desenho continua sendo o do próprio desenho.
+  const desenhos: string[] = [];
+  const svg = svgOriginal.replace(/<!--desenho-->([\s\S]*?)<!--\/desenho-->/g, (_t, grupo: string) => {
+    desenhos.push(
+      grupo.replace(FORMA, (inteiro, tag: string, atributos: string, fecha: string) => {
+        if (atributo(atributos, 'fill') !== undefined) return inteiro; // olho cheio, detalhe preto: fica
+        if (tag === 'path' && !/[zZ]\s*$/.test(atributo(atributos, 'd') ?? '')) return inteiro;
+        n++;
+        return `<${tag} id="regiao-f${n}"${atributos} class="colorir-alvo" fill="transparent" data-parte="1"${fecha}>`;
+      }),
+    );
+    return '';
+  });
   const pronto = svg.replace(FORMA, (inteiro, tag: string, atributos: string, fecha: string) => {
     if (!podeVirarRegiao(tag, atributos)) return inteiro;
     n++;
@@ -73,7 +91,7 @@ export function folhaParaPintar(svg: string): { svg: string; regioes: number } {
     return '';
   });
   const fim = semCasas.lastIndexOf('</svg>');
-  const comCasasNoFim = fim < 0 ? semRepetir : semCasas.slice(0, fim) + casas.join('') + semCasas.slice(fim);
+  const comCasasNoFim = fim < 0 ? semRepetir : semCasas.slice(0, fim) + casas.join('') + desenhos.join('') + semCasas.slice(fim);
   return { svg: comCasasNoFim, regioes: n };
 }
 

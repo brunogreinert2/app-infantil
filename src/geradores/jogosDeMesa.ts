@@ -55,7 +55,11 @@ export function face(p: Peca, x: number, y: number, w: number, h: number, mostra
     const lado = Math.min(w - folga * 2, h - alturaPalavra - folga * 1.5);
     const fx = x + (w - lado) / 2;
     const fy = y + folga + (h - alturaPalavra - folga * 1.5 - lado) / 2;
-    s += `<g transform="translate(${n(fx)} ${n(fy)}) scale(${n(lado / 100)})" color="${TINTA}" fill="none" stroke="${TINTA}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">${PICTOGRAMAS[p.figura!]}</g>`;
+    const grupo = `<g transform="translate(${n(fx)} ${n(fy)}) scale(${n(lado / 100)})" color="${TINTA}" fill="none" stroke="${TINTA}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">${PICTOGRAMAS[p.figura!]}</g>`;
+    // na tela de pintura o desenho vai marcado: as formas fechadas dele (o
+    // rosto, a boca, a lataria do ônibus) viram partes pintáveis, separadas
+    // do fundo da carta. Na folha impressa, nada muda.
+    s += pintando() ? `<!--desenho-->${grupo}<!--/desenho-->` : grupo;
   }
   if (temPalavra) {
     const tam = temFigura ? alturaPalavra * 0.62 : Math.min(h * 0.3, w * 0.24);
