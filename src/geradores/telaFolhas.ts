@@ -295,12 +295,12 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     if (!jogavel) return;
     const r = codificar(p, letra);
     const chave = `folhas:jogo:${'codigo' in r ? r.codigo : semear(svgDaFolha)}`;
-    // sudoku e labirinto: «Outro» é a semente seguinte (a mesma que «outra folha» daria)
+    // sudoku, labirinto e contas do app: «Outro» é a semente seguinte (a mesma que «outra folha» daria)
     const outroSudoku =
-      p.tipo === 'logica'
+      p.tipo === 'logica' || (p.tipo === 'contas' && p.modelo === 'armadas' && !p.proprias?.trim())
         ? () => {
             const novo = { ...p, semente: (Number(p.semente) || 0) + 1 };
-            pedidos.logica = novo;
+            pedidos[novo.tipo] = novo;
             void armazenamento.definir(CHAVE, { tipo, secao, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } });
             abrirJogo(novo, svgDaFolha + novo.semente);
           }

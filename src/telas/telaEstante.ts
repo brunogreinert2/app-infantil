@@ -20,6 +20,8 @@ export async function montarTelaEstante(
     anotacoes: () => void;
     pinturas: () => void;
     pasta: (id: string) => void;
+    /** 🎮 Jogos (só com a oficina ligada) */
+    jogos?: () => void;
   },
 ): Promise<void> {
   raiz.innerHTML = '';
@@ -50,6 +52,8 @@ export async function montarTelaEstante(
     abas.appendChild(b);
   };
   for (const f of PASTAS) aba(`${f.emoji} ${f.rotulo}`, f === deFora, () => nav.pasta(f.id));
+  // pedido do Bruno (2026-11-19): os Jogos também aqui no alto, não só no menu
+  if (nav.jogos) aba('🎮 Jogos', false, nav.jogos);
   aba('🖼️ Pinturas', false, nav.pinturas);
   aba('📝 Anotações', false, nav.anotacoes);
   raiz.appendChild(abas);

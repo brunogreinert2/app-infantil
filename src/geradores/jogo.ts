@@ -7,6 +7,7 @@
 import type { Achado, CacaPalavras } from './cacaPalavras';
 import type { Cruzadinha, Entrada } from './cruzadinha';
 import type { Labirinto, Sudoku } from './logica';
+import type { Conta } from './contas';
 import { soLetras } from './comum';
 
 export type Casa = [linha: number, coluna: number];
@@ -218,4 +219,64 @@ export function pedacoDaSolucao(lab: Labirinto, caminho: Casa[], passos = 5): Ca
   let certo = 0;
   while (certo < caminho.length && certo < lab.solucao.length && mesmaCasa(caminho[certo], lab.solucao[certo] as Casa)) certo++;
   return lab.solucao.slice(0, Math.min(lab.solucao.length, Math.max(1, certo) + passos)) as Casa[];
+}
+
+// ---------------------------------------------------------------------------
+// Contas (2026-11-19)
+// ---------------------------------------------------------------------------
+//
+// Uma conta por vez. ARMADA (+, −, ×) como no caderno: a resposta se escreve
+// da direita para a esquerda, a unidade primeiro, em caixas alinhadas pela
+// direita. DEITADA (÷ e a tabuada): «84 ÷ 4 =» e as caixas, da esquerda para
+// a direita. Nada marca o erro: a conta certa ganha ✓; a errada só não ganha.
+
+/** A conta fica deitada? (divisão e tabuada; o resto, armada) */
+export const contaDeitada = (c: Conta, tabuada = false): boolean => tabuada || c.op === '/';
+
+/** Quantas caixas de resposta: na armada, o espaço do caderno; na deitada, o tamanho da resposta. */
+export function caixasDaConta(c: Conta, deitada: boolean): number {
+  const t = (x: number) => String(x).length;
+  if (deitada) return t(c.resultado);
+  if (c.op === '+') return Math.max(t(c.a), t(c.b)) + 1;
+  if (c.op === 'x') return t(c.a) + 1;
+  return Math.max(t(c.a), t(c.b));
+}
+
+/** A resposta certa, caixa a caixa, alinhada pela direita ('' nas da frente). */
+export function respostaEmCaixas(c: Conta, n: number): string[] {
+  const s = String(c.resultado);
+  return Array.from({ length: n }, (_, i) => s[s.length - n + i] ?? '');
+}
+
+/** O número escrito nas caixas (as vazias da frente não contam); buraco no meio = ainda não. */
+export function valorDasCaixas(caixas: string[]): number | undefined {
+  let i = 0;
+  while (i < caixas.length && !caixas[i]) i++;
+  const resto = caixas.slice(i);
+  if (!resto.length || resto.some((d) => !/^[0-9]$/.test(d))) return undefined;
+  return Number(resto.join(''));
+}
+
+export const contaCerta = (c: Conta, caixas: string[] | undefined): boolean =>
+  !!caixas && valorDasCaixas(caixas) === c.resultado;
+
+/** A ordem em que se escreve: armada, da direita para a esquerda; deitada, ao contrário. */
+export const ordemDasCaixas = (n: number, deitada: boolean): number[] =>
+  Array.from({ length: n }, (_, k) => (deitada ? k : n - 1 - k));
+
+/**
+ * A ajuda «Um algarismo»: na ordem de escrever, a primeira caixa que não
+ * bate com a resposta passa a bater. Sempre a mesma (nada sorteado).
+ */
+export function umAlgarismo(c: Conta, caixas: string[], deitada: boolean): string[] {
+  const certo = respostaEmCaixas(c, caixas.length);
+  const novo = [...caixas];
+  for (const i of ordemDasCaixas(caixas.length, deitada)) {
+    if (novo[i] !== certo[i]) {
+      novo[i] = certo[i];
+      // na armada, as caixas da frente que sobram ficam vazias de uma vez
+      if (certo[i] !== '' || deitada) return novo;
+    }
+  }
+  return novo;
 }

@@ -361,3 +361,27 @@ na semana seguinte e o Bruno quis «acesso total das funcionalidades».
 - No celular o Grande fica com casas de ~15 px: dá para arrastar, mas é
   apertado — para tablet ou computador.
 
+## 🎮 Jogos no alto da estante e 🧮 Contas na tela (2026-11-19)
+
+- O botão **🎮 Jogos** entrou na fileira do alto da estante (pedido do Bruno,
+  com captura do celular), entre Números e Pinturas. Abre a tela com TODOS os
+  jogos (botão grande para cada um); de cada jogo, ← volta a ela.
+- **Contas:** uma conta por vez. Armada (+, −, ×) como no caderno, a resposta
+  em caixas alinhadas pela direita, escrita da unidade para a esquerda;
+  deitada na divisão e na tabuada («84 ÷ 4 =», «7 × 3 =»), da esquerda para a
+  direita. Teclado de números na tela (e o do computador). A certa ganha ✓,
+  «Certinho!» e é falada; a resposta inteira que não fecha ganha só um
+  convite («Confira de novo, com calma…»), sem cor nem som de erro. Fila de
+  bolinhas 1–10 (✓ nas certas), Anterior/Próxima, 💡 Um algarismo (da unidade
+  para a esquerda), Mostrar a resposta, Recomeçar; confete quando todas fecham.
+- Na oficina: 🎮 Jogar nas contas armadas (as do app ou as escritas pela
+  professora) e na tabuada; a tábua de Pitágoras não. «Outras contas» = a
+  semente seguinte (só nas do app).
+- Na barra da criança: 🧮 Contas — Somar, Diminuir, Vezes, Dividir, Tabuada;
+  tamanho Pequenas (1 algarismo), Médias (2, sem «vai um»), Grandes (3, com
+  «vai um»); 12 listas de 10, iguais à folha com a semente N − 1; na tabuada,
+  as tabuadas do 1 ao 12. Até 8 anos começa nas pequenas, 9+ nas médias.
+- Regras puras em `jogo.ts` (contaDeitada, caixasDaConta, respostaEmCaixas,
+  valorDasCaixas, contaCerta, ordemDasCaixas, umAlgarismo); progresso
+  `{ caixas, atual }`.
+

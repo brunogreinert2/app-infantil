@@ -3,21 +3,24 @@
 // Separadas da tela para o teste não precisar de navegador.
 
 import { textoDaPronta, type CruzadinhaPronta } from './cruzadinhasProntas';
-import { caminhoValido, chegou, entradaCompleta, sudokuCompleto } from './jogo';
+import { caminhoValido, chegou, contaCerta, entradaCompleta, sudokuCompleto } from './jogo';
 import { jogoDoPedido, type JogoNaTela } from './pedido';
 
-export type JogoDaCrianca = 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto';
+export type JogoDaCrianca = 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas';
 /** os jogos que se escolhem por TEMA (os 12 das cruzadinhas prontas) */
 export type JogoDeTema = 'caca' | 'cruzadinha';
 export type NivelDoCaca = 'facil' | 'medio';
 export type ModeloDoSudoku = 'sudokuFiguras' | 'sudoku4' | 'sudoku6';
 export type TamanhoDoLabirinto = 'facil' | 'medio' | 'dificil';
+export type OperacaoDaCrianca = '+' | '-' | 'x' | '/' | 'tabuada';
+export type TamanhoDasContas = 'pequenas' | 'medias' | 'grandes';
 
 export const JOGOS_DA_CRIANCA: Record<JogoDaCrianca, { nome: string; emoji: string }> = {
   caca: { nome: 'Caça-palavras', emoji: '🔎' },
   cruzadinha: { nome: 'Cruzadinha', emoji: '✏️' },
   sudoku: { nome: 'Sudoku', emoji: '🔢' },
   labirinto: { nome: 'Labirinto', emoji: '🌀' },
+  contas: { nome: 'Contas', emoji: '🧮' },
 };
 
 export const NOMES_DO_NIVEL: Record<NivelDoCaca, string> = {
@@ -35,6 +38,21 @@ export const NOMES_DO_LABIRINTO: Record<TamanhoDoLabirinto, string> = {
   facil: 'Pequeno',
   medio: 'Médio',
   dificil: 'Grande',
+};
+
+export const NOMES_DAS_OPERACOES: Record<OperacaoDaCrianca, string> = {
+  '+': '➕ Somar',
+  '-': '➖ Diminuir',
+  x: '✖️ Vezes',
+  '/': '➗ Dividir',
+  tabuada: '📋 Tabuada',
+};
+
+/** pequenas: 1 algarismo · médias: 2, sem «vai um» · grandes: 3, com «vai um» (e «empresta») */
+export const NOMES_DAS_CONTAS_DA_CRIANCA: Record<TamanhoDasContas, string> = {
+  pequenas: 'Pequenas',
+  medias: 'Médias',
+  grandes: 'Grandes',
 };
 
 /** Quantos sudokus (e labirintos) numerados cada modelo oferece na tela (1, 2, 3…). */
@@ -71,6 +89,26 @@ export function labirintoDaCrianca(tamanho: TamanhoDoLabirinto, numero: number):
   return { ...alvo, titulo: `Labirinto ${NOMES_DO_LABIRINTO[tamanho].toLowerCase()} · ${numero}` };
 }
 
+/**
+ * A lista de contas número `numero`: 10 contas, as MESMAS da folha de contas
+ * armadas com essas escolhas e a semente `numero - 1`. Na tabuada, `numero`
+ * é a própria tabuada (a do 7 é a 7).
+ */
+export function contasDaCrianca(operacao: OperacaoDaCrianca, tamanho: TamanhoDasContas, numero: number): JogoNaTela {
+  if (operacao === 'tabuada') {
+    return jogoDoPedido({
+      tipo: 'contas', modelo: 'tabuada', operacao: 'x', algarismos: 1, reagrupar: false, quantas: 10,
+      numero, completar: true, semente: 0, respostas: false,
+    })!;
+  }
+  const algarismos = { pequenas: 1, medias: 2, grandes: 3 }[tamanho];
+  const alvo = jogoDoPedido({
+    tipo: 'contas', modelo: 'armadas', operacao, algarismos, reagrupar: tamanho === 'grandes', quantas: 10,
+    numero: 7, completar: true, semente: numero - 1, respostas: false,
+  })!;
+  return { ...alvo, titulo: `${NOMES_DAS_OPERACOES[operacao].replace(/^\S+\s/u, '')} · ${numero}` };
+}
+
 /** Onde fica o progresso: por perfil, por jogo, por tema (e por nível, no caça). */
 export const chaveDoJogo = (perfil: string | number, tipo: JogoDaCrianca, tema: string, nivel: NivelDoCaca = 'facil'): string =>
   `${perfil}:jogo:${tipo}:${tema}${tipo === 'caca' ? `:${nivel}` : ''}`;
@@ -83,6 +121,10 @@ export function terminado(alvo: JogoNaTela, guardado: unknown): boolean {
     return alvo.jogo.achados.length > 0 && alvo.jogo.achados.every((a) => achadas.has(a.letras));
   }
   if (alvo.tipo === 'sudoku') return sudokuCompleto(alvo.jogo, (guardado as { valores?: Record<string, number> }).valores ?? {});
+  if (alvo.tipo === 'contas') {
+    const caixas = (guardado as { caixas?: Record<string, string[]> }).caixas ?? {};
+    return alvo.jogo.length > 0 && alvo.jogo.every((c, i) => contaCerta(c, caixas[String(i)]));
+  }
   if (alvo.tipo === 'labirinto') {
     const caminho = (guardado as { caminho?: unknown }).caminho;
     return caminhoValido(alvo.jogo, caminho) && chegou(alvo.jogo, caminho);

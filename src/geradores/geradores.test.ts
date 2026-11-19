@@ -1390,3 +1390,67 @@ describe('labirintos da criança (2026-11-19)', () => {
     expect(terminado(alvo, { caminho: [[0, 0], [alvo.jogo.linhas - 1, alvo.jogo.colunas - 1]] })).toBe(false);
   });
 });
+
+describe('contas na tela (2026-11-19)', () => {
+  it('as caixas: armada como no caderno, deitada do tamanho da resposta', async () => {
+    const { caixasDaConta, respostaEmCaixas, valorDasCaixas, contaCerta, ordemDasCaixas, umAlgarismo, contaDeitada } = await import('./jogo');
+    const soma = { a: 345, b: 278, op: '+' as const, resultado: 623 };
+    expect(caixasDaConta(soma, false)).toBe(4);
+    expect(respostaEmCaixas(soma, 4)).toEqual(['', '6', '2', '3']);
+    expect(ordemDasCaixas(4, false)).toEqual([3, 2, 1, 0]);
+    expect(valorDasCaixas(['', '6', '2', '3'])).toBe(623);
+    expect(valorDasCaixas(['', '6', '', '3'])).toBeUndefined(); // buraco no meio: ainda não
+    expect(contaCerta(soma, ['', '6', '2', '3'])).toBe(true);
+    expect(contaCerta(soma, ['0', '6', '2', '3'])).toBe(true); // zero na frente não muda o número
+    expect(contaCerta(soma, ['', '6', '2', '4'])).toBe(false);
+    // a ajuda vai da unidade para a esquerda, sempre na mesma ordem
+    let caixas = ['', '', '', ''];
+    caixas = umAlgarismo(soma, caixas, false);
+    expect(caixas).toEqual(['', '', '', '3']);
+    caixas = umAlgarismo(soma, ['', '', '9', '3'], false);
+    expect(caixas).toEqual(['', '', '2', '3']);
+    const div = { a: 84, b: 4, op: '/' as const, resultado: 21 };
+    expect(contaDeitada(div)).toBe(true);
+    expect(caixasDaConta(div, true)).toBe(2);
+    expect(ordemDasCaixas(2, true)).toEqual([0, 1]);
+    expect(umAlgarismo(div, ['', ''], true)).toEqual(['2', '']);
+    expect(caixasDaConta({ a: 12, b: 3, op: 'x', resultado: 36 }, false)).toBe(3);
+    expect(caixasDaConta({ a: 50, b: 7, op: '-', resultado: 43 }, false)).toBe(2);
+  });
+
+  it('a tela joga as MESMAS contas da folha (as do app, as da professora, a tabuada)', async () => {
+    const { jogoDoPedido, pedidoInicial } = await import('./pedido');
+    const { gerarContas } = await import('./contas');
+    const base = pedidoInicial('contas');
+    if (base.tipo !== 'contas') throw new Error('contas');
+    const alvo = jogoDoPedido(base);
+    expect(alvo?.tipo).toBe('contas');
+    if (alvo?.tipo === 'contas') expect(alvo.jogo).toEqual(gerarContas({ operacao: '+', algarismos: 2, reagrupar: false, quantas: 12, semente: 0 }));
+    const prof = jogoDoPedido({ ...base, proprias: '345 + 278\n84 ÷ 4' });
+    expect(prof?.tipo === 'contas' && prof.jogo.map((c) => c.resultado)).toEqual([623, 21]);
+    const tab = jogoDoPedido({ ...base, modelo: 'tabuada', numero: 7 });
+    expect(tab?.tipo === 'contas' && tab.tabuada && tab.jogo.map((c) => c.resultado)).toEqual([7, 14, 21, 28, 35, 42, 49, 56, 63, 70]);
+    expect(jogoDoPedido({ ...base, modelo: 'tabua' })).toBeUndefined();
+  });
+
+  it('as listas da criança: 10 contas cada, em todas as escolhas; ✓ só com todas certas', async () => {
+    const { contasDaCrianca, terminado, SUDOKUS_NA_TELA } = await import('./jogosDaCrianca');
+    const { respostaEmCaixas, caixasDaConta, contaDeitada } = await import('./jogo');
+    for (const op of ['+', '-', 'x', '/', 'tabuada'] as const) {
+      for (const tam of ['pequenas', 'medias', 'grandes'] as const) {
+        for (const n of [1, SUDOKUS_NA_TELA]) {
+          const alvo = contasDaCrianca(op, tam, n);
+          if (alvo.tipo !== 'contas') throw new Error('contas');
+          expect(alvo.jogo.length, `${op} ${tam} ${n}`).toBe(10);
+        }
+      }
+    }
+    const alvo = contasDaCrianca('+', 'medias', 1);
+    if (alvo.tipo !== 'contas') throw new Error('contas');
+    const caixas: Record<string, string[]> = {};
+    alvo.jogo.forEach((c, i) => (caixas[String(i)] = respostaEmCaixas(c, caixasDaConta(c, contaDeitada(c, alvo.tabuada)))));
+    expect(terminado(alvo, { caixas })).toBe(true);
+    delete caixas['9'];
+    expect(terminado(alvo, { caixas })).toBe(false);
+  });
+});

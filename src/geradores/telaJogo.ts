@@ -34,8 +34,16 @@ import {
   caminhoValido,
   chegou,
   pedacoDaSolucao,
+  caixasDaConta,
+  contaCerta,
+  contaDeitada,
+  ordemDasCaixas,
+  respostaEmCaixas,
+  umAlgarismo,
+  valorDasCaixas,
   type Casa,
 } from './jogo';
+import type { Conta } from './contas';
 import { FIGURAS_DO_SUDOKU, type Labirinto, type Sudoku } from './logica';
 import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
 import { face } from './jogosDeMesa';
@@ -73,6 +81,7 @@ export async function montarTelaJogo(
   if (alvo.tipo === 'caca') await montarCaca(corpo, aviso, alvo.jogo, chave);
   else if (alvo.tipo === 'sudoku') await montarSudoku(corpo, aviso, alvo.jogo, alvo.figuras, chave);
   else if (alvo.tipo === 'labirinto') await montarLabirinto(corpo, aviso, alvo.jogo, chave);
+  else if (alvo.tipo === 'contas') await montarContas(corpo, aviso, alvo.jogo, alvo.tabuada, chave);
   else await montarCruzadinha(corpo, aviso, alvo.jogo, chave);
   if (nav.outra) {
     const rotulo = {
@@ -80,6 +89,7 @@ export async function montarTelaJogo(
       cruzadinha: '➡️ Outra cruzadinha',
       sudoku: '➡️ Outro sudoku',
       labirinto: '➡️ Outro labirinto',
+      contas: '➡️ Outras contas',
     }[alvo.tipo];
     const outra = botaoDoJogo(rotulo, nav.outra);
     outra.classList.add('jogo-outra');
@@ -780,4 +790,224 @@ async function montarLabirinto(corpo: HTMLElement, aviso: HTMLElement, lab: Labi
     }),
   );
   corpo.appendChild(ajudas);
+}
+
+// ---------------------------------------------------------------------------
+// Contas (2026-11-19)
+// ---------------------------------------------------------------------------
+//
+// Uma conta por vez, armada como no caderno (ou deitada, na divisão e na
+// tabuada). A resposta se escreve no teclado de números da tela (ou no do
+// computador): na armada, da unidade para a esquerda. A conta certa ganha ✓
+// e é falada; a errada só não ganha — sem cor nem som de erro.
+
+const SINAIS: Record<string, string> = { '+': '+', '-': '−', x: '×', '/': '÷' };
+
+async function montarContas(corpo: HTMLElement, aviso: HTMLElement, contas: Conta[], tabuada: boolean, chave: string): Promise<void> {
+  type Guardado = { caixas: Record<string, string[]>; atual: number };
+  const guardado = (await armazenamento.obter<Guardado>(chave)) ?? { caixas: {}, atual: 0 };
+  const deitada = (c: Conta) => contaDeitada(c, tabuada);
+  const n = (c: Conta) => caixasDaConta(c, deitada(c));
+  // o que foi guardado só vale se couber na conta de agora
+  const caixas: string[][] = contas.map((c, i) => {
+    const g = guardado.caixas?.[String(i)];
+    return Array.isArray(g) && g.length === n(c) ? g.map((d) => (/^[0-9]$/.test(d) ? d : '')) : Array<string>(n(c)).fill('');
+  });
+  let atual = Math.min(Math.max(0, Number(guardado.atual) || 0), contas.length - 1);
+  let caixa = ordemDasCaixas(n(contas[atual]), deitada(contas[atual]))[0];
+  const salvar = () =>
+    void armazenamento.definir(chave, { caixas: Object.fromEntries(caixas.map((x, i) => [String(i), x])), atual });
+  const todasCertas = () => contas.every((c, i) => contaCerta(c, caixas[i]));
+  let todasAntes = todasCertas();
+
+  const algumaArmada = contas.some((c) => !deitada(c));
+  corpo.appendChild(
+    el(
+      'p',
+      'jogo-instrucao',
+      algumaArmada
+        ? 'Toque nos números para escrever a resposta. Na conta armada, comece pela unidade, à direita.'
+        : 'Toque nos números para escrever a resposta.',
+    ),
+  );
+
+  // a fila das contas: tocar leva até ela; ✓ nas certas
+  const fila = el('div', 'contas-fila');
+  fila.setAttribute('role', 'group');
+  fila.setAttribute('aria-label', 'As contas');
+  const area = el('div', 'contas-area');
+  corpo.append(fila, area, aviso);
+
+  const textoDaConta = (c: Conta) => `${c.a} ${SINAIS[c.op]} ${c.b}`;
+  const desenharFila = () => {
+    fila.innerHTML = '';
+    contas.forEach((c, i) => {
+      const certa = contaCerta(c, caixas[i]);
+      const b = el('button', 'contas-fila-item', certa ? '✓' : String(i + 1));
+      b.type = 'button';
+      b.classList.toggle('atual', i === atual);
+      b.classList.toggle('certa', certa);
+      b.setAttribute('aria-label', `Conta ${i + 1}${certa ? ', certa' : ''}`);
+      if (i === atual) b.setAttribute('aria-current', 'true');
+      b.addEventListener('click', () => irPara(i));
+      fila.appendChild(b);
+    });
+  };
+
+  const caixaEl = (i: number, c: Conta): HTMLButtonElement => {
+    const b = el('button', 'contas-caixa', caixas[atual][i]);
+    b.type = 'button';
+    b.classList.toggle('escolhida', i === caixa);
+    b.setAttribute('aria-label', `Caixa ${i + 1} de ${n(c)}${caixas[atual][i] ? `: ${caixas[atual][i]}` : ', vazia'}`);
+    b.addEventListener('click', () => {
+      caixa = i;
+      desenharConta();
+    });
+    return b;
+  };
+
+  const desenharConta = () => {
+    const c = contas[atual];
+    area.innerHTML = '';
+    const certa = contaCerta(c, caixas[atual]);
+    if (deitada(c)) {
+      const linha = el('div', 'conta-deitada');
+      linha.appendChild(el('span', 'conta-texto', `${textoDaConta(c)} =`));
+      const respostas = el('span', 'conta-caixas');
+      for (let i = 0; i < n(c); i++) respostas.appendChild(caixaEl(i, c));
+      linha.appendChild(respostas);
+      area.appendChild(linha);
+    } else {
+      // armada: uma coluna para o sinal e uma por algarismo, alinhadas pela direita
+      const largura = Math.max(n(c), String(c.a).length, String(c.b).length);
+      const grade = el('div', 'conta-armada');
+      grade.style.setProperty('--colunas', String(largura + 1));
+      grade.setAttribute('aria-label', `${textoDaConta(c)}, armada`);
+      const linhaDe = (sinal: string, numero: string) => {
+        grade.appendChild(el('span', 'conta-sinal', sinal));
+        const s = numero.padStart(largura, ' ');
+        for (const d of s) grade.appendChild(el('span', 'conta-algarismo', d.trim()));
+      };
+      linhaDe('', String(c.a));
+      linhaDe(SINAIS[c.op], String(c.b));
+      grade.appendChild(el('span', 'conta-traco'));
+      grade.appendChild(el('span', 'conta-sinal', ''));
+      for (let k = 0; k < largura - n(c); k++) grade.appendChild(el('span', 'conta-algarismo', ''));
+      for (let i = 0; i < n(c); i++) grade.appendChild(caixaEl(i, c));
+      area.appendChild(grade);
+    }
+    if (certa) area.appendChild(el('p', 'conta-certa', '✓ Certinho!'));
+    desenharFila();
+  };
+
+  const irPara = (i: number) => {
+    atual = (i + contas.length) % contas.length;
+    caixa = ordemDasCaixas(n(contas[atual]), deitada(contas[atual]))[0];
+    aviso.textContent = '';
+    salvar();
+    desenharConta();
+  };
+
+  const depoisDeMudar = (antesCerta: boolean) => {
+    salvar();
+    const c = contas[atual];
+    const certa = contaCerta(c, caixas[atual]);
+    const todas = todasCertas();
+    if (todas && !todasAntes) {
+      // a festa é uma vez, na hora em que a última conta fecha
+      aviso.textContent = 'Todas as contas certas!';
+      soltarConfetes();
+    } else if (certa && !antesCerta) {
+      aviso.textContent = `${textoDaConta(c)} = ${c.resultado}. Certinho!`;
+      falar(`${c.resultado}`);
+    } else if (!certa && valorDasCaixas(caixas[atual]) !== undefined && caixas[atual].filter(Boolean).length >= String(c.resultado).length) {
+      // escreveu uma resposta inteira que não fecha: um convite, nunca uma marca
+      aviso.textContent = 'Confira de novo, com calma. Se quiser, peça uma ajuda.';
+    } else aviso.textContent = '';
+    todasAntes = todas;
+    desenharConta();
+  };
+
+  const escrever = (d: string) => {
+    const c = contas[atual];
+    const antes = contaCerta(c, caixas[atual]);
+    caixas[atual][caixa] = d;
+    // a próxima caixa, na ordem de escrever
+    const ordem = ordemDasCaixas(n(c), deitada(c));
+    const k = ordem.indexOf(caixa);
+    if (k >= 0 && k + 1 < ordem.length) caixa = ordem[k + 1];
+    depoisDeMudar(antes);
+  };
+  const apagar = () => {
+    const c = contas[atual];
+    const antes = contaCerta(c, caixas[atual]);
+    if (!caixas[atual][caixa]) {
+      // caixa vazia: volta uma e apaga lá
+      const ordem = ordemDasCaixas(n(c), deitada(c));
+      const k = ordem.indexOf(caixa);
+      if (k > 0) caixa = ordem[k - 1];
+    }
+    caixas[atual][caixa] = '';
+    depoisDeMudar(antes);
+  };
+
+  // o teclado de números da tela
+  const teclado = el('div', 'contas-teclado');
+  teclado.setAttribute('role', 'group');
+  teclado.setAttribute('aria-label', 'Números');
+  for (const d of ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0']) {
+    const b = el('button', 'botao-opcao contas-tecla', d);
+    b.type = 'button';
+    b.addEventListener('click', () => escrever(d));
+    teclado.appendChild(b);
+  }
+  const tApagar = el('button', 'botao-opcao contas-tecla contas-apagar', '⌫');
+  tApagar.type = 'button';
+  tApagar.setAttribute('aria-label', 'Apagar');
+  tApagar.addEventListener('click', apagar);
+  teclado.appendChild(tApagar);
+  corpo.appendChild(teclado);
+
+  // e o teclado do computador
+  corpo.tabIndex = -1;
+  corpo.addEventListener('keydown', (ev) => {
+    if (/^[0-9]$/.test(ev.key)) {
+      ev.preventDefault();
+      escrever(ev.key);
+    } else if (ev.key === 'Backspace' || ev.key === 'Delete') {
+      ev.preventDefault();
+      apagar();
+    } else if (ev.key === 'ArrowRight' && ev.altKey) irPara(atual + 1);
+    else if (ev.key === 'ArrowLeft' && ev.altKey) irPara(atual - 1);
+  });
+
+  const passar = el('div', 'folhas-botoes jogo-ajudas');
+  passar.append(
+    botaoDoJogo('◀ Anterior', () => irPara(atual - 1)),
+    botaoDoJogo('Próxima ▶', () => irPara(atual + 1)),
+  );
+  corpo.appendChild(passar);
+  const ajudas = el('div', 'folhas-botoes jogo-ajudas');
+  ajudas.append(
+    botaoDoJogo('💡 Um algarismo', () => {
+      const c = contas[atual];
+      const antes = contaCerta(c, caixas[atual]);
+      caixas[atual] = umAlgarismo(c, caixas[atual], deitada(c));
+      depoisDeMudar(antes);
+    }),
+    botaoDoJogo('Mostrar a resposta', () => {
+      const c = contas[atual];
+      const antes = contaCerta(c, caixas[atual]);
+      caixas[atual] = respostaEmCaixas(c, n(c));
+      depoisDeMudar(antes);
+    }),
+    botaoDoJogo('Recomeçar', () => {
+      for (let i = 0; i < contas.length; i++) caixas[i] = Array<string>(n(contas[i])).fill('');
+      todasAntes = false;
+      irPara(0);
+    }),
+  );
+  corpo.appendChild(ajudas);
+  desenharConta();
+  corpo.focus({ preventScroll: true });
 }

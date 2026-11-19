@@ -20,6 +20,11 @@ import {
   NOMES_DO_LABIRINTO,
   SUDOKUS_NA_TELA,
   labirintoDaCrianca,
+  contasDaCrianca,
+  NOMES_DAS_OPERACOES,
+  NOMES_DAS_CONTAS_DA_CRIANCA,
+  type OperacaoDaCrianca,
+  type TamanhoDasContas,
   type TamanhoDoLabirinto,
   chaveDoJogo,
   jogoDoTema,
@@ -71,16 +76,39 @@ async function botaoDeEscolha(emoji: string, nome: string, alvo: JogoNaTela, cha
   return li;
 }
 
-export async function montarTelaJogos(raiz: HTMLElement, tipo: JogoDaCrianca, nav: Nav): Promise<void> {
-  const { nome, emoji } = JOGOS_DA_CRIANCA[tipo];
+export async function montarTelaJogos(raiz: HTMLElement, tipo: JogoDaCrianca | undefined, nav: Nav): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-jogos';
   window.scrollTo(0, 0);
-  raiz.appendChild(barraTopo({ titulo: `${emoji} ${nome}`, aoVoltar: nav.estante, aoTrocarPerfil: nav.perfis }));
+  if (!tipo) {
+    // TODOS OS JOGOS (o 🎮 Jogos do alto da estante): um botão grande por jogo
+    raiz.appendChild(barraTopo({ titulo: '🎮 Jogos', aoVoltar: nav.estante, aoTrocarPerfil: nav.perfis }));
+    const corpo = el('main', 'jogos-corpo');
+    raiz.appendChild(corpo);
+    corpo.appendChild(el('p', 'jogos-instrucao', 'Do que vamos brincar?'));
+    const lista = el('ul', 'jogos-temas jogos-todos');
+    for (const t of Object.keys(JOGOS_DA_CRIANCA) as JogoDaCrianca[]) {
+      const li = el('li');
+      const b = el('button', 'jogos-tema');
+      b.type = 'button';
+      const marca = el('span', 'jogos-tema-emoji', JOGOS_DA_CRIANCA[t].emoji);
+      marca.setAttribute('aria-hidden', 'true');
+      b.append(marca, el('span', 'jogos-tema-nome', JOGOS_DA_CRIANCA[t].nome));
+      b.addEventListener('click', () => void montarTelaJogos(raiz, t, nav));
+      li.appendChild(b);
+      lista.appendChild(li);
+    }
+    corpo.appendChild(lista);
+    return;
+  }
+  const { nome, emoji } = JOGOS_DA_CRIANCA[tipo];
+  // voltar leva à tela de todos os jogos (e de lá, à estante)
+  raiz.appendChild(barraTopo({ titulo: `${emoji} ${nome}`, aoVoltar: () => void montarTelaJogos(raiz, undefined, nav), aoTrocarPerfil: nav.perfis }));
   const corpo = el('main', 'jogos-corpo');
   raiz.appendChild(corpo);
   if (tipo === 'sudoku') await escolherSudoku(raiz, corpo, nav);
   else if (tipo === 'labirinto') await escolherLabirinto(raiz, corpo, nav);
+  else if (tipo === 'contas') await escolherContas(raiz, corpo, nav);
   else await escolherTema(raiz, corpo, tipo, nav);
 }
 
@@ -161,6 +189,41 @@ async function escolherLabirinto(raiz: HTMLElement, corpo: HTMLElement, nav: Nav
   const lista = el('ul', 'jogos-temas jogos-numerados');
   for (let numero = 1; numero <= SUDOKUS_NA_TELA; numero++) {
     lista.appendChild(await botaoDeEscolha(String(numero), `Labirinto ${numero}`, labirintoDaCrianca(tamanho, numero), chave(numero), () => abrir(numero)));
+  }
+  corpo.appendChild(lista);
+}
+
+async function escolherContas(raiz: HTMLElement, corpo: HTMLElement, nav: Nav): Promise<void> {
+  const perfil = perfilAtivo();
+  const chaveOp = `${perfil.id}:jogos:operacao`;
+  const chaveTamanho = `${perfil.id}:jogos:tamanhoDasContas`;
+  const opGuardada = await armazenamento.obter<OperacaoDaCrianca>(chaveOp);
+  const operacao: OperacaoDaCrianca = opGuardada && opGuardada in NOMES_DAS_OPERACOES ? opGuardada : '+';
+  // até 8 anos começa nas pequenas; 9 ou mais, nas médias
+  const tamGuardado = await armazenamento.obter<TamanhoDasContas>(chaveTamanho);
+  const tamanho: TamanhoDasContas =
+    tamGuardado && tamGuardado in NOMES_DAS_CONTAS_DA_CRIANCA ? tamGuardado : /^(9|1\d)/.test(perfil.faixaEtaria) ? 'medias' : 'pequenas';
+  const voltarAqui = () => void montarTelaJogos(raiz, 'contas', nav);
+  const chave = (numero: number) =>
+    chaveDoJogo(perfil.id, 'contas', operacao === 'tabuada' ? `tabuada:${numero}` : `${operacao}:${tamanho}:${numero}`);
+  const abrir = (numero: number): void => {
+    void montarTelaJogo(raiz, contasDaCrianca(operacao, tamanho, numero), chave(numero), {
+      voltar: voltarAqui,
+      outra: () => abrir((numero % SUDOKUS_NA_TELA) + 1),
+    });
+  };
+
+  corpo.appendChild(escolhas(NOMES_DAS_OPERACOES, operacao, 'Que conta', (o) => void armazenamento.definir(chaveOp, o).then(voltarAqui)));
+  if (operacao !== 'tabuada') {
+    corpo.appendChild(
+      escolhas(NOMES_DAS_CONTAS_DA_CRIANCA, tamanho, 'Tamanho das contas', (t) => void armazenamento.definir(chaveTamanho, t).then(voltarAqui)),
+    );
+  }
+  corpo.appendChild(el('p', 'jogos-instrucao', operacao === 'tabuada' ? 'Escolha a tabuada.' : 'Escolha uma lista de 10 contas.'));
+  const lista = el('ul', 'jogos-temas jogos-numerados');
+  for (let numero = 1; numero <= SUDOKUS_NA_TELA; numero++) {
+    const nome = operacao === 'tabuada' ? `Tabuada do ${numero}` : `Lista ${numero}`;
+    lista.appendChild(await botaoDeEscolha(String(numero), nome, contasDaCrianca(operacao, tamanho, numero), chave(numero), () => abrir(numero)));
   }
   corpo.appendChild(lista);
 }

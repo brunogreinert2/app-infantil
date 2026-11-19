@@ -12,8 +12,9 @@ digital, confirmado com a professora). PUBLICADO como 0.10.0 em 2026-11-19
 (master `0568aff`, Actions 44575609572 com sucesso; o pacote servido em
 historinhas.app.br traz 0.10.0 e o menu novo). Depois disso, na branch
 `fable/ler-o-mundo-e-caa`: 🔢 SUDOKU e 🌀 LABIRINTO na tela (oficina e Jogos
-da criança), publicados juntos na 0.11.0. Próximos jogos pedidos pelo Bruno:
-contas e memória. Publicar de novo = subir a versão, `git merge --ff-only` da branch
+da criança), publicados juntos na 0.11.0. Depois: 🎮 Jogos no alto da
+estante (tela com todos os jogos) e 🧮 CONTAS na tela — na branch, NÃO
+publicados. Falta da lista do Bruno: memória. Publicar de novo = subir a versão, `git merge --ff-only` da branch
 na master e push (só com ordem dele).
 
 ## Brainstorm do Bruno decidido (2026-11-18)

@@ -96,11 +96,12 @@ async function irFolhas(voltar: () => void = abrirAjustes): Promise<void> {
 }
 
 // 🎮 Jogos da criança (barra lateral): escolhe o tema e joga. Vem com a oficina.
-async function irJogos(tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto'): Promise<void> {
+// sem tipo: a tela com todos os jogos (o botão 🎮 Jogos do alto da estante)
+async function irJogos(tipo?: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas'): Promise<void> {
   pararFala();
   window.scrollTo(0, 0);
   carregarPreferencias(); // pode ter vindo de um livro tematizado, pelo menu
-  marcarLocal(localDoJogo(tipo));
+  marcarLocal(localDoJogo(tipo ?? 'todos'));
   const { montarTelaJogos } = await import('./geradores/telaJogos');
   await montarTelaJogos(raiz, tipo, { perfis: irPerfis, estante: irEstante });
 }
@@ -163,6 +164,7 @@ async function abrirEstante(idPasta?: unknown): Promise<void> {
     anotacoes: irAnotacoes,
     pinturas: irPinturas,
     pasta: irEstante,
+    jogos: FOLHAS_LIGADAS ? () => void irJogos() : undefined,
   });
 }
 

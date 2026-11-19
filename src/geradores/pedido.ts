@@ -26,7 +26,7 @@ import {
 } from './jogosDeMesa';
 import { emSilabas, lerFamilias, pecasDeSilabas, svgFamiliasA4, svgSilabasMoveisA4 } from './silabario';
 import { folhasDeLogica, gerarLabirinto, gerarSudoku, type NivelLabirinto } from './logica';
-import { gerarContas, lerContas, svgContasA4, svgTabuaA4, svgTabuadaA4, type Operacao } from './contas';
+import { gerarContas, lerContas, svgContasA4, svgTabuaA4, svgTabuadaA4, type Conta, type Operacao } from './contas';
 import { folhasDeRecortar, type ModeloRecortar } from './recortar';
 import { lerNomes, svgCrachasA4, svgEtiquetasA4, svgHqA4, svgMarcadoresA4, svgTesouraA4, svgTracarA4 } from './cartoes';
 import { comLetra, textoSeguro, type Letra } from './comum';
@@ -388,13 +388,34 @@ export type JogoNaTela =
   | { tipo: 'caca'; titulo: string; jogo: ReturnType<typeof gerarCacaPalavras> }
   | { tipo: 'cruzadinha'; titulo: string; jogo: ReturnType<typeof gerarCruzadinha> }
   | { tipo: 'sudoku'; titulo: string; jogo: ReturnType<typeof gerarSudoku>; figuras: boolean }
-  | { tipo: 'labirinto'; titulo: string; jogo: ReturnType<typeof gerarLabirinto> };
+  | { tipo: 'labirinto'; titulo: string; jogo: ReturnType<typeof gerarLabirinto> }
+  /** `tabuada`: todas deitadas (7 × 3 =); senão a divisão deita e o resto se arma */
+  | { tipo: 'contas'; titulo: string; jogo: Conta[]; tabuada: boolean };
 
-/** O jogo para jogar na tela, quando o tipo de folha tem um (caça-palavras, cruzadinha, sudoku, labirinto). */
+/** O jogo para jogar na tela, quando o tipo de folha tem um (caça-palavras, cruzadinha, sudoku, labirinto, contas). */
 export function jogoDoPedido(p: Pedido): JogoNaTela | undefined {
   if (p.tipo === 'caca') return { tipo: 'caca', titulo: p.titulo.trim() || 'Caça-palavras', jogo: cacaDoPedido(p) };
   if (p.tipo === 'cruzadinha') return { tipo: 'cruzadinha', titulo: p.titulo.trim() || 'Cruzadinha', jogo: gerarCruzadinha(lerItens(p.itens)) };
   // o sudoku da tela é o MESMO da folha: mesmo lado, mesma semente (folhasDeLogica)
+  // as contas da tela são as MESMAS da folha (as escritas pela professora, ou as do app)
+  if (p.tipo === 'contas' && p.modelo === 'tabuada') {
+    const t = Math.min(20, Math.max(1, Math.round(numeroOu(p.numero, 7))));
+    const jogo: Conta[] = Array.from({ length: 10 }, (_, i) => ({ a: t, b: i + 1, op: 'x' as const, resultado: t * (i + 1) }));
+    return { tipo: 'contas', titulo: `Tabuada do ${t}`, jogo, tabuada: true };
+  }
+  if (p.tipo === 'contas' && p.modelo === 'armadas') {
+    const proprias = p.proprias?.trim() ? lerContas(p.proprias).contas : [];
+    const jogo = proprias.length
+      ? proprias
+      : gerarContas({
+          operacao: p.operacao,
+          algarismos: Math.min(4, Math.max(1, Math.round(numeroOu(p.algarismos, 2)))),
+          reagrupar: p.reagrupar,
+          quantas: Math.min(40, Math.max(1, Math.round(numeroOu(p.quantas, 12)))),
+          semente: numeroOu(p.semente, 0),
+        });
+    return jogo.length ? { tipo: 'contas', titulo: 'Contas', jogo, tabuada: false } : undefined;
+  }
   if (p.tipo === 'logica' && p.modelo === 'labirinto') {
     return { tipo: 'labirinto', titulo: 'Labirinto', jogo: gerarLabirinto(p.nivel, numeroOu(p.semente, 0)) };
   }
