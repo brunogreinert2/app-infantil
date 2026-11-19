@@ -1,7 +1,7 @@
 // Caça-palavras de qualquer lista de palavras, com gabarito.
 // A mesma lista (e a mesma semente) dá sempre a mesma folha.
 
-import { TINTA, escrever, folha, n, semear, soLetras, sorteador, textoSeguro } from './comum';
+import { TINTA, escrever, folha, n, semear, soLetras, sorteador, textoSeguro, casa as casaPintavel } from './comum';
 import type { Identidade } from '../conteudo/alfabetoArte';
 
 /**
@@ -183,6 +183,10 @@ export function svgCacaPalavrasA4(jogo: CacaPalavras, op: OpcoesFolhaCaca = {}):
 
   let corpo = `<rect x="${n(x0)}" y="${topo}" width="${n(casa * jogo.colunas)}" height="${n(casa * jogo.linhas)}" rx="10" fill="none" stroke="${TINTA}" stroke-width="3"/>`;
   const tamLetra = casa * 0.62;
+  // casas para pintar: achou a palavra, pinta as letras dela
+  for (let l = 0; l < jogo.linhas; l++) {
+    for (let c = 0; c < jogo.colunas; c++) corpo += casaPintavel(x0 + c * casa, topo + l * casa, casa, casa);
+  }
   for (let l = 0; l < jogo.linhas; l++) {
     for (let c = 0; c < jogo.colunas; c++) {
       const p = centro(l, c);

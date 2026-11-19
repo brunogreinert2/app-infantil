@@ -7,7 +7,7 @@
 //
 // Área útil: 190 × 268,6 mm (a folha A4 menos 10 mm de margem em cada lado).
 
-import { TINTA, comHalo, escrever, folhaNua, mm, n, negrito, risco, textoSeguro } from './comum';
+import { TINTA, comHalo, escrever, folhaNua, mm, n, negrito, risco, textoSeguro, casa as casaPintavel } from './comum';
 
 const LARGURA_MM = 190;
 const ALTURA_MM = 268.6;
@@ -101,7 +101,11 @@ function linhasDaGrade(
 export function svgQuadriculadoA4(op: { lado?: number; grossura?: number } = {}): string {
   const lado = Math.max(2, op.lado ?? 10);
   const g = grade(lado);
-  return folhaNua(`Quadriculado de ${lado} mm`, tracos(linhasDaGrade(lado, g, () => true), op.grossura ?? 0.25));
+  let casas = '';
+  for (let l = 0; l < g.linhas; l++) {
+    for (let c = 0; c < g.colunas; c++) casas += casaPintavel(mm(g.x0 + c * lado), mm(g.y0 + l * lado), mm(lado), mm(lado));
+  }
+  return folhaNua(`Quadriculado de ${lado} mm`, casas + tracos(linhasDaGrade(lado, g, () => true), op.grossura ?? 0.25));
 }
 
 /** Milimetrado: 1 mm fino e cinza, 5 mm médio, 10 mm preto. */
@@ -266,7 +270,11 @@ export function svgPlanoCartesianoA4(op: OpcoesPlano = {}): string {
     finas.push([x0 + i * passo, y0, x0 + i * passo, y0 + lado]);
     finas.push([x0, y0 + i * passo, x0 + lado, y0 + i * passo]);
   }
-  let corpo = tracos(finas, 0.15, ' stroke-opacity="0.55"');
+  let corpo = '';
+  for (let i = 0; i < alcance * 2; i++) {
+    for (let j = 0; j < alcance * 2; j++) corpo += casaPintavel(mm(x0 + i * passo), mm(y0 + j * passo), mm(passo), mm(passo));
+  }
+  corpo += tracos(finas, 0.15, ' stroke-opacity="0.55"');
   // eixos com seta
   const s = 2.2;
   corpo += tracos(
@@ -469,6 +477,10 @@ export function svgCalendarioA4(op: OpcoesCalendario): string {
   DIAS.forEach((d, i) => {
     corpo += negrito(escrever(d, 48 + larg * (i + 0.5), yDias, 24, 'middle'), 22);
   });
+  // casas para pintar (só na tela de pintura): o domingo de vermelho
+  for (let l = 0; l < semanas.length; l++) {
+    for (let c = 0; c < 7; c++) corpo += casaPintavel(48 + c * larg, topo + l * alt, larg, alt);
+  }
   const linhas: string[] = [];
   for (let i = 0; i <= 7; i++) linhas.push(`M${n(48 + i * larg)} ${n(topo)}V${n(fundo)}`);
   for (let i = 0; i <= semanas.length; i++) linhas.push(`M48 ${n(topo + i * alt)}H752`);
@@ -518,6 +530,7 @@ export function svgCalendarioAnoA4(ano: number): string {
         if (!dia) return;
         const cx = x + passo * (c + 0.5);
         const yy = y + 84 + l * 27;
+        corpo += casaPintavel(x + passo * c, yy - 20, passo, 27);
         const feriado = feriados.some((f) => f.dia === dia);
         const t = escrever(String(dia), cx, yy, 18, 'middle');
         corpo += c === 0 || feriado ? negrito(t, 46) : t;

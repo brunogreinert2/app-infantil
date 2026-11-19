@@ -2,7 +2,7 @@
 // semente: o mesmo pedido dá sempre a mesma folha, e "outro" muda o número.
 
 import { PICTOGRAMAS } from '../caa/pictogramas';
-import { TINTA, escrever, folha, n, semear, sorteador } from './comum';
+import { TINTA, escrever, folha, n, semear, sorteador, casa as casaPintavel } from './comum';
 import { face, recorte, type Folha } from './jogosDeMesa';
 
 // ---------------------------------------------------------------------------
@@ -87,6 +87,11 @@ export function svgLabirintoA4(lab: Labirinto, op: { respostas?: boolean; titulo
   const x0 = 400 - (casa * lab.colunas) / 2;
   const y0 = 186;
   let d = '';
+  // casas para pintar: pintar o caminho em vez de riscar
+  let casas = '';
+  for (let l = 0; l < lab.linhas; l++) {
+    for (let c = 0; c < lab.colunas; c++) casas += casaPintavel(x0 + c * casa, y0 + l * casa, casa, casa);
+  }
   for (let l = 0; l < lab.linhas; l++) {
     for (let c = 0; c < lab.colunas; c++) {
       const x = x0 + c * casa;
@@ -99,7 +104,7 @@ export function svgLabirintoA4(lab: Labirinto, op: { respostas?: boolean; titulo
     }
   }
   const grossura = Math.max(3, casa * 0.09);
-  let corpo = `<path d="${d}" fill="none" stroke="${TINTA}" stroke-width="${n(grossura)}" stroke-linecap="square"/>`;
+  let corpo = casas + `<path d="${d}" fill="none" stroke="${TINTA}" stroke-width="${n(grossura)}" stroke-linecap="square"/>`;
   corpo += escrever('ENTRADA', x0, y0 - 14, 18);
   corpo += escrever('SAÍDA', x0 + casa * lab.colunas, y0 + casa * lab.linhas + 30, 18, 'end');
   if (op.respostas) {
@@ -203,6 +208,9 @@ export function svgSudokuA4(s: Sudoku, op: { respostas?: boolean; figuras?: bool
   const x0 = 400 - tamanho / 2;
   const y0 = 200;
   let corpo = '';
+  for (let l = 0; l < s.lado; l++) {
+    for (let c = 0; c < s.lado; c++) corpo += casaPintavel(x0 + c * casa, y0 + l * casa, casa, casa);
+  }
   const vazias: number[] = [];
   for (let l = 0; l < s.lado; l++) {
     for (let c = 0; c < s.lado; c++) {

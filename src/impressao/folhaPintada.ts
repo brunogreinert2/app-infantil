@@ -29,12 +29,12 @@ function definirAtributo(atributos: string, nome: string, valor: string): string
  */
 export function mudarRegioes(
   svg: string,
-  mudar: (id: string) => Record<string, string>,
+  mudar: (id: string, atributos: string) => Record<string, string>,
 ): string {
   return svg.replace(TAG_ALVO, (_tudo, tag: string, atributos: string, fecha: string) => {
     const id = atributos.match(/(?:^|\s)id="([^"]*)"/)?.[1] ?? '';
     let novos = atributos;
-    for (const [nome, valor] of Object.entries(mudar(id))) {
+    for (const [nome, valor] of Object.entries(mudar(id, atributos))) {
       novos = definirAtributo(novos, nome, valor);
     }
     return `<${tag}${novos}${fecha}>`;
@@ -54,7 +54,8 @@ export function aplicarPintura(svg: string, regioes: Record<string, string>): st
 
 /** Só o contorno preto: nenhuma região preenchida. */
 export function contornoPreto(svg: string): string {
-  return mudarRegioes(svg, () => ({
+  // casa de grade de folha gerada: sem contorno (a grade já está desenhada)
+  return mudarRegioes(svg, (_id, atributos): Record<string, string> => /\sdata-casa="1"/.test(atributos) ? { fill: 'none', stroke: 'none' } : ({
     fill: 'none',
     stroke: '#000000',
     'stroke-width': '3',

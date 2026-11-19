@@ -2313,8 +2313,10 @@ button.casa-caa.vazia { cursor: pointer; }
 .folhas-botoes { display: flex; flex-wrap: wrap; gap: 8px; }
 .folhas-partes { display: flex; flex-direction: column; gap: 2px; }
 .folhas-fazer { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 6px; }
-.folhas-codigo { margin-top: 14px; padding: 12px 14px; border: 2px solid var(--borda); border-radius: 14px; background: var(--cartao); display: flex; flex-direction: column; gap: 6px; }
-.folhas-codigo h2 { margin: 0; }
+/* o código da folha fica num cantinho, fechado: não é o padrão de ninguém */
+.folhas-codigo { margin-top: 18px; align-self: flex-end; font-size: 0.9rem; color: var(--texto-suave); }
+.folhas-codigo[open] { align-self: stretch; padding: 10px 12px; border: 1px solid var(--borda); border-radius: 12px; background: var(--cartao); color: var(--texto); display: flex; flex-direction: column; gap: 6px; }
+.folhas-codigo summary { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 6px 0; }
 .folhas-codigo-texto { font-size: 1.05rem; letter-spacing: 0.04em; word-break: break-all; align-self: center; }
 .folhas-estilos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 10px; }
 .folhas-formulario input[type='range'] { width: 100%; min-height: 40px; }

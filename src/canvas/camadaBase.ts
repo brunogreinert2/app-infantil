@@ -51,6 +51,11 @@ export function criarCamadaLinhas(container: HTMLElement, svgFonte: string): SVG
   svg.style.pointerEvents = 'none';
   for (const el of svg.querySelectorAll<SVGElement>('.colorir-alvo')) {
     el.setAttribute('fill', 'none');
+    // casa de grade de folha gerada: a linha da grade já está desenhada
+    if (el.hasAttribute('data-casa')) {
+      el.setAttribute('stroke', 'none');
+      continue;
+    }
     el.setAttribute('stroke', '#1a1a1a');
     el.setAttribute('stroke-width', '4');
     el.setAttribute('stroke-linejoin', 'round');
@@ -65,6 +70,10 @@ export function derivarContornoPB(svgFonte: string): string {
   const svg = molde.querySelector('svg')!;
   for (const el of svg.querySelectorAll<SVGElement>('.colorir-alvo')) {
     el.setAttribute('fill', 'none');
+    if (el.hasAttribute('data-casa')) {
+      el.setAttribute('stroke', 'none');
+      continue;
+    }
     el.setAttribute('stroke', '#000000');
     el.setAttribute('stroke-width', '3');
     el.setAttribute('stroke-linejoin', 'round');

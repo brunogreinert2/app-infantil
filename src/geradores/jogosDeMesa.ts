@@ -9,7 +9,7 @@
 // bingo é de papel (as fichas de chamar vão para um saquinho).
 
 import { NOMES_DOS_PICTOGRAMAS, PICTOGRAMAS } from '../caa/pictogramas';
-import { TINTA, escrever, folhaNua, mm, n, semear, soLetras, sorteador, textoSeguro } from './comum';
+import { TINTA, escrever, folhaNua, mm, n, semear, soLetras, sorteador, textoSeguro, casa as casaPintavel, pintando } from './comum';
 
 export interface Peca {
   /** em maiúsculas, como nas placas e na prancha */
@@ -67,10 +67,13 @@ export function face(p: Peca, x: number, y: number, w: number, h: number, mostra
 
 /** Linhas de recorte de uma grade de peças coladas umas nas outras. */
 export function recorte(x0: number, y0: number, w: number, h: number, colunas: number, linhas: number): string {
+  // cada peça de recortar é uma casa para pintar (cartas, pedras, fichas, cartões)
+  let casas = '';
+  for (let l = 0; l < linhas; l++) for (let c = 0; c < colunas; c++) casas += casaPintavel(x0 + c * w, y0 + l * h, w, h);
   let d = '';
   for (let c = 0; c <= colunas; c++) d += `M${n(x0 + c * w)} ${n(y0)}V${n(y0 + linhas * h)}`;
   for (let l = 0; l <= linhas; l++) d += `M${n(x0)} ${n(y0 + l * h)}H${n(x0 + colunas * w)}`;
-  return `<path d="${d}" fill="none" stroke="${TINTA}" stroke-width="1.6" stroke-dasharray="9 7"/>`;
+  return casas + `<path d="${d}" fill="none" stroke="${TINTA}" stroke-width="1.6" stroke-dasharray="9 7"/>`;
 }
 
 export const cabecalho = (titulo: string, como: string): string =>
@@ -237,6 +240,7 @@ export function svgBingoA4(pecas: Peca[], op: OpcoesBingo = {}): Folha[] {
       const numero = i * 2 + k + 1;
       corpo += escrever(`BINGO — cartela ${numero}`, x0, y0 - 16, 24);
       cartela.forEach((p, c) => {
+        corpo += casaPintavel(x0 + (c % lado) * casa, y0 + Math.floor(c / lado) * casa, casa, casa);
         corpo += face(p, x0 + (c % lado) * casa, y0 + Math.floor(c / lado) * casa, casa, casa);
       });
       let d = '';
@@ -280,7 +284,9 @@ export function svgTabuleiroA4(op: { coordenadas?: boolean; titulo?: string } = 
   let corpo = escrever(op.titulo ?? 'Tabuleiro', 400, 84, 30, 'middle');
   for (let l = 0; l < 8; l++) {
     for (let c = 0; c < 8; c++) {
-      if ((l + c) % 2 === 1) {
+      // na tela de pintura, as 64 casas são pintáveis (a escura começa cinza)
+      if (pintando()) corpo += casaPintavel(x0 + c * casa, y0 + l * casa, casa, casa, (l + c) % 2 === 1 ? CASA_ESCURA : 'none');
+      else if ((l + c) % 2 === 1) {
         corpo += `<rect x="${n(x0 + c * casa)}" y="${n(y0 + l * casa)}" width="${n(casa)}" height="${n(casa)}" fill="${CASA_ESCURA}"/>`;
       }
     }

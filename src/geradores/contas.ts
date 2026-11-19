@@ -1,7 +1,7 @@
 // Contas armadas (as quatro operações) e tabuada, com gabarito.
 // As contas saem de uma semente: a mesma folha sempre; "outras contas" muda.
 
-import { TINTA, escrever, folha, n, semear, sorteador } from './comum';
+import { TINTA, escrever, folha, n, semear, sorteador, casa as casaPintavel, pintando } from './comum';
 import { paginar, type Folha } from './jogosDeMesa';
 
 export type Operacao = '+' | '-' | 'x' | '/';
@@ -218,11 +218,13 @@ export function svgTabuaA4(op: { completar?: boolean } = {}): string {
         continue;
       }
       if (cabeca) {
-        corpo += `<rect x="${n(x)}" y="${n(y)}" width="${casa}" height="${casa}" fill="#d9d9d9"/>`;
+        // na tela de pintura a cabeça também se pinta (começa cinza)
+        corpo += pintando() ? casaPintavel(x, y, casa, casa, '#d9d9d9') : `<rect x="${n(x)}" y="${n(y)}" width="${casa}" height="${casa}" fill="#d9d9d9"/>`;
         corpo += escrever(String(l || c), x + casa / 2, y + casa / 2 + 11, 30, 'middle');
       } else if (!op.completar || l === c) {
+        corpo += casaPintavel(x, y, casa, casa);
         corpo += escrever(String(l * c), x + casa / 2, y + casa / 2 + 9, 24, 'middle');
-      }
+      } else corpo += casaPintavel(x, y, casa, casa);
     }
   }
   let d = '';

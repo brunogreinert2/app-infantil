@@ -1027,3 +1027,65 @@ describe('fazer no app: a folha pronta para pintar', () => {
     expect(semRegiao).toBe(0);
   });
 });
+
+describe('casas para pintar (etapa 2)', () => {
+  it('com as casas ligadas, as grades ganham casas; na folha impressa, nada muda', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const { comCasas } = await import('./comum');
+    const { folhaParaPintar } = await import('./pintar');
+    const casas = (svg: string) => (svg.match(/data-casa="1"/g) ?? []).length;
+    const casos: Array<[string, () => ReturnType<typeof pedidoInicial>, number]> = [
+      ['calendário de novembro de 2026 (5 semanas)', () => ({ ...pedidoInicial('calendario', new Date(2026, 10, 1)), modelo: 'figura' as const }), 35],
+      ['sudoku 4 × 4', () => ({ ...pedidoInicial('logica'), modelo: 'sudoku4' as const }), 16],
+      ['caça-palavras', () => pedidoInicial('caca'), 1],
+      ['quadriculado de 1 cm', () => pedidoInicial('grade'), 1],
+      ['labirinto pequeno', () => pedidoInicial('logica'), 48],
+      ['tábua (as 100 casas de dentro; as 20 da cabeça começam cinza)', () => ({ ...pedidoInicial('contas'), modelo: 'tabua' as const }), 100],
+    ];
+    for (const [nome, pedido, minimo] of casos) {
+      const impressa = fazerFolhas(pedido()).folhas[0].svg;
+      const pintar = comCasas(() => fazerFolhas(pedido())).folhas[0].svg;
+      expect(casas(impressa), nome).toBe(0);
+      expect(casas(pintar), nome).toBeGreaterThanOrEqual(minimo);
+      // na tela de pintura, cada casa é região transparente (o que está embaixo aparece)
+      const pronta = folhaParaPintar(pintar).svg;
+      expect((pronta.match(/data-casa="1"[^>]*class="colorir-alvo" fill="transparent"|class="colorir-alvo" fill="transparent"/g) ?? []).length, nome).toBeGreaterThanOrEqual(minimo);
+      folhaSa(pintar);
+    }
+    const tabua = comCasas(() => fazerFolhas({ ...pedidoInicial('contas'), modelo: 'tabua' } as never)).folhas[0].svg;
+    expect(casas(tabua)).toBe(120);
+    expect((folhaParaPintar(tabua).svg.match(/class="colorir-alvo" fill="#d9d9d9"/g) ?? []).length).toBe(20);
+    // o tabuleiro: 64 casas, as escuras começam cinza
+    const tab = comCasas(() => fazerFolhas({ ...pedidoInicial('jogo'), jogo: 'xadrez' } as never)).folhas[0].svg;
+    expect(casas(tab)).toBe(64);
+    expect((folhaParaPintar(tab).svg.match(/class="colorir-alvo" fill="#bdbdbd"/g) ?? []).length).toBe(32);
+    // frações: 1 + 2 + 3 + 4 + 5 + 6 + 8 + 10 + 12 partes; e as fatias dos círculos
+    const barras = comCasas(() => fazerFolhas({ ...pedidoInicial('recortar'), modelo: 'barras' } as never)).folhas[0].svg;
+    expect(casas(barras)).toBe(51);
+    const circulos = comCasas(() => fazerFolhas({ ...pedidoInicial('recortar'), modelo: 'circulos' } as never)).folhas[0].svg;
+    expect(casas(circulos)).toBe(2 + 3 + 4 + 5 + 6 + 8);
+  });
+
+  it('a casa não ganha contorno no desenho de cima nem na impressão do que foi pintado', async () => {
+    const { contornoPreto } = await import('../impressao/folhaPintada');
+    const svg = '<svg><rect id="regiao-f1" class="colorir-alvo" fill="transparent" data-casa="1" stroke="none"/><rect id="regiao-f2" class="colorir-alvo" fill="#ffffff"/></svg>';
+    const c = contornoPreto(svg);
+    expect(c).toMatch(/id="regiao-f1"[^>]*stroke="none"/);
+    expect(c).toMatch(/id="regiao-f2"[^>]*stroke="#000000"/);
+  });
+});
+
+describe('casas por cima da moldura', () => {
+  it('no sudoku e no tabuleiro, toda casa vem depois da última região que não é casa', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const { comCasas } = await import('./comum');
+    const { folhaParaPintar } = await import('./pintar');
+    for (const p of [{ ...pedidoInicial('logica'), modelo: 'sudoku4' }, { ...pedidoInicial('jogo'), jogo: 'xadrez' }]) {
+      const svg = folhaParaPintar(comCasas(() => fazerFolhas(p as never)).folhas[0].svg).svg;
+      const ultimaMoldura = Math.max(...[...svg.matchAll(/<[a-z]+ [^>]*class="colorir-alvo"[^>]*>/g)].filter((m) => !m[0].includes('data-casa')).map((m) => m.index!));
+      const primeiraCasa = svg.indexOf('data-casa="1"');
+      expect(primeiraCasa).toBeGreaterThan(ultimaMoldura);
+      expect(svg.trim().endsWith('</svg>')).toBe(true);
+    }
+  });
+});

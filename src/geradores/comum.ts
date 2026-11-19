@@ -50,6 +50,43 @@ const VARIANTES = outras as Record<string, Record<string, Glifo>>;
 let letraAtual: Letra = 'atkinson';
 let estiloAtual: Estilo = 'normal';
 
+// ---------------------------------------------------------------------------
+// CASAS PARA PINTAR (folhas interativas, etapa 2 — 2026-11-18). Numa grade
+// desenhada com linhas (calendário, sudoku, caça-palavras, quadriculado) o
+// balde não tem onde cair: a casa não existe como forma. Com as casas ligadas,
+// os geradores desenham cada casa como um retângulo invisível, que vira
+// região na tela de pintura — o domingo do calendário pinta-se de vermelho.
+//
+// SÓ PARA PINTAR: na folha impressa as casas não existem (`casa()` devolve
+// vazio), e por isso a folha do papel e o código dela não mudam.
+// ---------------------------------------------------------------------------
+let casasLigadas = false;
+
+export function comCasas<T>(fazer: () => T): T {
+  const antes = casasLigadas;
+  casasLigadas = true;
+  try {
+    return fazer();
+  } finally {
+    casasLigadas = antes;
+  }
+}
+
+/** Uma casa retangular para pintar (vazio na folha impressa). `cor` = cor de partida. */
+export function casa(x: number, y: number, w: number, h: number, cor = 'none'): string {
+  if (!casasLigadas) return '';
+  return `<rect x="${n(x)}" y="${n(y)}" width="${n(w)}" height="${n(h)}" fill="${cor}" stroke="none" data-casa="1"/>`;
+}
+
+/** Uma casa de forma qualquer (um caminho fechado: a fatia da fração). */
+export function casaD(d: string, cor = 'none'): string {
+  if (!casasLigadas) return '';
+  return `<path d="${d}" fill="${cor}" stroke="none" data-casa="1"/>`;
+}
+
+/** As casas estão ligadas? (O tabuleiro troca as casas escuras por casas pintáveis.) */
+export const pintando = (): boolean => casasLigadas;
+
 /** Escreve em negrito ou itálico e volta ao de antes. Vale para medir e para desenhar. */
 export function comEstilo<T>(estilo: Estilo | undefined, fazer: () => T): T {
   const antes = estiloAtual;

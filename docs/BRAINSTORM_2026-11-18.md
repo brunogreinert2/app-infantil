@@ -32,8 +32,13 @@ especialistas em impressões, A4, tudo relacionado a isso".
   palavras, passa de 100 caracteres: é o caso que pede QR).
 - [x] 6a. Folhas interativas, etapa 1 — "🎨 Fazer no app" e "🧩 Quebra-cabeça"
   embaixo de cada folha da prévia. Ver "Fazer no app" em `GERADORES.md`.
-- [ ] 6b. Etapa 2, jogo a jogo (caça-palavras arrastando, cruzadinha
-  digitando, sudoku, contas com teclado).
+- [x] 6b. Etapa 2, primeira parte: CASAS PINTÁVEIS dentro das grades (o
+  domingo do calendário de vermelho, a casa do sudoku, a letra do
+  caça-palavras, as fatias das frações…). Ver `GERADORES.md`.
+- [ ] 6c. Etapa 2, segunda parte: interação de jogo (caça-palavras arrastando
+  sobre a palavra, cruzadinha digitando na casa, sudoku e contas com teclado).
+- Ajustes do Bruno: o botão virou «🎨 Pintar»; o código da folha é opcional e
+  discreto (não sai impresso por padrão).
 
 ## Decidido — fazer, nesta ordem (do mais fácil ao maior)
 

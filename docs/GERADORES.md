@@ -120,9 +120,9 @@ do primeiro lote (silabário em diante) ainda não foram impressas.
 - Folhas sem marca de criança (`IDENTIDADE_NEUTRA`): servem do 1º ano ao
   ensino médio. Passar `identidade` para pôr a marca do Historinhas.
 
-## Fazer no app — folhas interativas, etapa 1 (2026-11-18)
+## Pintar — folhas interativas, etapas 1 e 2 (2026-11-18)
 
-Embaixo de cada folha da prévia: **🎨 Fazer no app** abre a folha na MESMA tela
+Embaixo de cada folha da prévia: **🎨 Pintar** (o nome de dentro das historinhas) abre a folha na MESMA tela
 de pintura dos livros (balde, pincel, borracha, escrever no desenho, zoom com
 mouse e dedo) e **🧩 Quebra-cabeça** a corta em peças. O app não corrige nada,
 como no papel.
@@ -139,13 +139,34 @@ como no papel.
 - `telaColorir.ts` e `telaQuebraCabeca.ts` aceitam um livro OU uma
   `FontePintura` ({svg, titulo, chave}); `resolverFonte()` decide. A barra do
   topo funciona sem perfil escolhido (área de quem ensina).
-- **Limite conhecido:** onde a grade é feita de LINHAS (sudoku, calendário,
-  quadriculado, caça-palavras), o balde pinta o quadro inteiro, não a casa; ali
-  vale o pincel e a escrita. A etapa 2 resolve isso jogo a jogo.
+- **Etapa 2 — casas dentro das grades.** `comCasas()` em `comum.ts` liga as
+  casas: os geradores desenham cada casa como retângulo invisível
+  (`casa()` / `casaD()` com `data-casa="1"`) e ela vira região TRANSPARENTE
+  (clicável; o que está embaixo aparece). Têm casas: o mês e o ano do
+  calendário (o domingo de vermelho), sudoku, caça-palavras, quadriculado,
+  plano cartesiano, labirinto (pintar o caminho), tabuleiro (64 casas, a escura
+  começa cinza), tábua (a cabeça começa cinza), material dourado (cada
+  cubinho), frações (cada parte da barra e cada FATIA do círculo), quadro de
+  valor posicional, cartelas do bingo e toda peça de recortar (cartas, pedras,
+  fichas, cartões). **Só para pintar:** na folha impressa `casa()` devolve
+  vazio, e por isso o papel e o código da folha não mudam (o teste das folhas
+  de referência confirma). A casa não ganha contorno (`criarCamadaLinhas`,
+  `derivarContornoPB`, `contornoPreto` e o quebra-cabeça a pulam) e vai para o
+  FIM da folha em `folhaParaPintar`, senão a moldura grossa (que também vira
+  região) a tapava e roubava o clique — foi o que aconteceu no sudoku e no
+  tabuleiro na primeira versão.
+- Ainda sem casas: pauta, pontilhado e milimetrado (são para escrever e
+  desenhar), reta numérica, relógio.
 - **Não conferido:** no tablet com o dedo (só no computador, por eventos), e uma
   criança usando.
 
 ## O código da folha (2026-11-18)
+
+**Ajuste do Bruno no mesmo dia:** o código NÃO vai impresso por padrão — «casos
+bem específicos» (matemática, o que tem caminho de volta, como a especificação
+que a Oficina manda ao Gerador); «tem código até em folha pautada». Fica num
+cantinho fechado da tela («Código da folha»), com a caixa «Imprimir o código no
+pé da folha do professor» desligada. A escolha fica guardada no aparelho.
 
 `src/geradores/codigo.ts`. Cada folha tem um código (`H1-64RQ-WC3Y-6CYK-6V`)
 que, digitado na tela ("Montar uma folha pelo código"), monta **a mesma

@@ -2,17 +2,25 @@
 // quadro de valor posicional e tangram. Medidas em milímetros de verdade
 // (o Bruno conferiu a régua impressa: bate no milímetro).
 
-import { TINTA, escrever, folhaNua, mm, n } from './comum';
+import { TINTA, escrever, folhaNua, mm, n, casa as casaPintavel, casaD } from './comum';
 import { cabecalho, type Folha } from './jogosDeMesa';
 
 const Y0 = 28; // mm: depois do cabeçalho
 
 /** Retângulo em mm, com grade interna fina de `passo` mm. */
 function bloco(x: number, y: number, w: number, h: number, passo = 10): string {
+  // cada cubinho da placa e da barra é uma casa para pintar (contar pintando)
+  let casas = '';
+  if (w > passo || h > passo) {
+    for (let i = 0; i < w - 0.01; i += passo) {
+      for (let j = 0; j < h - 0.01; j += passo) casas += casaPintavel(mm(x + i), mm(y + j), mm(passo), mm(passo));
+    }
+  }
   let d = '';
   for (let i = passo; i < w - 0.01; i += passo) d += `M${n(mm(x + i))} ${n(mm(y))}V${n(mm(y + h))}`;
   for (let i = passo; i < h - 0.01; i += passo) d += `M${n(mm(x))} ${n(mm(y + i))}H${n(mm(x + w))}`;
   return (
+    casas +
     (d ? `<path d="${d}" fill="none" stroke="${TINTA}" stroke-width="${n(mm(0.25))}"/>` : '') +
     `<rect x="${n(mm(x))}" y="${n(mm(y))}" width="${n(mm(w))}" height="${n(mm(h))}" fill="none" stroke="${TINTA}" stroke-width="${n(mm(0.6))}"/>`
   );
@@ -56,6 +64,8 @@ export function svgFracoesBarrasA4(): string {
     corpo += `<rect x="${n(mm(x))}" y="${n(mm(y))}" width="${n(mm(w))}" height="${n(mm(h))}" fill="none" stroke="${TINTA}" stroke-width="${n(mm(0.6))}"/>`;
     if (d) corpo += `<path d="${d}" fill="none" stroke="${TINTA}" stroke-width="${n(mm(0.45))}"/>`;
     const tam = mm(partes >= 10 ? 4.4 : 5.5);
+    // cada parte é uma casa: pintar 3 de 4 partes
+    for (let k = 0; k < partes; k++) corpo += casaPintavel(mm(x + (w / partes) * k), mm(y), mm(w / partes), mm(h));
     for (let k = 0; k < partes; k++) corpo += fracao(1, partes, mm(x + (w / partes) * (k + 0.5)), mm(y + h / 2), tam);
   });
   return folhaNua('Frações em barras', corpo);
@@ -74,6 +84,12 @@ export function svgFracoesCirculosA4(): string {
       const a = (k / partes) * Math.PI * 2 - Math.PI / 2;
       d += `M${n(mm(cx))} ${n(mm(cy))}L${n(mm(cx + Math.cos(a) * r))} ${n(mm(cy + Math.sin(a) * r))}`;
       const meio = a + Math.PI / partes;
+      // a fatia é uma casa: pintar 3 de 8 fatias
+      const b = ((k + 1) / partes) * Math.PI * 2 - Math.PI / 2;
+      corpo += casaD(
+        `M${n(mm(cx))} ${n(mm(cy))}L${n(mm(cx + Math.cos(a) * r))} ${n(mm(cy + Math.sin(a) * r))}` +
+          `A${n(mm(r))} ${n(mm(r))} 0 0 1 ${n(mm(cx + Math.cos(b) * r))} ${n(mm(cy + Math.sin(b) * r))}Z`,
+      );
       corpo += fracao(1, partes, mm(cx + Math.cos(meio) * r * 0.6), mm(cy + Math.sin(meio) * r * 0.6), mm(partes > 6 ? 4.2 : 5.4));
     }
     corpo += `<path d="${d}" fill="none" stroke="${TINTA}" stroke-width="${n(mm(0.45))}"/>`;
@@ -102,6 +118,9 @@ export function svgValorPosicionalA4(op: { ordens?: 3 | 4 | 6 } = {}): string {
     corpo += escrever(c.sigla, x + w / 2, y0 + 48, 40, 'middle');
     corpo += escrever(c.nome, x + w / 2, y0 + 80, 15, 'middle', w - 10);
   });
+  for (let i = 0; i < colunas.length; i++) {
+    for (let l = 0; l < 10; l++) corpo += casaPintavel(48 + i * w, y0 + 96 + l * linha, w, linha);
+  }
   let d = '';
   for (let i = 0; i <= colunas.length; i++) d += `M${n(48 + i * w)} ${y0 + 96}V${y0 + 96 + linha * 10}`;
   for (let l = 1; l <= 10; l++) d += `M48 ${y0 + 96 + l * linha}H752`;

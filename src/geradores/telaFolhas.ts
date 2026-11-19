@@ -44,7 +44,7 @@ import {
 import { NOMES_DAS_LETRAS, NOMES_DOS_ESTILOS, type Letra } from './comum';
 import { codificar, decodificar, folhasComCodigo } from './codigo';
 import { chaveDaPintura, folhaParaPintar } from './pintar';
-import { semear } from './comum';
+import { comCasas, semear } from './comum';
 import { montarTelaColorir } from '../telas/telaColorir';
 import { montarTelaQuebraCabeca } from '../telas/telaQuebraCabeca';
 import type { ParteDaCapa } from './capas';
@@ -58,6 +58,8 @@ interface Guardado {
   tipo: TipoDeFolha;
   letra?: Letra;
   paraQuem?: ParaQuem;
+  /** imprimir o código no pé da folha do professor (desligado por padrão) */
+  imprimirCodigo?: boolean;
   pedidos: Partial<Record<TipoDeFolha, Pedido>>;
 }
 
@@ -174,6 +176,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   let paraQuem: ParaQuem = guardado.paraQuem && guardado.paraQuem in NOMES_PARA_QUEM ? guardado.paraQuem : 'duas';
   let resultado: Resultado | undefined;
   let codigoAtual = '';
+  let imprimirCodigo = guardado.imprimirCodigo === true;
 
   raiz.innerHTML = '';
   raiz.className = 'tela tela-folhas';
@@ -215,7 +218,9 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
         codigoAtual = 'codigo' in r ? r.codigo : '';
         textoDoCodigo.textContent = codigoAtual || ('erro' in r ? r.erro : '');
         copiar.hidden = !codigoAtual;
-        if (codigoAtual) resultado = { ...resultado, folhas: folhasComCodigo(resultado.folhas, codigoAtual) };
+        // impresso na folha só quando quem ensina pede (Bruno, 2026-11-18: «casos
+        // bem específicos» — matemática, o que tem caminho de volta; nunca padrão)
+        if (codigoAtual && imprimirCodigo) resultado = { ...resultado, folhas: folhasComCodigo(resultado.folhas, codigoAtual) };
         avisos.innerHTML = '';
         for (const a of resultado.avisos) avisos.appendChild(el('li', undefined, a));
         previa.innerHTML = '';
@@ -232,15 +237,17 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           // escrever, zoom) e no quebra-cabeça — a pintura fica guardada pelo
           // código da folha, então a mesma folha volta como foi deixada
           const indice = previa.childElementCount;
+          // para pintar, a folha é refeita com as CASAS ligadas (o dia do
+          // calendário, a casa do sudoku, a letra do caça-palavras viram região)
           const fonte = () => ({
-            svg: folhaParaPintar(f.svg).svg,
+            svg: folhaParaPintar(comCasas(() => fazerFolhas(pedido(), letra)).folhas[indice]?.svg ?? f.svg).svg,
             titulo: f.titulo,
             chave: chaveDaPintura(codigoAtual, indice, semear(f.svg)),
           });
           const voltarParaCa = { perfis: nav.voltar, voltar: () => void montarTelaFolhas(raiz, nav) };
           const fazer = el('div', 'folhas-fazer');
           fazer.append(
-            botao('🎨 Fazer no app', () => {
+            botao('🎨 Pintar', () => {
               window.scrollTo(0, 0);
               void montarTelaColorir(raiz, fonte(), '', voltarParaCa);
             }),
@@ -254,7 +261,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
         }
         imprimir.disabled = !folhasPara(resultado.folhas, paraQuem).length;
         // a figura do calendário pode ser grande demais para guardar: sem ela
-        const paraGuardar: Guardado = { tipo, letra, paraQuem, pedidos: { ...pedidos } };
+        const paraGuardar: Guardado = { tipo, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } };
         const cal = paraGuardar.pedidos.calendario;
         if (cal?.tipo === 'calendario' && cal.imagem) paraGuardar.pedidos.calendario = { ...cal, imagem: undefined };
         void armazenamento.definir(CHAVE, paraGuardar);
@@ -783,10 +790,9 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     el('p', 'folhas-dica', 'No computador, a janela de impressão tem "Salvar como PDF". Deixe a escala em 100% para as medidas saírem certas.'),
   );
 
-  // --- o código da folha: guardar esta folha numa linha, e montar uma folha por ele ---
-  const caixaCodigo = el('section', 'folhas-codigo');
-  caixaCodigo.setAttribute('aria-label', 'Código da folha');
-  caixaCodigo.appendChild(el('h2', 'caa-campo-nome', 'Código desta folha'));
+  // --- o código da folha: discreto, num cantinho, fechado por padrão ---
+  const caixaCodigo = el('details', 'folhas-codigo');
+  caixaCodigo.appendChild(el('summary', undefined, 'Código da folha'));
   const linhaCodigo = el('div', 'folhas-botoes');
   const textoDoCodigo = el('code', 'folhas-codigo-texto');
   const copiar = botao('Copiar', () => {
@@ -799,7 +805,10 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   linhaCodigo.append(textoDoCodigo, copiar);
   caixaCodigo.appendChild(linhaCodigo);
   caixaCodigo.appendChild(
-    el('p', 'folhas-dica', 'Ele vai impresso no pé da folha do professor. Digitado aqui, monta a mesma folha de novo, com as respostas.'),
+    el('p', 'folhas-dica', 'Digitado aqui, monta a mesma folha de novo, com as respostas. Bom para matemática e para o que se quer refazer igual.'),
+  );
+  caixaCodigo.appendChild(
+    marcar('Imprimir o código no pé da folha do professor', imprimirCodigo, (v) => ((imprimirCodigo = v), atualizar(true))),
   );
   const entradaCodigo = campoTexto('', () => undefined, 400);
   entradaCodigo.placeholder = 'H1-…';

@@ -54,7 +54,10 @@ export async function montarTelaQuebraCabeca(
   const svgBase = molde.querySelector('svg')!;
   svgBase
     .querySelectorAll<SVGElement>('.colorir-alvo')
-    .forEach((r) => r.setAttribute('fill', '#ffffff'));
+    .forEach((r) => {
+      // casa de grade de folha gerada: fica como está (transparente ou cinza)
+      if (!r.hasAttribute('data-casa')) r.setAttribute('fill', '#ffffff');
+    });
   for (const [id, cor] of Object.entries(estado?.regioes ?? {})) {
     svgBase.querySelector(`#${CSS.escape(id)}`)?.setAttribute('fill', cor);
   }
