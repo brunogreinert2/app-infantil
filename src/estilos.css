@@ -2410,3 +2410,11 @@ button.casa-caa.vazia { cursor: pointer; }
 .jogo-escolha:last-child { width: auto; padding: 4px 12px; font-size: 1.05rem; }
 .jogos-numerados .jogos-tema { min-height: 88px; }
 .jogos-numerados .jogos-tema-emoji { font-size: 2rem; font-weight: 800; }
+
+/* ---------- labirinto na tela (2026-11-19) ---------- */
+.jogo-labirinto-moldura {
+  width: min(94vw, 620px);
+  background: #ffffff; border: 3px solid #000000; border-radius: 10px; padding: 6px; box-sizing: border-box;
+}
+.jogo-labirinto { display: block; width: 100%; height: auto; aspect-ratio: var(--proporcao); touch-action: none; user-select: none; -webkit-user-select: none; }
+.jogo-labirinto:focus { outline: 3px solid #1d4ed8; outline-offset: 3px; }

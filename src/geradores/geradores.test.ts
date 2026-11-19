@@ -1262,11 +1262,11 @@ describe('a oficina em seções e os Jogos da criança (2026-11-19)', () => {
 });
 
 describe('sudoku na tela (2026-11-19)', () => {
-  it('a tela joga o MESMO sudoku da folha, e só o sudoku (o labirinto não)', async () => {
+  it('a tela joga o MESMO sudoku da folha', async () => {
     const { jogoDoPedido, pedidoInicial } = await import('./pedido');
     const { gerarSudoku } = await import('./logica');
     const base = pedidoInicial('logica');
-    expect(jogoDoPedido(base)).toBeUndefined(); // labirinto
+    expect(jogoDoPedido(base)?.tipo).toBe('labirinto'); // desde 2026-11-19 o labirinto também se joga
     for (const modelo of ['sudoku4', 'sudoku6', 'sudokuFiguras'] as const) {
       const alvo = jogoDoPedido({ tipo: 'logica', modelo, nivel: 'facil', semente: 3, respostas: false });
       expect(alvo?.tipo).toBe('sudoku');
@@ -1318,5 +1318,75 @@ describe('sudoku na tela (2026-11-19)', () => {
     alvo.jogo.solucao.forEach((linha, l) => linha.forEach((v, c) => (valores[`${l},${c}`] = v)));
     expect(terminado(alvo, { valores })).toBe(true);
     expect(chaveDoJogo(1, 'sudoku', 'sudoku4:1')).toBe('1:jogo:sudoku:sudoku4:1');
+  });
+});
+
+describe('labirinto na tela (2026-11-19)', () => {
+  it('é o MESMO labirinto da folha', async () => {
+    const { jogoDoPedido } = await import('./pedido');
+    const { gerarLabirinto } = await import('./logica');
+    const alvo = jogoDoPedido({ tipo: 'logica', modelo: 'labirinto', nivel: 'medio', semente: 4, respostas: false });
+    expect(alvo?.tipo).toBe('labirinto');
+    if (alvo?.tipo === 'labirinto') expect(alvo.jogo).toEqual(gerarLabirinto('medio', 4));
+  });
+
+  it('anda só sem parede, volta pelo rastro, e a solução chega à saída', async () => {
+    const { gerarLabirinto } = await import('./logica');
+    const { andarAte, caminhoValido, chegou, pedacoDaSolucao, podePassar } = await import('./jogo');
+    type C = [number, number];
+    for (const nivel of ['facil', 'medio', 'dificil'] as const) {
+      const lab = gerarLabirinto(nivel, 0);
+      // a solução, andada casa a casa, chega
+      let caminho: C[] = [[0, 0]];
+      for (const casa of lab.solucao.slice(1)) caminho = andarAte(lab, caminho, casa as C);
+      expect(chegou(lab, caminho)).toBe(true);
+      expect(caminhoValido(lab, caminho)).toBe(true);
+      // voltar a uma casa do rastro apaga o resto
+      expect(andarAte(lab, caminho, [0, 0])).toEqual([[0, 0]]);
+      // parede: não passa
+      const fechada = ([[0, 1], [1, 0]] as C[]).find((v) => !podePassar(lab, [0, 0], v));
+      if (fechada) expect(andarAte(lab, [[0, 0]], fechada)).toEqual([[0, 0]]);
+      // diagonal: não passa
+      expect(andarAte(lab, [[0, 0]], [1, 1])).toEqual([[0, 0]]);
+      // a ajuda segue a solução, alguns passos além do que está certo
+      expect(pedacoDaSolucao(lab, [[0, 0]], 5)).toEqual(lab.solucao.slice(0, 6));
+    }
+    const lab = gerarLabirinto('facil', 0);
+    expect(caminhoValido(lab, [[0, 0], [1, 1]])).toBe(false);
+    expect(caminhoValido(lab, 'lixo')).toBe(false);
+  });
+
+  it('o dedo rápido num corredor reto preenche as casas do meio', async () => {
+    const { gerarLabirinto } = await import('./logica');
+    const { andarAte, podePassar } = await import('./jogo');
+    const lab = gerarLabirinto('dificil', 2);
+    // acha um corredor reto de 3 casas na solução
+    const s = lab.solucao as Array<[number, number]>;
+    const i = s.findIndex((c, k) => k + 2 < s.length && ((s[k + 2][0] === c[0] && Math.abs(s[k + 2][1] - c[1]) === 2) || (s[k + 2][1] === c[1] && Math.abs(s[k + 2][0] - c[0]) === 2)));
+    expect(i).toBeGreaterThanOrEqual(0);
+    const antes = s.slice(0, i + 1);
+    const depois = andarAte(lab, antes, s[i + 2]);
+    expect(depois).toEqual(s.slice(0, i + 3));
+    expect(podePassar(lab, s[i], s[i + 1])).toBe(true);
+  });
+});
+
+describe('labirintos da criança (2026-11-19)', () => {
+  it('12 por tamanho, iguais à folha com a semente N − 1, ✓ só quando chega', async () => {
+    const { SUDOKUS_NA_TELA, labirintoDaCrianca, terminado } = await import('./jogosDaCrianca');
+    const { gerarLabirinto } = await import('./logica');
+    for (const tamanho of ['facil', 'medio', 'dificil'] as const) {
+      for (const n of [1, SUDOKUS_NA_TELA]) {
+        const alvo = labirintoDaCrianca(tamanho, n);
+        if (alvo.tipo !== 'labirinto') throw new Error('labirinto');
+        expect(alvo.jogo).toEqual(gerarLabirinto(tamanho, n - 1));
+      }
+    }
+    const alvo = labirintoDaCrianca('facil', 1);
+    if (alvo.tipo !== 'labirinto') throw new Error('labirinto');
+    expect(terminado(alvo, { caminho: [[0, 0]] })).toBe(false);
+    expect(terminado(alvo, { caminho: alvo.jogo.solucao })).toBe(true);
+    // um "caminho" guardado que atravessa parede não vale
+    expect(terminado(alvo, { caminho: [[0, 0], [alvo.jogo.linhas - 1, alvo.jogo.colunas - 1]] })).toBe(false);
   });
 });

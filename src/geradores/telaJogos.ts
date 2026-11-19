@@ -17,7 +17,10 @@ import {
   JOGOS_DA_CRIANCA,
   NOMES_DO_NIVEL,
   NOMES_DO_SUDOKU,
+  NOMES_DO_LABIRINTO,
   SUDOKUS_NA_TELA,
+  labirintoDaCrianca,
+  type TamanhoDoLabirinto,
   chaveDoJogo,
   jogoDoTema,
   sudokuDaCrianca,
@@ -77,6 +80,7 @@ export async function montarTelaJogos(raiz: HTMLElement, tipo: JogoDaCrianca, na
   const corpo = el('main', 'jogos-corpo');
   raiz.appendChild(corpo);
   if (tipo === 'sudoku') await escolherSudoku(raiz, corpo, nav);
+  else if (tipo === 'labirinto') await escolherLabirinto(raiz, corpo, nav);
   else await escolherTema(raiz, corpo, tipo, nav);
 }
 
@@ -132,6 +136,31 @@ async function escolherSudoku(raiz: HTMLElement, corpo: HTMLElement, nav: Nav): 
   const lista = el('ul', 'jogos-temas jogos-numerados');
   for (let numero = 1; numero <= SUDOKUS_NA_TELA; numero++) {
     lista.appendChild(await botaoDeEscolha(String(numero), `Sudoku ${numero}`, sudokuDaCrianca(modelo, numero), chave(numero), () => abrir(numero)));
+  }
+  corpo.appendChild(lista);
+}
+
+async function escolherLabirinto(raiz: HTMLElement, corpo: HTMLElement, nav: Nav): Promise<void> {
+  const perfil = perfilAtivo();
+  const chaveTamanho = `${perfil.id}:jogos:tamanhoDoLabirinto`;
+  // até 8 anos começa no pequeno; 9 ou mais, no médio
+  const guardado = await armazenamento.obter<TamanhoDoLabirinto>(chaveTamanho);
+  const tamanho: TamanhoDoLabirinto =
+    guardado && guardado in NOMES_DO_LABIRINTO ? guardado : /^(9|1\d)/.test(perfil.faixaEtaria) ? 'medio' : 'facil';
+  const voltarAqui = () => void montarTelaJogos(raiz, 'labirinto', nav);
+  const chave = (numero: number) => chaveDoJogo(perfil.id, 'labirinto', `${tamanho}:${numero}`);
+  const abrir = (numero: number): void => {
+    void montarTelaJogo(raiz, labirintoDaCrianca(tamanho, numero), chave(numero), {
+      voltar: voltarAqui,
+      outra: () => abrir((numero % SUDOKUS_NA_TELA) + 1),
+    });
+  };
+
+  corpo.appendChild(escolhas(NOMES_DO_LABIRINTO, tamanho, 'Tamanho do labirinto', (t) => void armazenamento.definir(chaveTamanho, t).then(voltarAqui)));
+  corpo.appendChild(el('p', 'jogos-instrucao', 'Escolha um labirinto.'));
+  const lista = el('ul', 'jogos-temas jogos-numerados');
+  for (let numero = 1; numero <= SUDOKUS_NA_TELA; numero++) {
+    lista.appendChild(await botaoDeEscolha(String(numero), `Labirinto ${numero}`, labirintoDaCrianca(tamanho, numero), chave(numero), () => abrir(numero)));
   }
   corpo.appendChild(lista);
 }

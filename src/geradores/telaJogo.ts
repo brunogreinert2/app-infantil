@@ -1,5 +1,6 @@
 // JOGAR NA TELA (folhas interativas, etapa 2 — 2026-11-18): o caça-palavras,
-// a cruzadinha e (desde 2026-11-19) o sudoku da folha, de verdade, com o dedo.
+// a cruzadinha e (desde 2026-11-19) o sudoku e o labirinto da folha, de
+// verdade, com o dedo.
 //
 //   caça-palavras  arrastar o dedo sobre a palavra — ou tocar a primeira letra
 //                  e depois a última (para quem não consegue arrastar)
@@ -28,9 +29,15 @@ import {
   proximaVazia,
   sudokuCompleto,
   valorDaCasa,
+  SAIDA,
+  andarAte,
+  caminhoValido,
+  chegou,
+  pedacoDaSolucao,
   type Casa,
 } from './jogo';
-import { FIGURAS_DO_SUDOKU, type Sudoku } from './logica';
+import { FIGURAS_DO_SUDOKU, type Labirinto, type Sudoku } from './logica';
+import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
 import { face } from './jogosDeMesa';
 import type { JogoNaTela } from './pedido';
 import type { CacaPalavras } from './cacaPalavras';
@@ -65,9 +72,15 @@ export async function montarTelaJogo(
   aviso.setAttribute('aria-live', 'polite');
   if (alvo.tipo === 'caca') await montarCaca(corpo, aviso, alvo.jogo, chave);
   else if (alvo.tipo === 'sudoku') await montarSudoku(corpo, aviso, alvo.jogo, alvo.figuras, chave);
+  else if (alvo.tipo === 'labirinto') await montarLabirinto(corpo, aviso, alvo.jogo, chave);
   else await montarCruzadinha(corpo, aviso, alvo.jogo, chave);
   if (nav.outra) {
-    const rotulo = { caca: '➡️ Outro caça-palavras', cruzadinha: '➡️ Outra cruzadinha', sudoku: '➡️ Outro sudoku' }[alvo.tipo];
+    const rotulo = {
+      caca: '➡️ Outro caça-palavras',
+      cruzadinha: '➡️ Outra cruzadinha',
+      sudoku: '➡️ Outro sudoku',
+      labirinto: '➡️ Outro labirinto',
+    }[alvo.tipo];
     const outra = botaoDoJogo(rotulo, nav.outra);
     outra.classList.add('jogo-outra');
     corpo.appendChild(outra);
@@ -602,4 +615,169 @@ async function montarSudoku(corpo: HTMLElement, aviso: HTMLElement, s: Sudoku, f
   corpo.appendChild(ajudas);
   // começa na primeira casa vazia, sem roubar o foco da página
   escolher(proximaVazia(s, valores, [s.lado - 1, s.lado - 1]), false);
+}
+
+// ---------------------------------------------------------------------------
+// Labirinto (2026-11-19)
+// ---------------------------------------------------------------------------
+//
+// O bichinho do perfil anda pelo labirinto: arrastar o dedo pelos corredores
+// (ou tocar casa a casa, ou as setas do teclado). Voltar pelo rastro apaga o
+// pedaço; a parede só não deixa passar.
+
+const LADO = 10; // cada casa, em unidades do desenho
+const NS = 'http://www.w3.org/2000/svg';
+
+function noSvg<K extends keyof SVGElementTagNameMap>(tag: K, atributos: Record<string, string | number>): SVGElementTagNameMap[K] {
+  const e = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(atributos)) e.setAttribute(k, String(v));
+  return e;
+}
+
+/** As paredes do labirinto como um caminho só (o mesmo traço da folha). */
+function paredesDoLabirinto(lab: Labirinto): string {
+  let d = '';
+  for (let l = 0; l < lab.linhas; l++) {
+    for (let c = 0; c < lab.colunas; c++) {
+      const x = c * LADO;
+      const y = l * LADO;
+      const [cima, direita, baixo, esquerda] = lab.paredes[l][c];
+      if (cima) d += `M${x} ${y}H${x + LADO}`;
+      if (esquerda) d += `M${x} ${y}V${y + LADO}`;
+      if (direita) d += `M${x + LADO} ${y}V${y + LADO}`;
+      if (baixo && l === lab.linhas - 1) d += `M${x} ${y + LADO}H${x + LADO}`;
+    }
+  }
+  return d;
+}
+
+const centro = ([l, c]: Casa): [number, number] => [c * LADO + LADO / 2, l * LADO + LADO / 2];
+const pontosDoCaminho = (casas: Casa[]): string =>
+  [`${-LADO / 2},${LADO / 2}`, ...casas.map((k) => centro(k).join(','))].join(' ');
+
+async function montarLabirinto(corpo: HTMLElement, aviso: HTMLElement, lab: Labirinto, chave: string): Promise<void> {
+  const guardado = (await armazenamento.obter<{ caminho: Casa[] }>(chave))?.caminho;
+  let caminho: Casa[] = caminhoValido(lab, guardado) ? guardado : [[0, 0]];
+  const salvar = () => void armazenamento.definir(chave, { caminho });
+  const avatar = temPerfilAtivo() ? perfilAtivo().avatar : '🙂';
+
+  corpo.appendChild(
+    el('p', 'jogo-instrucao', 'Arraste o dedo pelos corredores, da entrada até a estrela. Para voltar, passe por cima do caminho.'),
+  );
+
+  // uma casa de folga dos dois lados: a entrada e a estrela ficam fora
+  const largura = (lab.colunas + 2) * LADO;
+  const altura = lab.linhas * LADO;
+  const svg = noSvg('svg', {
+    viewBox: `${-LADO} 0 ${largura} ${altura}`,
+    class: 'jogo-labirinto',
+    role: 'application',
+    tabindex: 0,
+    'aria-label': 'Labirinto. Arraste o dedo, toque nas casas ou use as setas do teclado.',
+  });
+  svg.style.setProperty('--proporcao', `${largura} / ${altura}`);
+  svg.appendChild(noSvg('rect', { x: 0, y: 0, width: lab.colunas * LADO, height: altura, fill: '#ffffff' }));
+  const dica = noSvg('polyline', { fill: 'none', stroke: '#9b9b9b', 'stroke-width': 1.6, 'stroke-dasharray': '2 2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+  dica.style.display = 'none';
+  const rastro = noSvg('polyline', { fill: 'none', stroke: '#2a9d8f', 'stroke-width': 4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.85 });
+  svg.append(
+    dica,
+    rastro,
+    noSvg('path', { d: paredesDoLabirinto(lab), fill: 'none', stroke: '#000000', 'stroke-width': 1.3, 'stroke-linecap': 'square' }),
+  );
+  const [sx, sy] = centro(SAIDA(lab));
+  const estrela = noSvg('text', { x: sx + LADO, y: sy, 'font-size': 8, 'text-anchor': 'middle', 'dominant-baseline': 'central' });
+  estrela.textContent = '⭐';
+  const bicho = noSvg('text', { 'font-size': 8, 'text-anchor': 'middle', 'dominant-baseline': 'central' });
+  bicho.textContent = avatar;
+  svg.append(estrela, bicho);
+
+  const moldura = el('div', 'jogo-labirinto-moldura');
+  moldura.appendChild(svg);
+  corpo.appendChild(moldura);
+  corpo.appendChild(aviso);
+
+  let chegouAntes = chegou(lab, caminho);
+  const desenhar = () => {
+    rastro.setAttribute('points', pontosDoCaminho(caminho));
+    const [x, y] = centro(caminho[caminho.length - 1]);
+    bicho.setAttribute('x', String(x));
+    bicho.setAttribute('y', String(y));
+  };
+  const mudar = (novo: Casa[]) => {
+    if (novo === caminho) return;
+    caminho = novo;
+    desenhar();
+    salvar();
+    const agora = chegou(lab, caminho);
+    if (agora && !chegouAntes) {
+      // a festa é uma vez, na hora em que chega
+      aviso.textContent = 'Chegou!';
+      soltarConfetes();
+    } else if (!agora) aviso.textContent = '';
+    chegouAntes = agora;
+  };
+  desenhar();
+  if (chegouAntes) aviso.textContent = 'Chegou!';
+
+  // o dedo: arrastar pelos corredores (ou tocar casa a casa)
+  const casaDoPonto = (ev: PointerEvent): Casa | undefined => {
+    const r = svg.getBoundingClientRect();
+    const escala = r.width / largura;
+    const x = (ev.clientX - r.left) / escala - LADO;
+    const y = (ev.clientY - r.top) / escala;
+    const l = Math.floor(y / LADO);
+    const c = Math.floor(x / LADO);
+    return l >= 0 && c >= 0 && l < lab.linhas && c < lab.colunas ? [l, c] : undefined;
+  };
+  let arrastando = false;
+  svg.addEventListener('pointerdown', (ev) => {
+    arrastando = true;
+    try {
+      svg.setPointerCapture(ev.pointerId);
+    } catch {
+      // ponteiro sintético (teste) não tem captura: segue sem ela
+    }
+    const casa = casaDoPonto(ev);
+    if (casa) mudar(andarAte(lab, caminho, casa));
+  });
+  svg.addEventListener('pointermove', (ev) => {
+    if (!arrastando) return;
+    const casa = casaDoPonto(ev);
+    if (casa) mudar(andarAte(lab, caminho, casa));
+  });
+  const soltar = () => (arrastando = false);
+  svg.addEventListener('pointerup', soltar);
+  svg.addEventListener('pointercancel', soltar);
+
+  // o teclado: as setas andam uma casa
+  svg.addEventListener('keydown', (ev) => {
+    const setas: Record<string, [number, number]> = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+    const passo = setas[ev.key];
+    if (!passo) return;
+    ev.preventDefault();
+    const ponta = caminho[caminho.length - 1];
+    mudar(andarAte(lab, caminho, [ponta[0] + passo[0], ponta[1] + passo[1]]));
+  });
+
+  const ajudas = el('div', 'folhas-botoes jogo-ajudas');
+  let mostrando = false;
+  const mostrar = botaoDoJogo('Mostrar o caminho', () => {
+    mostrando = !mostrando;
+    dica.setAttribute('points', pontosDoCaminho(lab.solucao as Casa[]));
+    dica.style.display = mostrando ? '' : 'none';
+    mostrar.textContent = mostrando ? 'Esconder o caminho' : 'Mostrar o caminho';
+  });
+  ajudas.append(
+    botaoDoJogo('💡 Um pedaço', () => {
+      mudar(pedacoDaSolucao(lab, caminho, 5));
+      if (!chegou(lab, caminho)) aviso.textContent = 'Mais um pedaço do caminho.';
+    }),
+    mostrar,
+    botaoDoJogo('Recomeçar', () => {
+      mudar([[0, 0]]);
+      aviso.textContent = '';
+    }),
+  );
+  corpo.appendChild(ajudas);
 }

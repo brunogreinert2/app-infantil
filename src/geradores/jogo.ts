@@ -6,7 +6,7 @@
 
 import type { Achado, CacaPalavras } from './cacaPalavras';
 import type { Cruzadinha, Entrada } from './cruzadinha';
-import type { Sudoku } from './logica';
+import type { Labirinto, Sudoku } from './logica';
 import { soLetras } from './comum';
 
 export type Casa = [linha: number, coluna: number];
@@ -138,4 +138,84 @@ export function proximaVazia(s: Sudoku, valores: Record<string, number>, de: Cas
     if (!valorDaCasa(s, valores, l, c)) return [l, c];
   }
   return undefined;
+}
+
+// ---------------------------------------------------------------------------
+// Labirinto (2026-11-19)
+// ---------------------------------------------------------------------------
+//
+// O caminho da criança começa na entrada (0,0) e anda casa a casa, só por
+// onde não há parede. Voltar por cima do próprio rastro APAGA o pedaço (como
+// tirar o lápis); a parede simplesmente não deixa passar — sem som nem cor
+// de erro.
+
+/** A parede entre duas casas vizinhas (índice em `paredes`: cima, direita, baixo, esquerda). */
+function ladoEntre(a: Casa, b: Casa): number | undefined {
+  const dl = b[0] - a[0];
+  const dc = b[1] - a[1];
+  if (dl === -1 && dc === 0) return 0;
+  if (dl === 0 && dc === 1) return 1;
+  if (dl === 1 && dc === 0) return 2;
+  if (dl === 0 && dc === -1) return 3;
+  return undefined;
+}
+
+/** Dá para ir de `a` à vizinha `b` sem atravessar parede? */
+export function podePassar(lab: Labirinto, a: Casa, b: Casa): boolean {
+  const lado = ladoEntre(a, b);
+  if (lado === undefined) return false;
+  if (b[0] < 0 || b[1] < 0 || b[0] >= lab.linhas || b[1] >= lab.colunas) return false;
+  return !lab.paredes[a[0]][a[1]][lado];
+}
+
+export const SAIDA = (lab: Labirinto): Casa => [lab.linhas - 1, lab.colunas - 1];
+
+/**
+ * O caminho depois de o dedo chegar a `casa`:
+ *  - uma casa do próprio rastro: o caminho volta até ela (apaga o resto);
+ *  - na mesma linha ou coluna da ponta, com o corredor livre: anda até lá
+ *    (o dedo rápido pula casas; o corredor reto as preenche);
+ *  - qualquer outra (parede, diagonal, longe): o caminho fica como estava.
+ */
+export function andarAte(lab: Labirinto, caminho: Casa[], casa: Casa): Casa[] {
+  const k = caminho.findIndex((c) => mesmaCasa(c, casa));
+  if (k >= 0) return caminho.slice(0, k + 1);
+  const ponta = caminho[caminho.length - 1];
+  if (!ponta || (ponta[0] !== casa[0] && ponta[1] !== casa[1])) return caminho;
+  const passo: Casa = [Math.sign(casa[0] - ponta[0]), Math.sign(casa[1] - ponta[1])];
+  const novo = [...caminho];
+  let aqui = ponta;
+  while (!mesmaCasa(aqui, casa)) {
+    const prox: Casa = [aqui[0] + passo[0], aqui[1] + passo[1]];
+    if (!podePassar(lab, aqui, prox)) return caminho;
+    // cruzar o próprio rastro no meio do corredor: volta até lá
+    const j = novo.findIndex((c) => mesmaCasa(c, prox));
+    if (j >= 0) return novo.slice(0, j + 1);
+    novo.push(prox);
+    aqui = prox;
+  }
+  return novo;
+}
+
+/** Chegou à saída? */
+export const chegou = (lab: Labirinto, caminho: Casa[]): boolean => {
+  const ponta = caminho[caminho.length - 1];
+  return !!ponta && mesmaCasa(ponta, SAIDA(lab));
+};
+
+/** Um caminho guardado ainda vale para este labirinto? (casa a casa, sem atravessar parede) */
+export function caminhoValido(lab: Labirinto, caminho: unknown): caminho is Casa[] {
+  if (!Array.isArray(caminho) || !caminho.length) return false;
+  if (!mesmaCasa(caminho[0] as Casa, [0, 0])) return false;
+  return caminho.every((c, i) => i === 0 || podePassar(lab, caminho[i - 1] as Casa, c as Casa));
+}
+
+/**
+ * A ajuda «Um pedaço»: o caminho certo até onde a criança acertou, mais
+ * alguns passos (sempre os mesmos — nada sorteado).
+ */
+export function pedacoDaSolucao(lab: Labirinto, caminho: Casa[], passos = 5): Casa[] {
+  let certo = 0;
+  while (certo < caminho.length && certo < lab.solucao.length && mesmaCasa(caminho[certo], lab.solucao[certo] as Casa)) certo++;
+  return lab.solucao.slice(0, Math.min(lab.solucao.length, Math.max(1, certo) + passos)) as Casa[];
 }

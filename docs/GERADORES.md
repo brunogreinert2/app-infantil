@@ -340,6 +340,24 @@ na semana seguinte e o Bruno quis «acesso total das funcionalidades».
   à primeira vazia, em ordem (sem vazia, à primeira que não fecha).
 - Regras puras em `jogo.ts` (valorDaCasa, gruposCertos, sudokuCompleto,
   casaDaAjuda, proximaVazia); progresso `{ valores }`.
-- Publicado: 0.10.0 (master `0568aff`, Actions 44575609572 com sucesso, pacote
-  servido conferido). O sudoku veio DEPOIS: ainda não publicado.
+- Publicado: 0.10.0 (master `0568aff`). Sudoku e labirinto saíram juntos na
+  0.11.0 (pedido do Bruno: «junta com o próximo»).
+
+## Labirinto na tela (2026-11-19)
+
+- Na oficina: 🎮 Jogar na folha do labirinto; «➡️ Outro labirinto» = semente
+  seguinte. Na barra da criança: 🎮 Jogos → 🌀 Labirinto, tamanhos Pequeno,
+  Médio e Grande (até 8 anos começa no pequeno, 9+ no médio; lembrado), 12
+  numerados cada, iguais à folha com semente N − 1; ✓ no que chegou.
+- Jogar: o BICHINHO DO PERFIL anda pelo labirinto (sem perfil, 🙂) da entrada
+  até a ⭐. Arrastar o dedo pelos corredores (o dedo rápido num corredor reto
+  preenche as casas do meio), tocar casa a casa, ou setas do teclado. Voltar
+  por cima do rastro apaga o pedaço; a parede só não deixa passar — sem cor
+  nem som de erro. 💡 Um pedaço (o caminho certo até onde a criança acertou,
+  mais 5 casas), Mostrar o caminho (tracejado, liga e desliga), Recomeçar.
+- Regras puras em `jogo.ts` (podePassar, andarAte, chegou, caminhoValido,
+  pedacoDaSolucao); progresso `{ caminho }`, conferido ao abrir (caminho
+  guardado que atravesse parede não vale).
+- No celular o Grande fica com casas de ~15 px: dá para arrastar, mas é
+  apertado — para tablet ou computador.
 

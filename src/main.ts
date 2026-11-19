@@ -96,7 +96,7 @@ async function irFolhas(voltar: () => void = abrirAjustes): Promise<void> {
 }
 
 // 🎮 Jogos da criança (barra lateral): escolhe o tema e joga. Vem com a oficina.
-async function irJogos(tipo: 'caca' | 'cruzadinha' | 'sudoku'): Promise<void> {
+async function irJogos(tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto'): Promise<void> {
   pararFala();
   window.scrollTo(0, 0);
   carregarPreferencias(); // pode ter vindo de um livro tematizado, pelo menu
