@@ -38,7 +38,7 @@ com muita variedade, tudo gerado na hora a partir de dados simples.
 | `recortar.ts` | material dourado, frações em barras (1 a 1/12) e em círculos, quadro de valor posicional, tangram — em mm de verdade |
 | `sequencia.ts` | **sequência didática de um livro da estante** (2026-11-18): um caderno com a história para ler (na letra escolhida, com o crédito do texto), perguntas de compreensão (o quiz do livro + "Quem aparece na história?" + caixa "Do que você mais gostou?"), caça-palavras com o vocabulário (`sugerirPalavras`: as que mais se repetem, sem palavras de ligação; quem ensina troca), "O que aconteceu primeiro?" (`momentosDaHistoria`: a primeira frase de quatro parágrafos narrados, sem falas nem notas sobre o livro, mostrados na ordem fixa `EMBARALHO`), "Invente outro final", o desenho de pintar do próprio livro, e as respostas separadas no fim. Cada parte se liga e desliga. Serve aos 28 livros de história (não aos alfabetos e números) |
 | `capas.ts` | capas no estilo das da Oficina: com moldura (caderno, apostila), trabalho escolar no modelo ABNT, tópico com lista de leituras. Sem colofão nem "Pedra Angular" |
-| `ornamentos.ts` | molduras: meandro grego, filete duplo, pontinhos, sem moldura. Aberto para outros (um nome em `ORNAMENTOS`, um `case` em `moldura()`) |
+| `ornamentos.ts` | molduras: meandro grego, filete duplo, pontinhos, sem moldura. Aberto para outros (um nome em `ORNAMENTOS`, um `case` em `moldura()`). **O meandro é a fórmula de `app-leitura/src/components/GregaMeandro.tsx`** (célula 14 × 16, base corrida), montada como no Gerador: o quadro nasce da grade, as deitadas de ponta a ponta, a base voltada para o texto. Mudou lá, muda aqui (N56); o teste guarda a célula |
 | `rotina.ts` | **rotina visual**: lista do dia (hora, desenho, palavra, caixa de "feito"), passo a passo para a parede (numerado, 4, 6 ou 9 por folha), cartões de 60 mm para recortar e usar com velcro, quadro "primeiro → depois". Modelos prontos: manhã de escola, tarde, noite, dia na escola, como lavar as mãos, como escovar os dentes. O desenho sai da frase ou da palavra mais longa que tenha desenho (`figuraDoPasso`, com sinônimos: jantar → comer, brincar → recreio); sem desenho, fica a moldura para desenhar ou colar foto |
 | `cartoes.ts` | treino de tesoura, "siga o caminho" (traçado entre dois desenhos), HQ em branco (3, 4 ou 6 quadros), crachás, marcadores de página, etiquetas de caderno |
 | `geradores.test.ts` | 37 testes |
@@ -86,7 +86,9 @@ do primeiro lote (silabário em diante) ainda não foram impressas.
   tela entre **Atkinson Hyperlegible** (a padrão, a mesma das legendas do app),
   **Cardo** e **OpenDyslexic**. A letra é sempre desenhada em caminhos (nunca
   `<text>`), então sai igual em qualquer aparelho. As tabelas da Cardo e da
-  OpenDyslexic (`src/geradores/letras.json`, ~220 KB, ignorado pelo git) saem
+  OpenDyslexic, e o negrito e o itálico das três (`src/geradores/letras.json`,
+  ~1 MB, ignorado pelo git; só entra no pacote quando a tela for ligada, como
+  pedaço carregado à parte) saem
   de `scripts/gera-glifos.mjs`, que roda sozinho antes de `npm test` e de
   `npm run build`. Caractere que a fonte não tem cai na Atkinson. O texto é
   feito em `comum.ts` (`comLetra`, `escrever`); `fazerFolhas(pedido, letra)`.

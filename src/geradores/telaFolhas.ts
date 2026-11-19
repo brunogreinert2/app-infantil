@@ -19,6 +19,7 @@ import {
   NOMES_DAS_SILABAS,
   NOMES_DA_ROTINA,
   NOMES_DAS_CAPAS,
+  ESTILOS_PADRAO,
   ORNAMENTOS,
   LIVROS_DA_SEQUENCIA,
   NOMES_DA_LOGICA,
@@ -40,7 +41,8 @@ import {
   folhasPara,
   type ParaQuem,
 } from './pedido';
-import { NOMES_DAS_LETRAS, type Letra } from './comum';
+import { NOMES_DAS_LETRAS, NOMES_DOS_ESTILOS, type Letra } from './comum';
+import type { ParteDaCapa } from './capas';
 import { MOLDURA_DA_FIGURA, encaixeDaFigura, zoomFiguraInteira } from './papeis';
 
 // do aparelho, não do perfil (como as pranchas): é material de quem ensina
@@ -365,11 +367,28 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
         if (p.modelo === 'leituras') {
           const itens = areaDeTexto(p.itens, 6, (v) => ((p.itens = v), atualizar()));
           itens.autocapitalize = 'sentences';
-          campos.appendChild(rotulado('Leituras', itens, 'Uma por linha, assim: Autor — Título do texto. Até oito.'));
+          campos.appendChild(
+            rotulado('Leituras', itens, 'Uma por linha, até oito. O que vem antes do travessão (—) sai maior, em cima; o que vem depois, menor, embaixo.'),
+          );
         }
         const rodape = areaDeTexto(p.rodape, 2, (v) => ((p.rodape = v), atualizar()));
         rodape.autocapitalize = 'words';
         campos.appendChild(rotulado('Embaixo (cidade, ano)', rodape));
+        // negrito e itálico por parte (o padrão do modelo vem marcado)
+        const partes: Array<[ParteDaCapa, string]> = [
+          ['titulo', 'Título'],
+          ['subtitulo', 'Subtítulo'],
+          ['nome', p.modelo === 'abnt' ? 'Autor' : 'Nome'],
+        ];
+        if (p.modelo === 'leituras') partes.push(['cima', 'Leituras, linha de cima'], ['baixo', 'Leituras, linha de baixo']);
+        const estilos = el('div', 'folhas-estilos');
+        for (const [parte, nome] of partes) {
+          const atual = p.estilos?.[parte] ?? ESTILOS_PADRAO[p.modelo][parte];
+          estilos.appendChild(
+            rotulado(nome, lista(opcoes(NOMES_DOS_ESTILOS), atual, (v) => ((p.estilos = { ...p.estilos, [parte]: v }), atualizar(true)))),
+          );
+        }
+        campos.appendChild(rotulado('Negrito e itálico', estilos));
         break;
       }
       case 'sequencia': {

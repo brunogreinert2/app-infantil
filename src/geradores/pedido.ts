@@ -31,7 +31,9 @@ import { folhasDeRecortar, type ModeloRecortar } from './recortar';
 import { lerNomes, svgCrachasA4, svgEtiquetasA4, svgHqA4, svgMarcadoresA4, svgTesouraA4, svgTracarA4 } from './cartoes';
 import { comLetra, textoSeguro, type Letra } from './comum';
 import { folhasDaRotina, lerPassos, type ModeloRotina } from './rotina';
-import { svgCapaA4, type ModeloCapa } from './capas';
+import { ESTILOS_PADRAO, svgCapaA4, type ModeloCapa, type ParteDaCapa } from './capas';
+import type { Estilo } from './comum';
+export { ESTILOS_PADRAO };
 import { ORNAMENTOS, type Ornamento } from './ornamentos';
 import { arquivosAssets, livros, obterLivro } from '../conteudo/catalogo';
 import { arquivoDeColorir, lerPalavrasDaSequencia, montarSequencia, textoDoLivro, type ParteDaSequencia } from './sequencia';
@@ -162,6 +164,8 @@ export type Pedido =
       nome: string;
       rodape: string;
       itens: string;
+      /** negrito ou itálico por parte; o que não vier segue o padrão do modelo */
+      estilos?: Partial<Record<ParteDaCapa, Estilo>>;
     }
   | { tipo: 'pauta'; modelo: ModeloPauta; margem: boolean }
   | { tipo: 'grade'; modelo: ModeloGrade }
@@ -455,6 +459,7 @@ function fazerNaLetraAtual(p: Pedido): Resultado {
         nome: p.nome,
         rodape: p.rodape,
         itens: p.itens,
+        estilos: p.estilos,
         ornamento: p.ornamento in ORNAMENTOS ? p.ornamento : 'meandro',
       });
       return { titulo: `Capa - ${titulo}`, folhas: [{ titulo: 'Capa', svg }], avisos };

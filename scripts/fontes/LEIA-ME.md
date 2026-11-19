@@ -6,3 +6,6 @@ Cardo Bold fornece as letras de pintar. Cardo Regular fornece grego em legendas.
 Atkinson vem dos WOFF latin/latin-ext do pacote @fontsource já instalado.
 O gerador falha se um caractere necessário não existir nessas fontes.
 Licença Cardo: Cardo-OFL.txt. Licença Atkinson: pacote @fontsource correspondente.
+
+
+`cardo-italic.ttf` (2026-11-18): copiado de `C:\Claude\oficinaontes\Cardo-Italic.ttf`, mesma Cardo de David Perry, licença OFL (`Cardo-OFL.txt`). Serve ao itálico das folhas geradas (`src/geradores/letras.json`, via `gera-glifos.mjs`).

@@ -89,8 +89,25 @@ const opendyslexic = (() => {
 const latim = new Set();
 for (const [inicio, fim] of [[32, 126], [160, 255]]) for (let n = inicio; n <= fim; n++) latim.add(String.fromCodePoint(n));
 for (const c of '–—“”‘’…•→×÷') latim.add(c);
+const ler = (caminho) => {
+  const bytes = readFileSync(caminho);
+  return opentype.parse(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+};
+const atk = (peso) => ler(require.resolve(`@fontsource/atkinson-hyperlegible/files/atkinson-hyperlegible-latin-${peso}.woff`));
+// negrito e itálico de verdade (2026-11-18, pedido do Bruno para as capas):
+// nada de engrossar o traço nem inclinar a letra quando a fonte tem a variante
+const variantes = [
+  ['cardo', cardo],
+  ['opendyslexic', opendyslexic],
+  ['atkinson-negrito', atk('700-normal')],
+  ['atkinson-italico', atk('400-italic')],
+  ['cardo-negrito', ler(new URL('./fontes/cardo-bold.ttf', import.meta.url))],
+  ['cardo-italico', ler(new URL('./fontes/cardo-italic.ttf', import.meta.url))],
+  ['opendyslexic-negrito', ler(new URL('../src/fontes/opendyslexic-700.woff', import.meta.url))],
+  ['opendyslexic-italico', ler(new URL('../src/fontes/opendyslexic-400i.woff', import.meta.url))],
+];
 const letrasDasFolhas = {};
-for (const [nome, fonte] of [['cardo', cardo], ['opendyslexic', opendyslexic]]) {
+for (const [nome, fonte] of variantes) {
   const tabela = {};
   for (const c of latim) {
     const propria = fonte.charToGlyphIndex(c) ? fonte : atkinson.find(f => f.charToGlyphIndex(c));
@@ -101,4 +118,4 @@ for (const [nome, fonte] of [['cardo', cardo], ['opendyslexic', opendyslexic]]) 
   letrasDasFolhas[nome] = tabela;
 }
 writeFileSync(new URL('../src/geradores/letras.json', import.meta.url), JSON.stringify(letrasDasFolhas));
-console.log(`ok: letras das folhas (Cardo e OpenDyslexic, ${latim.size} caracteres cada)`);
+console.log(`ok: letras das folhas (${variantes.map(([n]) => n).join(', ')}; ${latim.size} caracteres cada)`);

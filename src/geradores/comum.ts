@@ -36,7 +36,30 @@ const TABELAS: Record<Letra, Record<string, Glifo>> = {
   opendyslexic: (outras as Record<string, Record<string, Glifo>>).opendyslexic,
 };
 
+export type Estilo = 'normal' | 'negrito' | 'italico';
+
+export const NOMES_DOS_ESTILOS: Record<Estilo, string> = {
+  normal: 'Normal',
+  negrito: 'Negrito',
+  italico: 'Itálico',
+};
+
+/** Negrito e itálico de VERDADE, das próprias fontes (`letras.json`). */
+const VARIANTES = outras as Record<string, Record<string, Glifo>>;
+
 let letraAtual: Letra = 'atkinson';
+let estiloAtual: Estilo = 'normal';
+
+/** Escreve em negrito ou itálico e volta ao de antes. Vale para medir e para desenhar. */
+export function comEstilo<T>(estilo: Estilo | undefined, fazer: () => T): T {
+  const antes = estiloAtual;
+  estiloAtual = estilo && estilo in NOMES_DOS_ESTILOS ? estilo : 'normal';
+  try {
+    return fazer();
+  } finally {
+    estiloAtual = antes;
+  }
+}
 
 /** Faz as folhas com outra letra e volta para a de antes, aconteça o que acontecer. */
 export function comLetra<T>(letra: Letra | undefined, fazer: () => T): T {
@@ -49,8 +72,12 @@ export function comLetra<T>(letra: Letra | undefined, fazer: () => T): T {
   }
 }
 
-/** O desenho de um caractere: da letra escolhida ou, se ela não tiver, da Atkinson. */
-const glifo = (c: string): Glifo | undefined => TABELAS[letraAtual][c] ?? TABELAS.atkinson[c];
+/**
+ * O desenho de um caractere: na variante pedida (negrito, itálico) da letra
+ * escolhida; se ela não tiver o caractere, na letra normal; e por fim na Atkinson.
+ */
+const glifo = (c: string): Glifo | undefined =>
+  (estiloAtual !== 'normal' ? VARIANTES[`${letraAtual}-${estiloAtual}`]?.[c] : undefined) ?? TABELAS[letraAtual][c] ?? TABELAS.atkinson[c];
 
 /**
  * Largura do texto. `espaco` é o ar extra entre as letras, em fração do

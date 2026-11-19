@@ -8,7 +8,7 @@
 // Decisões do Bruno (2026-11-18): sem colofão e sem "Pedra Angular" no
 // Historinhas; o ornamento é uma OPÇÃO (ver ornamentos.ts).
 
-import { TINTA, escrever, folhaNua, n, negrito, quebrar, textoSeguro } from './comum';
+import { TINTA, comEstilo, escrever, folhaNua, n, quebrar, textoSeguro, type Estilo } from './comum';
 import { moldura, recuo, type Ornamento } from './ornamentos';
 
 export type ModeloCapa = 'moldura' | 'abnt' | 'leituras';
@@ -22,10 +22,27 @@ export interface DadosCapa {
   nome?: string;
   /** a última linha: cidade e ano */
   rodape?: string;
-  /** só na capa de leituras: "Autor — Título", uma por linha */
+  /** só na capa de leituras: "linha de cima — linha de baixo", uma por linha */
   itens?: string;
   ornamento?: Ornamento;
+  /** negrito ou itálico em cada parte; o que não vier segue o padrão do modelo */
+  estilos?: Partial<Record<ParteDaCapa, Estilo>>;
 }
+
+export type ParteDaCapa = 'titulo' | 'subtitulo' | 'nome' | 'cima' | 'baixo';
+
+/**
+ * O padrão de cada modelo, tirado das capas da Oficina: subtítulo em itálico
+ * na de moldura e na de leituras; título em negrito na ABNT (a norma pede
+ * destaque) e na de leituras.
+ */
+export const ESTILOS_PADRAO: Record<ModeloCapa, Record<ParteDaCapa, Estilo>> = {
+  moldura: { titulo: 'normal', subtitulo: 'italico', nome: 'normal', cima: 'normal', baixo: 'normal' },
+  abnt: { titulo: 'negrito', subtitulo: 'normal', nome: 'normal', cima: 'normal', baixo: 'normal' },
+  leituras: { titulo: 'negrito', subtitulo: 'italico', nome: 'normal', cima: 'normal', baixo: 'italico' },
+};
+
+const estiloDe = (modelo: ModeloCapa, d: DadosCapa, parte: ParteDaCapa): Estilo => d.estilos?.[parte] ?? ESTILOS_PADRAO[modelo][parte];
 
 const linhas = (s?: string) =>
   (s ?? '')
@@ -67,18 +84,18 @@ export function svgCapaMolduraA4(d: DadosCapa): string {
     yy += 26;
   }
   // título no meio, grande
-  const titulo = centrado(textoSeguro(d.titulo) || 'Título', cx, 430, 60, largura, 1.2, true, 0.06);
+  const titulo = comEstilo(estiloDe('moldura', d, 'titulo'), () => centrado(textoSeguro(d.titulo) || 'Título', cx, 430, 60, largura, 1.2, true, 0.06));
   corpo += titulo.desenho;
   let fim = titulo.fim;
   corpo += separador(cx, fim + 60);
   fim += 60;
   if (d.subtitulo) {
-    const sub = centrado(textoSeguro(d.subtitulo), cx, fim + 64, 26, largura);
+    const sub = comEstilo(estiloDe('moldura', d, 'subtitulo'), () => centrado(textoSeguro(d.subtitulo!), cx, fim + 64, 26, largura));
     corpo += sub.desenho;
   }
   // nome e rodapé, embaixo
   const base = y + h - r - 40;
-  if (d.nome) corpo += escrever(textoSeguro(d.nome).toLocaleUpperCase('pt-BR'), cx, base - 130, 24, 'middle', largura, 0.18);
+  if (d.nome) corpo += comEstilo(estiloDe('moldura', d, 'nome'), () => escrever(textoSeguro(d.nome!).toLocaleUpperCase('pt-BR'), cx, base - 130, 24, 'middle', largura, 0.18));
   else corpo += escrever('Nome:', cx - 240, base - 130, 20) + `<path d="M${cx - 170} ${base - 128}H${cx + 240}" stroke="${TINTA}" stroke-width="1.4"/>`;
   if (d.rodape) corpo += escrever(textoSeguro(d.rodape), cx, base, 17, 'middle', largura, 0.12);
   return folhaNua(textoSeguro(d.titulo) || 'Capa', corpo);
@@ -98,11 +115,11 @@ export function svgCapaAbntA4(d: DadosCapa): string {
     corpo += c.desenho;
     y = c.fim + 30;
   }
-  if (d.nome) corpo += centrado(textoSeguro(d.nome), cx, 470, 21, largura).desenho;
-  const titulo = centrado(textoSeguro(d.titulo) || 'Título do trabalho', cx, 640, 23, largura, 1.35, true);
-  // título em negrito: cada linha engrossada (a letra só tem um peso)
-  corpo += titulo.desenho.replace(/stroke="none"/g, `stroke="${TINTA}" stroke-width="26" stroke-linejoin="round"`);
-  if (d.subtitulo) corpo += centrado(textoSeguro(d.subtitulo), cx, titulo.fim + 34, 21, largura, 1.3, true).desenho;
+  if (d.nome) corpo += comEstilo(estiloDe('abnt', d, 'nome'), () => centrado(textoSeguro(d.nome!), cx, 470, 21, largura).desenho);
+  // o título em destaque, como a norma pede (negrito de verdade, da própria fonte)
+  const titulo = comEstilo(estiloDe('abnt', d, 'titulo'), () => centrado(textoSeguro(d.titulo) || 'Título do trabalho', cx, 640, 23, largura, 1.35, true));
+  corpo += titulo.desenho;
+  if (d.subtitulo) corpo += comEstilo(estiloDe('abnt', d, 'subtitulo'), () => centrado(textoSeguro(d.subtitulo!), cx, titulo.fim + 34, 21, largura, 1.3, true).desenho);
   const rodape = linhas(d.rodape);
   rodape.forEach((l, i) => (corpo += escrever(l, cx, 1010 + i * 30, 21, 'middle', largura)));
   return folhaNua(textoSeguro(d.titulo) || 'Capa', corpo);
@@ -125,11 +142,11 @@ export function svgCapaLeiturasA4(d: DadosCapa): string {
     corpo += c.desenho;
     yy = c.fim + 24;
   }
-  const titulo = centrado(textoSeguro(d.titulo) || 'Tópico', cx, yy + 80, 44, largura);
-  corpo += negrito(titulo.desenho, 14);
+  const titulo = comEstilo(estiloDe('leituras', d, 'titulo'), () => centrado(textoSeguro(d.titulo) || 'Tópico', cx, yy + 80, 44, largura));
+  corpo += titulo.desenho;
   yy = titulo.fim;
   if (d.subtitulo) {
-    const sub = centrado(textoSeguro(d.subtitulo), cx, yy + 50, 20, largura);
+    const sub = comEstilo(estiloDe('leituras', d, 'subtitulo'), () => centrado(textoSeguro(d.subtitulo!), cx, yy + 50, 20, largura));
     corpo += sub.desenho;
     yy = sub.fim;
   }
@@ -137,11 +154,12 @@ export function svgCapaLeiturasA4(d: DadosCapa): string {
   corpo += `<path d="M${cx - 150} ${yy}H${cx + 150}" stroke="${TINTA}" stroke-width="1.4"/>`;
   yy += 70;
   for (const item of linhas(d.itens).slice(0, 8)) {
-    const [autor, ...resto] = item.split(/\s+[—–-]\s+/);
-    const obra = resto.join(' — ');
-    corpo += centrado(autor, cx, yy, 21, largura).desenho;
-    if (obra) {
-      const o = centrado(obra, cx, yy + 28, 16, largura);
+    // antes do travessão, a linha de cima (maior); depois, a de baixo (menor)
+    const [cima, ...resto] = item.split(/\s+[—–-]\s+/);
+    const baixo = resto.join(' — ');
+    corpo += comEstilo(estiloDe('leituras', d, 'cima'), () => centrado(cima, cx, yy, 21, largura).desenho);
+    if (baixo) {
+      const o = comEstilo(estiloDe('leituras', d, 'baixo'), () => centrado(baixo, cx, yy + 28, 16, largura));
       corpo += o.desenho;
       yy = o.fim;
     }
@@ -150,7 +168,7 @@ export function svgCapaLeiturasA4(d: DadosCapa): string {
   corpo += `<path d="M${cx - 150} ${yy}H${cx + 150}" stroke="${TINTA}" stroke-width="1.4"/>`;
   const base = y + h - r - 30;
   if (d.rodape) corpo += escrever(textoSeguro(d.rodape), cx, base, 16, 'middle', largura);
-  if (d.nome) corpo += escrever(textoSeguro(d.nome), cx, base - 36, 18, 'middle', largura);
+  if (d.nome) corpo += comEstilo(estiloDe('leituras', d, 'nome'), () => escrever(textoSeguro(d.nome!), cx, base - 36, 18, 'middle', largura));
   return folhaNua(textoSeguro(d.titulo) || 'Capa', corpo);
 }
 

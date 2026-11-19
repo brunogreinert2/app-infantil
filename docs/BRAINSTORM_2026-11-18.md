@@ -20,6 +20,13 @@ especialistas em impressões, A4, tudo relacionado a isso".
 - [x] 4. Capas — `capas.ts` (moldura, ABNT, leituras) e `ornamentos.ts`
   (meandro, filete, pontinhos, sem moldura; para criar outro, um `case` em
   `moldura()`). Letra espaçada de verdade (`espaco` em `escrever`).
+- [x] 4b. Ajustes do Bruno nas capas (2026-11-18, noite): o meandro passou a
+  ser a FÓRMULA da grega do Pedra Angular (`GregaMeandro.tsx`, a mesma do
+  Gerador) — as chaves soltas de antes "não fechavam"; negrito e itálico DE
+  VERDADE nas três letras (variantes geradas em `letras.json`, `comEstilo` em
+  `comum.ts`), escolha por parte da capa com os padrões da Oficina; dica das
+  leituras neutra ("antes do travessão sai maior, em cima"). GoatCounter: em
+  stand-by, por decisão do Bruno.
 - [ ] 5. Código da folha.
 - [ ] 6. Folhas interativas (etapa 1, depois etapa 2).
 

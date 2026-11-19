@@ -825,7 +825,7 @@ describe('capas e ornamentos', () => {
     // sem nome, a capa de moldura traz a linha para escrever
     expect(svgCapaA4('moldura', { titulo: 'X' })).toContain('aria-label="Nome:"');
     // a ABNT não tem moldura, mesmo se pedirem
-    expect(svgCapaA4('abnt', { titulo: 'X', ornamento: 'meandro' })).not.toContain('scale(5.67)');
+    expect(svgCapaA4('abnt', { titulo: 'X', ornamento: 'meandro' })).not.toContain('M0,15H');
   });
 
   it('letra espaçada: as palavras continuam separadas', async () => {
@@ -840,6 +840,53 @@ describe('capas e ornamentos', () => {
     if (base.tipo !== 'capa') throw new Error('tipo');
     expect(fazerFolhas(base).folhas).toHaveLength(1);
     expect(fazerFolhas({ ...base, modelo: 'abnt' }).avisos[0]).toContain('instituição');
-    expect(fazerFolhas({ ...base, ornamento: 'inexistente' as never }).folhas[0].svg).toContain('<path d="M-2 2.2');
+    expect(fazerFolhas({ ...base, ornamento: 'inexistente' as never }).folhas[0].svg).toContain('<path d="M0,15H');
+  });
+});
+
+describe('meandro e estilos (2026-11-18)', () => {
+  it('a grega é a do Pedra Angular: a mesma célula, e as voltas ligadas pela base', async () => {
+    const { GREGA_D_DEITADA, gregaTracado, gregaTracadoEmPe, molduraDeGrega, FAIXA } = await import('./ornamentos');
+    // a fórmula de app-leitura/src/components/GregaMeandro.tsx (e do Gerador)
+    expect(GREGA_D_DEITADA).toBe('M0,15H14M3,15V1H13V11H7V5H9');
+    expect(gregaTracado(1)).toBe(GREGA_D_DEITADA);
+    expect(gregaTracadoEmPe(1)).toBe('M15,0V14M15,3H1V13H11V7H5V9');
+    // uma base corrida só, para todas as voltas
+    expect(gregaTracado(5).match(/M0,15H70/g)).toHaveLength(1);
+    // o quadro nasce da grade: a moldura tem um número inteiro de células nos dois sentidos
+    const cel = (FAIXA * 14) / 16;
+    const { dentro } = molduraDeGrega(40, 40, 720, 1051);
+    expect(((dentro.w + 2 * FAIXA) / cel) % 1).toBeCloseTo(0, 6);
+    expect((dentro.h / cel) % 1).toBeCloseTo(0, 6);
+  });
+
+  it('negrito e itálico de verdade, nas três letras, e voltam ao normal', async () => {
+    const { comEstilo, comLetra, escrever, largura } = await import('./comum');
+    for (const letra of ['atkinson', 'cardo', 'opendyslexic'] as const) {
+      comLetra(letra, () => {
+        const normal = escrever('Ação', 0, 0, 100);
+        const negrito = comEstilo('negrito', () => escrever('Ação', 0, 0, 100));
+        const italico = comEstilo('italico', () => escrever('Ação', 0, 0, 100));
+        expect(negrito, letra).not.toBe(normal);
+        expect(italico, letra).not.toBe(normal);
+        expect(negrito).not.toContain('stroke-width'); // não é traço engrossado
+        expect(escrever('Ação', 0, 0, 100)).toBe(normal);
+        // o negrito é mais largo: a medida acompanha o estilo
+        expect(comEstilo('negrito', () => largura('Ação', 100))).toBeGreaterThan(largura('Ação', 100));
+      });
+    }
+  });
+
+  it('as capas seguem o padrão da Oficina e aceitam trocar o estilo de cada parte', async () => {
+    const { svgCapaA4 } = await import('./capas');
+    const { comEstilo, escrever } = await import('./comum');
+    const sub = 'Subtítulo de prova';
+    const capa = svgCapaA4('moldura', { titulo: 'X', subtitulo: sub });
+    // por padrão, o subtítulo vai em itálico
+    const italico = comEstilo('italico', () => escrever(sub, 0, 0, 10));
+    const primeiraLetra = (svg: string) => svg.match(/<path d="([^"]+)"/)?.[1];
+    expect(capa).toContain(primeiraLetra(italico)!);
+    const normal = svgCapaA4('moldura', { titulo: 'X', subtitulo: sub, estilos: { subtitulo: 'normal' } });
+    expect(normal).not.toContain(primeiraLetra(italico)!);
   });
 });
