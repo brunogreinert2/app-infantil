@@ -37,6 +37,7 @@ import {
   type Resultado,
   type TipoDeFolha,
   NOMES_PARA_QUEM,
+  jogoDoPedido,
   ehDoProfessor,
   folhasPara,
   type ParaQuem,
@@ -47,6 +48,7 @@ import { chaveDaPintura, folhaParaPintar } from './pintar';
 import { comCasas, semear } from './comum';
 import { montarTelaColorir } from '../telas/telaColorir';
 import { montarTelaQuebraCabeca } from '../telas/telaQuebraCabeca';
+import { montarTelaJogo } from './telaJogo';
 import type { ParteDaCapa } from './capas';
 import { MOLDURA_DA_FIGURA, encaixeDaFigura, zoomFiguraInteira } from './papeis';
 
@@ -256,6 +258,17 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
               void montarTelaQuebraCabeca(raiz, fonte(), '', voltarParaCa);
             }),
           );
+          // caça-palavras e cruzadinha: também se JOGAM na tela (só a folha do aluno)
+          const jogavel = !ehDoProfessor(f) ? jogoDoPedido(pedido()) : undefined;
+          if (jogavel) {
+            fazer.prepend(
+              botao('🎮 Jogar', () => {
+                const r = codificar(pedido(), letra);
+                const chave = `folhas:jogo:${'codigo' in r ? r.codigo : semear(f.svg)}`;
+                void montarTelaJogo(raiz, jogavel, chave, { voltar: () => void montarTelaFolhas(raiz, nav) });
+              }),
+            );
+          }
           figura.appendChild(fazer);
           previa.appendChild(figura);
         }

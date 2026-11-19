@@ -35,8 +35,10 @@ especialistas em impressões, A4, tudo relacionado a isso".
 - [x] 6b. Etapa 2, primeira parte: CASAS PINTÁVEIS dentro das grades (o
   domingo do calendário de vermelho, a casa do sudoku, a letra do
   caça-palavras, as fatias das frações…). Ver `GERADORES.md`.
-- [ ] 6c. Etapa 2, segunda parte: interação de jogo (caça-palavras arrastando
-  sobre a palavra, cruzadinha digitando na casa, sudoku e contas com teclado).
+- [x] 6c. Etapa 2, segunda parte: caça-palavras arrastando e cruzadinha
+  digitando («🎮 Jogar»). Ver `GERADORES.md`.
+- [ ] 6d. Próximos jogos na tela: sudoku (tocar a casa, escolher o número ou a
+  figura), contas com teclado, labirinto com o dedo, memória virando cartas.
 - Ajustes do Bruno: o botão virou «🎨 Pintar»; o código da folha é opcional e
   discreto (não sai impresso por padrão).
 

@@ -2325,3 +2325,44 @@ button.casa-caa.vazia { cursor: pointer; }
 @media (max-width: 760px) {
   .folhas-corpo { grid-template-columns: 1fr; }
 }
+
+/* ---------- jogar na tela: caça-palavras e cruzadinha (2026-11-18) ---------- */
+.jogo-corpo { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px 12px 40px; }
+.jogo-instrucao, .jogo-aviso, .jogo-dica-atual { margin: 0; text-align: center; max-width: 640px; }
+.jogo-aviso { min-height: 1.6em; font-weight: 700; }
+.jogo-dica-atual { font-size: 1.15rem; font-weight: 700; }
+.jogo-grade {
+  --lado: min(94vw, 620px);
+  display: grid; grid-template-columns: repeat(var(--colunas), 1fr);
+  width: var(--lado); gap: 0; background: #ffffff; color: #000000;
+  border: 3px solid #000000; border-radius: 10px; overflow: hidden;
+}
+/* arrastar o dedo marca letras, não rola a página */
+.jogo-grade-caca { touch-action: none; user-select: none; -webkit-user-select: none; }
+.jogo-casa {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative;
+  font-size: calc(var(--lado) / var(--colunas) * 0.55); font-weight: 700; line-height: 1; cursor: pointer;
+}
+.jogo-casa.marcando { background: #d6e4ff !important; outline: 3px solid #1d4ed8; outline-offset: -3px; }
+.jogo-casa.dica { animation: jogo-pisca 0.5s ease-in-out 5 alternate; }
+@keyframes jogo-pisca { to { background: #ffd166; } }
+@media (prefers-reduced-motion: reduce) { .jogo-casa.dica { animation: none; background: #ffd166; } }
+.jogo-grade-cruz { background: #3a3a3a; gap: 2px; padding: 2px; }
+.jogo-vazia { aspect-ratio: 1; background: #3a3a3a; }
+.jogo-casa-cruz { background: #ffffff; cursor: text; }
+.jogo-casa-cruz.na-palavra { background: #fff3c4; }
+.jogo-casa-cruz.certa { background: #d8f3dc; }
+.jogo-casa-cruz input {
+  width: 100%; height: 100%; border: 0; background: transparent; text-align: center; text-transform: uppercase;
+  font: inherit; color: #000000; caret-color: #1d4ed8; padding: 0;
+}
+.jogo-casa-cruz input:focus { outline: 3px solid #1d4ed8; outline-offset: -3px; }
+.jogo-numero { position: absolute; left: 3px; top: 1px; font-size: max(10px, calc(var(--lado) / var(--colunas) * 0.22)); font-weight: 400; pointer-events: none; }
+.jogo-lista { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; max-width: 640px; }
+.jogo-lista li { padding: 6px 10px; border-radius: 10px; border: 2px solid var(--borda); background: var(--cartao); cursor: pointer; }
+.jogo-lista li.achada { text-decoration: line-through; opacity: 0.75; }
+.jogo-lista li.achada::after { content: ' ✓'; }
+.jogo-lista li.atual { border-color: var(--destaque); font-weight: 700; }
+.jogo-dicas { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 12px; width: min(94vw, 760px); }
+.jogo-dicas .jogo-lista { flex-direction: column; align-items: stretch; }
+.jogo-ajudas { justify-content: center; }

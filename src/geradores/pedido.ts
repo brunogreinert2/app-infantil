@@ -355,6 +355,22 @@ export function folhasPara<F extends { titulo: string }>(folhas: F[], paraQuem: 
   return folhas;
 }
 
+// O MODELO do jogo — a grade e onde está cada palavra — tirado do pedido pelo
+// MESMO caminho da folha: a folha impressa e o jogo na tela são a mesma grade.
+const cacaDoPedido = (p: Pedido & { tipo: 'caca' }) =>
+  gerarCacaPalavras({ palavras: lerPalavras(p.palavras), nivel: p.nivel, semente: numeroOu(p.semente, 0) });
+
+export type JogoNaTela =
+  | { tipo: 'caca'; titulo: string; jogo: ReturnType<typeof gerarCacaPalavras> }
+  | { tipo: 'cruzadinha'; titulo: string; jogo: ReturnType<typeof gerarCruzadinha> };
+
+/** O jogo para jogar na tela, quando o tipo de folha tem um (caça-palavras e cruzadinha). */
+export function jogoDoPedido(p: Pedido): JogoNaTela | undefined {
+  if (p.tipo === 'caca') return { tipo: 'caca', titulo: p.titulo.trim() || 'Caça-palavras', jogo: cacaDoPedido(p) };
+  if (p.tipo === 'cruzadinha') return { tipo: 'cruzadinha', titulo: p.titulo.trim() || 'Cruzadinha', jogo: gerarCruzadinha(lerItens(p.itens)) };
+  return undefined;
+}
+
 export interface Resultado {
   /** nome do trabalho de impressão (e do PDF) */
   titulo: string;
@@ -376,7 +392,7 @@ function fazerNaLetraAtual(p: Pedido): Resultado {
     case 'caca': {
       const palavras = lerPalavras(p.palavras);
       if (!palavras.length) avisos.push('Escreva as palavras, uma por linha.');
-      const jogo = gerarCacaPalavras({ palavras, nivel: p.nivel, semente: numeroOu(p.semente, 0) });
+      const jogo = cacaDoPedido(p);
       for (const f of jogo.fora) avisos.push(`${f.palavra} ficou de fora: ${f.motivo}.`);
       if (!jogo.conferido) avisos.push('Não consegui garantir que cada palavra aparece uma vez só. Tente "Embaralhar de outro jeito".');
       const titulo = p.titulo.trim() || 'Caça-palavras';

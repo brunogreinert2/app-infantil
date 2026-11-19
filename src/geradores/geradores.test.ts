@@ -688,7 +688,8 @@ describe('rotina visual', () => {
 });
 
 describe('sequência didática de um livro', () => {
-  it('serve para todos os livros de história da estante, e cada folha cabe no A4', async () => {
+  // monta o caderno inteiro dos 28 livros: com a máquina ocupada passa de 5 s
+  it('serve para todos os livros de história da estante, e cada folha cabe no A4', { timeout: 30000 }, async () => {
     const { LIVROS_DA_SEQUENCIA, fazerFolhas, pedidoInicial } = await import('./pedido');
     expect(LIVROS_DA_SEQUENCIA.length).toBeGreaterThan(20);
     // em ordem alfabética e sem alfabetos nem números
@@ -1114,5 +1115,48 @@ describe('partes dos desenhos (a carinha separada do fundo)', () => {
     const c = contornoPreto('<svg><g stroke="#000" stroke-width="5"><circle id="regiao-f1" class="colorir-alvo" fill="transparent" data-parte="1" r="40"/></g></svg>');
     expect(c).toMatch(/id="regiao-f1"[^>]*fill="none"/);
     expect(c).not.toMatch(/id="regiao-f1"[^>]*stroke=/);
+  });
+});
+
+describe('jogos na tela: as regras', () => {
+  it('caça-palavras: a linha do dedo, nos dois sentidos, acha a palavra; um L não é linha', async () => {
+    const { gerarCacaPalavras } = await import('./cacaPalavras');
+    const { casasDoAchado, linhaEntre, palavraNaLinha } = await import('./jogo');
+    expect(linhaEntre([0, 0], [0, 3])).toEqual([[0, 0], [0, 1], [0, 2], [0, 3]]);
+    expect(linhaEntre([3, 3], [0, 0])).toHaveLength(4);
+    expect(linhaEntre([0, 0], [1, 2])).toEqual([]);
+    const jogo = gerarCacaPalavras({ palavras: ['ÔNIBUS', 'PARADA', 'LINHA', 'CENTRO'], nivel: 'dificil' });
+    for (const a of jogo.achados) {
+      const casas = casasDoAchado(a);
+      const ida = linhaEntre(casas[0], casas[casas.length - 1]);
+      expect(palavraNaLinha(jogo, ida)?.palavra).toBe(a.palavra);
+      expect(palavraNaLinha(jogo, [...ida].reverse())?.palavra).toBe(a.palavra);
+      // uma letra a menos não é a palavra
+      expect(palavraNaLinha(jogo, ida.slice(1))).toBeUndefined();
+    }
+  });
+
+  it('cruzadinha: casas, cruzamentos, palavra completa e o cursor que anda', async () => {
+    const { gerarCruzadinha } = await import('./cruzadinha');
+    const { casasDaEntrada, entradaCompleta, entradasDaCasa, letraLimpa, proximaCasa } = await import('./jogo');
+    const jogo = gerarCruzadinha([
+      { palavra: 'CASA', dica: 'onde se mora' },
+      { palavra: 'SAPO', dica: 'pula na lagoa' },
+      { palavra: 'ASA', dica: 'do passarinho' },
+    ]);
+    expect(letraLimpa('ã')).toBe('A');
+    expect(letraLimpa('ç')).toBe('C');
+    const e = jogo.entradas[0];
+    const casas = casasDaEntrada(e);
+    const letras: Record<string, string> = {};
+    casas.forEach(([l, c], k) => (letras[`${l},${c}`] = e.letras[k]));
+    expect(entradaCompleta(e, letras)).toBe(true);
+    letras[`${casas[0][0]},${casas[0][1]}`] = 'X';
+    expect(entradaCompleta(e, letras)).toBe(false);
+    expect(proximaCasa(e, casas[0])).toEqual(casas[1]);
+    expect(proximaCasa(e, casas[casas.length - 1])).toBeUndefined();
+    // há pelo menos um cruzamento: uma casa com duas palavras
+    const cruzamentos = jogo.entradas.flatMap(casasDaEntrada).filter((c) => entradasDaCasa(jogo, c).length === 2);
+    expect(cruzamentos.length).toBeGreaterThan(0);
   });
 });

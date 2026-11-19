@@ -173,6 +173,34 @@ como no papel.
 - **Não conferido:** no tablet com o dedo (só no computador, por eventos), e uma
   criança usando.
 
+## Jogar na tela — caça-palavras e cruzadinha (2026-11-18)
+
+**🎮 Jogar** aparece embaixo da folha do aluno do caça-palavras e da
+cruzadinha. O jogo usa a MESMA grade da folha impressa (`jogoDoPedido()` em
+`pedido.ts` sai pelo mesmo caminho de `fazerFolhas`). Regras puras e testadas
+em `jogo.ts`; a tela em `telaJogo.ts`.
+
+- **Caça-palavras:** arrastar o dedo sobre a palavra, ou tocar a primeira
+  letra e depois a última (para quem não consegue arrastar) — nos dois
+  sentidos. A palavra achada ganha cor (fixa pela ordem da lista: recompensa
+  previsível), é falada e riscada na lista. Linha que não é palavra só diz
+  «tente outra», sem cor nem som de erro. Ajudas: «💡 Uma dica» (a primeira
+  letra pisca e a palavra é falada), «Mostrar todas», «Recomeçar».
+- **Cruzadinha:** tocar a casa e digitar (um campo por casa: o teclado do
+  celular abre sozinho); o cursor anda; tocar de novo na casa do cruzamento
+  troca deitada ↔ em pé; apagar numa casa vazia volta uma; tocar a dica
+  escolhe a palavra. Acento não importa (Ã vale A). Palavra completa fica
+  verde e é falada; nunca se marca o errado. Ajudas: «💡 Uma letra»,
+  «Mostrar respostas», «Recomeçar». A festa (confete) é uma vez, quando a
+  última palavra fecha.
+- **Progresso guardado pelo código da folha** (`folhas:jogo:<código>`).
+- **Conferido no app** (computador e 375 px, por eventos): arrastar, tocar
+  começo e fim ao contrário, palavra repetida, dica, mostrar; cruzadinha
+  digitando BORRACHA com o cursor andando, ajuda, respostas. **Não conferido:**
+  com o dedo num tablet de verdade, e leitor de tela. No celular a casa do
+  caça-palavras de 12 × 12 fica com ~29 px — pequena para dedo de criança;
+  com lista grande, preferir grade menor.
+
 ## O código da folha (2026-11-18)
 
 **Ajuste do Bruno no mesmo dia:** o código NÃO vai impresso por padrão — «casos
