@@ -30,7 +30,10 @@ especialistas em impressões, A4, tudo relacionado a isso".
 - [x] 5. Código da folha — `src/geradores/codigo.ts`. Ver "O código da folha"
   em `GERADORES.md`. QR Code ainda não (o código mais longo, de uma lista de
   palavras, passa de 100 caracteres: é o caso que pede QR).
-- [ ] 6. Folhas interativas (etapa 1, depois etapa 2).
+- [x] 6a. Folhas interativas, etapa 1 — "🎨 Fazer no app" e "🧩 Quebra-cabeça"
+  embaixo de cada folha da prévia. Ver "Fazer no app" em `GERADORES.md`.
+- [ ] 6b. Etapa 2, jogo a jogo (caça-palavras arrastando, cruzadinha
+  digitando, sudoku, contas com teclado).
 
 ## Decidido — fazer, nesta ordem (do mais fácil ao maior)
 

@@ -6,7 +6,8 @@ Ordem combinada e o que ficou pendente em **`docs/BRAINSTORM_2026-11-18.md`**:
 zoom com mouse → contas com números próprios → versão aluno/professor →
 capas (sem colofão, meandro como opção de ornamento) → código da folha →
 folhas interativas. GoatCounter em stand-by (decisão dele). Feitos até o código
-da folha (2026-11-18); o próximo é "Fazer no app" (folhas interativas, etapa 1).
+da folha e "Fazer no app" (folhas interativas, etapa 1) em 2026-11-18; o próximo é a
+etapa 2, jogo a jogo (ver `docs/GERADORES.md`).
 
 ## Romanos grandes (2026-11-17, branch `fable/ler-o-mundo-e-caa`)
 

@@ -988,3 +988,42 @@ describe('código da folha', () => {
     }
   });
 });
+
+describe('fazer no app: a folha pronta para pintar', () => {
+  it('caixas e formas fechadas viram regiões; letras e desenhos ficam como estão', async () => {
+    const { folhaParaPintar } = await import('./pintar');
+    const svg =
+      '<svg><rect x="0" y="0" width="800" height="1131" fill="#ffffff"/>' +
+      '<rect x="10" y="10" width="40" height="40" rx="5" fill="none" stroke="#000"/>' +
+      '<circle cx="5" cy="5" r="3" fill="none" stroke="#000"/>' +
+      '<path d="M0 0L10 0L10 10Z" fill="#ffffff" stroke="#000"/>' +
+      '<path d="M0 0H50" fill="none" stroke="#000"/>' +
+      '<g fill="#000"><path d="M1 1L2 2Z"/></g>' +
+      '<circle cx="1" cy="1" r="1" fill="#000000"/>' +
+      '<rect id="regiao-fundo" class="colorir-alvo" fill="#ffffff"/></svg>';
+    const r = folhaParaPintar(svg);
+    expect(r.regioes).toBe(4);
+    expect((r.svg.match(/class="colorir-alvo"/g) ?? []).length).toBe(5);
+    expect(r.svg).toContain('<path d="M0 0H50" fill="none" stroke="#000"/>');
+    expect(r.svg).toContain('<g fill="#000"><path d="M1 1L2 2Z"/></g>');
+    expect(r.svg).toContain('<circle cx="1" cy="1" r="1" fill="#000000"/>');
+    // ids únicos
+    const ids = [...r.svg.matchAll(/id="([^"]+)"/g)].map((m) => m[1]);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('toda folha de todo tipo abre para pintar, e quase todas têm onde usar o balde', async () => {
+    const { TIPOS, fazerFolhas, pedidoInicial } = await import('./pedido');
+    const { folhaParaPintar } = await import('./pintar');
+    let semRegiao = 0;
+    for (const t of TIPOS) {
+      for (const f of fazerFolhas(pedidoInicial(t.tipo, new Date(2026, 10, 18))).folhas) {
+        const r = folhaParaPintar(f.svg);
+        if (r.regioes === 0 && !r.svg.includes('colorir-alvo')) semRegiao++;
+        const ids = [...r.svg.matchAll(/\sid="(regiao-[^"]+)"/g)].map((m) => m[1]);
+        expect(new Set(ids).size, `${t.tipo} ${f.titulo}`).toBe(ids.length);
+      }
+    }
+    expect(semRegiao).toBe(0);
+  });
+});

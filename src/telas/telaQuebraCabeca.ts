@@ -7,9 +7,8 @@
 import { armazenamento } from '../armazenamento/armazenamento';
 import { derivarContornoPB } from '../canvas/camadaBase';
 import { soltarConfetes } from '../efeitos/confete';
-import { arquivosAssets } from '../conteudo/catalogo';
+import { resolverFonte, type FontePintura } from './telaColorir';
 import type { Livro } from '../motor/tipos';
-import { perfilAtivo } from '../perfis/perfis';
 import { barraTopo, el } from './comum';
 
 // tamanhos fixos e previsíveis: [rótulo, colunas, linhas] p/ arte paisagem
@@ -24,30 +23,30 @@ const TAMANHOS: Array<[string, number, number]> = [
 
 export async function montarTelaQuebraCabeca(
   raiz: HTMLElement,
-  livro: Livro,
+  alvo: Livro | FontePintura,
   assetId: string,
   nav: { perfis: () => void; voltar: () => void },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-quebra';
 
-  const asset = livro.metadados.assets?.find((a) => a.id === assetId);
-  const svgFonte = asset?.arquivo_interativo ? arquivosAssets[asset.arquivo_interativo] : undefined;
-  if (!svgFonte) {
+  const fonte = resolverFonte(alvo, assetId);
+  if (!fonte) {
     raiz.appendChild(el('p', 'aviso-asset', `⚠ asset "${assetId}" sem arquivo interativo`));
     return;
   }
+  const svgFonte = fonte.svg;
 
   raiz.appendChild(
     barraTopo({
-      titulo: '🧩 ' + livro.metadados.titulo,
+      titulo: '🧩 ' + fonte.titulo,
       aoVoltar: nav.voltar,
       aoTrocarPerfil: nav.perfis,
     }),
   );
 
   // arte final = regiões com as cores salvas da criança + contorno por cima
-  const chaveCores = `${perfilAtivo().id}:colorir:${livro.id}:${assetId}`;
+  const chaveCores = fonte.chave;
   const estado = await armazenamento.obter<{ regioes: Record<string, string> }>(chaveCores);
 
   const molde = document.createElement('div');

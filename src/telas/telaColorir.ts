@@ -35,25 +35,44 @@ type Acao =
 // toque só, porque toque longo pede coordenação fina e ninguém o descobre.
 const TOQUE_LONGO_MS = 450;
 
+/**
+ * Um desenho que não vem de um livro da estante: uma folha gerada na tela
+ * "Fazer uma folha" (2026-11-18). `chave` é onde a pintura fica guardada.
+ */
+export interface FontePintura {
+  svg: string;
+  titulo: string;
+  chave: string;
+}
+
+/** O desenho, o título e onde guardar — venha de um livro ou de uma folha. */
+export function resolverFonte(alvo: Livro | FontePintura, assetId: string): FontePintura | undefined {
+  if ('svg' in alvo) return alvo;
+  const asset = alvo.metadados.assets?.find((a) => a.id === assetId);
+  const svg = asset?.arquivo_interativo ? arquivosAssets[asset.arquivo_interativo] : undefined;
+  return svg ? { svg, titulo: alvo.metadados.titulo, chave: `${perfilAtivo().id}:colorir:${alvo.id}:${assetId}` } : undefined;
+}
+
+
 export async function montarTelaColorir(
   raiz: HTMLElement,
-  livro: Livro,
+  alvo: Livro | FontePintura,
   assetId: string,
   nav: { perfis: () => void; voltar: () => void },
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-pintura';
 
-  const asset = livro.metadados.assets?.find((a) => a.id === assetId);
-  const svgFonte = asset?.arquivo_interativo ? arquivosAssets[asset.arquivo_interativo] : undefined;
-  if (!svgFonte) {
+  const fonte = resolverFonte(alvo, assetId);
+  if (!fonte) {
     raiz.appendChild(el('p', 'aviso-asset', `⚠ asset "${assetId}" sem arquivo interativo`));
     return;
   }
+  const svgFonte = fonte.svg;
 
   raiz.appendChild(
     barraTopo({
-      titulo: '🎨 ' + livro.metadados.titulo,
+      titulo: '🎨 ' + fonte.titulo,
       aoVoltar: nav.voltar,
       aoTrocarPerfil: nav.perfis,
     }),
@@ -91,7 +110,7 @@ export async function montarTelaColorir(
   const zoom = instalarZoomPinca(tela, lente, () => pincel.cancelarTracoAtivo());
 
   // --- estado + persistência ---
-  const chave = `${perfilAtivo().id}:colorir:${livro.id}:${assetId}`;
+  const chave = fonte.chave;
   const estado: EstadoColorir = (await armazenamento.obter<EstadoColorir>(chave)) ?? {
     regioes: {},
     tracos: [],
@@ -376,7 +395,7 @@ export async function montarTelaColorir(
       abrirImpressao(false);
       imprimirParaColorir(
         svgFonte,
-        livro.metadados.titulo,
+        fonte.titulo,
         comPintura ? { regioes: estado.regioes, tracos: pincel.obterTracos(), escritas: escrita.obter() } : undefined,
       );
     });

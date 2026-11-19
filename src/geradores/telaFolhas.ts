@@ -43,6 +43,10 @@ import {
 } from './pedido';
 import { NOMES_DAS_LETRAS, NOMES_DOS_ESTILOS, type Letra } from './comum';
 import { codificar, decodificar, folhasComCodigo } from './codigo';
+import { chaveDaPintura, folhaParaPintar } from './pintar';
+import { semear } from './comum';
+import { montarTelaColorir } from '../telas/telaColorir';
+import { montarTelaQuebraCabeca } from '../telas/telaQuebraCabeca';
 import type { ParteDaCapa } from './capas';
 import { MOLDURA_DA_FIGURA, encaixeDaFigura, zoomFiguraInteira } from './papeis';
 
@@ -224,6 +228,28 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           if (figuraArrastavel() && previa.childElementCount === 0) papel.classList.add('folhas-papel-arrastar');
           // a folha do professor leva a marca na legenda da prévia
           figura.append(papel, el('figcaption', undefined, ehDoProfessor(f) ? `${f.titulo} · professor` : f.titulo));
+          // fazer no app: a mesma folha na tela de pintura (balde, pincel,
+          // escrever, zoom) e no quebra-cabeça — a pintura fica guardada pelo
+          // código da folha, então a mesma folha volta como foi deixada
+          const indice = previa.childElementCount;
+          const fonte = () => ({
+            svg: folhaParaPintar(f.svg).svg,
+            titulo: f.titulo,
+            chave: chaveDaPintura(codigoAtual, indice, semear(f.svg)),
+          });
+          const voltarParaCa = { perfis: nav.voltar, voltar: () => void montarTelaFolhas(raiz, nav) };
+          const fazer = el('div', 'folhas-fazer');
+          fazer.append(
+            botao('🎨 Fazer no app', () => {
+              window.scrollTo(0, 0);
+              void montarTelaColorir(raiz, fonte(), '', voltarParaCa);
+            }),
+            botao('🧩 Quebra-cabeça', () => {
+              window.scrollTo(0, 0);
+              void montarTelaQuebraCabeca(raiz, fonte(), '', voltarParaCa);
+            }),
+          );
+          figura.appendChild(fazer);
           previa.appendChild(figura);
         }
         imprimir.disabled = !folhasPara(resultado.folhas, paraQuem).length;

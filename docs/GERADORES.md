@@ -120,6 +120,31 @@ do primeiro lote (silabário em diante) ainda não foram impressas.
 - Folhas sem marca de criança (`IDENTIDADE_NEUTRA`): servem do 1º ano ao
   ensino médio. Passar `identidade` para pôr a marca do Historinhas.
 
+## Fazer no app — folhas interativas, etapa 1 (2026-11-18)
+
+Embaixo de cada folha da prévia: **🎨 Fazer no app** abre a folha na MESMA tela
+de pintura dos livros (balde, pincel, borracha, escrever no desenho, zoom com
+mouse e dedo) e **🧩 Quebra-cabeça** a corta em peças. O app não corrige nada,
+como no papel.
+
+- `pintar.ts` → `folhaParaPintar(svg)`: o balde só pinta REGIÃO, e as folhas
+  foram feitas para o papel. Toda forma FECHADA com contorno e sem tinta
+  (caixa de resposta, casa, cartão, peça do tangram, círculo) e o fundo viram
+  região branca. Letras e desenhos dos pictogramas ficam como estão. Região
+  repetida (o desenho do livro dentro da folha "Para pintar") ganha outro nome
+  SÓ ali — a folha impressa não muda, e o código dela também não.
+- **A pintura fica guardada pelo código da folha** (`folhas:pintura:<código>:<n>`,
+  do aparelho, não do perfil): a mesma folha volta como foi deixada. Folha sem
+  código (com nomes) guarda pela impressão digital do desenho.
+- `telaColorir.ts` e `telaQuebraCabeca.ts` aceitam um livro OU uma
+  `FontePintura` ({svg, titulo, chave}); `resolverFonte()` decide. A barra do
+  topo funciona sem perfil escolhido (área de quem ensina).
+- **Limite conhecido:** onde a grade é feita de LINHAS (sudoku, calendário,
+  quadriculado, caça-palavras), o balde pinta o quadro inteiro, não a casa; ali
+  vale o pincel e a escrita. A etapa 2 resolve isso jogo a jogo.
+- **Não conferido:** no tablet com o dedo (só no computador, por eventos), e uma
+  criança usando.
+
 ## O código da folha (2026-11-18)
 
 `src/geradores/codigo.ts`. Cada folha tem um código (`H1-64RQ-WC3Y-6CYK-6V`)

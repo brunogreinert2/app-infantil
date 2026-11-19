@@ -1,6 +1,6 @@
 // Peças de UI compartilhadas entre telas.
 
-import { perfilAtivo } from '../perfis/perfis';
+import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
 import { alternarPainel, painelAberto, painelConfigurado } from './painelLateral';
 import { ajustarTamanho, PASSO_FONTE } from './preferencias';
 
@@ -32,6 +32,12 @@ export function barraTopo(op: OpcoesBarra): HTMLElement {
     barra.appendChild(voltar);
   }
 
+  // Sem perfil escolhido (a área de quem ensina, que abre pelos Ajustes, e a
+  // folha gerada aberta para pintar): sem o chip de perfil, só o título.
+  if (!temPerfilAtivo()) {
+    barra.appendChild(el('h1', 'titulo-barra', op.titulo));
+    return barra;
+  }
   const p = perfilAtivo();
   const chip = el('button', 'chip-perfil', p.avatar);
   // O avatar abre o painel lateral (pastas, anotações, trocar de perfil).

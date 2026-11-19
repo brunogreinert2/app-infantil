@@ -2312,6 +2312,7 @@ button.casa-caa.vazia { cursor: pointer; }
 .folhas-papel-arrastar:active { cursor: grabbing; }
 .folhas-botoes { display: flex; flex-wrap: wrap; gap: 8px; }
 .folhas-partes { display: flex; flex-direction: column; gap: 2px; }
+.folhas-fazer { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 6px; }
 .folhas-codigo { margin-top: 14px; padding: 12px 14px; border: 2px solid var(--borda); border-radius: 14px; background: var(--cartao); display: flex; flex-direction: column; gap: 6px; }
 .folhas-codigo h2 { margin: 0; }
 .folhas-codigo-texto { font-size: 1.05rem; letter-spacing: 0.04em; word-break: break-all; align-self: center; }
