@@ -1034,13 +1034,14 @@ describe('casas para pintar (etapa 2)', () => {
     const { comCasas } = await import('./comum');
     const { folhaParaPintar } = await import('./pintar');
     const casas = (svg: string) => (svg.match(/data-casa="1"/g) ?? []).length;
-    const casos: Array<[string, () => ReturnType<typeof pedidoInicial>, number]> = [
-      ['calendário de novembro de 2026 (5 semanas)', () => ({ ...pedidoInicial('calendario', new Date(2026, 10, 1)), modelo: 'figura' as const }), 35],
-      ['sudoku 4 × 4', () => ({ ...pedidoInicial('logica'), modelo: 'sudoku4' as const }), 16],
-      ['caça-palavras', () => pedidoInicial('caca'), 1],
-      ['quadriculado de 1 cm', () => pedidoInicial('grade'), 1],
-      ['labirinto pequeno', () => pedidoInicial('logica'), 48],
-      ['tábua (as 100 casas de dentro; as 20 da cabeça começam cinza)', () => ({ ...pedidoInicial('contas'), modelo: 'tabua' as const }), 100],
+    // os pedidos vão por `never`: cada um é de um tipo de folha diferente
+    const casos: Array<[string, () => never, number]> = [
+      ['calendário de novembro de 2026 (5 semanas)', () => ({ ...pedidoInicial('calendario', new Date(2026, 10, 1)), modelo: 'figura' }) as never, 35],
+      ['sudoku 4 × 4', () => ({ ...pedidoInicial('logica'), modelo: 'sudoku4' }) as never, 16],
+      ['caça-palavras', () => pedidoInicial('caca') as never, 1],
+      ['quadriculado de 1 cm', () => pedidoInicial('grade') as never, 1],
+      ['labirinto pequeno', () => pedidoInicial('logica') as never, 48],
+      ['tábua (as 100 casas de dentro; as 20 da cabeça começam cinza)', () => ({ ...pedidoInicial('contas'), modelo: 'tabua' }) as never, 100],
     ];
     for (const [nome, pedido, minimo] of casos) {
       const impressa = fazerFolhas(pedido()).folhas[0].svg;
