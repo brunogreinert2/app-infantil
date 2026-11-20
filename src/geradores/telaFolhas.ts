@@ -53,6 +53,7 @@ import { montarTelaColorir } from '../telas/telaColorir';
 import { montarTelaQuebraCabeca } from '../telas/telaQuebraCabeca';
 import { montarTelaJogo } from './telaJogo';
 import { CRUZADINHAS_PRONTAS, proximaPronta, textoDaPronta } from './cruzadinhasProntas';
+import { NOMES_DOS_CADERNOS, NOMES_DOS_CONTEXTOS, PALAVRA_PROPRIA, opcoesDeFolha, type Caderno } from './cadernos';
 import type { ParteDaCapa } from './capas';
 import { MOLDURA_DA_FIGURA, encaixeDaFigura, zoomFiguraInteira } from './papeis';
 
@@ -715,6 +716,50 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           if (p.modelo === 'etiquetas') {
             campos.appendChild(rotulado('Matéria', campoTexto(p.materia ?? '', (v) => ((p.materia = v), atualizar()), 40), 'Vazia, fica a linha para escrever.'));
           }
+        }
+        break;
+      }
+      // OS CADERNOS PRONTOS (2026-11-20): as folhas dos livros, todas, um grupo ou uma só
+      case 'alfabetos':
+      case 'numeros':
+      case 'lerOMundo': {
+        const caderno: Caderno = p.tipo === 'alfabetos' ? p.caderno : p.tipo === 'numeros' ? 'numeros' : 'ler-o-mundo';
+        if (p.tipo === 'alfabetos') {
+          campos.appendChild(
+            rotulado(
+              'Qual alfabeto',
+              lista(opcoes(NOMES_DOS_CADERNOS), p.caderno, (v) => {
+                p.caderno = v;
+                p.folha = '';
+                desenharCampos();
+                atualizar(true);
+              }),
+            ),
+          );
+        }
+        campos.appendChild(
+          rotulado(
+            'Quais folhas',
+            lista(opcoesDeFolha(caderno), p.folha, (v) => {
+              p.folha = v;
+              desenharCampos();
+              atualizar(true);
+            }),
+            p.tipo === 'lerOMundo'
+              ? 'Para jovens e adultos: sem cara de coisa de criança. Cada ficha parte de uma palavra que se vê na rua.'
+              : 'As mesmas folhas do livro da estante.',
+          ),
+        );
+        if (p.tipo === 'lerOMundo' && p.folha === PALAVRA_PROPRIA) {
+          campos.appendChild(
+            rotulado('A palavra', campoTexto(p.palavra, (v) => ((p.palavra = v), atualizar()), 14), 'Uma palavra só, até 14 letras. Ex.: ÔNIBUS'),
+          );
+          campos.appendChild(
+            rotulado('As partes (sílabas)', campoTexto(p.silabas, (v) => ((p.silabas = v), atualizar()), 40), 'Separadas por traço: Ô-NI-BUS. Em branco, a ficha mostra letra por letra.'),
+          );
+          campos.appendChild(
+            rotulado('Onde ela aparece', lista(opcoes(NOMES_DOS_CONTEXTOS), p.contexto, (v) => ((p.contexto = v), atualizar(true)))),
+          );
         }
         break;
       }

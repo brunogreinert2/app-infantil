@@ -32,6 +32,8 @@ import { gerarContas, lerContas, svgContasA4, svgTabuaA4, svgTabuadaA4, type Con
 import { folhasDeRecortar, type ModeloRecortar } from './recortar';
 import { lerNomes, svgCrachasA4, svgEtiquetasA4, svgHqA4, svgMarcadoresA4, svgTesouraA4, svgTracarA4 } from './cartoes';
 import { ampliarFolha, comAmpliada, comLetra, textoSeguro, type Letra } from './comum';
+import { NOMES_DOS_CADERNOS, PALAVRA_PROPRIA, fichaDaPalavra, folhasDoCaderno, type Caderno } from './cadernos';
+import type { Contexto } from '../conteudo/lerOMundo';
 import { folhasDaRotina, lerPassos, type ModeloRotina } from './rotina';
 import { ESTILOS_PADRAO, svgCapaA4, type ModeloCapa, type ParteDaCapa } from './capas';
 import type { Estilo } from './comum';
@@ -185,8 +187,11 @@ export type PedidoDoTipo =
       posX?: number;
       posY?: number;
       feriados: boolean;
-    };
-
+    }
+  // os cadernos prontos (2026-11-20): as folhas dos livros, impressas pela oficina
+  | { tipo: 'alfabetos'; caderno: 'alfabeto' | 'alfabeto-grego'; folha: string }
+  | { tipo: 'numeros'; folha: string }
+  | { tipo: 'lerOMundo'; folha: string; palavra: string; silabas: string; contexto: Contexto };
 /**
  * O pedido do formulário. `ampliada` vale para TODOS os tipos (folha para
  * enxergar melhor, 2026-11-20). Opcional e fora do pedido de partida: o código
@@ -235,6 +240,10 @@ export const TIPOS: TipoNaOficina[] = (<TipoNaOficina[]>[
   { tipo: 'cartoes', nome: 'Quadrinhos, crachás, marcadores, etiquetas', secao: 'papeis' },
   { tipo: 'sequencia', nome: 'Sequência didática de um livro da estante', secao: 'planejar' },
   { tipo: 'rotina', nome: 'Rotina visual: agenda do dia, passo a passo, primeiro → depois', secao: 'planejar' },
+  // os cadernos prontos dos livros (2026-11-20)
+  { tipo: 'alfabetos', nome: 'Alfabetos para pintar: o ABC e o grego', secao: 'atividades' },
+  { tipo: 'numeros', nome: 'Os Números para pintar: de 0 a 20, contas, romanos, tabuadas', secao: 'atividades' },
+  { tipo: 'lerOMundo', nome: 'Ler o Mundo: alfabetização para jovens e adultos (placas e sinais)', secao: 'atividades' },
   // em ordem alfabética na tela (pedido do Bruno, 2026-11-18)
 ]).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 
@@ -302,6 +311,12 @@ export function pedidoInicial(tipo: TipoDeFolha, hoje: Date = new Date()): Pedid
         rodape: String(hoje.getFullYear()),
         itens: '',
       };
+    case 'alfabetos':
+      return { tipo, caderno: 'alfabeto', folha: 'grupo:Alfabeto completo' };
+    case 'numeros':
+      return { tipo, folha: 'grupo:Todos em uma folha' };
+    case 'lerOMundo':
+      return { tipo, folha: 'grupo:Consulta', palavra: '', silabas: '', contexto: 'placa' };
     case 'sequencia':
       return { tipo, livro: LIVROS_DA_SEQUENCIA.some((l) => l.id === 'o-leao-e-o-ratinho') ? 'o-leao-e-o-ratinho' : (LIVROS_DA_SEQUENCIA[0]?.id ?? ''), partes: {}, palavras: '' };
     case 'rotina':
@@ -569,6 +584,27 @@ function fazerNaLetraAtual(p: Pedido): Resultado {
         ornamento: p.ornamento in ORNAMENTOS ? p.ornamento : 'meandro',
       });
       return { titulo: `Capa - ${titulo}`, folhas: [{ titulo: 'Capa', svg }], avisos };
+    }
+    case 'alfabetos':
+    case 'numeros':
+    case 'lerOMundo': {
+      const caderno: Caderno = p.tipo === 'alfabetos' ? (p.caderno === 'alfabeto-grego' ? 'alfabeto-grego' : 'alfabeto') : p.tipo === 'numeros' ? 'numeros' : 'ler-o-mundo';
+      const titulo = p.tipo === 'alfabetos' ? NOMES_DOS_CADERNOS[caderno as 'alfabeto'] : p.tipo === 'numeros' ? 'Os Números' : 'Ler o Mundo';
+      if (p.tipo === 'lerOMundo' && p.folha === PALAVRA_PROPRIA) {
+        if (!p.palavra.trim()) {
+          avisos.push('Escreva a palavra (uma só), e, se quiser, as partes: ÔNI-BUS.');
+          return { titulo, folhas: [], avisos };
+        }
+        try {
+          const f = fichaDaPalavra(p.palavra, p.silabas, p.contexto);
+          if (!p.silabas.trim()) avisos.push('Sem as partes, a ficha mostra letra por letra. Para mostrar as sílabas, escreva assim: ÔNI-BUS.');
+          return { titulo: `${titulo} - ${f.titulo}`, folhas: [{ titulo: f.titulo, svg: f.svg }], avisos };
+        } catch (erro) {
+          avisos.push(String((erro as Error).message ?? erro));
+          return { titulo, folhas: [], avisos };
+        }
+      }
+      return { titulo, folhas: folhasDoCaderno(caderno, p.folha).map((f) => ({ titulo: f.titulo, svg: f.svg })), avisos };
     }
     case 'sequencia': {
       const livro = obterLivro(p.livro);

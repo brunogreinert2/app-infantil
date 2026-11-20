@@ -1203,7 +1203,9 @@ describe('pedido de partida congelado', () => {
     const { pedidoInicial } = await import('./pedido');
     const { TIPOS_NO_CODIGO, DATA_DE_REFERENCIA } = await import('./codigo');
     const { semear } = await import('./comum');
-    expect(semear(JSON.stringify(TIPOS_NO_CODIGO.map((t) => pedidoInicial(t, DATA_DE_REFERENCIA))))).toBe(1418603485);
+    // os 18 tipos de 2026-11-18 (os que vieram depois entram no fim da lista
+    // e não mexem neste número — é ele que garante os códigos já impressos)
+    expect(semear(JSON.stringify(TIPOS_NO_CODIGO.slice(0, 18).map((t) => pedidoInicial(t, DATA_DE_REFERENCIA))))).toBe(1418603485);
   });
 });
 
@@ -1567,5 +1569,52 @@ describe('folha ampliada (2026-11-20)', () => {
     // todo tipo aceita a ampliada sem quebrar
     const { TIPOS } = await import('./pedido');
     for (const t of TIPOS) expect(() => fazerFolhas({ ...pedidoInicial(t.tipo), ampliada: true })).not.toThrow();
+  });
+});
+
+describe('cadernos prontos na oficina (2026-11-20)', () => {
+  it('alfabetos, números e Ler o Mundo: todas, um grupo, uma folha', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const { fichasDoCaderno, opcoesDeFolha } = await import('./cadernos');
+    for (const caderno of ['alfabeto', 'alfabeto-grego', 'numeros', 'ler-o-mundo'] as const) {
+      const fichas = fichasDoCaderno(caderno);
+      expect(fichas.length).toBeGreaterThan(5);
+      expect(opcoesDeFolha(caderno)[0].valor).toBe('');
+    }
+    const base = pedidoInicial('alfabetos');
+    if (base.tipo !== 'alfabetos') throw new Error('alfabetos');
+    expect(fazerFolhas({ ...base, folha: '' }).folhas).toHaveLength(fichasDoCaderno('alfabeto').length);
+    expect(fazerFolhas({ ...base, folha: 'grupo:Letras' }).folhas).toHaveLength(26);
+    expect(fazerFolhas({ ...base, caderno: 'alfabeto-grego', folha: 'grupo:Letras' }).folhas).toHaveLength(24);
+    expect(fazerFolhas({ ...base, folha: 'letra01' }).folhas).toHaveLength(1);
+    // escolha que não existe mais cai em todas, sem quebrar
+    expect(fazerFolhas({ ...base, folha: 'nao-existe' }).folhas.length).toBe(fichasDoCaderno('alfabeto').length);
+    const num = pedidoInicial('numeros');
+    expect(fazerFolhas(num).folhas.length).toBeGreaterThan(0);
+  });
+
+  it('Ler o Mundo faz a ficha da palavra de quem ensina, e avisa o que não serve', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('lerOMundo');
+    if (base.tipo !== 'lerOMundo') throw new Error('lerOMundo');
+    const ok = fazerFolhas({ ...base, folha: 'propria', palavra: 'ônibus', silabas: 'Ô-NI-BUS', contexto: 'letreiro' });
+    expect(ok.folhas).toHaveLength(1);
+    expect(ok.folhas[0].titulo).toBe('ÔNIBUS');
+    const errado = fazerFolhas({ ...base, folha: 'propria', palavra: 'ÔNIBUS', silabas: 'Ô-NI', contexto: 'placa' });
+    expect(errado.folhas).toHaveLength(0);
+    expect(errado.avisos.join(' ')).toContain('não formam');
+    expect(fazerFolhas({ ...base, folha: 'propria', palavra: '' }).avisos.length).toBeGreaterThan(0);
+  });
+
+  it('o código da folha guarda o caderno e a palavra', async () => {
+    const { codificar, decodificar } = await import('./codigo');
+    const { pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('lerOMundo');
+    if (base.tipo !== 'lerOMundo') throw new Error('lerOMundo');
+    const pedido = { ...base, folha: 'propria', palavra: 'PARADA', silabas: 'PA-RA-DA', contexto: 'poste' as const };
+    const r = codificar(pedido);
+    if (!('codigo' in r)) throw new Error(r.erro);
+    const d = decodificar(r.codigo);
+    expect('pedido' in d && d.pedido).toMatchObject({ tipo: 'lerOMundo', palavra: 'PARADA', silabas: 'PA-RA-DA', contexto: 'poste' });
   });
 });

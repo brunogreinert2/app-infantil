@@ -40,7 +40,7 @@ ou ouve a história, responde perguntas que nunca a reprovam, pinta os
 desenhos da história na tela ou no papel, joga caça-palavras, cruzadinha,
 sudoku, labirinto, contas e memória, e ganha insígnias fixas ao terminar
 cada livro. Quem ensina tem, atrás de uma trava simples, uma **oficina** que
-faz 18 tipos de folha A4 para imprimir (de caça-palavras a calendário, de
+faz 21 tipos de folha A4 para imprimir (de caça-palavras a calendário, de
 contas armadas a sequência didática), uma **prancha de comunicação
 alternativa** (CAA) que fala e também sai no papel, e um guia. Tudo funciona
 sem internet depois da primeira visita, nada é enviado para fora do aparelho,
@@ -158,12 +158,12 @@ delas. Na área dos adultos: **montar pranchas** casa a casa, com foto própria,
 e **imprimir** em A4 (a prancha só serve se sair da sala de recursos).
 
 ### Ensinar (🖨️ Para quem ensina → Fazer uma folha)
-A **oficina**: 18 tipos de folha A4 em quatro seções.
+A **oficina**: 21 tipos de folha A4 em quatro seções.
 
 | Seção | Folhas |
 |---|---|
 | Jogos para imprimir | caça-palavras, cruzadinha, labirinto e sudoku, jogos de mesa (memória, dominó, bingo, damas, xadrez), sílabas (bingo e dominó) |
-| Atividades | sílabas (famílias, monte a palavra), contas armadas e tabuada, relógio e reta numérica, matemática de recortar (material dourado, frações, tangram), coordenação (tesoura e caminhos) |
+| Atividades | sílabas (famílias, monte a palavra), contas armadas e tabuada, relógio e reta numérica, matemática de recortar (material dourado, frações, tangram), coordenação (tesoura e caminhos), e os cadernos dos livros: os **alfabetos** (ABC e grego), **Os Números** e o **Ler o Mundo** (alfabetização para jovens e adultos, das placas e sinais, com a ficha da palavra que a professora escolher) |
 | Papéis e modelos | folha pautada (até a muito ampliada), quadriculado e milimetrado, réguas, plano cartesiano e parábola, calendário com figura, capas (com meandro), quadrinhos, crachás, marcadores, etiquetas |
 | Planejar | sequência didática a partir de um livro da estante, rotina visual (agenda do dia, passo a passo, primeiro → depois) |
 

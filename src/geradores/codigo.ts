@@ -30,6 +30,8 @@ export const VERSAO_DO_CODIGO = 'H1';
 export const TIPOS_NO_CODIGO: TipoDeFolha[] = [
   'caca', 'cruzadinha', 'jogo', 'matematica', 'pauta', 'grade', 'reguas', 'plano', 'calendario',
   'silabas', 'logica', 'contas', 'recortar', 'motora', 'cartoes', 'rotina', 'sequencia', 'capa',
+  // 2026-11-20: os cadernos prontos dos livros
+  'alfabetos', 'numeros', 'lerOMundo',
 ];
 
 /** A ordem é o número no código. SÓ ACRESCENTAR NO FIM. */
@@ -39,7 +41,7 @@ export const CAMPOS_NO_CODIGO: string[] = [
   'completar', 'margem', 'jogo', 'pecas', 'cartelas', 'lado', 'verso', 'ordens', 'alcance', 'curva',
   'a', 'b', 'c', 'quadros', 'linhas', 'nomes', 'linha2', 'horas', 'de', 'ate',
   'passos', 'maiusculas', 'hora', 'livro', 'partes', 'familias', 'proprias', 'estilos', 'materia', 'aspecto',
-  'zoom', 'posX', 'posY', 'pronta', 'ampliada',
+  'zoom', 'posX', 'posY', 'pronta', 'ampliada', 'caderno', 'folha', 'palavra', 'silabas', 'contexto',
 ];
 
 const LETRAS_NO_CODIGO: Letra[] = ['atkinson', 'cardo', 'opendyslexic'];

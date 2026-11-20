@@ -1,6 +1,6 @@
 # Ler o Mundo e Prancha de CAA — piloto (2026-11-16)
 
-Branch `fable/ler-o-mundo-e-caa`. **Não publicado, não integrado à estante.**
+Branch `fable/ler-o-mundo-e-caa`. Desde 2026-11-20 as folhas saem pela **oficina** (Para quem ensina → Fazer uma folha → Atividades → Ler o Mundo), inclusive a ficha da palavra da professora. Na estante da criança, ainda não.
 Feito pelo Fable numa sessão do celular do Bruno; este arquivo é a passagem
 de bastão para o Claude Code no desktop.
 

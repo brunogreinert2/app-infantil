@@ -412,3 +412,18 @@ Liga/desliga na oficina, para todos os tipos; detalhes em
 `fazerFolhas` faz tudo dentro de `comAmpliada` e passa `ampliarFolha` nas
 folhas prontas. O pedido de partida não muda (continua congelado).
 
+## Cadernos prontos na oficina (2026-11-20)
+
+Pedido do Bruno: os alfabetos e Os Números foram feitos para quem ensina
+imprimir, e o **Ler o Mundo** (alfabetização para jovens e adultos, das placas
+e sinais) só saía por script. Agora são três tipos da oficina, em Atividades:
+`alfabetos` (O Alfabeto / O Alfabeto Grego), `numeros` e `lerOMundo`
+(`src/geradores/cadernos.ts`). Escolhe-se todas as folhas, um grupo ou uma só
+— as MESMAS dos livros (src/conteudo), nada redesenhado. O Ler o Mundo faz
+também a ficha de uma **palavra de quem ensina** (com as partes, ÔNI-BUS, e o
+lugar onde ela aparece: placa, letreiro do ônibus, porta…).
+
+Entraram no fim de `TIPOS_NO_CODIGO` (e `caderno`, `folha`, `palavra`,
+`silabas`, `contexto` no fim de `CAMPOS_NO_CODIGO`); o teste do pedido de
+partida congela os 18 tipos de antes (`slice(0, 18)`), com o mesmo número.
+
