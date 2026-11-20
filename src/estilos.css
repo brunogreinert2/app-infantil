@@ -2704,3 +2704,7 @@ button.casa-caa.vazia { cursor: pointer; }
 .conta-chave-divisor { min-width: 2.2em; padding: 0.1em 0.3em 0.1em 0.3em; border-left: 4px solid #000000; border-bottom: 4px solid #000000; }
 .conta-chave .conta-caixas { padding-left: 0.3em; }
 
+
+/* a sugestão de sílabas do Ler o Mundo (2026-11-20) */
+.folhas-sugestao { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.folhas-sugestao[hidden] { display: none; }

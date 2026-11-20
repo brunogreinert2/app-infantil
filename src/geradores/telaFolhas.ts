@@ -8,7 +8,7 @@
 import { armazenamento } from '../armazenamento/armazenamento';
 import { corpoCadernoA4, cssCadernoA4, imprimirDocumento } from '../impressao/motorImpressao';
 import { barraTopo, el } from '../telas/comum';
-import { silabasComHifens } from '../conteudo/silabas';
+import { separarSilabas, silabasComHifens } from '../conteudo/silabas';
 import { NOMES_COM_DESENHO } from './jogosDeMesa';
 import { MODELOS as MODELOS_DE_ROTINA } from './rotina';
 import { NOMES_DAS_PARTES, sugerirPalavras, type ParteDaSequencia } from './sequencia';
@@ -751,12 +751,43 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           ),
         );
         if (p.tipo === 'lerOMundo' && p.folha === PALAVRA_PROPRIA) {
+          // SÍLABAS SUGERIDAS (pendência 1, 2026-11-20): o separador do app propõe
+          // as partes, e quem ensina usa, corrige ou ignora. A ficha só usa o que
+          // está escrito no campo — o app nunca separa sozinho na folha.
+          const sugestao = el('div', 'folhas-sugestao');
+          const usar = botao('', () => undefined);
+          const porque = el('p', 'folhas-dica');
+          sugestao.append(usar, porque);
+          let partesCampo: HTMLInputElement;
+          const sugerir = () => {
+            const palavra = p.palavra.trim();
+            if (!palavra) {
+              sugestao.hidden = true;
+              return;
+            }
+            const sep = separarSilabas(palavra.toLocaleUpperCase('pt-BR'));
+            const proposta = sep.silabas.join('-');
+            sugestao.hidden = proposta === p.silabas.trim().toLocaleUpperCase('pt-BR');
+            usar.textContent = `✨ Usar a sugestão: ${proposta}`;
+            usar.onclick = () => {
+              p.silabas = proposta;
+              partesCampo.value = proposta;
+              sugestao.hidden = true;
+              atualizar();
+            };
+            porque.textContent = sep.conferir.length
+              ? `É uma sugestão do app. Confira: ${sep.conferir.join('; ')}.`
+              : 'É uma sugestão do app. Confira antes de usar.';
+          };
           campos.appendChild(
-            rotulado('A palavra', campoTexto(p.palavra, (v) => ((p.palavra = v), atualizar()), 14), 'Uma palavra só, até 14 letras. Ex.: ÔNIBUS'),
+            rotulado('A palavra', campoTexto(p.palavra, (v) => ((p.palavra = v), sugerir(), atualizar()), 14), 'Uma palavra só, até 14 letras. Ex.: ÔNIBUS'),
           );
+          partesCampo = campoTexto(p.silabas, (v) => ((p.silabas = v), sugerir(), atualizar()), 40);
           campos.appendChild(
-            rotulado('As partes (sílabas)', campoTexto(p.silabas, (v) => ((p.silabas = v), atualizar()), 40), 'Separadas por traço: Ô-NI-BUS. Em branco, a ficha mostra letra por letra.'),
+            rotulado('As partes (sílabas)', partesCampo, 'Separadas por traço: Ô-NI-BUS. Em branco, a ficha mostra letra por letra.'),
           );
+          campos.appendChild(sugestao);
+          sugerir();
           campos.appendChild(
             rotulado('Onde ela aparece', lista(opcoes(NOMES_DOS_CONTEXTOS), p.contexto, (v) => ((p.contexto = v), atualizar(true)))),
           );
