@@ -135,3 +135,21 @@ padrão: com ele desligado, toda folha e todo código continuam iguais.
   ligada; montar pelo código liga a caixa de novo. O 🎮 Jogar de uma folha
   ampliada joga a mesma grade dela.
 
+## A mesma barra em toda tela (2026-11-20)
+
+Pedido do Bruno, com capturas: a barra do alto é sempre a mesma, fixa no alto
+e do mesmo tamanho (não engrossa com o A+), como a do Pedra Angular:
+**← · menu (o avatar, com perfil) · título · A− A+ · 🎨**.
+
+- `barraTopo()` (telas/comum.ts) é a única barra; a oficina, os ajustes, o
+  guia, a trava dos adultos, o montar pranchas e a aparência deixaram de
+  montar a sua (eram só ← e título).
+- A− / A+ funcionam também sem perfil (área dos adultos): a letra fica
+  guardada no APARELHO (`aparelho:tamanhoFonte`).
+- O 🎨 das telas sem caminho próprio (jogos, pintura, quebra-cabeça,
+  oficina) abre a aparência POR CIMA da tela; as mudanças valem na hora e
+  ← ou Esc voltam para onde se estava. Sem perfil não há 🎨 (a aparência é de
+  cada criança).
+- A barra da prancha é presa no alto e TRAVADA: o zoom cresce as casas e a
+  frase, nunca a barra.
+

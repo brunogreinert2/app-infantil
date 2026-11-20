@@ -296,8 +296,18 @@ export async function definirPersonalizado(mudanca: Partial<TemaPersonalizado>):
 }
 
 /** `fator > 1` aumenta, `fator < 1` diminui. Ver PASSO. */
+// Sem perfil escolhido (a área dos adultos: ajustes, oficina, guia), a letra
+// é a do APARELHO — o A− / A+ também funciona lá (2026-11-20).
+const chaveDoTamanho = () => `${temPerfilAtivo() ? perfilAtivo().id : 'aparelho'}:tamanhoFonte`;
+
 export async function ajustarTamanho(fator: number): Promise<void> {
   const novo = Math.min(TAMANHO_MAX, Math.max(TAMANHO_MIN, Math.round(tamanhoAtual * fator)));
   comAncoraDeLeitura(() => aplicarTamanho(novo));
-  await armazenamento.definir(`${perfilAtivo().id}:tamanhoFonte`, novo);
+  await armazenamento.definir(chaveDoTamanho(), novo);
+}
+
+/** A letra guardada no aparelho (área dos adultos), se houver uma. */
+export async function carregarTamanhoDoAparelho(): Promise<void> {
+  const px = await armazenamento.obter<number>('aparelho:tamanhoFonte');
+  if (typeof px === 'number' && px !== tamanhoAtual && !temPerfilAtivo()) aplicarTamanho(px);
 }

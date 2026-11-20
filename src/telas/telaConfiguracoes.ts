@@ -12,7 +12,7 @@ import {
   listarPerfis,
   type Perfil,
 } from '../perfis/perfis';
-import { el } from './comum';
+import { barraTopo, el } from './comum';
 import { formularioPerfil } from './formularioPerfil';
 
 // Desafio de multiplicação: uma criança de 7 anos não resolve de cabeça
@@ -24,13 +24,15 @@ export function montarTravaParental(
 ): void {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-trava';
+  // a barra de sempre também aqui: dá para voltar e aumentar a letra da conta
+  raiz.appendChild(barraTopo({ titulo: '🔒 Área dos adultos', aoVoltar: aoCancelar, aoTrocarPerfil: aoCancelar }));
 
   const a = 6 + Math.floor(Math.random() * 4); // 6..9
   const b = 6 + Math.floor(Math.random() * 4);
 
   const caixa = el('div', 'caixa-trava');
-  // <h1>: é o título desta tela (toda tela tem um, para quem navega por títulos)
-  caixa.appendChild(el('h1', 'titulo-trava', '🔒 Área dos adultos'));
+  // o título da tela (<h1>) agora está na barra; aqui, o da caixa
+  caixa.appendChild(el('h2', 'titulo-trava', '🔒 Área dos adultos'));
   caixa.appendChild(el('p', undefined, `Quanto é ${a} × ${b}?`));
 
   const campo = el('input', 'campo-trava') as HTMLInputElement;
@@ -72,13 +74,7 @@ export async function montarTelaConfiguracoes(
   raiz.innerHTML = '';
   raiz.className = 'tela tela-config';
 
-  const barra = el('header', 'barra-topo');
-  const voltar = el('button', 'botao-icone', '←');
-  voltar.setAttribute('aria-label', 'Voltar');
-  voltar.addEventListener('click', nav.perfis);
-  barra.appendChild(voltar);
-  barra.appendChild(el('h1', 'titulo-barra', '⚙️ Ajustes'));
-  raiz.appendChild(barra);
+  raiz.appendChild(barraTopo({ titulo: '⚙️ Ajustes', aoVoltar: nav.perfis, aoTrocarPerfil: nav.perfis }));
 
   const corpo = el('div', 'corpo-config');
   raiz.appendChild(corpo);

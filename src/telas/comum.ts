@@ -2,7 +2,7 @@
 
 import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
 import { alternarPainel, painelAberto, painelConfigurado } from './painelLateral';
-import { ajustarTamanho, PASSO_FONTE } from './preferencias';
+import { ajustarTamanho, carregarTamanhoDoAparelho, PASSO_FONTE } from './preferencias';
 
 export function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -19,9 +19,43 @@ export interface OpcoesBarra {
   titulo: string;
   aoVoltar?: () => void;
   aoTrocarPerfil: () => void; // avatar fixo → volta à seleção (spec 8.6)
-  aoAparencia?: () => void; // 🎨 abre a tela de aparência (temas/fontes)
+  /**
+   * 🎨 abre a tela de aparência. Sem isto, ela abre POR CIMA da tela atual
+   * (e fecha voltando a ela); `false` tira o 🎨 (a própria tela de aparência).
+   */
+  aoAparencia?: (() => void) | false;
 }
 
+/** A aparência por cima da tela atual: as mudanças valem na hora, por baixo. */
+function abrirAparenciaPorCima(): void {
+  const camada = el('div');
+  document.body.appendChild(camada);
+  const fechar = () => {
+    camada.remove();
+    document.removeEventListener('keydown', aoTeclar, true);
+  };
+  const aoTeclar = (ev: KeyboardEvent) => {
+    if (ev.key === 'Escape') {
+      ev.preventDefault();
+      fechar();
+    }
+  };
+  document.addEventListener('keydown', aoTeclar, true);
+  void import('./telaAparencia').then(async (m) => {
+    const montando = m.montarTelaAparencia(camada, { voltar: fechar });
+    camada.classList.add('sobreposicao-tela');
+    camada.setAttribute('role', 'dialog');
+    camada.setAttribute('aria-modal', 'true');
+    camada.setAttribute('aria-label', 'Aparência');
+    await montando;
+    camada.querySelector<HTMLElement>('button')?.focus();
+  });
+}
+
+// A MESMA BARRA EM TODA TELA (pedido do Bruno, 2026-11-20, com capturas):
+// ← · menu (o avatar, quando há perfil) · título · A− A+ · 🎨. Antes cada tela
+// montava a sua, e a oficina, os ajustes, a trava e a pintura ficavam só com
+// ← e o título. Fixa no alto e do mesmo tamanho sempre (não engrossa com A+).
 export function barraTopo(op: OpcoesBarra): HTMLElement {
   const barra = el('header', 'barra-topo');
 
@@ -32,12 +66,31 @@ export function barraTopo(op: OpcoesBarra): HTMLElement {
     barra.appendChild(voltar);
   }
 
-  // Sem perfil escolhido (a área de quem ensina, que abre pelos Ajustes, e a
-  // folha gerada aberta para pintar): sem o chip de perfil, só o título.
-  if (!temPerfilAtivo()) {
-    barra.appendChild(el('h1', 'titulo-barra', op.titulo));
-    return barra;
+  if (temPerfilAtivo()) barra.appendChild(chipDoPerfil(op));
+  else void carregarTamanhoDoAparelho(); // área dos adultos: a letra do aparelho
+  barra.appendChild(el('h1', 'titulo-barra', op.titulo));
+
+  const ajustes = el('div', 'ajustes');
+  const menor = el('button', 'botao-icone', 'A−');
+  menor.setAttribute('aria-label', 'A−: diminuir a letra');
+  menor.addEventListener('click', () => ajustarTamanho(1 / PASSO_FONTE));
+  const maior = el('button', 'botao-icone', 'A+');
+  maior.setAttribute('aria-label', 'A+: aumentar a letra');
+  maior.addEventListener('click', () => ajustarTamanho(PASSO_FONTE));
+  ajustes.append(menor, maior);
+  // o 🎨: a tela de aparência é do perfil (temas e letra de cada criança)
+  const abrir = op.aoAparencia === false ? undefined : (op.aoAparencia ?? (temPerfilAtivo() ? abrirAparenciaPorCima : undefined));
+  if (abrir) {
+    const aparencia = el('button', 'botao-icone', '🎨');
+    aparencia.setAttribute('aria-label', 'Mudar aparência');
+    aparencia.addEventListener('click', abrir);
+    ajustes.appendChild(aparencia);
   }
+  barra.appendChild(ajustes);
+  return barra;
+}
+
+function chipDoPerfil(op: OpcoesBarra): HTMLElement {
   const p = perfilAtivo();
   const chip = el('button', 'chip-perfil', p.avatar);
   // O avatar abre o painel lateral (pastas, anotações, trocar de perfil).
@@ -52,24 +105,5 @@ export function barraTopo(op: OpcoesBarra): HTMLElement {
     if (painelConfigurado()) alternarPainel(chip);
     else op.aoTrocarPerfil();
   });
-  barra.appendChild(chip);
-
-  barra.appendChild(el('h1', 'titulo-barra', op.titulo));
-
-  if (op.aoAparencia) {
-    const ajustes = el('div', 'ajustes');
-    const menor = el('button', 'botao-icone', 'A−');
-    menor.setAttribute('aria-label', 'A−: diminuir a letra');
-    menor.addEventListener('click', () => ajustarTamanho(1 / PASSO_FONTE));
-    const maior = el('button', 'botao-icone', 'A+');
-    maior.setAttribute('aria-label', 'A+: aumentar a letra');
-    maior.addEventListener('click', () => ajustarTamanho(PASSO_FONTE));
-    const aparencia = el('button', 'botao-icone', '🎨');
-    aparencia.setAttribute('aria-label', 'Mudar aparência');
-    aparencia.addEventListener('click', op.aoAparencia);
-    ajustes.append(menor, maior, aparencia);
-    barra.appendChild(ajustes);
-  }
-
-  return barra;
+  return chip;
 }

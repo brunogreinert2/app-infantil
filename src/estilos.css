@@ -1890,7 +1890,15 @@ button {
 /* ---------- trava parental e ajustes ---------- */
 .tela-trava {
   align-items: center;
-  justify-content: center;
+}
+
+/* a barra ocupa a largura toda, no alto; a caixa fica no meio do que sobra */
+.tela-trava > .barra-topo {
+  align-self: stretch;
+}
+
+.tela-trava > .caixa-trava {
+  margin-block: auto;
 }
 
 /* mesmo tamanho que tinha como <h2> */
@@ -2294,8 +2302,10 @@ button {
 .caa-rolagem { overflow-x: auto; padding-bottom: 4px; }
 .caa-zoom { display: inline-flex; gap: 6px; }
 /* a barra da prancha fica SEMPRE à vista, como as das outras telas e a do
-   Pedra Angular (com o zoom, a prancha rola e a barra ia embora junto) */
-.caa-topo { position: sticky; top: 0; z-index: 10; background: var(--caa-fundo); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; }
+   Pedra Angular (com o zoom, a prancha rola e a barra ia embora junto), e é
+   TRAVADA: o zoom cresce as casas e a frase, nunca a barra (font-size em rem,
+   não herda o --caa-zoom) */
+.caa-topo { font-size: 1rem; position: sticky; top: 0; z-index: 10; background: var(--caa-fundo); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; }
 .caa-titulo { flex: 1 1 6em; min-width: 0; overflow-wrap: anywhere; margin: 0; font-size: 1.1em; font-weight: 700; text-align: center; color: var(--caa-tinta); }
 .caa-botao {
   min-height: max(48px, 3em); min-width: max(48px, 3em); padding: 0 0.9em; border-radius: 12px;
@@ -2637,5 +2647,17 @@ button.casa-caa.vazia { cursor: pointer; }
 }
 .painel-lateral.aberto + #alca-painel {
   display: block;
+}
+
+/* a aparência aberta POR CIMA da tela (o 🎨 das telas sem caminho próprio):
+   as mudanças valem na hora, por baixo; ← ou Esc fecha (2026-11-20) */
+.sobreposicao-tela {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background-color: var(--fundo);
+  background-image: var(--papel, none);
 }
 

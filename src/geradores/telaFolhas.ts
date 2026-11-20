@@ -7,7 +7,7 @@
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { corpoCadernoA4, cssCadernoA4, imprimirDocumento } from '../impressao/motorImpressao';
-import { el } from '../telas/comum';
+import { barraTopo, el } from '../telas/comum';
 import { silabasComHifens } from '../conteudo/silabas';
 import { NOMES_COM_DESENHO } from './jogosDeMesa';
 import { MODELOS as MODELOS_DE_ROTINA } from './rotina';
@@ -198,12 +198,8 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
 
   raiz.innerHTML = '';
   raiz.className = 'tela tela-folhas';
-  const barra = el('header', 'barra-topo');
-  const voltar = el('button', 'botao-icone', '←');
-  voltar.setAttribute('aria-label', 'Voltar');
-  voltar.addEventListener('click', nav.voltar);
-  barra.append(voltar, el('h1', 'titulo-barra', 'Fazer uma folha'));
-  raiz.appendChild(barra);
+  // a mesma barra das outras telas (← · menu · título · A− A+ · 🎨)
+  raiz.appendChild(barraTopo({ titulo: 'Fazer uma folha', aoVoltar: nav.voltar, aoTrocarPerfil: nav.voltar }));
 
   const corpo = el('main', 'folhas-corpo');
   const formulario = el('section', 'folhas-formulario');

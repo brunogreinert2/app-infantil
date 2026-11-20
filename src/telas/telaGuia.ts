@@ -3,7 +3,7 @@
 
 import { GUIA, TITULO_DO_GUIA } from '../conteudo/guia';
 import { imprimirDocumento } from '../impressao/motorImpressao';
-import { el } from './comum';
+import { barraTopo, el } from './comum';
 import { tornarRecolhivel } from './secoesRecolhiveis';
 
 const escapar = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
@@ -13,13 +13,7 @@ export function montarTelaGuia(raiz: HTMLElement, nav: { voltar: () => void }): 
   raiz.className = 'tela tela-guia';
   window.scrollTo(0, 0);
 
-  const barra = el('header', 'barra-topo');
-  const voltar = el('button', 'botao-icone', '←');
-  voltar.setAttribute('aria-label', 'Voltar');
-  voltar.addEventListener('click', nav.voltar);
-  barra.appendChild(voltar);
-  barra.appendChild(el('h1', 'titulo-barra', `📖 ${TITULO_DO_GUIA}`));
-  raiz.appendChild(barra);
+  raiz.appendChild(barraTopo({ titulo: `📖 ${TITULO_DO_GUIA}`, aoVoltar: nav.voltar, aoTrocarPerfil: nav.voltar }));
 
   const extras = el('div', 'barra-extras');
   const imprimir = el('button', 'botao-extra', '🖨️ Imprimir o guia');

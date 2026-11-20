@@ -11,7 +11,7 @@
 
 import { entregarArquivo } from '../armazenamento/copiaNoAparelho';
 import { cssCadernoA4, fatorDoPapel, imprimirDocumento } from '../impressao/motorImpressao';
-import { el } from '../telas/comum';
+import { barraTopo, el } from '../telas/comum';
 import { falar } from '../tts';
 import { reduzirFigura } from './figura';
 import {
@@ -48,14 +48,8 @@ export interface NavMontar {
   experimentar: (conjunto: ConjuntoCaa, voltar: () => void) => void;
 }
 
-function barra(titulo: string, aoVoltar: () => void): HTMLElement {
-  const b = el('header', 'barra-topo');
-  const voltar = el('button', 'botao-icone', '←');
-  voltar.setAttribute('aria-label', 'Voltar');
-  voltar.addEventListener('click', aoVoltar);
-  b.append(voltar, el('h1', 'titulo-barra', titulo));
-  return b;
-}
+// a mesma barra das outras telas (2026-11-20)
+const barra = (titulo: string, aoVoltar: () => void): HTMLElement => barraTopo({ titulo, aoVoltar, aoTrocarPerfil: aoVoltar });
 
 // ----------------------------------------------------------------- imprimir --
 

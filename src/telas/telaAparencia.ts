@@ -30,7 +30,7 @@ import {
   trocarPeso,
   trocarTema,
 } from './preferencias';
-import { el } from './comum';
+import { barraTopo, el } from './comum';
 
 export async function montarTelaAparencia(
   raiz: HTMLElement,
@@ -39,13 +39,8 @@ export async function montarTelaAparencia(
   raiz.innerHTML = '';
   raiz.className = 'tela tela-aparencia';
 
-  const barra = el('header', 'barra-topo');
-  const voltar = el('button', 'botao-icone', '←');
-  voltar.setAttribute('aria-label', 'Voltar');
-  voltar.addEventListener('click', nav.voltar);
-  barra.appendChild(voltar);
-  barra.appendChild(el('h1', 'titulo-barra', '🎨 Aparência'));
-  raiz.appendChild(barra);
+  // a barra de sempre (com A− A+), sem o 🎨: já estamos nela
+  raiz.appendChild(barraTopo({ titulo: '🎨 Aparência', aoVoltar: nav.voltar, aoTrocarPerfil: nav.voltar, aoAparencia: false }));
 
   const corpo = el('div', 'corpo-config');
   raiz.appendChild(corpo);
