@@ -2293,7 +2293,9 @@ button {
    palavra é o que faz a CAA ficar rápida) */
 .caa-rolagem { overflow-x: auto; padding-bottom: 4px; }
 .caa-zoom { display: inline-flex; gap: 6px; }
-.caa-topo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; }
+/* a barra da prancha fica SEMPRE à vista, como as das outras telas e a do
+   Pedra Angular (com o zoom, a prancha rola e a barra ia embora junto) */
+.caa-topo { position: sticky; top: 0; z-index: 10; background: var(--caa-fundo); display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; }
 .caa-titulo { flex: 1 1 6em; min-width: 0; overflow-wrap: anywhere; margin: 0; font-size: 1.1em; font-weight: 700; text-align: center; color: var(--caa-tinta); }
 .caa-botao {
   min-height: max(48px, 3em); min-width: max(48px, 3em); padding: 0 0.9em; border-radius: 12px;
@@ -2391,7 +2393,10 @@ button.casa-caa.vazia { cursor: pointer; }
 .caa-confirma p { flex-basis: 100%; margin: 0; }
 .caa-imprimir { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
 .caa-marcar { display: flex; gap: 10px; align-items: center; min-height: 44px; cursor: pointer; }
-.caa-marcar input { width: 24px; height: 24px; }
+/* a caixinha NÃO encolhe quando o texto ao lado é comprido (no «Folha
+   ampliada», ela ficava minúscula: a regra de input da oficina deixava o flex
+   apertá-la) e cresce junto com a letra (2026-11-20) */
+.caa-marcar input[type='checkbox'] { font-size: inherit; flex: none; width: max(24px, 1em); height: max(24px, 1em); min-width: max(24px, 1em); margin: 0; }
 .caa-campo { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
 .caa-campo-nome { font-weight: 700; font-size: 0.95rem; }
 .caa-ajustes { margin: 10px 0; }
