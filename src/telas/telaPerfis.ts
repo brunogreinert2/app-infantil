@@ -3,7 +3,7 @@
 
 import { listarConquistas } from '../conquistas/insignias';
 import { criarPerfil, listarPerfis, definirPerfilAtivo, type Perfil } from '../perfis/perfis';
-import { el } from './comum';
+import { barraTopo, el } from './comum';
 import { formularioPerfil } from './formularioPerfil';
 
 export async function montarTelaPerfis(
@@ -14,6 +14,9 @@ export async function montarTelaPerfis(
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-perfis';
+  // A BARRA DE SEMPRE JÁ NA PORTA DE ENTRADA (pedido do Bruno, 2026-11-20):
+  // A− / A+ e 🎨 antes de escolher o perfil — aqui, a aparência do aparelho
+  raiz.appendChild(barraTopo({ titulo: '🌈 Historinhas', aoTrocarPerfil: () => undefined }));
 
   const perfis = await listarPerfis();
 
@@ -24,7 +27,8 @@ export async function montarTelaPerfis(
     return;
   }
 
-  raiz.appendChild(el('h1', 'pergunta-perfil', 'Quem vai ler hoje?'));
+  // <h2>: o <h1> da tela agora é o da barra
+  raiz.appendChild(el('h2', 'pergunta-perfil', 'Quem vai ler hoje?'));
 
   const grade = el('div', 'grade-perfis');
   for (const p of perfis) {
@@ -68,7 +72,7 @@ export async function montarTelaPerfis(
  * o primeiro passo.
  */
 function montarBoasVindas(raiz: HTMLElement, aoCriar: () => void): void {
-  raiz.appendChild(el('h1', 'pergunta-perfil', 'Olá! Vamos começar?'));
+  raiz.appendChild(el('h2', 'pergunta-perfil', 'Olá! Vamos começar?'));
   raiz.appendChild(
     el(
       'p',

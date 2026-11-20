@@ -355,9 +355,23 @@ button {
 /* ---------- tela de perfis ---------- */
 .tela-perfis {
   align-items: center;
-  justify-content: center;
   gap: 40px;
-  padding: 24px;
+  padding: 0 24px 24px;
+}
+
+/* a barra de sempre no alto da porta de entrada, de ponta a ponta; o resto
+   fica no meio do que sobra */
+.tela-perfis > .barra-topo {
+  align-self: stretch;
+  margin: 0 -24px;
+}
+
+.tela-perfis > .barra-topo + * {
+  margin-top: auto;
+}
+
+.tela-perfis > :last-child {
+  margin-bottom: auto;
 }
 
 .pergunta-perfil {

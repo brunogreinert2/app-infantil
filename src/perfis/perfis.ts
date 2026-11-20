@@ -38,6 +38,11 @@ export function perfilAtivo(): Perfil {
   return ativo;
 }
 
+/** Volta para a porta de entrada: ninguém escolhido (a aparência passa a ser a do aparelho). */
+export function sairDoPerfil(): void {
+  ativo = null;
+}
+
 export function temPerfilAtivo(): boolean {
   return ativo !== null;
 }

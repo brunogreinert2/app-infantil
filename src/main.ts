@@ -19,7 +19,7 @@ import { montarTelaConfiguracoes, montarTravaParental } from './telas/telaConfig
 import { montarTelaGuia } from './telas/telaGuia';
 import { montarTelaPinturas } from './telas/telaPinturas';
 import { aplicarTemaDeLivro, carregarPreferencias } from './telas/preferencias';
-import { perfilAtivo, temPerfilAtivo } from './perfis/perfis';
+import { perfilAtivo, sairDoPerfil } from './perfis/perfis';
 import { armazenamento } from './armazenamento/armazenamento';
 import { obterLivro } from './conteudo/catalogo';
 import { PASTA_PADRAO, acharPasta } from './conteudo/pastas';
@@ -47,8 +47,9 @@ let livroAtual: Livro | null = null;
 function irPerfis(): void {
   pararFala();
   removerPainel(); // sem perfil escolhido não há menu
-  // saindo de um livro tematizado: devolve o tema da criança
-  if (temPerfilAtivo()) carregarPreferencias();
+  // a porta de entrada é de ninguém: veste a aparência do APARELHO (2026-11-20)
+  sairDoPerfil();
+  void carregarPreferencias();
   montarTelaPerfis(
     raiz,
     async () => {
@@ -302,6 +303,8 @@ configurarPainel({
   ensinar: FOLHAS_LIGADAS ? irEnsinar : undefined,
 });
 
+// a aparência do aparelho desde o primeiro instante (antes de qualquer perfil)
+void carregarPreferencias();
 if (location.hash === '#prancha') void irPrancha();
 else if (location.hash === '#folhas' && FOLHAS_LIGADAS) montarTravaParental(raiz, () => void irFolhas(), irPerfis);
 else if (location.hash === '#folhas' && import.meta.env.DEV) void irFolhas(irPerfis);

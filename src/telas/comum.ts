@@ -2,7 +2,7 @@
 
 import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
 import { alternarPainel, painelAberto, painelConfigurado } from './painelLateral';
-import { ajustarTamanho, carregarTamanhoDoAparelho, PASSO_FONTE } from './preferencias';
+import { ajustarTamanho, PASSO_FONTE } from './preferencias';
 
 export function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
@@ -67,7 +67,6 @@ export function barraTopo(op: OpcoesBarra): HTMLElement {
   }
 
   if (temPerfilAtivo()) barra.appendChild(chipDoPerfil(op));
-  else void carregarTamanhoDoAparelho(); // área dos adultos: a letra do aparelho
   barra.appendChild(el('h1', 'titulo-barra', op.titulo));
 
   const ajustes = el('div', 'ajustes');
@@ -78,8 +77,8 @@ export function barraTopo(op: OpcoesBarra): HTMLElement {
   maior.setAttribute('aria-label', 'A+: aumentar a letra');
   maior.addEventListener('click', () => ajustarTamanho(PASSO_FONTE));
   ajustes.append(menor, maior);
-  // o 🎨: a tela de aparência é do perfil (temas e letra de cada criança)
-  const abrir = op.aoAparencia === false ? undefined : (op.aoAparencia ?? (temPerfilAtivo() ? abrirAparenciaPorCima : undefined));
+  // o 🎨: a aparência do perfil escolhido, ou a do aparelho quando não há perfil
+  const abrir = op.aoAparencia === false ? undefined : (op.aoAparencia ?? abrirAparenciaPorCima);
   if (abrir) {
     const aparencia = el('button', 'botao-icone', '🎨');
     aparencia.setAttribute('aria-label', 'Mudar aparência');

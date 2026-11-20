@@ -69,8 +69,15 @@ export interface Preferencias {
   personalizado: TemaPersonalizado | null;
 }
 
+/**
+ * DE QUEM é a aparência (2026-11-20): do perfil escolhido, ou — na porta de
+ * entrada e na área dos adultos, sem perfil — do APARELHO. Assim a tela
+ * inicial também tem A− / A+ e 🎨, e cada criança, ao entrar, veste a sua.
+ */
+const dono = (): string | number => (temPerfilAtivo() ? perfilAtivo().id : 'aparelho');
+
 export async function obterPreferencias(): Promise<Preferencias> {
-  const p = perfilAtivo();
+  const p = { id: dono() };
   return {
     tema: (await armazenamento.obter<string>(`${p.id}:tema`)) ?? 'arco-iris',
     // OpenDyslexic como PADRÃO por decisão do Bruno (2026-07-19, revisando a
@@ -222,7 +229,7 @@ export function comAncoraDeLeitura(mudar: () => void): void {
 // E ele só é aplicado ao ENTRAR no livro pela estante — se a pessoa trocar
 // de tema no 🎨 no meio da leitura, a escolha dela fica valendo.
 export async function aplicarTemaDeLivro(md: MetadadosLivro): Promise<void> {
-  const p = perfilAtivo();
+  const p = { id: dono() };
   const soberano = (await armazenamento.obter<boolean>(`${p.id}:temaSoberano`)) ?? false;
   const temaUsuario = (await armazenamento.obter<string>(`${p.id}:tema`)) ?? 'arco-iris';
   if (soberano || ehTemaDeEnxergar(temaUsuario)) return;
@@ -235,11 +242,11 @@ export async function aplicarTemaDeLivro(md: MetadadosLivro): Promise<void> {
 }
 
 export async function obterTemaSoberano(): Promise<boolean> {
-  return (await armazenamento.obter<boolean>(`${perfilAtivo().id}:temaSoberano`)) ?? false;
+  return (await armazenamento.obter<boolean>(`${dono()}:temaSoberano`)) ?? false;
 }
 
 export async function definirTemaSoberano(valor: boolean): Promise<void> {
-  await armazenamento.definir(`${perfilAtivo().id}:temaSoberano`, valor);
+  await armazenamento.definir(`${dono()}:temaSoberano`, valor);
 }
 
 // Voz ao escolher uma cor de pintar. Desligada por padrão: quem usa leitor
@@ -247,7 +254,7 @@ export async function definirTemaSoberano(valor: boolean): Promise<void> {
 // Sem perfil escolhido (a folha aberta em "Fazer no app", na área de quem
 // ensina), a escolha fica no aparelho — antes, a tela de pintura parava no
 // meio da montagem com "Nenhum perfil ativo" e saía sem paleta.
-const chaveFalarCores = () => `${temPerfilAtivo() ? perfilAtivo().id : 'aparelho'}:falarCores`;
+const chaveFalarCores = () => `${dono()}:falarCores`;
 
 export async function obterFalarCores(): Promise<boolean> {
   return (await armazenamento.obter<boolean>(chaveFalarCores())) ?? false;
@@ -260,31 +267,31 @@ export async function definirFalarCores(valor: boolean): Promise<void> {
 export async function trocarTema(tema: string): Promise<void> {
   const prefs = await obterPreferencias();
   aplicarTema(tema, prefs.personalizado);
-  await armazenamento.definir(`${perfilAtivo().id}:tema`, tema);
+  await armazenamento.definir(`${dono()}:tema`, tema);
 }
 
 export async function trocarFonte(fonte: string): Promise<void> {
   aplicarFonte(fonte);
-  await armazenamento.definir(`${perfilAtivo().id}:fonte`, fonte);
+  await armazenamento.definir(`${dono()}:fonte`, fonte);
 }
 
 export async function trocarEntrelinha(id: string): Promise<void> {
   aplicarEntrelinha(id);
-  await armazenamento.definir(`${perfilAtivo().id}:entrelinha`, id);
+  await armazenamento.definir(`${dono()}:entrelinha`, id);
 }
 
 export async function trocarPeso(id: string): Promise<void> {
   aplicarPeso(id);
-  await armazenamento.definir(`${perfilAtivo().id}:pesoTraco`, id);
+  await armazenamento.definir(`${dono()}:pesoTraco`, id);
 }
 
 export async function trocarEspacamento(id: string): Promise<void> {
   aplicarEspacamento(id);
-  await armazenamento.definir(`${perfilAtivo().id}:espacamento`, id);
+  await armazenamento.definir(`${dono()}:espacamento`, id);
 }
 
 export async function definirPersonalizado(mudanca: Partial<TemaPersonalizado>): Promise<void> {
-  const p = perfilAtivo();
+  const p = { id: dono() };
   const atual = (await armazenamento.obter<TemaPersonalizado>(`${p.id}:temaPersonalizado`)) ?? {
     fundo: FUNDOS_PERSONALIZADOS[0],
     destaque: DESTAQUES_PERSONALIZADOS[0],
@@ -298,7 +305,7 @@ export async function definirPersonalizado(mudanca: Partial<TemaPersonalizado>):
 /** `fator > 1` aumenta, `fator < 1` diminui. Ver PASSO. */
 // Sem perfil escolhido (a área dos adultos: ajustes, oficina, guia), a letra
 // é a do APARELHO — o A− / A+ também funciona lá (2026-11-20).
-const chaveDoTamanho = () => `${temPerfilAtivo() ? perfilAtivo().id : 'aparelho'}:tamanhoFonte`;
+const chaveDoTamanho = () => `${dono()}:tamanhoFonte`;
 
 export async function ajustarTamanho(fator: number): Promise<void> {
   const novo = Math.min(TAMANHO_MAX, Math.max(TAMANHO_MIN, Math.round(tamanhoAtual * fator)));
@@ -306,8 +313,3 @@ export async function ajustarTamanho(fator: number): Promise<void> {
   await armazenamento.definir(chaveDoTamanho(), novo);
 }
 
-/** A letra guardada no aparelho (área dos adultos), se houver uma. */
-export async function carregarTamanhoDoAparelho(): Promise<void> {
-  const px = await armazenamento.obter<number>('aparelho:tamanhoFonte');
-  if (typeof px === 'number' && px !== tamanhoAtual && !temPerfilAtivo()) aplicarTamanho(px);
-}
