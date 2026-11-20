@@ -4,7 +4,7 @@
 
 O Bruno quer o app como referência em baixa visão (WCAG 2.2 AAA + Perkins).
 A régua, o que já passa e o que falta, em ordem: **`docs/ACESSIBILIDADE_VISUAL.md`**.
-Feito em 2026-11-20 (branch, NÃO publicado): os temas de baixa visão do Pedra
+Feito em 2026-11-20 e PUBLICADO na 0.13.0 (master `904f496`, Actions 44758640742 com sucesso): os temas de baixa visão do Pedra
 Angular, temas de brincar em AAA, 🔊 sem cobrir o texto, menu lateral que
 cresce com a letra e tem alça, zoom na prancha. `src/telas/temas.test.ts`
 mede todos os temas. Depois, no mesmo dia: 🔍 FOLHA AMPLIADA (liga/desliga
