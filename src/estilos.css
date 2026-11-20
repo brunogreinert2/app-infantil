@@ -1642,8 +1642,9 @@ button {
 .paleta,
 .paleta-tons {
   display: grid;
-  grid-template-columns: repeat(5, 52px);
-  gap: 12px;
+  /* os poços CRESCEM com a letra (A+), como o resto da tela (2026-11-20) */
+  grid-template-columns: repeat(5, max(52px, 2.6em));
+  gap: max(12px, 0.6em);
   justify-content: center;
   max-width: none;
 }
@@ -1655,8 +1656,8 @@ button {
 .paleta .poco-cor,
 .paleta-tons .poco-cor,
 .amostra-cor {
-  width: 52px;
-  height: 52px;
+  width: max(52px, 2.6em);
+  height: max(52px, 2.6em);
   border: 2px solid var(--texto);
   forced-color-adjust: none;
 }
@@ -2408,7 +2409,7 @@ button.casa-caa.vazia { cursor: pointer; }
    apertá-la) e cresce junto com a letra (2026-11-20) */
 .caa-marcar input[type='checkbox'] { font-size: inherit; flex: none; width: max(24px, 1em); height: max(24px, 1em); min-width: max(24px, 1em); margin: 0; }
 .caa-campo { display: flex; flex-direction: column; gap: 4px; margin: 8px 0; }
-.caa-campo-nome { font-weight: 700; font-size: 0.95rem; }
+.caa-campo-nome { font-weight: 700; font-size: 0.95em; }
 .caa-ajustes { margin: 10px 0; }
 .caa-ajustes summary { cursor: pointer; font-weight: 700; padding: 10px 0; }
 .caa-grade-editor { justify-content: start; margin: 10px 0; }
@@ -2423,7 +2424,12 @@ button.casa-caa.vazia { cursor: pointer; }
 .caa-desenho[aria-pressed='true'] { border: 3px solid #111111; background: #fff1a8; }
 
 /* ---------- fazer uma folha (geradores) ---------- */
-.folhas-corpo { display: grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: 20px; padding: 16px; align-items: start; }
+.folhas-corpo { display: flex; flex-wrap: wrap; gap: 20px; padding: 16px; align-items: flex-start; }
+/* o formulário tem largura em LETRAS (cresce com o A+); quando não sobra lugar
+   para as folhas ao lado, elas descem para baixo dele (2026-11-20) */
+.folhas-corpo > .folhas-formulario { flex: 1 1 16em; max-width: 24em; }
+/* as folhas são desenho: a largura mínima é em pixels, não em letras */
+.folhas-corpo > .folhas-previa { flex: 999 1 360px; min-width: min(100%, 360px); }
 .folhas-corpo > * { min-width: 0; }
 .folhas-formulario { display: flex; flex-direction: column; gap: 6px; }
 .folhas-formulario select, .folhas-formulario input { max-width: 100%; min-width: 0; box-sizing: border-box; }
@@ -2436,7 +2442,7 @@ button.casa-caa.vazia { cursor: pointer; }
 }
 .folhas-formulario input[type='number'] { min-height: 48px; width: 100%; }
 .folhas-area { width: 100%; resize: vertical; line-height: 1.5; }
-.folhas-dica { color: var(--texto-suave); font-size: 0.9rem; margin: 0; }
+.folhas-dica { color: var(--texto-suave); font-size: 0.9em; margin: 0; }
 .folhas-abc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .folhas-avisos { margin: 6px 0; padding: 0 0 0 20px; color: var(--texto); }
 .folhas-avisos:empty { display: none; }
@@ -2444,7 +2450,7 @@ button.casa-caa.vazia { cursor: pointer; }
 .folhas-silabas summary { cursor: pointer; font-weight: 700; padding: 10px 0; }
 .folhas-previa { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 16px; }
 .folhas-folha { margin: 0; }
-.folhas-folha figcaption { text-align: center; color: var(--texto-suave); font-size: 0.9rem; padding-top: 6px; }
+.folhas-folha figcaption { text-align: center; color: var(--texto-suave); font-size: 0.9em; padding-top: 6px; }
 /* o papel é sempre branco com tinta preta, em qualquer tema: é o que vai sair na impressora */
 .folhas-papel { background: #ffffff; border: 1px solid var(--borda); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18); line-height: 0; }
 .folhas-papel svg { display: block; width: 100%; height: auto; }
@@ -2455,10 +2461,10 @@ button.casa-caa.vazia { cursor: pointer; }
 .folhas-partes { display: flex; flex-direction: column; gap: 2px; }
 .folhas-fazer { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-top: 6px; }
 /* o código da folha fica num cantinho, fechado: não é o padrão de ninguém */
-.folhas-codigo { margin-top: 18px; align-self: flex-end; font-size: 0.9rem; color: var(--texto-suave); }
+.folhas-codigo { margin-top: 18px; align-self: flex-end; font-size: 0.9em; color: var(--texto-suave); }
 .folhas-codigo[open] { align-self: stretch; padding: 10px 12px; border: 1px solid var(--borda); border-radius: 12px; background: var(--cartao); color: var(--texto); display: flex; flex-direction: column; gap: 6px; }
 .folhas-codigo summary { cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 6px 0; }
-.folhas-codigo-texto { font-size: 1.05rem; letter-spacing: 0.04em; word-break: break-all; align-self: center; }
+.folhas-codigo-texto { font-size: 1.05em; letter-spacing: 0.04em; word-break: break-all; align-self: center; }
 .folhas-estilos { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 10px; }
 .folhas-formulario input[type='range'] { width: 100%; min-height: 40px; }
 @media (max-width: 760px) {
@@ -2469,9 +2475,9 @@ button.casa-caa.vazia { cursor: pointer; }
 .jogo-corpo { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px 12px 40px; }
 .jogo-instrucao, .jogo-aviso, .jogo-dica-atual { margin: 0; text-align: center; max-width: 640px; }
 .jogo-aviso { min-height: 1.6em; font-weight: 700; }
-.jogo-dica-atual { font-size: 1.15rem; font-weight: 700; }
+.jogo-dica-atual { font-size: 1.15em; font-weight: 700; }
 .jogo-grade {
-  --lado: min(94vw, 620px);
+  --lado: min(94vw, max(620px, calc(var(--tamanho-base) * 26)));
   display: grid; grid-template-columns: repeat(var(--colunas), 1fr);
   width: var(--lado); gap: 0; background: #ffffff; color: #000000;
   border: 3px solid #000000; border-radius: 10px; overflow: hidden;
@@ -2507,34 +2513,34 @@ button.casa-caa.vazia { cursor: pointer; }
 .jogo-ajudas { justify-content: center; }
 
 /* ---------- a oficina em quatro seções (2026-11-19) ---------- */
-.folhas-secoes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin-bottom: 4px; }
+.folhas-secoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 8em), 1fr)); gap: 6px; margin-bottom: 4px; }
 .folhas-secoes .botao-opcao { min-height: 48px; padding: 6px 8px; white-space: normal; line-height: 1.2; }
 .folhas-secoes .botao-opcao.ativa { border-color: var(--destaque); box-shadow: inset 0 0 0 3px var(--destaque); text-decoration: underline; text-underline-offset: 4px; }
 
 /* ---------- Jogos, a tela da criança (2026-11-19) ---------- */
 .jogos-corpo { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 16px 16px 40px; }
-.jogos-instrucao { margin: 0; font-size: 1.15rem; font-weight: 700; text-align: center; }
+.jogos-instrucao { margin: 0; font-size: 1.15em; font-weight: 700; text-align: center; }
 .jogos-niveis { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .jogos-niveis .botao-opcao.ativa { border-color: var(--destaque); box-shadow: inset 0 0 0 3px var(--destaque); text-decoration: underline; text-underline-offset: 4px; }
 .jogos-temas {
-  list-style: none; margin: 0; padding: 0; width: min(100%, 760px);
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
+  list-style: none; margin: 0; padding: 0; width: min(100%, max(760px, 38em));
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 7em), 1fr)); gap: 10px;
 }
 .jogos-tema {
-  position: relative; width: 100%; min-height: 104px; padding: 10px 8px;
+  position: relative; width: 100%; min-height: max(104px, 5.2em); padding: 10px 8px;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
   background: var(--cartao); color: var(--texto); border: 3px solid var(--borda); border-radius: 16px;
   box-shadow: var(--sombra); font: inherit; font-weight: 700; cursor: pointer;
 }
-.jogos-tema-emoji { font-size: 2.4rem; line-height: 1; }
-.jogos-tema-nome { font-size: 1.05rem; text-align: center; }
+.jogos-tema-emoji { font-size: 2.4em; line-height: 1; }
+.jogos-tema-nome { font-size: 1.05em; text-align: center; }
 .jogos-tema-feito {
-  position: absolute; top: 6px; right: 8px; font-size: 1.1rem;
+  position: absolute; top: 6px; right: 8px; font-size: 1.1em;
   background: #d8f3dc; color: #000000; border-radius: 999px; padding: 0 7px;
 }
 
 /* ---------- sudoku na tela (2026-11-19) ---------- */
-.jogo-grade-sudoku { --lado: min(92vw, 520px); }
+.jogo-grade-sudoku { --lado: min(92vw, max(520px, calc(var(--tamanho-base) * 22))); }
 .jogo-casa-sudoku {
   border: 1px solid #000000; background: #ffffff; color: #1e3a8a; padding: 0; margin: 0;
   font-family: inherit; font-size: calc(var(--lado) / var(--colunas) * 0.5);
@@ -2544,15 +2550,15 @@ button.casa-caa.vazia { cursor: pointer; }
 .jogo-casa-sudoku.fim-bloco-baixo { border-bottom: 5px solid #000000; }
 .jogo-casa-sudoku.escolhida { background: #fff3c4; outline: 4px solid #1d4ed8; outline-offset: -4px; }
 .jogo-casa-sudoku svg, .jogo-escolha svg { width: 78%; height: 78%; display: block; margin: auto; }
-.jogo-paleta { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 560px; }
-.jogo-escolha { width: 64px; height: 64px; min-width: 64px; padding: 4px; font-size: 1.6rem; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
-.jogo-escolha:last-child { width: auto; padding: 4px 12px; font-size: 1.05rem; }
-.jogos-numerados .jogos-tema { min-height: 88px; }
-.jogos-numerados .jogos-tema-emoji { font-size: 2rem; font-weight: 800; }
+.jogo-paleta { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: max(560px, 28em); }
+.jogo-escolha { font-size: 1.5em; width: 2.1em; height: 2.1em; min-width: 56px; min-height: 56px; padding: 4px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.jogo-escolha:last-child { width: auto; padding: 4px 0.6em; font-size: 1.05em; }
+.jogos-numerados .jogos-tema { min-height: max(88px, 4.4em); }
+.jogos-numerados .jogos-tema-emoji { font-size: 2em; font-weight: 800; }
 
 /* ---------- labirinto na tela (2026-11-19) ---------- */
 .jogo-labirinto-moldura {
-  width: min(94vw, 620px);
+  width: min(94vw, max(620px, calc(var(--tamanho-base) * 26)));
   background: #ffffff; border: 3px solid #000000; border-radius: 10px; padding: 6px; box-sizing: border-box;
 }
 .jogo-labirinto { display: block; width: 100%; height: auto; aspect-ratio: var(--proporcao); touch-action: none; user-select: none; -webkit-user-select: none; }
@@ -2561,23 +2567,23 @@ button.casa-caa.vazia { cursor: pointer; }
 /* ---------- contas na tela (2026-11-19) ---------- */
 .contas-fila { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 560px; }
 .contas-fila-item {
-  min-width: 40px; min-height: 40px; border-radius: 999px; border: 2px solid var(--borda);
+  min-width: max(44px, 2em); min-height: max(44px, 2em); border-radius: 999px; border: 2px solid var(--borda);
   background: var(--cartao); color: var(--texto); font: inherit; font-weight: 700; cursor: pointer;
 }
 .contas-fila-item.atual { border-color: var(--destaque); box-shadow: inset 0 0 0 3px var(--destaque); }
 .contas-fila-item.certa { background: #d8f3dc; color: #000000; }
 .contas-area {
   background: #ffffff; color: #000000; border: 3px solid #000000; border-radius: 14px;
-  padding: 16px 22px; min-width: min(80vw, 280px); display: flex; flex-direction: column; align-items: center;
+  padding: 16px 22px; min-width: min(80vw, 280px); max-width: 100%; overflow-x: auto; display: flex; flex-direction: column; align-items: center;
   font-variant-numeric: tabular-nums;
 }
 .conta-armada {
   display: grid; grid-template-columns: repeat(var(--colunas), 1fr); column-gap: 4px; row-gap: 4px;
-  font-size: clamp(2.2rem, 11vw, 3.4rem); font-weight: 700; line-height: 1.15;
+  font-size: max(2.2rem, 2.2em); font-weight: 700; line-height: 1.15;
 }
 .conta-sinal, .conta-algarismo { width: 1.1em; text-align: center; }
 .conta-traco { grid-column: 1 / -1; border-top: 4px solid #000000; margin: 2px 0 6px; }
-.conta-deitada { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; font-size: clamp(1.9rem, 9vw, 3rem); font-weight: 700; }
+.conta-deitada { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; font-size: max(1.9rem, 2em); font-weight: 700; }
 .conta-caixas { display: inline-flex; gap: 4px; }
 .contas-caixa {
   width: 1.1em; height: 1.3em; padding: 0; font: inherit; color: #1e3a8a; background: #ffffff;
@@ -2585,14 +2591,14 @@ button.casa-caa.vazia { cursor: pointer; }
 }
 .conta-deitada .contas-caixa { width: 1.2em; }
 .contas-caixa.escolhida { background: #fff3c4; border-color: #1d4ed8; box-shadow: 0 0 0 3px #1d4ed8; }
-.conta-certa { margin: 10px 0 0; font-weight: 800; font-size: 1.2rem; color: #14532d; }
-.contas-teclado { display: grid; grid-template-columns: repeat(3, 64px); gap: 8px; justify-content: center; }
-.contas-tecla { height: 58px; font-size: 1.6rem; padding: 0; }
+.conta-certa { margin: 10px 0 0; font-weight: 800; font-size: 1.2em; color: #14532d; }
+.contas-teclado { display: grid; grid-template-columns: repeat(3, max(64px, 3em)); gap: 8px; justify-content: center; }
+.contas-tecla { font-size: 1.5em; height: 1.9em; min-height: 56px; padding: 0; }
 .contas-teclado .contas-tecla:nth-child(10) { grid-column: 2; }
 .contas-apagar { grid-column: 3; }
 
 /* ---------- memória na tela (2026-11-19) ---------- */
-.memoria-mesa { display: grid; grid-template-columns: repeat(var(--colunas), 1fr); gap: 8px; width: min(94vw, 560px); }
+.memoria-mesa { display: grid; grid-template-columns: repeat(var(--colunas), 1fr); gap: 8px; width: min(94vw, max(560px, calc(var(--tamanho-base) * 24))); }
 .memoria-carta {
   aspect-ratio: 1; padding: 4px; border-radius: 12px; cursor: pointer;
   border: 3px solid var(--borda); box-shadow: var(--sombra);
@@ -2660,4 +2666,11 @@ button.casa-caa.vazia { cursor: pointer; }
   background-color: var(--fundo);
   background-image: var(--papel, none);
 }
+
+/* a divisão com a chave (o "L"), como no caderno (2026-11-20) */
+.conta-chave { display: flex; align-items: flex-start; font-size: max(2.2rem, 2.2em); font-weight: 700; line-height: 1.15; }
+.conta-chave-dividendo { display: flex; padding: 0.1em 0.3em 0 0; }
+.conta-chave-lado { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15em; }
+.conta-chave-divisor { min-width: 2.2em; padding: 0.1em 0.3em 0.1em 0.3em; border-left: 4px solid #000000; border-bottom: 4px solid #000000; }
+.conta-chave .conta-caixas { padding-left: 0.3em; }
 

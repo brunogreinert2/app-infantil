@@ -153,3 +153,22 @@ e do mesmo tamanho (não engrossa com o A+), como a do Pedra Angular:
 - A barra da prancha é presa no alto e TRAVADA: o zoom cresce as casas e a
   frase, nunca a barra.
 
+## Tudo cresce com o A+ (menos a barra) — 2026-11-20
+
+Capturas do Bruno com letra grande: coisas que não cresciam (os poços de
+tinta, os temas da tela Jogos, o teclado das contas, os nomes dos campos da
+oficina) e a coluna do formulário da oficina que cortava as palavras.
+
+- **Regra:** dentro das telas, tamanho em `em` (segue o A− / A+); `rem` e `px`
+  só na barra do alto (que não engrossa) e no que é desenho (a folha A4 na
+  prévia, as casas da prancha, que têm o zoom próprio).
+- Poços de tinta `max(52px, 2,6em)`; temas e números da tela Jogos em `em`;
+  grades do caça-palavras, sudoku, labirinto e memória crescem até a largura
+  da tela; teclado e bolinhas das contas em `em`.
+- Oficina: o formulário tem largura em letras (16 a 24) e as folhas, mínimo
+  de 360 px; quando não cabem lado a lado, descem. Os botões das seções
+  viram uma coluna quando a letra é grande.
+- **Divisão na tela com a chave** (o «L», como no caderno e na folha
+  impressa): dividendo, divisor dentro da chave, quociente nas caixas embaixo
+  do divisor, da esquerda para a direita. A tabuada continua deitada.
+

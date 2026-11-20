@@ -830,9 +830,13 @@ async function montarContas(corpo: HTMLElement, aviso: HTMLElement, contas: Cont
     el(
       'p',
       'jogo-instrucao',
-      algumaArmada
-        ? 'Toque nos números para escrever a resposta. Na conta armada, comece pela unidade, à direita.'
-        : 'Toque nos números para escrever a resposta.',
+      [
+        'Toque nos números para escrever a resposta.',
+        algumaArmada ? 'Na conta armada, comece pela unidade, à direita.' : '',
+        contas.some((c) => c.op === '/') && !tabuada ? 'Na divisão, o resultado vai embaixo do divisor, da esquerda para a direita.' : '',
+      ]
+        .filter(Boolean)
+        .join(' '),
     ),
   );
 
@@ -875,7 +879,23 @@ async function montarContas(corpo: HTMLElement, aviso: HTMLElement, contas: Cont
     const c = contas[atual];
     area.innerHTML = '';
     const certa = contaCerta(c, caixas[atual]);
-    if (deitada(c)) {
+    if (c.op === '/' && !tabuada) {
+      // A DIVISÃO COM A CHAVE, como no caderno e na folha impressa (pedido do
+      // Bruno, 2026-11-20: «só sei fazer desenhando o L»): o dividendo, a
+      // chave com o divisor dentro, e o quociente nas caixas embaixo dele,
+      // escrito da esquerda para a direita
+      const chave = el('div', 'conta-chave');
+      chave.setAttribute('aria-label', `${c.a} dividido por ${c.b}`);
+      const dividendo = el('div', 'conta-chave-dividendo');
+      for (const d of String(c.a)) dividendo.appendChild(el('span', 'conta-algarismo', d));
+      const lado = el('div', 'conta-chave-lado');
+      lado.appendChild(el('div', 'conta-chave-divisor', String(c.b)));
+      const respostas = el('div', 'conta-caixas');
+      for (let i = 0; i < n(c); i++) respostas.appendChild(caixaEl(i, c));
+      lado.appendChild(respostas);
+      chave.append(dividendo, lado);
+      area.appendChild(chave);
+    } else if (deitada(c)) {
       const linha = el('div', 'conta-deitada');
       linha.appendChild(el('span', 'conta-texto', `${textoDaConta(c)} =`));
       const respostas = el('span', 'conta-caixas');
