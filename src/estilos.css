@@ -178,6 +178,34 @@ body {
   transition: background 0.3s;
 }
 
+/* iPhone (2026-11-20, captura do Bruno): tocar rápido no A+ fazia o Safari
+   entender "toque duplo = zoom" e ampliar a página sozinho, cortando a tela.
+   `manipulation` diz que toque duplo é só dois toques (o gesto de pinça
+   continua valendo). E o iOS não "infla" letra por conta própria. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+button,
+a,
+input,
+select,
+label,
+summary,
+[role='button'] {
+  touch-action: manipulation;
+}
+
+/* com letra muito grande, botão nenhum fica mais largo que a tela (centrado e
+   largo demais, ele era cortado dos dois lados, sem como rolar até o começo) */
+.botao-opcao,
+.aba-pasta,
+.botao-grande {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
 button {
   font-family: inherit;
   /* botões NÃO herdam tamanho de fonte por padrão no HTML — sem isto,
