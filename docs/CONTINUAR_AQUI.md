@@ -1,5 +1,12 @@
 # CONTINUAR AQUI — chave de handoff entre sessões/modelos
 
+## O retrato do app (2026-11-20)
+
+**`docs/HISTORINHAS_POR_DENTRO.md`**: o que o Historinhas é, para quem, o que
+faz, a pedagogia, a acessibilidade visual, o motor e o que mudou desde a SAFIL
+— escrito para qualquer leitor (pessoa ou IA). Atualizar quando o app mudar
+de forma.
+
 ## ACESSIBILIDADE VISUAL — a frente de agora (2026-11-20)
 
 O Bruno quer o app como referência em baixa visão (WCAG 2.2 AAA + Perkins).
