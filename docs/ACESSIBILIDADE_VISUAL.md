@@ -172,3 +172,15 @@ oficina) e a coluna do formulário da oficina que cortava as palavras.
   impressa): dividendo, divisor dentro da chave, quociente nas caixas embaixo
   do divisor, da esquerda para a direita. A tabuada continua deitada.
 
+## Prancha escura e sílabas sugeridas (2026-11-20)
+
+- **Prancha escura** (pendência 2): botão ◐ na barra da prancha, do aparelho
+  (como o zoom). Fundo preto, casa quase preta, letra e desenho brancos
+  (≥ 18:1); a cor da categoria vira uma faixa no alto da casa; a pasta fica
+  amarela com tinta preta. Medida em `temas.test.ts`.
+- **Sílabas sugeridas no Ler o Mundo** (pendência 1): o separador do app
+  propõe as partes da palavra da professora, com o que conferir; um toque
+  usa. A ficha só usa o que está escrito no campo.
+- A coluna da **Aparência e dos Ajustes** cresce com a letra (era 620 px
+  fixos: "um celular no meio da tela").
+

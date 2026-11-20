@@ -66,3 +66,18 @@ describe('o contraste de cada tema (AAA)', () => {
     expect(coresDoTema('claro')).toMatchObject({ fundo: '#ffffff', texto: '#000000' });
   });
 });
+
+describe('a prancha escura (2026-11-20)', () => {
+  it('letra branca sobre a casa e o fundo, borda e foco visíveis', () => {
+    const bloco = css.match(/\.tela-caa\.escura \{([^}]+)\}/);
+    if (!bloco) throw new Error('sem o bloco da prancha escura');
+    const c: Record<string, string> = {};
+    for (const m of bloco[1].matchAll(/--([a-z-]+):\s*(#[0-9a-f]{6})\b/gi)) c[m[1]] = m[2];
+    expect(contraste(c['caa-tinta'], c['caa-fundo'])).toBeGreaterThanOrEqual(7);
+    expect(contraste(c['caa-tinta'], c['caa-casa'])).toBeGreaterThanOrEqual(7);
+    expect(contraste(c['caa-borda'], c['caa-fundo'])).toBeGreaterThanOrEqual(3);
+    expect(contraste(c['caa-foco'], c['caa-casa'])).toBeGreaterThanOrEqual(3);
+    // a pasta: tinta preta no amarelo
+    expect(contraste('#000000', '#ffd400')).toBeGreaterThanOrEqual(7);
+  });
+});

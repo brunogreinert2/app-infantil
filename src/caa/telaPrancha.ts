@@ -76,6 +76,7 @@ export function desenharCasa(casa: CasaCaa, conjunto: ConjuntoCaa, comCor: boole
 /** Os degraus do zoom da prancha: 1 = cabe na tela. */
 const ZOOMS = [1, 1.25, 1.5, 2, 2.5, 3];
 const CHAVE_ZOOM = 'caa:zoom';
+const CHAVE_ESCURA = 'caa:escura';
 
 export function montarTelaPrancha(raiz: HTMLElement, conjunto: ConjuntoCaa, nav: NavPrancha): void {
   pararFala();
@@ -109,7 +110,19 @@ export function montarTelaPrancha(raiz: HTMLElement, conjunto: ConjuntoCaa, nav:
   menor.setAttribute('aria-label', 'Diminuir a prancha');
   const maior = el('button', 'caa-botao', 'A+');
   maior.setAttribute('aria-label', 'Aumentar a prancha');
-  zoom.append(menor, maior);
+  // PRANCHA ESCURA (pendência 2, 2026-11-20): fundo preto, letra branca, a cor
+  // da categoria como faixa. Do aparelho, como o zoom; liga e desliga aqui.
+  const escura = el('button', 'caa-botao', '◐');
+  escura.setAttribute('aria-label', 'Prancha escura');
+  escura.title = 'Fundo escuro, letra clara';
+  const aplicarEscura = (ligada: boolean, guardar = true) => {
+    raiz.classList.toggle('escura', ligada);
+    escura.setAttribute('aria-pressed', String(ligada));
+    escura.classList.toggle('ativa', ligada);
+    if (guardar) void armazenamento.definir(CHAVE_ESCURA, ligada);
+  };
+  escura.addEventListener('click', () => aplicarEscura(!raiz.classList.contains('escura')));
+  zoom.append(menor, maior, escura);
   barra.appendChild(zoom);
   let nivelZoom = 0;
   const aplicarZoom = (n: number, guardar = true) => {
@@ -351,6 +364,10 @@ export function montarTelaPrancha(raiz: HTMLElement, conjunto: ConjuntoCaa, nav:
   requestAnimationFrame(ajustarLado);
   // o zoom que ficou guardado no aparelho
   menor.disabled = true;
+  aplicarEscura(false, false);
+  void armazenamento.obter<boolean>(CHAVE_ESCURA).then((v) => {
+    if (viva() && v === true) aplicarEscura(true, false);
+  });
   void armazenamento.obter<number>(CHAVE_ZOOM).then((n) => {
     if (viva() && typeof n === 'number' && n > 0) aplicarZoom(n, false);
   });

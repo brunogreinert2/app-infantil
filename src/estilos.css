@@ -2708,3 +2708,31 @@ button.casa-caa.vazia { cursor: pointer; }
 /* a sugestão de sílabas do Ler o Mundo (2026-11-20) */
 .folhas-sugestao { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
 .folhas-sugestao[hidden] { display: none; }
+
+/* ---------- prancha ESCURA (pendência 2, 2026-11-20) ----------
+   Para quem enxerga melhor em fundo preto (o par "branco no preto" da
+   Perkins). A cor da categoria deixa de ser o fundo da casa e vira uma FAIXA
+   no alto dela: a letra e o desenho ficam brancos sobre quase preto (≥ 18:1),
+   e a pista de categoria continua lá. A pasta vira amarela com tinta preta —
+   outra coisa, não uma palavra a mais. Medida em src/telas/temas.test.ts. */
+.tela-caa.escura {
+  --caa-fundo: #000000;
+  --caa-tinta: #ffffff;
+  --caa-borda: #8a8a8a;
+  --caa-casa: #141414;
+  --caa-foco: #ffd400;
+}
+.tela-caa.escura .caa-botao,
+.tela-caa.escura .caa-frase { background: var(--caa-casa); color: var(--caa-tinta); border-color: var(--caa-borda); }
+.tela-caa.escura .caa-frase-vazia { color: #d6d6d6; }
+.tela-caa.escura .caa-falar { background: var(--caa-tinta); color: var(--caa-fundo); border-color: var(--caa-tinta); }
+.tela-caa.escura .casa-caa {
+  background: var(--caa-casa); color: var(--caa-tinta); border-color: var(--caa-borda);
+  box-shadow: inset 0 max(8px, 0.5em) 0 var(--cor-casa, transparent);
+}
+.tela-caa.escura .casa-caa.vazia { background: transparent; border-color: #6f6f6f; color: #bdbdbd; box-shadow: none; }
+.tela-caa.escura .casa-caa.pasta {
+  background: #ffd400; color: #000000; border-color: #ffd400;
+  box-shadow: 3px 3px 0 -1px #000000, 3px 3px 0 1px #ffd400, 6px 6px 0 -1px #000000, 6px 6px 0 1px #ffd400;
+}
+.caa-botao.ativa { box-shadow: inset 0 0 0 3px var(--caa-foco); }
