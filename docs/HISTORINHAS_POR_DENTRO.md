@@ -1,7 +1,7 @@
 # Historinhas por dentro
 
 *O que é, para quem, o que faz, como funciona, e o que ainda não é.*
-Retrato de 2026-11-20, versão 0.13.2 (historinhas.app.br).
+Retrato de 2026-11-20, versão 0.14.0 (historinhas.app.br).
 
 ---
 
@@ -204,8 +204,33 @@ criança fica dela (o tema do livro é convidado, nunca dono; um tema de mais
 contraste nunca é trocado pelo de um livro).
 
 **Ler o mundo.** As folhas e jogos usam o vocabulário do dia a dia (escola,
-casa, comida, transporte, sentimentos). Um piloto de letramento para jovens e
-adultos (**Ler o Mundo**) parte das placas e sinais da rua.
+casa, comida, transporte, sentimentos).
+
+**De onde vieram o Ler o Mundo e a prancha.** De uma entrevista com uma
+professora de AEE, feita para a disciplina de Intervenção Pedagógica e
+Necessidades Educativas Especiais (UFRGS). Ao conhecer o app, ela gostou dos
+alfabetos ilustrados e apontou uma lacuna: quase todo material de
+alfabetização é feito para crianças, e **adolescentes e adultos ainda não
+alfabetizados sentem vergonha** do que parece "coisa de criancinha". A
+encomenda: um material que parta de **palavras funcionais do cotidiano**
+(PARE, ATENÇÃO, SAÍDA, BANHEIRO, MASCULINO, FEMININO), com um formato padrão
+que a própria professora possa personalizar. É a crítica de Lewis (1997, apud
+APAE, 2011) ao ensino desvinculado da vida: ele conta que o irmão nomeava as
+letras dos cartões quase sempre certo, mas não distinguia o sinal do banheiro
+masculino do feminino numa lanchonete. Daí o **Ler o Mundo**: fichas que
+partem de uma palavra que se vê na rua (no desenho da placa, do letreiro do
+ônibus, da porta), dividida em partes para ler, e que a professora pode fazer
+para **qualquer palavra** (a de um aluno com hiperfoco em ônibus, por
+exemplo), sem nenhum dado do aluno no app. Sem cara de infantil: nada de
+"pinte", nada de marca de criança.
+
+A mesma conversa revelou que a escola **não tinha prancha de CAA**, recurso
+indicado no plano de atendimento de um aluno. Como lembra Bendinelli (2018),
+não adianta o aluno usar a prancha só na sala de recursos se ela não tiver
+espaço na classe comum e no dia a dia escolar. Por isso a prancha do
+Historinhas existe **na tela** (tocar e ouvir) **e no papel** (para sair da
+sala de recursos). A intenção é levar os dois materiais de volta a essa
+professora: uma parceria que os teste na prática.
 
 **Filosofia para crianças.** As historinhas de *Para pensar* são autorais e
 partem de ideias reais da história da filosofia:
@@ -221,10 +246,9 @@ do mesmo autor, com o acervo filosófico completo) é para adultos.
 documentadas. A impressão é **A4 desde a concepção**: nada é cortado, nenhuma
 ficha se divide entre páginas.
 
-**Sala de aula.** A prancha de CAA nasceu de uma professora de AEE que não
-tinha prancha para um aluno com o recurso indicado no plano dele. Por isso
-ela existe na tela e no papel. As folhas da oficina saem com folha do
-professor e código para refazer igual.
+**Sala de aula.** As folhas da oficina saem com folha do professor (as
+respostas) e código para refazer igual; os alfabetos, Os Números e o Ler o
+Mundo saem pela oficina, inteiros, por grupo ou folha a folha.
 
 ---
 
@@ -366,8 +390,8 @@ lê). Toda sessão termina com o arquivo de passagem atualizado
 ## 7. Desde a SAFIL: o que mudou de 2026-11-05 a 2026-11-20
 
 Depois da palestra na SAFIL (UFRGS, 2026-11-05), o trabalho saiu do Pedra
-Angular e se concentrou no Historinhas: **82 commits em nove dias de
-trabalho**, até a versão **0.13.2**.
+Angular e se concentrou no Historinhas: **mais de 80 commits em nove
+dias de trabalho**, até a versão **0.14.0**.
 
 | Data | O que entrou |
 |---|---|
@@ -379,7 +403,7 @@ trabalho**, até a versão **0.13.2**.
 | 17/11 | Relógios e reta numérica; romanos até a dúzia; folha dos sinais de banheiro |
 | 18/11 | Silabário, labirinto, sudoku, contas, matemática de recortar, tesoura, quadrinhos e cartões; letra das folhas; rotina visual; sequência didática; capas com meandro; **código da folha**; pintar qualquer folha (casas e partes); balde em todas da mesma cor; jogar caça-palavras e cruzadinha na tela; 12 cruzadinhas prontas |
 | 19/11 | Oficina **ligada**, em quatro seções; Jogos na barra da criança e no alto da estante; sudoku, labirinto, contas e memória na tela (0.10.0, 0.11.0, 0.12.0) |
-| 20/11 | Frente de **acessibilidade visual**: temas de mais contraste e de leitura longa (Perkins/Pedra Angular), temas de brincar em AAA, 🔊 que não cobre o texto, menu que cresce com a letra e tem alça, zoom na prancha, folha ampliada, Aparência enxuta, a mesma barra em toda tela, tudo crescendo com o A+, divisão com a chave, consertos do iPhone (0.13.0 a 0.13.2) |
+| 20/11 | Frente de **acessibilidade visual**: temas de mais contraste e de leitura longa (Perkins/Pedra Angular), temas de brincar em AAA, 🔊 que não cobre o texto, menu que cresce com a letra e tem alça, zoom na prancha, folha ampliada, Aparência enxuta, a mesma barra em toda tela, tudo crescendo com o A+, divisão com a chave, consertos do iPhone (0.13.0 a 0.13.2); este documento; os **alfabetos, Os Números e o Ler o Mundo na oficina**, com a ficha da palavra da professora (0.14.0) |
 
 ---
 
@@ -402,6 +426,8 @@ os próprios limites engana quem mais confia nele.
   medido em todas as combinações.
 - **As bordas dos temas de brincar** ficam abaixo de 3:1 onde são só
   decorativas; falta conferir botão a botão.
+- **O Ler o Mundo não tem casa na estante.** Hoje ele sai só pela oficina,
+  impresso; a versão de tela para o próprio jovem ou adulto ainda não existe.
 - **Não é app de loja ainda** (é PWA instalável). Capacitor planejado.
 - **Interface só em português.**
 

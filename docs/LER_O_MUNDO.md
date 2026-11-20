@@ -124,6 +124,11 @@ Em ordem sugerida:
    próprias (palavra + figura enviada pela professora, guardada no aparelho).
    `svgPranchaA4` já aceita qualquer `Prancha`; casa sem pictograma mostra só
    a palavra — falta aceitar imagem.
+> **2026-11-20:** com o Ler o Mundo na oficina (publicado na 0.14.0), os ids
+> das fichas (`consulta-…`, `palavra-…`, `banheiro-sinais`, `formulario`,
+> `dinheiro`, `hora`) entram no **código da folha**: a partir daqui são
+> PERMANENTES. Ficha nova entra com id novo; nenhum id muda de nome.
+
 4. **Registrar os cadernos** no pipeline normal (como `numeros.ts` faz com
    `carregarLivro`) quando a decisão 3 estiver tomada. Os IDs de ficha e de
    região desta branch ainda **não são publicados**: podem mudar até lá.
