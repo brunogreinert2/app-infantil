@@ -5,6 +5,9 @@
 
 :root {
   --tamanho-base: 20px;
+  /* o menu lateral: largura em letras (13, ou o que a criança escolheu na alça) */
+  --largura-painel: min(88vw, max(320px, calc(var(--tamanho-base) * var(--painel-em, 13))));
+  --largura-painel-fixo: min(50vw, var(--largura-painel));
   /* espaço entre linhas e entre letras: mesmos nomes do app-leitura */
   --reading-line-height: 1.7;
   --reading-letter-spacing: 0em;
@@ -26,8 +29,10 @@
   --fundo: #fff6ec;
   --cartao: #ffffff;
   --texto: #46301e;
-  --texto-suave: #6b533c;
-  --destaque: #d62839;
+  /* AAA (2026-11-20): suave 8,35:1 no fundo; destaque 8,0:1 no cartão (era
+     #6b533c 6,71:1 e #d62839 4,97:1 — passavam só no AA) */
+  --texto-suave: #5c4532;
+  --destaque: #a01428;
   --borda: #f3ddc8;
   --sombra: 0 4px 14px rgba(150, 90, 30, 0.12);
   /* marca d'água: arcos de arco-íris e nuvens, bem discretos */
@@ -50,8 +55,10 @@
   --fundo: #d5eabf;
   --cartao: #f6fbee;
   --texto: #16331a;
-  --texto-suave: #35543a;
-  --destaque: #14682e;
+  /* AAA (2026-11-20): suave 8,24:1 e destaque 8,87:1 no cartão (eram 6,59:1
+     e 6,54:1) */
+  --texto-suave: #284530;
+  --destaque: #0d5223;
   --borda: #aacd8e;
   --sombra: 0 4px 14px rgba(30, 90, 40, 0.16);
   /* marca d'água: folhinhas */
@@ -68,8 +75,87 @@
   --texto: #ffffff;
   --texto-suave: #e0e0e0;
   --destaque: #ffd400;
+  --borda: #8a8a8a;
+  --sombra: 0 0 0 2px #8a8a8a;
+}
+
+/* ---------- temas para ENXERGAR MELHOR (2026-11-20) ----------
+   Os mesmos do Pedra Angular (ThemeDialog.tsx / styles.css de lá), que segue
+   a Perkins School for the Blind: não existe esquema universal — cada
+   condição ocular prefere um par texto/fundo — então o app oferece os
+   clássicos, todos muito acima de 7:1, sem papel de parede (nada compete com
+   a letra). Mesmas cores do Pedra Angular: quem usa um app reconhece o outro.
+   Medidos em src/telas/temas.test.ts. */
+[data-theme='claro'] {
+  --papel: none;
+  --fundo: #ffffff;
+  --cartao: #ffffff;
+  --texto: #000000;
+  --texto-suave: #2e2e2e;
+  --destaque: #0000b4;
   --borda: #5a5a5a;
-  --sombra: 0 0 0 1px #5a5a5a;
+  --sombra: 0 0 0 2px #5a5a5a;
+}
+[data-theme='amarelo'] {
+  --papel: none;
+  --fundo: #000000;
+  --cartao: #0d0c00;
+  --texto: #ffe600;
+  --texto-suave: #e6d24a;
+  --destaque: #ffffff;
+  --borda: #a89b00;
+  --sombra: 0 0 0 2px #a89b00;
+}
+[data-theme='verde'] {
+  --papel: none;
+  --fundo: #000000;
+  --cartao: #001200;
+  --texto: #33ff33;
+  --texto-suave: #4ada4a;
+  --destaque: #ffffff;
+  --borda: #1f9e1f;
+  --sombra: 0 0 0 2px #1f9e1f;
+}
+[data-theme='amarelo-azul'] {
+  --papel: none;
+  --fundo: #001862;
+  --cartao: #001048;
+  --texto: #ffe600;
+  --texto-suave: #f0dc6e;
+  --destaque: #ffffff;
+  --borda: #8c9ad6;
+  --sombra: 0 0 0 2px #8c9ad6;
+}
+/* conforto para leitura longa (também do Pedra Angular) */
+[data-theme='sepia'] {
+  --papel: none;
+  --fundo: #faf7f2;
+  --cartao: #ffffff;
+  --texto: #2b2620;
+  --texto-suave: #585049;
+  --destaque: #6b3e15;
+  --borda: #8a8377;
+  --sombra: 0 2px 8px rgba(43, 38, 32, 0.25);
+}
+[data-theme='azul-noite'] {
+  --papel: none;
+  --fundo: #0d142b;
+  --cartao: #0d1633;
+  --texto: #ffe4a8;
+  --texto-suave: #fafafa;
+  --destaque: #e7fb56;
+  --borda: #2f68f9;
+  --sombra: 0 0 0 2px #2f68f9;
+}
+[data-theme='azul-petroleo'] {
+  --papel: none;
+  --fundo: #062a30;
+  --cartao: #08343c;
+  --texto: #e8f4f1;
+  --texto-suave: #c0dcd6;
+  --destaque: #7fe0d0;
+  --borda: #66aab4;
+  --sombra: 0 0 0 2px #66aab4;
 }
 
 [data-theme='alto-contraste'] .selo-status,
@@ -409,7 +495,10 @@ button {
 
 .paragrafo {
   position: relative;
-  padding-right: 54px;
+  /* o lugar do 🔊 cresce JUNTO com a letra (pedido do Bruno, 2026-11-20, com
+     captura: em 54px fixos, o botão — que cresce com o A+ — cobria o fim da
+     linha). Botão = max(44px, 1.9em); mais meia letra de folga */
+  padding-right: calc(max(44px, 1.9em) + 0.5em);
   /* 1em e não 1,1em: o corpo da letra é inteiro em pixels do aparelho, então
      1em também é — e cada parágrafo começa no mesmo ponto da grade */
   margin: 1em 0;
@@ -446,12 +535,17 @@ button {
   position: absolute;
   top: 0;
   right: 0;
+  /* do tamanho exato reservado no parágrafo: nunca passa por cima do texto */
+  width: max(44px, 1.9em);
+  height: max(44px, 1.9em);
   min-width: 44px;
   min-height: 44px;
+  padding: 0;
   border-radius: 12px;
   background: var(--cartao);
   box-shadow: var(--sombra);
-  font-size: 1.1em;
+  font-size: 1em;
+  line-height: 1;
 }
 
 .cabecalho-bloco {
@@ -463,6 +557,12 @@ button {
 
 .cabecalho-bloco .cabecalho {
   margin: 0.6em 0;
+}
+
+/* o 🔊 do título fica ao lado dele, no fluxo (não flutua sobre o texto) */
+.cabecalho-bloco .botao-ouvir {
+  position: static;
+  flex: none;
 }
 
 .midia-audio {
@@ -877,7 +977,11 @@ button {
   display: none;
   flex-direction: column;
   gap: 14px;
-  width: min(88vw, 320px);
+  /* A LARGURA CRESCE COM A LETRA (pedido do Bruno, 2026-11-20, com captura:
+     em 320px fixos, a letra grande partia "Bruno" e "Histórias" letra por
+     letra). 13 letras de largura, nunca menos de 320px nem mais de 88% da
+     tela; e a criança pode alargar mais pela alça (--painel-em, por perfil). */
+  width: var(--largura-painel);
   padding: 14px 12px 20px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -998,12 +1102,21 @@ button {
     display: none;
   }
 
+  /* fixo, o menu divide a tela com a história: no máximo a metade dela */
   body.painel-fixo #app {
-    margin-left: 320px;
+    margin-left: var(--largura-painel-fixo);
   }
 
   body.painel-fixo .painel-lateral {
-    width: 320px;
+    width: var(--largura-painel-fixo);
+  }
+
+  .painel-lateral.fixo + #alca-painel {
+    display: block;
+  }
+
+  body.painel-fixo #alca-painel {
+    left: calc(var(--largura-painel-fixo) - 8px);
   }
 }
 
@@ -2169,42 +2282,53 @@ button {
   background: var(--caa-fundo);
   color: var(--caa-tinta);
   font-family: 'Atkinson Hyperlegible', 'OpenDyslexic', sans-serif;
+  /* ZOOM DA PRANCHA (A− / A+ no alto, 2026-11-20): a letra da barra, da frase
+     e dos botões cresce junto com as casas */
+  font-size: calc(16px * var(--caa-zoom, 1));
   padding: 0 8px 12px;
   min-height: 100vh;
 }
-.caa-topo { display: flex; align-items: center; gap: 8px; padding: 8px 0; }
-.caa-titulo { flex: 1; margin: 0; font-size: 1.1rem; font-weight: 700; text-align: center; color: var(--caa-tinta); }
+/* casas maiores que a tela: a prancha ROLA (para os lados também) em vez de
+   ser cortada — e a ordem das casas nunca muda (memória de onde fica cada
+   palavra é o que faz a CAA ficar rápida) */
+.caa-rolagem { overflow-x: auto; padding-bottom: 4px; }
+.caa-zoom { display: inline-flex; gap: 6px; }
+.caa-topo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 8px 0; }
+.caa-titulo { flex: 1 1 6em; min-width: 0; overflow-wrap: anywhere; margin: 0; font-size: 1.1em; font-weight: 700; text-align: center; color: var(--caa-tinta); }
 .caa-botao {
-  min-height: 48px; min-width: 48px; padding: 0 14px; border-radius: 12px;
+  min-height: max(48px, 3em); min-width: max(48px, 3em); padding: 0 0.9em; border-radius: 12px;
   border: 2px solid var(--caa-borda); background: #ffffff; color: var(--caa-tinta);
-  font: inherit; font-weight: 700; font-size: 1rem; cursor: pointer;
+  font: inherit; font-weight: 700; font-size: 1em; cursor: pointer;
 }
 .caa-botao:disabled { opacity: 0.45; cursor: default; }
 .caa-botao-discreto { border-color: #8a8a8a; }
 .caa-botao:focus-visible, .casa-caa:focus-visible { outline: 4px solid var(--caa-foco); outline-offset: 2px; }
 .caa-frase {
-  display: flex; align-items: stretch; gap: 8px; padding: 6px;
+  display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; padding: 6px;
   background: #ffffff; border: 2px solid var(--caa-borda); border-radius: 14px; margin-bottom: 8px;
 }
-.caa-frase-casas { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 56px; }
-.caa-frase-vazia { color: #4a4a4a; font-size: 0.95rem; padding: 0 6px; }
+.caa-frase-casas { flex: 1 1 10em; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: max(56px, 3.5em); }
+.caa-frase-vazia { color: #4a4a4a; font-size: 0.95em; padding: 0 6px; }
 .caa-frase-pedaco {
   display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
-  min-width: 48px; padding: 2px 6px; font-weight: 700; font-size: 0.85rem; line-height: 1.1;
+  min-width: 48px; padding: 2px 6px; font-weight: 700; font-size: 0.85em; line-height: 1.1;
 }
-.caa-frase-pedaco img, .caa-frase-figura svg { width: 32px; height: 32px; object-fit: contain; }
+.caa-frase-pedaco img, .caa-frase-figura svg { width: max(32px, 2em); height: max(32px, 2em); object-fit: contain; }
 .caa-frase-acoes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .caa-falar { background: #111111; color: #ffffff; border-color: #111111; }
 .caa-caminho { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .caa-caminho[hidden] { display: none; }
-.caa-caminho-aqui { font-weight: 700; font-size: 1.1rem; }
+.caa-caminho-aqui { font-weight: 700; font-size: 1.1em; }
 .caa-grade {
   --lado: 96px;
   display: grid;
   grid-template-columns: repeat(var(--colunas, 4), var(--lado));
   grid-auto-rows: var(--lado);
   gap: 8px;
-  justify-content: center;
+  /* largura do conteúdo e margem automática: centrada quando cabe, encostada
+     à esquerda (e rolando) quando não cabe — nunca cortada dos dois lados */
+  width: max-content;
+  margin-inline: auto;
 }
 .casa-caa {
   position: relative;
@@ -2216,7 +2340,7 @@ button {
   -webkit-tap-highlight-color: transparent; touch-action: manipulation;
 }
 .casa-caa:active { filter: brightness(0.82); }
-.casa-caa.vazia { background: transparent; border: 2px dashed #9a9a9a; cursor: default; color: #555555; font-size: 1.6rem; }
+.casa-caa.vazia { background: transparent; border: 2px dashed #9a9a9a; cursor: default; color: #555555; font-size: 1.6em; }
 button.casa-caa.vazia { cursor: pointer; }
 /* PASTA: a casa que abre outra prancha tem de parecer OUTRA COISA, não uma
    palavra a mais (pedido do Bruno: POR FAVOR, palavra comum, ficava igual às
@@ -2247,7 +2371,7 @@ button.casa-caa.vazia { cursor: pointer; }
 .casa-caa.varrendo { outline: 6px solid var(--caa-foco, #0047ab); outline-offset: 2px; z-index: 1; }
 .caa-botao.varrendo { outline: 6px solid var(--caa-foco); outline-offset: 2px; }
 .com-varredura * { cursor: pointer; }
-.caa-aviso { text-align: center; font-size: 0.95rem; margin-top: 12px; }
+.caa-aviso { text-align: center; font-size: 0.95em; margin-top: 12px; }
 
 .botao-prancha-caa {
   margin: 18px auto 0; display: block; min-height: 52px; padding: 0 22px; border-radius: 14px;
@@ -2465,3 +2589,48 @@ button.casa-caa.vazia { cursor: pointer; }
 .memoria-carta svg { width: 100%; height: 100%; display: block; }
 .memoria-carta.dica { animation: jogo-pisca 0.5s ease-in-out 5 alternate; }
 @media (prefers-reduced-motion: reduce) { .memoria-carta.dica { animation: none; outline: 4px solid #ffd166; } }
+
+/* ---------- escolher o tema vendo as cores (2026-11-20) ----------
+   Cada botão tem data-theme do seu tema: as variáveis valem dentro dele. */
+.titulo-grupo-tema { margin: 14px 0 6px; font-size: 1em; }
+.botao-tema { background: var(--fundo); color: var(--texto); border: 3px solid var(--texto); font-weight: 700; }
+.botao-tema.ativa { outline: 4px solid var(--ui-foco); outline-offset: 3px; }
+.botao-tema.ativa::before { content: '✓ '; }
+
+/* ---------- a alça do menu lateral (2026-11-20) ----------
+   Arrastar a borda (mouse ou dedo) ou usar as setas com ela em foco alarga
+   ou estreita o menu. Dois toques seguidos (ou Home) voltam ao normal. */
+#alca-painel {
+  display: none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--largura-painel) - 8px);
+  z-index: 51;
+  width: 16px;
+  cursor: col-resize;
+  touch-action: none;
+  background: transparent;
+}
+#alca-painel::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  width: 6px;
+  height: 64px;
+  margin-top: -32px;
+  border-radius: 3px;
+  background: var(--texto-suave);
+  opacity: 0.55;
+}
+#alca-painel:hover::after,
+#alca-painel:focus-visible::after,
+#alca-painel.arrastando::after {
+  opacity: 1;
+  background: var(--ui-foco);
+}
+.painel-lateral.aberto + #alca-painel {
+  display: block;
+}
+

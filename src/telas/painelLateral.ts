@@ -132,13 +132,98 @@ export async function prepararPainel(): Promise<void> {
   consulta = '';
   abertas.clear();
   fixo = (await armazenamento.obter<boolean>(`${perfilAtivo().id}:painelFixo`)) ?? false;
+  await lerLargura();
   void atualizarTextosDoPainel();
   if (fixo) desenhar(false);
   else removerPainel();
 }
 
+// ---------- a largura do menu (2026-11-20) ----------
+// Em LETRAS, não em pixels: quem alarga o menu com a letra 40 e depois passa
+// para a 60 continua vendo as mesmas palavras inteiras.
+const EM_PADRAO = 13;
+const EM_MIN = 8;
+const EM_MAX = 60;
+let alca: HTMLElement | null = null;
+const chaveLargura = () => `${perfilAtivo().id}:larguraMenuEm`;
+
+function aplicarLargura(em: number | null): void {
+  const raiz = document.documentElement.style;
+  if (em === null) raiz.removeProperty('--painel-em');
+  else raiz.setProperty('--painel-em', String(em));
+}
+
+function letraBase(): number {
+  return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tamanho-base')) || 20;
+}
+
+function larguraAgoraEm(): number {
+  return painel ? painel.getBoundingClientRect().width / letraBase() : EM_PADRAO;
+}
+
+function montarAlca(): HTMLElement {
+  const a = el('div');
+  a.id = 'alca-painel';
+  a.tabIndex = 0;
+  a.setAttribute('role', 'separator');
+  a.setAttribute('aria-orientation', 'vertical');
+  a.setAttribute('aria-controls', 'painel-lateral');
+  a.setAttribute('aria-label', 'Largura do menu: setas para alargar ou estreitar');
+  a.title = 'Arraste para alargar ou estreitar o menu (dois toques: volta ao normal)';
+  const mudar = (em: number, guardar: boolean) => {
+    const v = Math.round(Math.min(EM_MAX, Math.max(EM_MIN, em)) * 10) / 10;
+    aplicarLargura(v);
+    a.setAttribute('aria-valuenow', String(Math.round(v)));
+    if (guardar) void armazenamento.definir(chaveLargura(), v);
+  };
+  const normal = () => {
+    aplicarLargura(null);
+    void armazenamento.remover(chaveLargura());
+  };
+  a.setAttribute('aria-valuemin', String(EM_MIN));
+  a.setAttribute('aria-valuemax', String(EM_MAX));
+  a.setAttribute('aria-valuenow', String(Math.round(larguraAgoraEm())));
+  a.addEventListener('pointerdown', (ev) => {
+    ev.preventDefault();
+    try {
+      a.setPointerCapture(ev.pointerId);
+    } catch {
+      // ponteiro sintético (teste): segue sem captura
+    }
+    a.classList.add('arrastando');
+    const mover = (e: PointerEvent) => mudar(e.clientX / letraBase(), false);
+    const soltar = (e: PointerEvent) => {
+      a.classList.remove('arrastando');
+      a.removeEventListener('pointermove', mover);
+      a.removeEventListener('pointerup', soltar);
+      a.removeEventListener('pointercancel', soltar);
+      mudar(e.clientX / letraBase(), true);
+    };
+    a.addEventListener('pointermove', mover);
+    a.addEventListener('pointerup', soltar);
+    a.addEventListener('pointercancel', soltar);
+  });
+  a.addEventListener('dblclick', normal);
+  a.addEventListener('keydown', (ev) => {
+    if (ev.key === 'ArrowRight') mudar(larguraAgoraEm() + 1, true);
+    else if (ev.key === 'ArrowLeft') mudar(larguraAgoraEm() - 1, true);
+    else if (ev.key === 'Home') normal();
+    else return;
+    ev.preventDefault();
+  });
+  return a;
+}
+
+/** Ao entrar num perfil: a largura que ESTE perfil deixou no menu. */
+async function lerLargura(): Promise<void> {
+  const em = await armazenamento.obter<number>(chaveLargura());
+  aplicarLargura(typeof em === 'number' && em >= EM_MIN && em <= EM_MAX ? em : null);
+}
+
 /** Tela de perfis e ajustes: sem perfil escolhido, não há painel. */
 export function removerPainel(): void {
+  alca?.remove();
+  alca = null;
   painel?.remove();
   fundo?.remove();
   painel = null;
@@ -525,6 +610,10 @@ function desenhar(comoGaveta: boolean): void {
     document.body.appendChild(fundo);
   }
   document.body.appendChild(novo);
+  // a alça mora logo DEPOIS do menu (o CSS a mostra só com o menu à vista)
+  alca?.remove();
+  alca = montarAlca();
+  novo.after(alca);
   document.body.classList.toggle('painel-fixo', fixo);
   sincronizarAvatar();
   if (foco) novo.querySelector<HTMLElement>(`[data-foco="${foco}"]`)?.focus();

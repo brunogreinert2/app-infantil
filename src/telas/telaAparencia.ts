@@ -14,6 +14,8 @@ import {
   PESOS,
   FONTES,
   TEMAS,
+  NOMES_DOS_GRUPOS_DE_TEMA,
+  type GrupoDeTema,
   ajustarTamanho,
   PASSO_FONTE,
   definirPersonalizado,
@@ -71,21 +73,32 @@ export async function montarTelaAparencia(
 
   // ---------- temas prontos ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Temas prontos'));
-  const gradeTemas = el('div', 'grade-opcoes');
   const botoesTema = new Map<string, HTMLButtonElement>();
-  for (const t of TEMAS) {
-    const botao = el('button', 'botao-opcao', t.rotulo);
-    botao.addEventListener('click', async () => {
-      await trocarTema(t.id);
-      marcarTema(t.id);
-    });
-    botoesTema.set(t.id, botao);
-    gradeTemas.appendChild(botao);
+  // em grupos, na ordem: primeiro os de baixa visão (2026-11-20). Cada botão
+  // já VESTE o seu tema (data-theme no próprio botão): a criança vê as cores
+  // antes de escolher, sem precisar ler o nome
+  for (const grupo of Object.keys(NOMES_DOS_GRUPOS_DE_TEMA) as GrupoDeTema[]) {
+    corpo.appendChild(el('h3', 'titulo-grupo-tema', NOMES_DOS_GRUPOS_DE_TEMA[grupo]));
+    const gradeTemas = el('div', 'grade-opcoes');
+    for (const t of TEMAS.filter((x) => x.grupo === grupo)) {
+      const botao = el('button', 'botao-opcao botao-tema', t.rotulo);
+      botao.dataset.theme = t.id;
+      botao.setAttribute('aria-pressed', 'false');
+      botao.addEventListener('click', async () => {
+        await trocarTema(t.id);
+        marcarTema(t.id);
+      });
+      botoesTema.set(t.id, botao);
+      gradeTemas.appendChild(botao);
+    }
+    corpo.appendChild(gradeTemas);
   }
-  corpo.appendChild(gradeTemas);
 
   const marcarTema = (id: string) => {
-    botoesTema.forEach((b, tid) => b.classList.toggle('ativa', tid === id));
+    botoesTema.forEach((b, tid) => {
+      b.classList.toggle('ativa', tid === id);
+      b.setAttribute('aria-pressed', String(tid === id));
+    });
   };
   marcarTema(prefs.tema);
 

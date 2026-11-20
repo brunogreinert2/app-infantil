@@ -13,6 +13,7 @@
 // de linha (ver a regra 1 em modelo.ts).
 
 import { el } from '../telas/comum';
+import { armazenamento } from '../armazenamento/armazenamento';
 import { falar, pararFala, suportaTTS } from '../tts';
 import { CORES_CAA } from './cores';
 import {
@@ -72,6 +73,10 @@ export function desenharCasa(casa: CasaCaa, conjunto: ConjuntoCaa, comCor: boole
   return botao;
 }
 
+/** Os degraus do zoom da prancha: 1 = cabe na tela. */
+const ZOOMS = [1, 1.25, 1.5, 2, 2.5, 3];
+const CHAVE_ZOOM = 'caa:zoom';
+
 export function montarTelaPrancha(raiz: HTMLElement, conjunto: ConjuntoCaa, nav: NavPrancha): void {
   pararFala();
   raiz.innerHTML = '';
@@ -92,6 +97,31 @@ export function montarTelaPrancha(raiz: HTMLElement, conjunto: ConjuntoCaa, nav:
   });
   const titulo = el('h1', 'caa-titulo');
   barra.append(sair, titulo);
+
+  // ZOOM (pedido do Bruno, 2026-11-20: "o zoom que não tem na Prancha"). As
+  // casas crescem a partir do tamanho que cabe na tela; a letra da barra e da
+  // frase cresce junto. A ORDEM das casas nunca muda: quando não cabem, a
+  // prancha rola. Do aparelho (a prancha não tem perfil), como a do Pedra.
+  const zoom = el('div', 'caa-zoom');
+  zoom.setAttribute('role', 'group');
+  zoom.setAttribute('aria-label', 'Tamanho da prancha');
+  const menor = el('button', 'caa-botao', 'A−');
+  menor.setAttribute('aria-label', 'Diminuir a prancha');
+  const maior = el('button', 'caa-botao', 'A+');
+  maior.setAttribute('aria-label', 'Aumentar a prancha');
+  zoom.append(menor, maior);
+  barra.appendChild(zoom);
+  let nivelZoom = 0;
+  const aplicarZoom = (n: number, guardar = true) => {
+    nivelZoom = Math.min(ZOOMS.length - 1, Math.max(0, n));
+    raiz.style.setProperty('--caa-zoom', String(ZOOMS[nivelZoom]));
+    menor.disabled = nivelZoom === 0;
+    maior.disabled = nivelZoom === ZOOMS.length - 1;
+    if (guardar) void armazenamento.definir(CHAVE_ZOOM, nivelZoom);
+    ajustarLado();
+  };
+  menor.addEventListener('click', () => aplicarZoom(nivelZoom - 1));
+  maior.addEventListener('click', () => aplicarZoom(nivelZoom + 1));
   if (nav.montar) {
     const montar = el('button', 'caa-botao caa-botao-discreto', '✏️');
     montar.setAttribute('aria-label', 'Montar pranchas (área dos adultos)');
@@ -169,7 +199,9 @@ export function montarTelaPrancha(raiz: HTMLElement, conjunto: ConjuntoCaa, nav:
 
   // ---------------------------------------------------------------- grade --
   const grade = el('div', 'caa-grade');
-  raiz.appendChild(grade);
+  const rolagem = el('div', 'caa-rolagem');
+  rolagem.appendChild(grade);
+  raiz.appendChild(rolagem);
 
   if (!suportaTTS()) {
     raiz.appendChild(
@@ -225,12 +257,13 @@ export function montarTelaPrancha(raiz: HTMLElement, conjunto: ConjuntoCaa, nav:
     if (!grade.isConnected) return;
     const folga = 8;
     const fileiras = Math.max(1, Math.ceil(atual.casas.length / atual.colunas));
-    const largura = grade.clientWidth;
+    const largura = rolagem.clientWidth;
     const topo = grade.getBoundingClientRect().top + window.scrollY;
     const altura = window.innerHeight - topo - 12;
     const porLargura = (largura - folga * (atual.colunas - 1)) / atual.colunas;
     const porAltura = (altura - folga * (fileiras - 1)) / fileiras;
-    const lado = Math.max(56, Math.min(porLargura, porAltura, 220));
+    // no zoom 1, cabe na tela; acima disso, cresce a partir daí (e rola)
+    const lado = Math.max(56, Math.min(porLargura, porAltura, 220) * ZOOMS[nivelZoom]);
     grade.style.setProperty('--lado', `${Math.floor(lado)}px`);
   }
   const aoRedimensionar = () => {
@@ -307,6 +340,8 @@ export function montarTelaPrancha(raiz: HTMLElement, conjunto: ConjuntoCaa, nav:
     raiz.removeEventListener('pointerdown', aoApontar, true);
     raiz.removeEventListener('click', engolirClique, true);
     document.removeEventListener('keydown', aoTeclar, true);
+    // o #app é de todas as telas: o zoom da prancha não vaza para as outras
+    raiz.style.removeProperty('--caa-zoom');
     pararFala();
   }
 
@@ -314,4 +349,9 @@ export function montarTelaPrancha(raiz: HTMLElement, conjunto: ConjuntoCaa, nav:
   desenharGrade();
   reiniciarVarredura();
   requestAnimationFrame(ajustarLado);
+  // o zoom que ficou guardado no aparelho
+  menor.disabled = true;
+  void armazenamento.obter<number>(CHAVE_ZOOM).then((n) => {
+    if (viva() && typeof n === 'number' && n > 0) aplicarZoom(n, false);
+  });
 }

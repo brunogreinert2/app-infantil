@@ -20,12 +20,8 @@ export { ENTRELINHAS, ESPACAMENTOS, PESOS } from './espacamento';
 import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
 import { derivarPaleta } from './temaDerivado';
 
-export const TEMAS = [
-  { id: 'arco-iris', rotulo: '🌈 Claro' },
-  { id: 'floresta', rotulo: '🌳 Floresta' },
-  { id: 'espaco', rotulo: '🚀 Espaço' },
-  { id: 'alto-contraste', rotulo: '⬛ Alto contraste' },
-] as const;
+export { TEMAS, NOMES_DOS_GRUPOS_DE_TEMA, ehTemaDeEnxergar, type GrupoDeTema } from './temas';
+import { TEMAS, ehTemaDeEnxergar } from './temas';
 
 export const FONTES = [
   { id: 'padrao', rotulo: 'Cardo' },
@@ -220,15 +216,16 @@ export function comAncoraDeLeitura(mudar: () => void): void {
 // SOBERANIA DO USUÁRIO (decisão do Bruno, rodada 12): o tema do livro é
 // convidado, nunca dono. Ele NÃO se aplica quando:
 //   1. o perfil marcou "manter sempre o meu tema" (temaSoberano), OU
-//   2. o tema do perfil é alto-contraste — necessidade de acessibilidade
-//      vence decoração, sempre, sem depender de configuração.
+//   2. o tema do perfil é de BAIXA VISÃO (o alto contraste e, desde
+//      2026-11-20, todos os do grupo "Para enxergar melhor") — necessidade de
+//      acessibilidade vence decoração, sempre, sem depender de configuração.
 // E ele só é aplicado ao ENTRAR no livro pela estante — se a pessoa trocar
 // de tema no 🎨 no meio da leitura, a escolha dela fica valendo.
 export async function aplicarTemaDeLivro(md: MetadadosLivro): Promise<void> {
   const p = perfilAtivo();
   const soberano = (await armazenamento.obter<boolean>(`${p.id}:temaSoberano`)) ?? false;
   const temaUsuario = (await armazenamento.obter<string>(`${p.id}:tema`)) ?? 'arco-iris';
-  if (soberano || temaUsuario === 'alto-contraste') return;
+  if (soberano || ehTemaDeEnxergar(temaUsuario)) return;
 
   if (md.tema_livro?.fundo && md.tema_livro?.destaque) {
     aplicarTema('personalizado', md.tema_livro);
