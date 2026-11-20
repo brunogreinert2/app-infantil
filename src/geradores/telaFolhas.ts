@@ -68,6 +68,8 @@ interface Guardado {
   paraQuem?: ParaQuem;
   /** imprimir o código no pé da folha do professor (desligado por padrão) */
   imprimirCodigo?: boolean;
+  /** folha ampliada, para enxergar melhor (desligada por padrão) */
+  ampliada?: boolean;
   pedidos: Partial<Record<TipoDeFolha, Pedido>>;
 }
 
@@ -185,6 +187,9 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   let resultado: Resultado | undefined;
   let codigoAtual = '';
   let imprimirCodigo = guardado.imprimirCodigo === true;
+  // FOLHA AMPLIADA (2026-11-20): um liga/desliga a mais, que vale para todos
+  // os tipos; desligada, tudo continua como sempre foi
+  let ampliada = guardado.ampliada === true;
   // a seção: a guardada, se o tipo guardado aparece nela; senão, a casa do tipo
   let secao: SecaoDaOficina =
     guardado.secao && tiposDaSecao(guardado.secao).some((t) => t.tipo === tipo)
@@ -213,6 +218,9 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     // o que foi guardado por uma versão antiga pode não servir: cai no inicial
     const p = pedidos[tipo];
     if (!p || p.tipo !== tipo) pedidos[tipo] = pedidoInicial(tipo);
+    // a ampliada vai DENTRO do pedido: assim entra no código da folha (e só
+    // quando ligada — desligada, o código é o mesmo de antes)
+    pedidos[tipo]!.ampliada = ampliada || undefined;
     return pedidos[tipo]!;
   };
 
@@ -282,7 +290,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
         }
         imprimir.disabled = !folhasPara(resultado.folhas, paraQuem).length;
         // a figura do calendário pode ser grande demais para guardar: sem ela
-        const paraGuardar: Guardado = { tipo, secao, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } };
+        const paraGuardar: Guardado = { tipo, secao, letra, paraQuem, imprimirCodigo, ampliada, pedidos: { ...pedidos } };
         const cal = paraGuardar.pedidos.calendario;
         if (cal?.tipo === 'calendario' && cal.imagem) paraGuardar.pedidos.calendario = { ...cal, imagem: undefined };
         void armazenamento.definir(CHAVE, paraGuardar);
@@ -302,7 +310,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
         ? () => {
             const novo = { ...p, semente: (Number(p.semente) || 0) + 1 };
             pedidos[novo.tipo] = novo;
-            void armazenamento.definir(CHAVE, { tipo, secao, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } });
+            void armazenamento.definir(CHAVE, { tipo, secao, letra, paraQuem, imprimirCodigo, ampliada, pedidos: { ...pedidos } });
             abrirJogo(novo, svgDaFolha + novo.semente);
           }
         : undefined;
@@ -314,7 +322,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
             const prox = proximaPronta(p.pronta);
             const novo = { ...p, pronta: prox.id, titulo: prox.tema, itens: textoDaPronta(prox) };
             pedidos.cruzadinha = novo;
-            void armazenamento.definir(CHAVE, { tipo, secao, letra, paraQuem, imprimirCodigo, pedidos: { ...pedidos } });
+            void armazenamento.definir(CHAVE, { tipo, secao, letra, paraQuem, imprimirCodigo, ampliada, pedidos: { ...pedidos } });
             abrirJogo(novo, svgDaFolha + prox.id);
           }
         : undefined);
@@ -652,7 +660,7 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
           if (p.operacao === '+' || p.operacao === '-') {
             campos.appendChild(marcar(p.operacao === '+' ? 'Com "vai um"' : 'Com "empresta"', p.reagrupar, (v) => ((p.reagrupar = v), atualizar(true))));
           }
-          campos.appendChild(rotulado('Quantas contas', campoNumero(p.quantas, (v) => ((p.quantas = v), atualizar()), 1, 40), p.operacao === '/' ? 'Dez por folha.' : 'Doze por folha.'));
+          campos.appendChild(rotulado('Quantas contas', campoNumero(p.quantas, (v) => ((p.quantas = v), atualizar()), 1, 40), ampliada ? 'Seis por folha (folha ampliada).' : p.operacao === '/' ? 'Dez por folha.' : 'Doze por folha.'));
           campos.appendChild(botao('🔀 Outras contas', () => ((p.semente = (p.semente || 0) + 1), atualizar(true))));
           const proprias = areaDeTexto(p.proprias ?? '', 5, (v) => ((p.proprias = v), atualizar()));
           proprias.placeholder = '345 + 278\n502 - 167\n36 x 4\n84 ÷ 4';
@@ -885,6 +893,13 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   formulario.appendChild(campos);
   const seletorLetra = lista(opcoes(NOMES_DAS_LETRAS), letra, (v) => ((letra = v), atualizar(true)));
   formulario.appendChild(rotulado('Letra das folhas', seletorLetra));
+  // sem a palavra "acessibilidade": é só uma folha maior, para quem quiser
+  const caixaAmpliada = marcar('🔍 Folha ampliada: letra e traço mais grossos, e maiores onde cabe', ampliada, (v) => {
+    ampliada = v;
+    desenharCampos(); // as dicas do formulário mudam (seis contas por folha, não doze)
+    atualizar(true);
+  });
+  formulario.appendChild(caixaAmpliada);
   formulario.appendChild(
     rotulado(
       'Imprimir',
@@ -941,6 +956,10 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     }
     tipo = d.pedido.tipo;
     pedidos[tipo] = d.pedido;
+    // o código lembra se a folha era a ampliada
+    ampliada = d.pedido.ampliada === true;
+    const marcador = caixaAmpliada.querySelector('input');
+    if (marcador) marcador.checked = ampliada;
     letra = d.letra;
     // o código pode ser de outra seção: a oficina vai até ela
     if (!tiposDaSecao(secao).some((t) => t.tipo === tipo)) secao = TIPOS.find((t) => t.tipo === tipo)?.secao ?? secao;

@@ -22,8 +22,8 @@ export const TEMAS = [
 ] as const satisfies ReadonlyArray<{ id: string; rotulo: string; grupo: GrupoDeTema }>;
 
 export const NOMES_DOS_GRUPOS_DE_TEMA: Record<GrupoDeTema, string> = {
-  enxergar: 'Para enxergar melhor',
-  conforto: 'Para ler muito tempo',
+  enxergar: 'Mais contraste',
+  conforto: 'Para ler por mais tempo',
   brincar: 'Para brincar',
 };
 

@@ -405,3 +405,10 @@ na semana seguinte e o Bruno quis «acesso total das funcionalidades».
   prancha) tomadas em ordem. Progresso `{ achados }`.
 - Publicado junto com o botão Jogos no alto e as contas, na 0.12.0.
 
+## 🔍 Folha ampliada (2026-11-20)
+
+Liga/desliga na oficina, para todos os tipos; detalhes em
+`docs/ACESSIBILIDADE_VISUAL.md`. `Pedido = PedidoDoTipo & { ampliada?: boolean }`;
+`fazerFolhas` faz tudo dentro de `comAmpliada` e passa `ampliarFolha` nas
+folhas prontas. O pedido de partida não muda (continua congelado).
+

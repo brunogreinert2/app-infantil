@@ -213,10 +213,38 @@ export interface OpcoesFolhaCruzadinha {
   titulo?: string;
   gabarito?: boolean;
   identidade?: Identidade;
+  /**
+   * Folha ampliada (2026-11-20): a grade ocupa uma folha inteira e as dicas,
+   * em letra grande, vão para outra. 'grade' ou 'dicas'; sem isto, as duas
+   * juntas como sempre.
+   */
+  parte?: 'grade' | 'dicas';
+}
+
+/** As dicas de letra grande, numa folha só delas (folha ampliada). */
+function svgDicasGrandesA4(jogo: Cruzadinha, titulo: string): string {
+  const tam = 28;
+  let corpo = '';
+  let y = 200;
+  for (const d of ['horizontal', 'vertical'] as const) {
+    corpo += escrever(d === 'horizontal' ? 'Deitadas' : 'Em pé', 48, y, 34);
+    y += 52;
+    for (const e of jogo.entradas.filter((x) => x.direcao === d)) {
+      for (const linha of quebrar(`${e.numero}. ${e.dica || '(sem dica)'}`, 704, tam)) {
+        corpo += escrever(linha, 48, y, tam);
+        y += tam + 12;
+      }
+      y += 8;
+    }
+    y += 30;
+  }
+  return folha(`${titulo} — dicas`, 'Cruzadinha', corpo, { nome: false });
 }
 
 /** A folha A4: grade no alto, dicas em duas colunas (deitadas e em pé). */
 export function svgCruzadinhaA4(jogo: Cruzadinha, op: OpcoesFolhaCruzadinha = {}): string {
+  if (op.parte === 'dicas') return svgDicasGrandesA4(jogo, op.titulo ?? 'Cruzadinha');
+  const soGrade = op.parte === 'grade';
   const topo = 176;
   const fundo = 1050;
   const larguraColuna = 336;
@@ -224,7 +252,7 @@ export function svgCruzadinhaA4(jogo: Cruzadinha, op: OpcoesFolhaCruzadinha = {}
   let tam = 19;
   let blocos: Array<{ titulo: string; linhas: string[][] }> = [];
   let alturaDicas = 0;
-  for (; tam >= 13; tam--) {
+  for (; tam >= 13 && !soGrade; tam--) {
     blocos = (['horizontal', 'vertical'] as const).map((d) => ({
       titulo: d === 'horizontal' ? 'Deitadas' : 'Em pé',
       linhas: jogo.entradas
@@ -234,7 +262,9 @@ export function svgCruzadinhaA4(jogo: Cruzadinha, op: OpcoesFolhaCruzadinha = {}
     alturaDicas = 44 + Math.max(...blocos.map((b) => b.linhas.reduce((s, l) => s + l.length * (tam + 7) + 6, 0)));
     if (alturaDicas <= (fundo - topo) * 0.5) break;
   }
-  const casa = Math.min(60, 704 / Math.max(1, jogo.colunas), (fundo - topo - alturaDicas - 24) / Math.max(1, jogo.linhas));
+  const casa = soGrade
+    ? Math.min(110, 704 / Math.max(1, jogo.colunas), (fundo - topo - 24) / Math.max(1, jogo.linhas))
+    : Math.min(60, 704 / Math.max(1, jogo.colunas), (fundo - topo - alturaDicas - 24) / Math.max(1, jogo.linhas));
   const x0 = 400 - (casa * jogo.colunas) / 2;
 
   const numeroDe = new Map(jogo.entradas.map((e) => [`${e.linha},${e.coluna}`, e.numero]));

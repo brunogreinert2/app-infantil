@@ -217,7 +217,7 @@ export function comAncoraDeLeitura(mudar: () => void): void {
 // convidado, nunca dono. Ele NÃO se aplica quando:
 //   1. o perfil marcou "manter sempre o meu tema" (temaSoberano), OU
 //   2. o tema do perfil é de BAIXA VISÃO (o alto contraste e, desde
-//      2026-11-20, todos os do grupo "Para enxergar melhor") — necessidade de
+//      2026-11-20, todos os do grupo "Mais contraste") — necessidade de
 //      acessibilidade vence decoração, sempre, sem depender de configuração.
 // E ele só é aplicado ao ENTRAR no livro pela estante — se a pessoa trocar
 // de tema no 🎨 no meio da leitura, a escolha dela fica valendo.

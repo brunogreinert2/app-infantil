@@ -1518,3 +1518,54 @@ describe('memória na tela (2026-11-19)', () => {
     expect(daFolha?.tipo === 'memoria' && daFolha.jogo.length).toBe(24);
   });
 });
+
+describe('folha ampliada (2026-11-20)', () => {
+  it('desligada não muda nada; ligada engrossa traço, letra e cinza', async () => {
+    const { ampliarFolha } = await import('./comum');
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('pauta');
+    expect(fazerFolhas({ ...base, ampliada: undefined }).folhas.map((f) => f.svg)).toEqual(fazerFolhas(base).folhas.map((f) => f.svg));
+    const svg = '<g fill="#000000" stroke="none" pointer-events="none"><path/></g><line stroke="#9a9a9a" stroke-width="2"/><rect fill="#ffffff" stroke="#000000"/>';
+    const a = ampliarFolha(svg);
+    expect(a).toContain('stroke-width="3.2"'); // 2 × 1,6
+    expect(a).toContain('stroke="#4d4d4d"'); // o cinza claro escurece
+    expect(a).toContain('fill="#ffffff"'); // o branco fica
+    expect(a).toContain('fill="#000000" stroke="#000000" stroke-width="40"'); // a letra engrossa
+  });
+
+  it('entra no código só quando ligada, e o código a devolve', async () => {
+    const { codificar, decodificar } = await import('./codigo');
+    const { pedidoInicial } = await import('./pedido');
+    const base = pedidoInicial('caca');
+    const comum = codificar(base);
+    const grande = codificar({ ...base, ampliada: true });
+    if (!('codigo' in comum) || !('codigo' in grande)) throw new Error('código');
+    expect(grande.codigo).not.toBe(comum.codigo);
+    const d = decodificar(grande.codigo);
+    expect('pedido' in d && d.pedido.ampliada).toBe(true);
+    const d2 = decodificar(comum.codigo);
+    expect('pedido' in d2 && d2.pedido.ampliada).toBeFalsy();
+  });
+
+  it('caça-palavras de letra maior, contas 6 por folha, cruzadinha em duas folhas', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    // o tamanho que MAIS aparece (as letras da grade), não o do título
+    const tamanhoDaLetra = (svg: string) => {
+      const conta = new Map<string, number>();
+      for (const m of svg.matchAll(/scale\(([\d.]+)\)/g)) conta.set(m[1], (conta.get(m[1]) ?? 0) + 1);
+      return Number([...conta].sort((x, y) => y[1] - x[1])[0][0]);
+    };
+    const caca = pedidoInicial('caca');
+    expect(tamanhoDaLetra(fazerFolhas({ ...caca, ampliada: true }).folhas[0].svg)).toBeGreaterThan(tamanhoDaLetra(fazerFolhas(caca).folhas[0].svg));
+    const contas = pedidoInicial('contas');
+    expect(fazerFolhas(contas).folhas.filter((f) => !f.titulo.includes('respostas'))).toHaveLength(1);
+    expect(fazerFolhas({ ...contas, ampliada: true }).folhas.filter((f) => !f.titulo.includes('respostas'))).toHaveLength(2); // 12 contas, 6 por folha
+    const cruz = pedidoInicial('cruzadinha');
+    const titulos = fazerFolhas({ ...cruz, ampliada: true }).folhas.map((f) => f.titulo);
+    expect(titulos.some((t) => t.endsWith('— dicas'))).toBe(true);
+    expect(titulos.length).toBe(fazerFolhas(cruz).folhas.length + 1);
+    // todo tipo aceita a ampliada sem quebrar
+    const { TIPOS } = await import('./pedido');
+    for (const t of TIPOS) expect(() => fazerFolhas({ ...pedidoInicial(t.tipo), ampliada: true })).not.toThrow();
+  });
+});

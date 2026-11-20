@@ -31,7 +31,7 @@ import { folhasDeLogica, gerarLabirinto, gerarSudoku, type NivelLabirinto } from
 import { gerarContas, lerContas, svgContasA4, svgTabuaA4, svgTabuadaA4, type Conta, type Operacao } from './contas';
 import { folhasDeRecortar, type ModeloRecortar } from './recortar';
 import { lerNomes, svgCrachasA4, svgEtiquetasA4, svgHqA4, svgMarcadoresA4, svgTesouraA4, svgTracarA4 } from './cartoes';
-import { comLetra, textoSeguro, type Letra } from './comum';
+import { ampliarFolha, comAmpliada, comLetra, textoSeguro, type Letra } from './comum';
 import { folhasDaRotina, lerPassos, type ModeloRotina } from './rotina';
 import { ESTILOS_PADRAO, svgCapaA4, type ModeloCapa, type ParteDaCapa } from './capas';
 import type { Estilo } from './comum';
@@ -130,7 +130,8 @@ export const NOMES_DAS_CAPAS: Record<ModeloCapa, string> = {
 };
 export { ORNAMENTOS };
 
-export type Pedido =
+/** O pedido de cada tipo; `Pedido` junta a opção que vale para todos. */
+export type PedidoDoTipo =
   | { tipo: 'caca'; titulo: string; palavras: string; nivel: Nivel; semente: number; respostas: boolean }
   | { tipo: 'cruzadinha'; titulo: string; itens: string; respostas: boolean; /** id de uma cruzadinha pronta */ pronta?: string }
   | { tipo: 'jogo'; jogo: JogoDeMesa; pecas: string; cartelas: number; lado: 3 | 4; verso: boolean; semente: number }
@@ -185,6 +186,13 @@ export type Pedido =
       posY?: number;
       feriados: boolean;
     };
+
+/**
+ * O pedido do formulário. `ampliada` vale para TODOS os tipos (folha para
+ * enxergar melhor, 2026-11-20). Opcional e fora do pedido de partida: o código
+ * das folhas comuns não muda.
+ */
+export type Pedido = PedidoDoTipo & { ampliada?: boolean };
 
 export type TipoDeFolha = Pedido['tipo'];
 
@@ -397,6 +405,11 @@ export type JogoNaTela =
 
 /** O jogo para jogar na tela, quando o tipo de folha tem um (caça-palavras, cruzadinha, sudoku, labirinto, contas). */
 export function jogoDoPedido(p: Pedido): JogoNaTela | undefined {
+  // a mesma grade da folha impressa — inclusive da ampliada
+  return comAmpliada(p.ampliada, () => jogoDoPedidoNaHora(p));
+}
+
+function jogoDoPedidoNaHora(p: Pedido): JogoNaTela | undefined {
   if (p.tipo === 'caca') return { tipo: 'caca', titulo: p.titulo.trim() || 'Caça-palavras', jogo: cacaDoPedido(p) };
   if (p.tipo === 'cruzadinha') return { tipo: 'cruzadinha', titulo: p.titulo.trim() || 'Cruzadinha', jogo: gerarCruzadinha(lerItens(p.itens)) };
   // o sudoku da tela é o MESMO da folha: mesmo lado, mesma semente (folhasDeLogica)
@@ -449,7 +462,9 @@ const numeroOu = (v: number, padrao: number): number => (Number.isFinite(v) ? v 
 
 /** As folhas do pedido, com a letra escolhida (Atkinson, se nada for dito). */
 export function fazerFolhas(p: Pedido, letra?: Letra): Resultado {
-  return comLetra(letra, () => fazerNaLetraAtual(p));
+  if (!p.ampliada) return comLetra(letra, () => fazerNaLetraAtual(p));
+  const r = comAmpliada(true, () => comLetra(letra, () => fazerNaLetraAtual(p)));
+  return { ...r, folhas: r.folhas.map((f) => ({ ...f, svg: ampliarFolha(f.svg) })) };
 }
 
 function fazerNaLetraAtual(p: Pedido): Resultado {
@@ -462,6 +477,7 @@ function fazerNaLetraAtual(p: Pedido): Resultado {
       for (const f of jogo.fora) avisos.push(`${f.palavra} ficou de fora: ${f.motivo}.`);
       if (!jogo.conferido) avisos.push('Não consegui garantir que cada palavra aparece uma vez só. Tente "Embaralhar de outro jeito".');
       const titulo = p.titulo.trim() || 'Caça-palavras';
+      if (p.ampliada && jogo.colunas > 10) avisos.push('Com menos palavras, ou palavras mais curtas, as letras da folha ampliada ficam ainda maiores.');
       const folhas = [{ titulo, svg: svgCacaPalavrasA4(jogo, { titulo }) }];
       if (p.respostas) folhas.push({ titulo: `${titulo} — respostas`, svg: svgCacaPalavrasA4(jogo, { titulo, gabarito: true }) });
       return { titulo: `Caça-palavras - ${titulo}`, folhas, avisos };
@@ -473,8 +489,16 @@ function fazerNaLetraAtual(p: Pedido): Resultado {
       for (const f of jogo.fora) avisos.push(`${f.palavra} ficou de fora: ${f.motivo}.`);
       for (const e of jogo.entradas) if (!e.dica) avisos.push(`${e.palavra} está sem dica.`);
       const titulo = p.titulo.trim() || 'Cruzadinha';
-      const folhas = [{ titulo, svg: svgCruzadinhaA4(jogo, { titulo }) }];
-      if (p.respostas) folhas.push({ titulo: `${titulo} — respostas`, svg: svgCruzadinhaA4(jogo, { titulo, gabarito: true }) });
+      // ampliada: a grade numa folha inteira, as dicas grandes na seguinte
+      const folhas = p.ampliada
+        ? [
+            { titulo, svg: svgCruzadinhaA4(jogo, { titulo, parte: 'grade' }) },
+            { titulo: `${titulo} — dicas`, svg: svgCruzadinhaA4(jogo, { titulo, parte: 'dicas' }) },
+          ]
+        : [{ titulo, svg: svgCruzadinhaA4(jogo, { titulo }) }];
+      if (p.respostas) {
+        folhas.push({ titulo: `${titulo} — respostas`, svg: svgCruzadinhaA4(jogo, { titulo, gabarito: true, parte: p.ampliada ? 'grade' : undefined }) });
+      }
       return { titulo: `Cruzadinha - ${titulo}`, folhas, avisos };
     }
     case 'jogo': {

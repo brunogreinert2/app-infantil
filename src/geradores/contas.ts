@@ -1,7 +1,7 @@
 // Contas armadas (as quatro operações) e tabuada, com gabarito.
 // As contas saem de uma semente: a mesma folha sempre; "outras contas" muda.
 
-import { TINTA, escrever, folha, n, semear, sorteador, casa as casaPintavel, pintando } from './comum';
+import { TINTA, ampliada, escrever, folha, n, semear, sorteador, casa as casaPintavel, pintando } from './comum';
 import { paginar, type Folha } from './jogosDeMesa';
 
 export type Operacao = '+' | '-' | 'x' | '/';
@@ -168,10 +168,14 @@ export function svgContasA4(contas: Conta[], op: { respostas?: boolean } = {}): 
   const titulo = contas.every((c) => c.op === contas[0].op) ? NOMES[contas[0].op] : 'Contas';
   // a divisão armada é larga (dividendo, chave e quociente lado a lado): duas por linha
   const divisao = contas.some((c) => c.op === '/');
-  const colunas = divisao ? 2 : 3;
-  const porFolha = divisao ? 10 : 12;
+  // ampliada (2026-11-20): cada conta 1,5× maior, metade por folha
+  const grande = ampliada();
+  const escala = grande ? 1.5 : 1;
+  const colunas = grande ? 2 : divisao ? 2 : 3;
+  const porFolha = grande ? 6 : divisao ? 10 : 12;
   const w = 704 / colunas;
-  const h = divisao ? 172 : 214;
+  // três fileiras na ampliada: 180 + 3 × 289 cabe antes do pé da folha (1050)
+  const h = grande ? (divisao ? 258 : 289) : divisao ? 172 : 214;
   const paginas = paginar(contas, porFolha);
   const fazer = (respostas: boolean) =>
     paginas.map((pagina, i): Folha => {
@@ -179,8 +183,10 @@ export function svgContasA4(contas: Conta[], op: { respostas?: boolean } = {}): 
       pagina.forEach((c, k) => {
         const x = 48 + (k % colunas) * w;
         const y = 180 + Math.floor(k / colunas) * h;
-        corpo += escrever(`${i * porFolha + k + 1})`, x, y + 26, 18);
-        corpo += contaArmada(c, x + 20, y, w - 20, respostas);
+        corpo += escrever(`${i * porFolha + k + 1})`, x, y + 26 * escala, 18 * escala);
+        const conta = contaArmada(c, x + 20, y, (w - 20) / escala, respostas);
+        // a conta é desenhada no tamanho de sempre e ampliada a partir do canto dela
+        corpo += escala === 1 ? conta : `<g transform="translate(${n(x + 20)} ${n(y)}) scale(${escala}) translate(${n(-(x + 20))} ${n(-y)})">${conta}</g>`;
       });
       const nome = `${titulo}${paginas.length > 1 ? ` ${i + 1}` : ''}${respostas ? ' — respostas' : ''}`;
       return { titulo: nome, svg: folha(nome, 'Contas armadas', corpo, { nome: !respostas }) };

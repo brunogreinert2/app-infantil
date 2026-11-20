@@ -1,5 +1,5 @@
 // Tela de aparência — a criança escolhe SEM trava parental (é dela):
-// temas prontos com foco em acessibilidade (espírito Pedra Angular),
+// temas prontos (os de mais contraste primeiro, como no Pedra Angular),
 // fonte (padrão / Atkinson Hyperlegible / OpenDyslexic), tamanho da letra,
 // e o "Monte o seu": fundo + cor favorita, com legibilidade derivada
 // automaticamente (nunca combinação ilegível).
@@ -59,17 +59,17 @@ export async function montarTelaAparencia(
   // parágrafo, não título: é uma AMOSTRA de título, e como <h3> vinha antes
   // de qualquer <h2>, quebrando a ordem dos títulos para o leitor de tela
   previa.appendChild(el('p', 'cabecalho previa-titulo', 'O título fica assim'));
-  previa.appendChild(
-    el(
-      'p',
-      'previa-texto',
-      // comprida de propósito: precisa de várias linhas para a criança VER o
-      // espaço entre as linhas mudar
-      'E o texto da história fica deste jeito, gostoso de ler. Cada linha no seu lugar, cada letra no seu cantinho, para ninguém se perder no caminho.',
-    ),
-  );
+  // DUAS linhas, sempre (a quebra é fixa): com uma só não se vê o espaço
+  // entre as linhas mudar; com um parágrafo inteiro a amostra virava leitura
+  // (Bruno, 2026-11-20: «mais enxuto»)
+  const amostra = el('p', 'previa-texto');
+  amostra.append('E o texto fica assim.', el('br'), 'Com duas linhas, dá para ver o espaço entre elas.');
+  previa.appendChild(amostra);
   previa.appendChild(el('button', 'botao-grande', '🎨 E o botão fica assim'));
   corpo.appendChild(previa);
+  // Sem a palavra "acessibilidade" em menu nenhum (Bruno, 2026-11-20): o rótulo
+  // afasta quem mais precisa. O trabalho está feito antes; aqui é só escolher.
+  corpo.appendChild(el('p', 'texto-sobre texto-convite', 'Deixe tudo do jeito que seus olhos preferem.'));
 
   // ---------- temas prontos ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Temas prontos'));
@@ -105,12 +105,12 @@ export async function montarTelaAparencia(
   // ---------- soberania: quem manda no tema? ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Temas dos livros'));
   corpo.appendChild(
-    el('p', 'texto-sobre', 'Alguns livros chegam com um tema próprio (deserto, noite, Atenas...). Você decide se eles podem usar isso — e o alto contraste vence sempre, aconteça o que acontecer.'),
+    el('p', 'texto-sobre', 'Algumas histórias têm cores próprias. Você escolhe.'),
   );
   const gradeSoberania = el('div', 'grade-opcoes');
   const opcoesSoberania: Array<[string, boolean]> = [
-    ['✨ O livro pode usar o tema dele', false],
-    ['🛡️ Manter sempre o MEU tema', true],
+    ['✨ Usar o tema do livro', false],
+    ['🛡️ Manter meu tema', true],
   ];
   const soberanoAtual = await obterTemaSoberano();
   const botoesSoberania: HTMLButtonElement[] = [];
@@ -126,6 +126,7 @@ export async function montarTelaAparencia(
     gradeSoberania.appendChild(botao);
   }
   corpo.appendChild(gradeSoberania);
+  corpo.appendChild(el('p', 'texto-sobre', 'Os temas de mais contraste têm sempre prioridade.'));
 
   // ---------- letra ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Letra'));
@@ -145,9 +146,9 @@ export async function montarTelaAparencia(
   corpo.appendChild(gradeFontes);
 
   const linhaTamanho = el('div', 'grade-opcoes');
-  const menor = el('button', 'botao-opcao', 'A− menor');
+  const menor = el('button', 'botao-opcao', 'A− Menor');
   menor.addEventListener('click', () => ajustarTamanho(1 / PASSO_FONTE));
-  const maior = el('button', 'botao-opcao', 'A+ maior');
+  const maior = el('button', 'botao-opcao', 'A+ Maior');
   maior.addEventListener('click', () => ajustarTamanho(PASSO_FONTE));
   linhaTamanho.append(menor, maior);
   corpo.appendChild(linhaTamanho);
@@ -155,15 +156,15 @@ export async function montarTelaAparencia(
   // ---------- espaço entre linhas e entre letras ----------
   // A explicação clínica (ceratocone, astigmatismo, dislexia) mora no guia da
   // professora; aqui a conversa é com a criança.
+  // enxuto (2026-11-20): o nome da escolha e as opções; a prévia no alto
+  // mostra o efeito na hora — a explicação longa ficou para o guia
   const grupoDeEscolha = (
     titulo: string,
-    ajuda: string,
     opcoes: ReadonlyArray<{ id: string; rotulo: string }>,
     atual: string,
     aoEscolher: (id: string) => Promise<void>,
   ) => {
     corpo.appendChild(el('h2', 'titulo-secao', titulo));
-    corpo.appendChild(el('p', 'texto-sobre', ajuda));
     const grade = el('div', 'grade-opcoes');
     grade.setAttribute('role', 'group');
     grade.setAttribute('aria-label', titulo);
@@ -185,39 +186,18 @@ export async function montarTelaAparencia(
     corpo.appendChild(grade);
   };
 
-  grupoDeEscolha(
-    'Peso da letra',
-    'Letra mais grossa costuma ler melhor na tela. Escolha a que seus olhos preferem.',
-    PESOS.map((x) => ({ id: x.id, rotulo: `${x.rotulo} — ${x.dica}` })),
-    prefs.peso,
-    trocarPeso,
-  );
-  grupoDeEscolha(
-    'Espaço entre as linhas',
-    'Linhas mais afastadas: cada linha fica sozinha, mais fácil de seguir com os olhos.',
-    ENTRELINHAS,
-    prefs.entrelinha,
-    trocarEntrelinha,
-  );
-  grupoDeEscolha(
-    'Espaço entre as letras',
-    'Letras mais afastadas: cada letra fica no seu lugar, sem encostar na vizinha.',
-    ESPACAMENTOS,
-    prefs.espacamento,
-    trocarEspacamento,
-  );
+  grupoDeEscolha('Peso da letra', PESOS, prefs.peso, trocarPeso);
+  grupoDeEscolha('Espaço entre as linhas', ENTRELINHAS, prefs.entrelinha, trocarEntrelinha);
+  grupoDeEscolha('Espaço entre as letras', ESPACAMENTOS, prefs.espacamento, trocarEspacamento);
 
   // ---------- cores de pintar ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Cores de pintar'));
-  corpo.appendChild(
-    el('p', 'texto-sobre', 'Na hora de pintar, o nome da cor aparece escrito. Quer ouvir o nome também?'),
-  );
   const gradeVoz = el('div', 'grade-opcoes');
   const falando = await obterFalarCores();
   const botoesVoz: HTMLButtonElement[] = [];
   for (const [rotulo, valor] of [
-    ['🔇 Só escrito', false],
-    ['🔊 Falar o nome das cores', true],
+    ['🔇 Mostrar o nome', false],
+    ['🔊 Mostrar e falar o nome', true],
   ] as Array<[string, boolean]>) {
     const botao = el('button', 'botao-opcao', rotulo);
     botao.classList.toggle('ativa', valor === falando);
@@ -236,7 +216,7 @@ export async function montarTelaAparencia(
 
   // ---------- monte o seu ----------
   corpo.appendChild(el('h2', 'titulo-secao', 'Monte o seu tema'));
-  corpo.appendChild(el('p', 'texto-sobre', 'Escolha um fundo e uma cor favorita — a cor favorita pinta os títulos e os botões, e a letra se ajusta sozinha para dar pra ler.'));
+  corpo.appendChild(el('p', 'texto-sobre', 'Escolha suas cores. As letras se ajustam para continuar legíveis.'));
 
   // Fundo e cor favorita com as mesmas soluções da tela de pintar: nome
   // escrito, xadrez, tons. No FUNDO só entram os tons em que a letra se lê
@@ -258,10 +238,10 @@ export async function montarTelaAparencia(
       },
     }),
   );
-  corpo.appendChild(el('p', 'rotulo-cores', 'Cor favorita (pinta títulos e botões)'));
+  corpo.appendChild(el('p', 'rotulo-cores', 'Cor dos títulos e botões'));
   corpo.appendChild(
     criarSeletorDeCor({
-      rotulo: 'Cor favorita',
+      rotulo: 'Cor dos títulos e botões',
       atual: prefs.personalizado?.destaque,
       aoEscolher: async (cor, nome) => {
         await definirPersonalizado({ destaque: cor });

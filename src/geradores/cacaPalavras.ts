@@ -1,7 +1,7 @@
 // Caça-palavras de qualquer lista de palavras, com gabarito.
 // A mesma lista (e a mesma semente) dá sempre a mesma folha.
 
-import { TINTA, escrever, folha, n, semear, soLetras, sorteador, textoSeguro, casa as casaPintavel } from './comum';
+import { TINTA, ampliada, escrever, folha, n, semear, soLetras, sorteador, textoSeguro, casa as casaPintavel } from './comum';
 import type { Identidade } from '../conteudo/alfabetoArte';
 
 /**
@@ -76,6 +76,22 @@ function ocorrencias(grade: string[][], alvo: string): number {
 }
 
 export function gerarCacaPalavras(pedido: PedidoCacaPalavras): CacaPalavras {
+  // FOLHA AMPLIADA (2026-11-20): o que limita o tamanho da letra é a LARGURA da
+  // folha dividida pelo número de colunas. Então a grade é a MENOR em que todas
+  // as palavras cabem, com cada uma uma vez só (sempre a mesma: nada sorteado).
+  if (ampliada() && pedido.lado === undefined) {
+    const normal = gerarNoLado(pedido);
+    for (let lado = 6; lado < normal.colunas; lado++) {
+      const r = gerarNoLado({ ...pedido, lado });
+      const perdeu = r.fora.some((f) => f.motivo.startsWith('não cabe') || f.motivo.startsWith('não achou'));
+      if (!perdeu && r.conferido) return r;
+    }
+    return normal;
+  }
+  return gerarNoLado(pedido);
+}
+
+function gerarNoLado(pedido: PedidoCacaPalavras): CacaPalavras {
   const nivel = pedido.nivel ?? 'facil';
   const fora: CacaPalavras['fora'] = [];
   const vistas = new Set<string>();
@@ -173,11 +189,13 @@ export interface OpcoesFolhaCaca {
 /** A folha A4: grade no alto, lista de palavras embaixo. */
 export function svgCacaPalavrasA4(jogo: CacaPalavras, op: OpcoesFolhaCaca = {}): string {
   const topo = 176;
-  const colunasLista = jogo.achados.some((a) => a.palavra.length > 12) ? 2 : 3;
+  // ampliada (2026-11-20): lista em duas colunas de letra 30, casas até 96
+  const grande = ampliada();
+  const colunasLista = grande || jogo.achados.some((a) => a.palavra.length > 12) ? 2 : 3;
   const linhasLista = Math.ceil(jogo.achados.length / colunasLista);
-  const tamLista = linhasLista > 8 ? 18 : 22;
+  const tamLista = grande ? 30 : linhasLista > 8 ? 18 : 22;
   const alturaLista = linhasLista * (tamLista + 12) + 56;
-  const casa = Math.min(58, 704 / jogo.colunas, (1050 - topo - alturaLista) / jogo.linhas);
+  const casa = Math.min(grande ? 96 : 58, 704 / jogo.colunas, (1050 - topo - alturaLista) / jogo.linhas);
   const x0 = 400 - (casa * jogo.colunas) / 2;
   const centro = (l: number, c: number) => ({ x: x0 + casa * (c + 0.5), y: topo + casa * (l + 0.5) });
 

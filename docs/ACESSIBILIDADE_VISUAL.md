@@ -9,6 +9,13 @@ Angular já segue.
 Este arquivo é a régua: o que se mede, o que já passa, o que falta. Ao
 consertar um item, marque aqui com a data.
 
+**Princípio (Bruno, 2026-11-20):** a régua mora AQUI e nos testes, nunca na
+tela. O app não escreve «7:1» nem «WCAG» para a criança, e não tem menu
+chamado «Acessibilidade» — o rótulo afasta justamente quem mais precisa. O
+trabalho é feito antes; quem toca no tema colhe o benefício. E o caminho é
+não depender de aparelho óptico: no digital, ampliar, contrastar, espaçar e
+falar fazem o papel da lupa.
+
 ## A régua
 
 | Critério (WCAG 2.2) | Nível | O que pede |
@@ -56,7 +63,8 @@ ampliação sem perder o lugar; letra de alta legibilidade.
 
 1. **Temas para enxergar melhor** (Preto no branco, Branco no preto, Amarelo
    no preto, Verde no preto, Amarelo no azul) e **para ler muito tempo**
-   (Sépia, Azul-noite, Azul-petróleo), trazidos do Pedra Angular. A tela de
+   (Sépia, Azul-noite, Azul-petróleo), trazidos do Pedra Angular. Na tela os
+   grupos se chamam «Mais contraste», «Para ler por mais tempo» e «Para brincar». A tela de
    aparência mostra os temas **em grupos, na ordem** (baixa visão primeiro) e
    cada botão **veste o seu tema**: a criança vê as cores antes de escolher.
 2. **Temas de brincar subiram para AAA:** texto suave do Arco-íris (6,71 →
@@ -90,9 +98,8 @@ ampliação sem perder o lugar; letra de alta legibilidade.
    enxerga melhor em fundo escuro precisa de uma versão escura (fundo preto,
    casas com borda clara, figura em traço branco), mantendo as cores de
    categoria como faixa, não como fundo.
-3. **Folhas A4 ampliadas:** uma opção «para baixa visão» nas folhas (letra
-   maior, traço mais grosso, menos itens por folha, sem fundo pontilhado) —
-   e é exatamente o que a atividade da Mostra usa.
+3. ~~**Folhas A4 ampliadas**~~ — FEITO em 2026-11-20 (ver abaixo). Falta
+   levar o «maior onde cabe» a mais tipos (sílabas, memória, relógio, rotina).
 4. **Bordas dos temas de brincar** (1,2 a 1,7:1): onde a borda é o que
    separa o botão do fundo, ela precisa de 3:1. Medir botão a botão; onde for
    preciso, uma `--borda-ui` mais escura só nos controles (como no Pedra).
@@ -107,3 +114,24 @@ ampliação sem perder o lugar; letra de alta legibilidade.
 8. **Alvos de 44 px** em toda parte: conferir as bolinhas das contas (40 px)
    e as casas do caça-palavras grande no celular (o 2.5.5 dispensa grade que
    é o próprio conteúdo, mas vale tentar).
+
+## Folha ampliada (2026-11-20)
+
+Um liga/desliga a mais na oficina, **«🔍 Folha ampliada»**, desligado por
+padrão: com ele desligado, toda folha e todo código continuam iguais.
+
+- **Em toda folha** (`ampliarFolha`, em `geradores/comum.ts`): a letra ganha
+  contorno da própria tinta (≈ 4% da letra: mais grossa sem mudar de lugar),
+  todo traço fica 1,6× mais grosso e o cinza do meio vira cinza escuro (a
+  linha-guia clara some para quem vê pouco; o quase branco fica).
+- **Maior onde cabe** (os geradores leem `ampliada()`):
+  - caça-palavras: a MENOR grade em que todas as palavras cabem uma vez só (o
+    que limita a letra é a largura da folha ÷ colunas) e lista em letra 30;
+    se ainda ficar com mais de 10 colunas, um aviso sugere menos palavras;
+  - cruzadinha: a grade ocupa uma folha inteira (casas até 110) e as dicas vão
+    para a folha seguinte, em letra 28;
+  - contas armadas: cada conta 1,5× maior, seis por folha.
+- Entra no **código da folha** (campo `ampliada`, no fim da lista) só quando
+  ligada; montar pelo código liga a caixa de novo. O 🎮 Jogar de uma folha
+  ampliada joga a mesma grade dela.
+

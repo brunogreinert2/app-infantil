@@ -39,7 +39,7 @@ export const CAMPOS_NO_CODIGO: string[] = [
   'completar', 'margem', 'jogo', 'pecas', 'cartelas', 'lado', 'verso', 'ordens', 'alcance', 'curva',
   'a', 'b', 'c', 'quadros', 'linhas', 'nomes', 'linha2', 'horas', 'de', 'ate',
   'passos', 'maiusculas', 'hora', 'livro', 'partes', 'familias', 'proprias', 'estilos', 'materia', 'aspecto',
-  'zoom', 'posX', 'posY', 'pronta',
+  'zoom', 'posX', 'posY', 'pronta', 'ampliada',
 ];
 
 const LETRAS_NO_CODIGO: Letra[] = ['atkinson', 'cardo', 'opendyslexic'];

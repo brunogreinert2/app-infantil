@@ -7,7 +7,9 @@ A régua, o que já passa e o que falta, em ordem: **`docs/ACESSIBILIDADE_VISUAL
 Feito em 2026-11-20 (branch, NÃO publicado): os temas de baixa visão do Pedra
 Angular, temas de brincar em AAA, 🔊 sem cobrir o texto, menu lateral que
 cresce com a letra e tem alça, zoom na prancha. `src/telas/temas.test.ts`
-mede todos os temas.
+mede todos os temas. Depois, no mesmo dia: 🔍 FOLHA AMPLIADA (liga/desliga
+na oficina) e a tela de Aparência enxuta, nas palavras do Bruno (sem a
+palavra «acessibilidade» e sem números de contraste na tela).
 
 ## Oficina LIGADA e organizada (2026-11-19)
 

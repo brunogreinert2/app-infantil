@@ -87,6 +87,51 @@ export function casaD(d: string, cor = 'none'): string {
 /** As casas estão ligadas? (O tabuleiro troca as casas escuras por casas pintáveis.) */
 export const pintando = (): boolean => casasLigadas;
 
+// ---------------------------------------------------------------------------
+// FOLHA AMPLIADA (pedido do Bruno, 2026-11-20): um liga/desliga a mais, para
+// enxergar melhor — o que já existe continua igual com ele desligado (e o
+// código da folha também). Ligado:
+//   - em TODA folha (ampliarFolha): letra mais grossa, traço 1,6× mais grosso,
+//     cinza escurecido (linha-guia clara some para quem vê pouco);
+//   - onde o desenho deixa (caça-palavras, cruzadinha, contas), os geradores
+//     leem `ampliada()` e fazem casas e letras maiores, menos itens por folha.
+// ---------------------------------------------------------------------------
+let ampliadaLigada = false;
+
+export function comAmpliada<T>(ligada: boolean | undefined, fazer: () => T): T {
+  const antes = ampliadaLigada;
+  ampliadaLigada = Boolean(ligada);
+  try {
+    return fazer();
+  } finally {
+    ampliadaLigada = antes;
+  }
+}
+
+/** A folha que está sendo feita é a ampliada? */
+export const ampliada = (): boolean => ampliadaLigada;
+
+/** Engrossa uma folha pronta: traço, letra e cinzas (ver o bloco acima). */
+export function ampliarFolha(svg: string): string {
+  return (
+    svg
+      // traços 1,6× (antes de engrossar a letra, para não multiplicar o dela)
+      .replace(/stroke-width="([\d.]+)"/g, (_, v: string) => `stroke-width="${n(Number(v) * 1.6)}"`)
+      // a letra: contorno da própria tinta por fora do desenho (≈ 4% da letra)
+      .replace(
+        new RegExp(`fill="${TINTA}" stroke="none" pointer-events="none"`, 'g'),
+        `fill="${TINTA}" stroke="${TINTA}" stroke-width="40" stroke-linejoin="round" pointer-events="none"`,
+      )
+      // cinza (r = g = b) do meio para baixo: metade da luz; o quase branco fica
+      .replace(/#([0-9a-f]{2})\1\1\b/gi, (cor, v: string) => {
+        const nivel = parseInt(v, 16);
+        if (nivel < 0x30 || nivel > 0xe0) return cor;
+        const novo = Math.round(nivel * 0.5).toString(16).padStart(2, '0');
+        return `#${novo}${novo}${novo}`;
+      })
+  );
+}
+
 /** Escreve em negrito ou itálico e volta ao de antes. Vale para medir e para desenhar. */
 export function comEstilo<T>(estilo: Estilo | undefined, fazer: () => T): T {
   const antes = estiloAtual;
