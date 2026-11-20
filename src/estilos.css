@@ -2516,6 +2516,15 @@ button.casa-caa.vazia { cursor: pointer; }
 }
 
 /* ---------- jogar na tela: caça-palavras e cruzadinha (2026-11-18) ---------- */
+/* OS JOGOS VESTEM O TEMA (pendência 4, 2026-11-20): o "papel" e a "tinta"
+   das grades são o cartão e o texto do tema escolhido — no Amarelo no preto,
+   grade escura com letra amarela. Os realces (palavra achada, casa escolhida)
+   ficam em tons claros com tinta PRETA, legíveis em qualquer tema. */
+.tela-jogo, .tela-jogos {
+  --jogo-papel: var(--cartao);
+  --jogo-tinta: var(--texto);
+  --jogo-marca: var(--destaque);
+}
 .jogo-corpo { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px 12px 40px; }
 .jogo-instrucao, .jogo-aviso, .jogo-dica-atual { margin: 0; text-align: center; max-width: max(640px, 32em); }
 .jogo-aviso { min-height: 1.6em; font-weight: 700; }
@@ -2523,8 +2532,8 @@ button.casa-caa.vazia { cursor: pointer; }
 .jogo-grade {
   --lado: min(94vw, max(620px, calc(var(--tamanho-base) * 26)));
   display: grid; grid-template-columns: repeat(var(--colunas), 1fr);
-  width: var(--lado); gap: 0; background: #ffffff; color: #000000;
-  border: 3px solid #000000; border-radius: 10px; overflow: hidden;
+  width: var(--lado); gap: 0; background: var(--jogo-papel); color: var(--jogo-tinta);
+  border: 3px solid var(--jogo-tinta); border-radius: 10px; overflow: hidden;
 }
 /* arrastar o dedo marca letras, não rola a página */
 .jogo-grade-caca { touch-action: none; user-select: none; -webkit-user-select: none; }
@@ -2532,18 +2541,21 @@ button.casa-caa.vazia { cursor: pointer; }
   aspect-ratio: 1; display: flex; align-items: center; justify-content: center; position: relative;
   font-size: calc(var(--lado) / var(--colunas) * 0.55); font-weight: 700; line-height: 1; cursor: pointer;
 }
-.jogo-casa.marcando { background: #d6e4ff !important; outline: 3px solid #1d4ed8; outline-offset: -3px; }
+.jogo-casa.marcando { background: #d6e4ff !important; color: #000000; outline: 3px solid #1d4ed8; outline-offset: -3px; }
+/* palavra achada: o fundo vem do jogo (tons claros) — a letra fica preta */
+.jogo-casa[style*='background'] { color: #000000; }
+.jogo-casa.dica { color: #000000; }
 .jogo-casa.dica { animation: jogo-pisca 0.5s ease-in-out 5 alternate; }
 @keyframes jogo-pisca { to { background: #ffd166; } }
 @media (prefers-reduced-motion: reduce) { .jogo-casa.dica { animation: none; background: #ffd166; } }
-.jogo-grade-cruz { background: #3a3a3a; gap: 2px; padding: 2px; }
-.jogo-vazia { aspect-ratio: 1; background: #3a3a3a; }
-.jogo-casa-cruz { background: #ffffff; cursor: text; }
-.jogo-casa-cruz.na-palavra { background: #fff3c4; }
-.jogo-casa-cruz.certa { background: #d8f3dc; }
+.jogo-grade-cruz { background: var(--jogo-tinta); gap: 2px; padding: 2px; }
+.jogo-vazia { aspect-ratio: 1; background: var(--jogo-tinta); }
+.jogo-casa-cruz { background: var(--jogo-papel); cursor: text; }
+.jogo-casa-cruz.na-palavra { background: #fff3c4; color: #000000; }
+.jogo-casa-cruz.certa { background: #d8f3dc; color: #000000; }
 .jogo-casa-cruz input {
   width: 100%; height: 100%; border: 0; background: transparent; text-align: center; text-transform: uppercase;
-  font: inherit; color: #000000; caret-color: #1d4ed8; padding: 0;
+  font: inherit; color: inherit; caret-color: currentColor; padding: 0;
 }
 .jogo-casa-cruz input:focus { outline: 3px solid #1d4ed8; outline-offset: -3px; }
 .jogo-numero { position: absolute; left: 3px; top: 1px; font-size: max(10px, calc(var(--lado) / var(--colunas) * 0.22)); font-weight: 400; pointer-events: none; }
@@ -2586,13 +2598,13 @@ button.casa-caa.vazia { cursor: pointer; }
 /* ---------- sudoku na tela (2026-11-19) ---------- */
 .jogo-grade-sudoku { --lado: min(92vw, max(520px, calc(var(--tamanho-base) * 22))); }
 .jogo-casa-sudoku {
-  border: 1px solid #000000; background: #ffffff; color: #1e3a8a; padding: 0; margin: 0;
+  border: 1px solid var(--jogo-tinta); background: var(--jogo-papel); color: var(--jogo-marca); padding: 0; margin: 0;
   font-family: inherit; font-size: calc(var(--lado) / var(--colunas) * 0.5);
 }
-.jogo-casa-sudoku.pista { color: #000000; background: #ececec; cursor: default; }
-.jogo-casa-sudoku.fim-bloco-direita { border-right: 5px solid #000000; }
-.jogo-casa-sudoku.fim-bloco-baixo { border-bottom: 5px solid #000000; }
-.jogo-casa-sudoku.escolhida { background: #fff3c4; outline: 4px solid #1d4ed8; outline-offset: -4px; }
+.jogo-casa-sudoku.pista { color: var(--jogo-tinta); background: color-mix(in srgb, var(--jogo-tinta) 14%, var(--jogo-papel)); cursor: default; }
+.jogo-casa-sudoku.fim-bloco-direita { border-right: 5px solid var(--jogo-tinta); }
+.jogo-casa-sudoku.fim-bloco-baixo { border-bottom: 5px solid var(--jogo-tinta); }
+.jogo-casa-sudoku.escolhida { background: #fff3c4; color: #000000; outline: 4px solid #1d4ed8; outline-offset: -4px; }
 .jogo-casa-sudoku svg, .jogo-escolha svg { width: 78%; height: 78%; display: block; margin: auto; }
 .jogo-paleta { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: max(560px, 28em); }
 .jogo-escolha { font-size: 1.5em; width: 2.1em; height: 2.1em; min-width: 56px; min-height: 56px; padding: 4px; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
@@ -2603,7 +2615,7 @@ button.casa-caa.vazia { cursor: pointer; }
 /* ---------- labirinto na tela (2026-11-19) ---------- */
 .jogo-labirinto-moldura {
   width: min(94vw, max(620px, calc(var(--tamanho-base) * 26)));
-  background: #ffffff; border: 3px solid #000000; border-radius: 10px; padding: 6px; box-sizing: border-box;
+  background: var(--jogo-papel); border: 3px solid var(--jogo-tinta); border-radius: 10px; padding: 6px; box-sizing: border-box;
 }
 .jogo-labirinto { display: block; width: 100%; height: auto; aspect-ratio: var(--proporcao); touch-action: none; user-select: none; -webkit-user-select: none; }
 .jogo-labirinto:focus { outline: 3px solid #1d4ed8; outline-offset: 3px; }
@@ -2617,7 +2629,7 @@ button.casa-caa.vazia { cursor: pointer; }
 .contas-fila-item.atual { border-color: var(--destaque); box-shadow: inset 0 0 0 3px var(--destaque); }
 .contas-fila-item.certa { background: #d8f3dc; color: #000000; }
 .contas-area {
-  background: #ffffff; color: #000000; border: 3px solid #000000; border-radius: 14px;
+  background: var(--jogo-papel); color: var(--jogo-tinta); border: 3px solid var(--jogo-tinta); border-radius: 14px;
   padding: 16px 22px; min-width: min(80vw, 280px); max-width: 100%; overflow-x: auto; display: flex; flex-direction: column; align-items: center;
   font-variant-numeric: tabular-nums;
 }
@@ -2626,16 +2638,16 @@ button.casa-caa.vazia { cursor: pointer; }
   font-size: max(2.2rem, 2.2em); font-weight: 700; line-height: 1.15;
 }
 .conta-sinal, .conta-algarismo { width: 1.1em; text-align: center; }
-.conta-traco { grid-column: 1 / -1; border-top: 4px solid #000000; margin: 2px 0 6px; }
+.conta-traco { grid-column: 1 / -1; border-top: 4px solid var(--jogo-tinta); margin: 2px 0 6px; }
 .conta-deitada { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; font-size: max(1.9rem, 2em); font-weight: 700; }
 .conta-caixas { display: inline-flex; gap: 4px; }
 .contas-caixa {
-  width: 1.1em; height: 1.3em; padding: 0; font: inherit; color: #1e3a8a; background: #ffffff;
-  border: 3px solid #4a4a4a; border-radius: 8px; cursor: pointer;
+  width: 1.1em; height: 1.3em; padding: 0; font: inherit; color: var(--jogo-marca); background: var(--jogo-papel);
+  border: 3px solid var(--jogo-tinta); border-radius: 8px; cursor: pointer;
 }
 .conta-deitada .contas-caixa { width: 1.2em; }
-.contas-caixa.escolhida { background: #fff3c4; border-color: #1d4ed8; box-shadow: 0 0 0 3px #1d4ed8; }
-.conta-certa { margin: 10px 0 0; font-weight: 800; font-size: 1.2em; color: #14532d; }
+.contas-caixa.escolhida { background: #fff3c4; color: #000000; border-color: #1d4ed8; box-shadow: 0 0 0 3px #1d4ed8; }
+.conta-certa { margin: 10px 0 0; font-weight: 800; font-size: 1.2em; color: var(--jogo-tinta); }
 .contas-teclado { display: grid; grid-template-columns: repeat(3, max(64px, 3em)); gap: 8px; justify-content: center; }
 .contas-tecla { font-size: 1.5em; height: 1.9em; min-height: 56px; padding: 0; }
 .contas-teclado .contas-tecla:nth-child(10) { grid-column: 2; }
@@ -2715,7 +2727,7 @@ button.casa-caa.vazia { cursor: pointer; }
 .conta-chave { display: flex; align-items: flex-start; font-size: max(2.2rem, 2.2em); font-weight: 700; line-height: 1.15; }
 .conta-chave-dividendo { display: flex; padding: 0.1em 0.3em 0 0; }
 .conta-chave-lado { display: flex; flex-direction: column; align-items: flex-start; gap: 0.15em; }
-.conta-chave-divisor { min-width: 2.2em; padding: 0.1em 0.3em 0.1em 0.3em; border-left: 4px solid #000000; border-bottom: 4px solid #000000; }
+.conta-chave-divisor { min-width: 2.2em; padding: 0.1em 0.3em 0.1em 0.3em; border-left: 4px solid var(--jogo-tinta); border-bottom: 4px solid var(--jogo-tinta); }
 .conta-chave .conta-caixas { padding-left: 0.3em; }
 
 

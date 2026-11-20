@@ -184,3 +184,17 @@ oficina) e a coluna do formulário da oficina que cortava as palavras.
 - A coluna da **Aparência e dos Ajustes** cresce com a letra (era 620 px
   fixos: "um celular no meio da tela").
 
+## A tela inicial com a barra, e os jogos vestindo o tema (2026-11-20)
+
+- **A aparência tem dono**: o perfil escolhido ou, sem perfil (a porta de
+  entrada, a área dos adultos), o **aparelho** (`aparelho:tema`,
+  `aparelho:tamanhoFonte`…). Por isso a tela inicial tem a barra de sempre
+  (A− A+ 🎨). Voltar à porta de entrada desescolhe o perfil.
+- No lugar da antiga pendência 3 («perguntar na primeira vez»), que ficou de
+  lado a pedido do Bruno: a barra na porta de entrada resolve o mesmo — quem
+  precisa de mais contraste ajusta antes de qualquer coisa.
+- **Os jogos vestem o tema** (pendência 4): papel e tinta das grades são o
+  cartão e o texto do tema; os realces ficam em tons claros com tinta preta;
+  as figuras do sudoku usam a tinta do tema. As cartas da memória continuam
+  brancas (são "cartas de papel").
+

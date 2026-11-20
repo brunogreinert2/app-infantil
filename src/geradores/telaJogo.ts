@@ -462,7 +462,10 @@ const NOMES_DAS_FIGURAS: Record<string, string> = { fruta: 'fruta', casa: 'casa'
 
 /** A figura do sudoku de figuras como desenho de tela (o mesmo pictograma da folha). */
 function desenhoDaFigura(v: number): string {
-  return `<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">${face({ texto: '', figura: FIGURAS_DO_SUDOKU[v - 1] }, 0, 0, 100, 100, 'figura')}</svg>`;
+  // a tinta da figura é a do TEMA (currentColor): no Amarelo no preto, a figura
+  // sai amarela; no papel branco, preta (pendência 4, 2026-11-20)
+  const desenho = face({ texto: '', figura: FIGURAS_DO_SUDOKU[v - 1] }, 0, 0, 100, 100, 'figura').replace(/#000000/g, 'currentColor');
+  return `<svg viewBox="0 0 100 100" aria-hidden="true" focusable="false">${desenho}</svg>`;
 }
 const nomeDoValor = (v: number, figuras: boolean) => (figuras ? (NOMES_DAS_FIGURAS[FIGURAS_DO_SUDOKU[v - 1]] ?? String(v)) : String(v));
 
@@ -691,14 +694,15 @@ async function montarLabirinto(corpo: HTMLElement, aviso: HTMLElement, lab: Labi
     'aria-label': 'Labirinto. Arraste o dedo, toque nas casas ou use as setas do teclado.',
   });
   svg.style.setProperty('--proporcao', `${largura} / ${altura}`);
-  svg.appendChild(noSvg('rect', { x: 0, y: 0, width: lab.colunas * LADO, height: altura, fill: '#ffffff' }));
-  const dica = noSvg('polyline', { fill: 'none', stroke: '#9b9b9b', 'stroke-width': 1.6, 'stroke-dasharray': '2 2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
+  // as cores do TEMA (pendência 4): papel e tinta do tema escolhido
+  svg.appendChild(noSvg('rect', { x: 0, y: 0, width: lab.colunas * LADO, height: altura, style: 'fill: var(--jogo-papel)' }));
+  const dica = noSvg('polyline', { fill: 'none', style: 'stroke: var(--texto-suave)', 'stroke-width': 1.6, 'stroke-dasharray': '2 2', 'stroke-linecap': 'round', 'stroke-linejoin': 'round' });
   dica.style.display = 'none';
   const rastro = noSvg('polyline', { fill: 'none', stroke: '#2a9d8f', 'stroke-width': 4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.85 });
   svg.append(
     dica,
     rastro,
-    noSvg('path', { d: paredesDoLabirinto(lab), fill: 'none', stroke: '#000000', 'stroke-width': 1.3, 'stroke-linecap': 'square' }),
+    noSvg('path', { d: paredesDoLabirinto(lab), fill: 'none', style: 'stroke: var(--jogo-tinta)', 'stroke-width': 1.3, 'stroke-linecap': 'square' }),
   );
   const [sx, sy] = centro(SAIDA(lab));
   const estrela = noSvg('text', { x: sx + LADO, y: sy, 'font-size': 8, 'text-anchor': 'middle', 'dominant-baseline': 'central' });
