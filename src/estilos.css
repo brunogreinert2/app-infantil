@@ -1891,7 +1891,7 @@ button {
   margin: 0;
   text-align: center;
   color: var(--texto-suave);
-  max-width: 560px;
+  max-width: max(560px, 28em);
 }
 
 /* parágrafo retomado ("você parou aqui") pisca suave ao reabrir o livro */
@@ -1957,7 +1957,7 @@ button {
   border: 2px solid var(--borda);
   background: var(--fundo);
   color: var(--texto);
-  max-width: 220px;
+  max-width: max(220px, 11em);
 }
 
 .aviso-trava {
@@ -1978,7 +1978,9 @@ button {
 
 .corpo-config {
   width: 100%;
-  max-width: 620px;
+  /* a coluna cresce com a letra (A+): em 620px fixos, a letra grande virava
+     um "celular no meio da tela" (captura do Bruno, 2026-11-20) */
+  max-width: max(620px, 31em);
   margin: 0 auto;
   padding: 20px 16px 60px;
   display: flex;
@@ -2501,7 +2503,7 @@ button.casa-caa.vazia { cursor: pointer; }
 
 /* ---------- jogar na tela: caça-palavras e cruzadinha (2026-11-18) ---------- */
 .jogo-corpo { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px 12px 40px; }
-.jogo-instrucao, .jogo-aviso, .jogo-dica-atual { margin: 0; text-align: center; max-width: 640px; }
+.jogo-instrucao, .jogo-aviso, .jogo-dica-atual { margin: 0; text-align: center; max-width: max(640px, 32em); }
 .jogo-aviso { min-height: 1.6em; font-weight: 700; }
 .jogo-dica-atual { font-size: 1.15em; font-weight: 700; }
 .jogo-grade {
@@ -2531,7 +2533,7 @@ button.casa-caa.vazia { cursor: pointer; }
 }
 .jogo-casa-cruz input:focus { outline: 3px solid #1d4ed8; outline-offset: -3px; }
 .jogo-numero { position: absolute; left: 3px; top: 1px; font-size: max(10px, calc(var(--lado) / var(--colunas) * 0.22)); font-weight: 400; pointer-events: none; }
-.jogo-lista { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; max-width: 640px; }
+.jogo-lista { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; max-width: max(640px, 32em); }
 .jogo-lista li { padding: 6px 10px; border-radius: 10px; border: 2px solid var(--borda); background: var(--cartao); cursor: pointer; }
 .jogo-lista li.achada { text-decoration: line-through; opacity: 0.75; }
 .jogo-lista li.achada::after { content: ' ✓'; }
@@ -2593,7 +2595,7 @@ button.casa-caa.vazia { cursor: pointer; }
 .jogo-labirinto:focus { outline: 3px solid #1d4ed8; outline-offset: 3px; }
 
 /* ---------- contas na tela (2026-11-19) ---------- */
-.contas-fila { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: 560px; }
+.contas-fila { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; max-width: max(560px, 28em); }
 .contas-fila-item {
   min-width: max(44px, 2em); min-height: max(44px, 2em); border-radius: 999px; border: 2px solid var(--borda);
   background: var(--cartao); color: var(--texto); font: inherit; font-weight: 700; cursor: pointer;
