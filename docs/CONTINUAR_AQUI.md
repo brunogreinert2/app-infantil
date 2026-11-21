@@ -18,6 +18,23 @@ mede todos os temas. Depois, no mesmo dia: 🔍 FOLHA AMPLIADA (liga/desliga
 na oficina) e a tela de Aparência enxuta, nas palavras do Bruno (sem a
 palavra «acessibilidade» e sem números de contraste na tela).
 
+**PUBLICADO na 0.15.0 (2026-11-20, master `26c0cd1`, Actions 44847626765 com
+sucesso, bundle no ar conferido):**
+- A coluna da Aparência e dos Ajustes cresce com a letra (`max(620px, 31em)`).
+- Ler o Mundo na oficina: o app SUGERE as sílabas da palavra própria
+  («✨ Usar a sugestão»), mas só põe na ficha se quem ensina aceitar.
+- Prancha escura (◐): fundo preto, letra branca e categoria em faixa;
+  o contraste é medido em `temas.test.ts`.
+- A barra de sempre (← · título · A− A+ · 🎨) já aparece na tela inicial.
+  Sem perfil escolhido, a aparência é a DO APARELHO (`dono()` → `'aparelho'`);
+  ao entrar, a criança veste a dela, e voltar a «Quem vai ler hoje?»
+  chama `sairDoPerfil()`. A pergunta de primeira vez («como você enxerga
+  melhor?») foi DESCARTADA pelo Bruno: a barra na porta já resolve.
+- Os jogos vestem o tema (`--jogo-papel`, `--jogo-tinta`, `--jogo-marca`):
+  realces claros com tinta preta; as figuras do sudoku usam `currentColor`;
+  as cartas da memória ficam brancas, como papel.
+- O que falta continua em ordem em `docs/ACESSIBILIDADE_VISUAL.md`.
+
 ## Oficina LIGADA e organizada (2026-11-19)
 
 `FOLHAS_LIGADAS = true`. A oficina tem quatro seções (Jogos para imprimir,
