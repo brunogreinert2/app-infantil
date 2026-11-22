@@ -7,6 +7,7 @@ import { livros } from '../conteudo/catalogo';
 import { PASTAS, PASTA_PADRAO, acharPasta, secoesDaPasta, todasAsPastas } from '../conteudo/pastas';
 import type { Livro } from '../motor/tipos';
 import { perfilAtivo } from '../perfis/perfis';
+import { abasDaEstante } from './abasDaEstante';
 import { barraTopo, el } from './comum';
 
 
@@ -40,23 +41,7 @@ export async function montarTelaEstante(
   );
 
   // --- as pastas de fora, sempre no mesmo lugar, a um toque ---
-  const abas = el('nav', 'pastas-estante');
-  abas.setAttribute('aria-label', 'Pastas da estante');
-  const aba = (rotulo: string, atual: boolean, aoTocar: () => void) => {
-    const b = el('button', 'botao-opcao aba-pasta', rotulo);
-    if (atual) {
-      b.classList.add('ativa');
-      b.setAttribute('aria-current', 'page');
-    }
-    b.addEventListener('click', aoTocar);
-    abas.appendChild(b);
-  };
-  for (const f of PASTAS) aba(`${f.emoji} ${f.rotulo}`, f === deFora, () => nav.pasta(f.id));
-  // pedido do Bruno (2026-11-19): os Jogos também aqui no alto, não só no menu
-  if (nav.jogos) aba('🎮 Jogos', false, nav.jogos);
-  aba('🖼️ Pinturas', false, nav.pinturas);
-  aba('📝 Anotações', false, nav.anotacoes);
-  raiz.appendChild(abas);
+  raiz.appendChild(abasDaEstante(deFora.id, nav));
 
   const p = perfilAtivo();
   const porId = new Map(livros.map((l) => [l.id, l]));

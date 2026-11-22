@@ -11,6 +11,7 @@
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { perfilAtivo } from '../perfis/perfis';
+import { abasDaEstante, type AbasDaEstante } from '../telas/abasDaEstante';
 import { barraTopo, el } from '../telas/comum';
 import { CRUZADINHAS_PRONTAS, proximaPronta, type CruzadinhaPronta } from './cruzadinhasProntas';
 import {
@@ -45,7 +46,7 @@ import { montarTelaJogo } from './telaJogo';
 
 export type { JogoDaCrianca } from './jogosDaCrianca';
 
-type Nav = { perfis: () => void; estante: () => void };
+type Nav = { perfis: () => void; estante: () => void; abas?: AbasDaEstante };
 
 /** Uma fileira de escolhas que ficam lembradas (nível do caça, modelo do sudoku). */
 function escolhas<T extends string>(nomes: Record<T, string>, atual: T, rotulo: string, aoEscolher: (v: T) => void): HTMLElement {
@@ -87,7 +88,9 @@ export async function montarTelaJogos(raiz: HTMLElement, tipo: JogoDaCrianca | u
   window.scrollTo(0, 0);
   if (!tipo) {
     // TODOS OS JOGOS (o 🎮 Jogos do alto da estante): um botão grande por jogo
-    raiz.appendChild(barraTopo({ titulo: '🎮 Jogos', aoVoltar: nav.estante, aoTrocarPerfil: nav.perfis }));
+    // com as abas da estante à vista, o ← não faz falta (como na estante)
+    raiz.appendChild(barraTopo({ titulo: '🎮 Jogos', aoVoltar: nav.abas ? undefined : nav.estante, aoTrocarPerfil: nav.perfis }));
+    if (nav.abas) raiz.appendChild(abasDaEstante('jogos', nav.abas));
     const corpo = el('main', 'jogos-corpo');
     raiz.appendChild(corpo);
     corpo.appendChild(el('p', 'jogos-instrucao', 'Do que vamos brincar?'));
@@ -109,6 +112,7 @@ export async function montarTelaJogos(raiz: HTMLElement, tipo: JogoDaCrianca | u
   const { nome, emoji } = JOGOS_DA_CRIANCA[tipo];
   // voltar leva à tela de todos os jogos (e de lá, à estante)
   raiz.appendChild(barraTopo({ titulo: `${emoji} ${nome}`, aoVoltar: () => void montarTelaJogos(raiz, undefined, nav), aoTrocarPerfil: nav.perfis }));
+  if (nav.abas) raiz.appendChild(abasDaEstante('jogos', nav.abas));
   const corpo = el('main', 'jogos-corpo');
   raiz.appendChild(corpo);
   if (tipo === 'sudoku') await escolherSudoku(raiz, corpo, nav);

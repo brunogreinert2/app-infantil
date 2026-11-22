@@ -38,6 +38,7 @@ import { pararFala } from './tts';
 import { montarTelaPrancha } from './caa/telaPrancha';
 import { montarTelaPranchasAdultos } from './caa/telaMontar';
 import { FOLHAS_LIGADAS } from './geradores/ligado';
+import type { AbasDaEstante } from './telas/abasDaEstante';
 import { conjuntoAtivo } from './caa/guardar';
 import type { ConjuntoCaa } from './caa/modelo';
 
@@ -104,7 +105,7 @@ async function irJogos(tipo?: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | '
   carregarPreferencias(); // pode ter vindo de um livro tematizado, pelo menu
   marcarLocal(localDoJogo(tipo ?? 'todos'));
   const { montarTelaJogos } = await import('./geradores/telaJogos');
-  await montarTelaJogos(raiz, tipo, { perfis: irPerfis, estante: irEstante });
+  await montarTelaJogos(raiz, tipo, { perfis: irPerfis, estante: irEstante, abas: abasDaEstante });
 }
 
 // 🖨️ Para quem ensina (barra lateral): a trava sempre; desistir volta à estante
@@ -169,6 +170,14 @@ async function abrirEstante(idPasta?: unknown): Promise<void> {
   });
 }
 
+// as abas do alto da estante, as mesmas nas seis telas que elas abrem
+const abasDaEstante: AbasDaEstante = {
+  pasta: (id) => irEstante(id),
+  jogos: FOLHAS_LIGADAS ? () => void irJogos() : undefined,
+  pinturas: () => irPinturas(),
+  anotacoes: () => irAnotacoes(),
+};
+
 function irAnotacoes(): void {
   pararFala();
   void atualizarTextosDoPainel();
@@ -182,6 +191,7 @@ const navAnotacoes: NavAnotacoes = {
   perfis: irPerfis,
   aparencia: () => irAparencia(irAnotacoes),
   estante: irEstante,
+  abas: abasDaEstante,
   ler: (texto) => lerTextoProprio(texto),
 };
 
@@ -233,6 +243,7 @@ function irPinturas(): void {
     perfis: irPerfis,
     aparencia: () => irAparencia(irPinturas),
     estante: irEstante,
+    abas: abasDaEstante,
     pintar: (livro, assetId) => {
       livroAtual = livro;
       irColorir(assetId, irPinturas); // "voltar" devolve à galeria, não ao livro

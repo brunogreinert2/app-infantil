@@ -46,6 +46,7 @@ import {
 } from '../conteudo/textosProprios';
 import { PILHAS_DE_FONTE } from '../fontes';
 import { perfilAtivo } from '../perfis/perfis';
+import { abasDaEstante, type AbasDaEstante } from './abasDaEstante';
 import { barraTopo, el } from './comum';
 
 const FONTES_OFERECIDAS = [
@@ -59,6 +60,8 @@ export interface NavAnotacoes {
   perfis: () => void;
   aparencia: () => void;
   estante: () => void;
+  /** as abas do alto da estante (Histórias, Jogos, Pinturas…) */
+  abas?: AbasDaEstante;
   /** abre um texto .md como livro (com voz, régua, espaço entre linhas) */
   ler: (texto: TextoProprio) => void;
 }
@@ -102,11 +105,12 @@ export async function montarTelaAnotacoes(
   raiz.appendChild(
     barraTopo({
       titulo: '📝 Minhas anotações',
-      aoVoltar: nav.estante,
+      aoVoltar: nav.abas ? undefined : nav.estante,
       aoTrocarPerfil: nav.perfis,
       aoAparencia: nav.aparencia,
     }),
   );
+  if (nav.abas) raiz.appendChild(abasDaEstante('anotacoes', nav.abas));
 
   const corpo = el('div', 'corpo-anotacoes');
   raiz.appendChild(corpo);

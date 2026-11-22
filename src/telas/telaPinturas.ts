@@ -10,6 +10,7 @@ import { arquivosAssets, livros } from '../conteudo/catalogo';
 import { desenhoPintadoParaTela, type Pintura } from '../impressao/motorImpressao';
 import type { Livro } from '../motor/tipos';
 import { perfilAtivo } from '../perfis/perfis';
+import { abasDaEstante, type AbasDaEstante } from './abasDaEstante';
 import { barraTopo, el } from './comum';
 
 export interface PinturaGuardada {
@@ -61,6 +62,8 @@ export async function montarTelaPinturas(
     aparencia: () => void;
     estante: () => void;
     pintar: (livro: Livro, assetId: string) => void;
+    /** as abas do alto da estante (Histórias, Jogos, Anotações…) */
+    abas?: AbasDaEstante;
   },
 ): Promise<void> {
   raiz.innerHTML = '';
@@ -68,11 +71,12 @@ export async function montarTelaPinturas(
   raiz.appendChild(
     barraTopo({
       titulo: '🖼️ Minhas pinturas',
-      aoVoltar: nav.estante,
+      aoVoltar: nav.abas ? undefined : nav.estante,
       aoTrocarPerfil: nav.perfis,
       aoAparencia: nav.aparencia,
     }),
   );
+  if (nav.abas) raiz.appendChild(abasDaEstante('pinturas', nav.abas));
 
   const pinturas = await listarPinturas();
   if (pinturas.length === 0) {
