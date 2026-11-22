@@ -35,7 +35,7 @@ sucesso, bundle no ar conferido):**
   as cartas da memória ficam brancas, como papel.
 - O que falta continua em ordem em `docs/ACESSIBILIDADE_VISUAL.md`.
 
-**2026-11-22, na branch, NÃO publicado:**
+**PUBLICADO na 0.16.0 (2026-11-22, master `b83a323`, Actions 45039390542 com sucesso, bundle no ar conferido):**
 - As abas da estante (Histórias · Alfabetos · Números · Jogos · Pinturas ·
   Anotações) ficam à vista também em Jogos, Pinturas e Anotações
   (`src/telas/abasDaEstante.ts`). Nessas telas o ← saiu, como na estante.
