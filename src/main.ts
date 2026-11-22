@@ -60,7 +60,18 @@ function irPerfis(): void {
     },
     irAjustes,
     () => void irPrancha(),
+    () => void irLerOMundo(),
   );
+}
+
+// ---------- Ler o Mundo (jovens e adultos, 2026-11-22) ----------
+// Porta própria na tela inicial, fora da estante das crianças; abre também
+// pelo endereço historinhas.app.br/#ler-o-mundo (para deixar salvo no tablet).
+async function irLerOMundo(): Promise<void> {
+  pararFala();
+  removerPainel();
+  const { montarTelaLerOMundo } = await import('./telas/telaLerOMundo');
+  await montarTelaLerOMundo(raiz, { voltar: irPerfis });
 }
 
 // ---------- prancha de comunicação (CAA) ----------
@@ -317,6 +328,7 @@ configurarPainel({
 // a aparência do aparelho desde o primeiro instante (antes de qualquer perfil)
 void carregarPreferencias();
 if (location.hash === '#prancha') void irPrancha();
+else if (location.hash === '#ler-o-mundo') void irLerOMundo();
 else if (location.hash === '#folhas' && FOLHAS_LIGADAS) montarTravaParental(raiz, () => void irFolhas(), irPerfis);
 else if (location.hash === '#folhas' && import.meta.env.DEV) void irFolhas(irPerfis);
 else irPerfis();

@@ -11,6 +11,7 @@ export async function montarTelaPerfis(
   aoEscolher: (p: Perfil) => void,
   aoAjustes: () => void,
   aoPrancha?: () => void,
+  aoLerOMundo?: () => void,
 ): Promise<void> {
   raiz.innerHTML = '';
   raiz.className = 'tela tela-perfis';
@@ -22,8 +23,9 @@ export async function montarTelaPerfis(
 
   // Primeira visita: não há a quem perguntar "quem vai ler hoje?".
   if (perfis.length === 0) {
-    montarBoasVindas(raiz, () => montarTelaPerfis(raiz, aoEscolher, aoAjustes, aoPrancha));
+    montarBoasVindas(raiz, () => montarTelaPerfis(raiz, aoEscolher, aoAjustes, aoPrancha, aoLerOMundo));
     if (aoPrancha) raiz.appendChild(botaoPrancha(aoPrancha));
+    if (aoLerOMundo) raiz.appendChild(botaoLerOMundo(aoLerOMundo));
     return;
   }
 
@@ -56,6 +58,7 @@ export async function montarTelaPerfis(
   // a prancha de comunicação: fora dos perfis e sem trava — é a voz de
   // alguém, não um brinquedo; tem de estar a um toque
   if (aoPrancha) raiz.appendChild(botaoPrancha(aoPrancha));
+  if (aoLerOMundo) raiz.appendChild(botaoLerOMundo(aoLerOMundo));
 
   // ajustes: discreto, no rodapé — e sempre atrás da trava parental
   const ajustes = el('button', 'botao-ajustes', '⚙️ Ajustes');
@@ -119,6 +122,14 @@ function montarBoasVindas(raiz: HTMLElement, aoCriar: () => void): void {
       'O que você escrever fica só neste aparelho. O app não envia nada para a internet.',
     ),
   );
+}
+
+// LER O MUNDO (2026-11-22): jovens e adultos, fora da estante das crianças —
+// por isso mora aqui na porta, como a prancha, e não pede perfil
+function botaoLerOMundo(aoLerOMundo: () => void): HTMLElement {
+  const b = el('button', 'botao-prancha-caa', '🌎 Ler o Mundo');
+  b.addEventListener('click', aoLerOMundo);
+  return b;
 }
 
 function botaoPrancha(aoPrancha: () => void): HTMLElement {

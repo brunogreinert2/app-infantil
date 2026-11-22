@@ -74,7 +74,7 @@ export interface Preferencias {
  * entrada e na área dos adultos, sem perfil — do APARELHO. Assim a tela
  * inicial também tem A− / A+ e 🎨, e cada criança, ao entrar, veste a sua.
  */
-const dono = (): string | number => (temPerfilAtivo() ? perfilAtivo().id : 'aparelho');
+export const dono = (): string | number => (temPerfilAtivo() ? perfilAtivo().id : 'aparelho');
 
 export async function obterPreferencias(): Promise<Preferencias> {
   const p = { id: dono() };

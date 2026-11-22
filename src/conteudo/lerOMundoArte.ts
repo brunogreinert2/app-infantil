@@ -142,6 +142,18 @@ function moldura(contexto: Contexto, palavra: string): string {
   }
 }
 
+/**
+ * Só a placa do passo 1 (a palavra como aparece no mundo), para a TELA do
+ * Ler o Mundo (2026-11-22). O mesmo desenho da folha, recortado.
+ */
+export function svgPlacaDaPalavra(p: PalavraDoMundo): string {
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 210 720 280" role="img" aria-label="${p.palavra}">` +
+    moldura(p.contexto, p.palavra) +
+    '</svg>'
+  );
+}
+
 // ---------------------------------------------------------------------------
 // A ficha de uma palavra
 // ---------------------------------------------------------------------------

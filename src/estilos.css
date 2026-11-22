@@ -2762,3 +2762,73 @@ button.casa-caa.vazia { cursor: pointer; }
   box-shadow: 3px 3px 0 -1px #000000, 3px 3px 0 1px #ffd400, 6px 6px 0 -1px #000000, 6px 6px 0 1px #ffd400;
 }
 .caa-botao.ativa { box-shadow: inset 0 0 0 3px var(--caa-foco); }
+
+/* ---- LER O MUNDO NA TELA (2026-11-22): jovens e adultos, sem cara de
+   criança. Veste o tema do app (é soberano); tudo em em, cresce com o A+.
+   A palavra sai na letra das placas (Atkinson), como na folha. ---- */
+.lom-corpo { width: 100%; box-sizing: border-box; max-width: max(760px, 40em); margin: 0 auto; padding: 1em 16px 3em; display: flex; flex-direction: column; gap: 0.9em; }
+.lom-instrucao { margin: 0; font-size: 1.15em; font-weight: 700; }
+.lom-grupo-titulo { margin: 0.6em 0 0.4em; font-size: 1.15em; color: var(--destaque); }
+.lom-palavras { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.6em; }
+.lom-palavras li { display: flex; align-items: stretch; gap: 0.25em; }
+.lom-palavra, .lom-parte, .lom-opcao, .lom-peca {
+  font-family: 'Atkinson Hyperlegible', 'OpenDyslexic', sans-serif; font-weight: 700; letter-spacing: 0.04em;
+  background: var(--cartao); color: var(--texto); border: 2px solid var(--borda); border-radius: 0.6em;
+  cursor: pointer; max-width: 100%; overflow-wrap: anywhere;
+}
+.lom-palavra { min-height: max(52px, 2.8em); padding: 0.3em 0.9em; font-size: 1.1em; display: inline-flex; align-items: center; gap: 0.5em; }
+.lom-feito { color: var(--destaque); font-weight: 800; }
+.lom-tirar { align-self: center; }
+.lom-palavra:focus-visible, .lom-parte:focus-visible, .lom-opcao:focus-visible, .lom-peca:focus-visible { outline: 3px solid var(--destaque); outline-offset: 3px; }
+
+.lom-trilha { list-style: none; margin: 0; padding: 0; display: flex; gap: 0.4em; }
+.lom-trilha li {
+  width: 2em; height: 2em; border-radius: 50%; display: grid; place-items: center; font-weight: 800;
+  border: 2px solid var(--borda); background: var(--cartao); color: var(--texto-suave);
+}
+.lom-trilha li.feito { color: var(--texto); }
+.lom-trilha li.atual { background: var(--destaque); color: var(--cartao); border-color: var(--destaque); }
+
+/* a placa é um objeto do mundo: branca com tinta preta em qualquer tema */
+.lom-placa { background: #ffffff; border-radius: 0.8em; padding: 0.6em; border: 2px solid var(--borda); }
+.lom-placa svg { display: block; width: 100%; height: auto; max-height: 60vh; }
+.lom-ouvir, .lom-corpo > .botao-opcao { align-self: flex-start; }
+
+.lom-partes { display: flex; flex-wrap: wrap; gap: 0.6em; justify-content: center; }
+.lom-parte { font-size: 2.2em; min-width: 2.2em; min-height: 1.8em; padding: 0.1em 0.5em; }
+
+.lom-opcoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9em), 1fr)); gap: 0.6em; }
+.lom-opcao { font-size: 1.4em; min-height: 2.4em; padding: 0.2em 0.4em; }
+/* realces claros com tinta preta: legíveis em qualquer tema (como nos jogos) */
+.lom-opcao.certa { background: #fff3a0; color: #000000; border-color: #000000; border-width: 4px; }
+.lom-opcao.tocada { text-decoration: line-through; }
+.lom-resposta { margin: 0; min-height: 1.5em; font-weight: 700; }
+
+.lom-modelo { margin: 0; font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700; font-size: 2.2em; letter-spacing: 0.06em; overflow-wrap: anywhere; }
+.lom-casas { display: flex; flex-wrap: wrap; gap: 0.3em; }
+.lom-casa {
+  width: 1.6em; height: 1.9em; font-size: 1.6em; display: grid; place-items: center;
+  font-family: 'Atkinson Hyperlegible', sans-serif; font-weight: 700;
+  border-bottom: 3px solid var(--texto); background: var(--cartao); border-radius: 0.2em 0.2em 0 0;
+}
+.lom-pecas { display: flex; flex-wrap: wrap; gap: 0.5em; }
+.lom-peca { font-size: 1.6em; min-width: 2em; min-height: 2em; }
+.lom-peca:disabled { opacity: 0.35; cursor: default; }
+.lom-peca.dica { background: #fff3a0; color: #000000; border-color: #000000; border-width: 4px; }
+
+.lom-onde { margin: 0; font-size: 1.3em; }
+.lom-navegar { display: flex; flex-wrap: wrap; gap: 0.6em; align-items: center; margin-top: 0.6em; }
+.lom-navegar .botao-grande { margin: 0; }
+
+.lom-nova { margin-top: 1.4em; background: var(--cartao); border: 2px solid var(--borda); border-radius: 0.8em; padding: 0.6em 1em; }
+.lom-nova-titulo { cursor: pointer; font-weight: 700; min-height: 44px; display: flex; align-items: center; }
+.lom-nova[open] { display: flex; flex-direction: column; gap: 0.7em; }
+.lom-campo { display: flex; flex-direction: column; gap: 0.25em; }
+.lom-campo-nome { font-weight: 700; }
+.lom-campo input, .lom-campo select {
+  min-height: max(48px, 2.6em); padding: 0 0.6em; border-radius: 0.5em; border: 2px solid var(--borda);
+  background: var(--fundo); color: var(--texto); font: inherit; max-width: 100%;
+}
+.lom-dica { color: var(--texto-suave); font-size: 0.95em; margin: 0; }
+.lom-aviso { margin: 0; font-weight: 700; color: var(--texto); }
+.lom-sugestao { align-self: flex-start; }
