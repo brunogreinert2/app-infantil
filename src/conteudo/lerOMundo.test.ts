@@ -74,10 +74,10 @@ describe('Ler o Mundo: letramento para jovens e adultos', () => {
     expect(semSilabas.palavra).toBe('RESTINGA');
     expect(svgPalavraA4(semSilabas)).toContain('letra por letra');
     expect(parecidasDe(semSilabas)).toHaveLength(4);
-    const comSilabas = fichaDePalavraPropria({ palavra: 'Grêmio', silabas: ['grê', 'mio'] });
-    expect(svgPalavraA4(comSilabas)).toContain('A palavra em 2 partes');
+    const comSilabas = fichaDePalavraPropria({ palavra: 'Vitória', silabas: ['vi', 'tó', 'ria'] });
+    expect(svgPalavraA4(comSilabas)).toContain('A palavra em 3 partes');
     expect(() => fichaDePalavraPropria({ palavra: 'linha 10' })).toThrow();
-    expect(() => fichaDePalavraPropria({ palavra: 'Grêmio', silabas: ['gre', 'mio'] })).toThrow();
+    expect(() => fichaDePalavraPropria({ palavra: 'Vitória', silabas: ['vi', 'to', 'ria'] })).toThrow();
   });
 });
 

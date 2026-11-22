@@ -16,7 +16,7 @@ describe('separador de sílabas', () => {
   });
 
   it('as partes sempre formam a palavra, como foi escrita', () => {
-    for (const w of ['Grêmio', 'ÔNIBUS', 'pneu', 'Yasmin', 'Wesley', 'x', 'brrr', 'Ωμέγα']) {
+    for (const w of ['Internacional', 'ÔNIBUS', 'pneu', 'Yasmin', 'Wesley', 'x', 'brrr', 'Ωμέγα']) {
       expect(separarSilabas(w).silabas.join('')).toBe(w);
     }
     expect(separarSilabas('  casa ').silabas).toEqual(['ca', 'sa']);

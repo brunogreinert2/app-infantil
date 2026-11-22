@@ -14,8 +14,8 @@ import {
 describe('Ler o Mundo na tela', () => {
   it('as partes formam a palavra, com sílabas ou letra por letra', () => {
     for (const p of TODAS_AS_PALAVRAS) expect(pedacosDe(p).join('')).toBe(p.palavra);
-    const semSilabas = fichaDePalavraPropria({ palavra: 'Grêmio' });
-    expect(pedacosDe(semSilabas)).toEqual(['G', 'R', 'Ê', 'M', 'I', 'O']);
+    const semSilabas = fichaDePalavraPropria({ palavra: 'Vitória' });
+    expect(pedacosDe(semSilabas)).toEqual(['V', 'I', 'T', 'Ó', 'R', 'I', 'A']);
   });
 
   it('o «encontre» tem a palavra uma vez, em segundo, e as outras são diferentes', () => {
@@ -54,7 +54,7 @@ describe('Ler o Mundo na tela', () => {
 
   it('as palavras de quem ensina entram por último, num grupo só delas', () => {
     expect(gruposDaTela([]).some((g) => g.id === 'proprias')).toBe(false);
-    const grupos = gruposDaTela([fichaDePalavraPropria({ palavra: 'GRÊMIO' })]);
+    const grupos = gruposDaTela([fichaDePalavraPropria({ palavra: 'INTER' })]);
     expect(grupos[grupos.length - 1].id).toBe('proprias');
   });
 
