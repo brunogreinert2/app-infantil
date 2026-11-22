@@ -35,6 +35,14 @@ sucesso, bundle no ar conferido):**
   as cartas da memória ficam brancas, como papel.
 - O que falta continua em ordem em `docs/ACESSIBILIDADE_VISUAL.md`.
 
+**2026-11-22, na branch, NÃO publicado:**
+- As abas da estante (Histórias · Alfabetos · Números · Jogos · Pinturas ·
+  Anotações) ficam à vista também em Jogos, Pinturas e Anotações
+  (`src/telas/abasDaEstante.ts`). Nessas telas o ← saiu, como na estante.
+- **Ler o Mundo na tela**: porta 🌎 na entrada, ao lado da prancha. Os cinco
+  passos da ficha e as palavras de quem ensina estão em `docs/LER_O_MUNDO.md`
+  (topo).
+
 ## Oficina LIGADA e organizada (2026-11-19)
 
 `FOLHAS_LIGADAS = true`. A oficina tem quatro seções (Jogos para imprimir,

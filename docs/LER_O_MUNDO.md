@@ -1,6 +1,23 @@
 # Ler o Mundo e Prancha de CAA — piloto (2026-11-16)
 
 Branch `fable/ler-o-mundo-e-caa`. Desde 2026-11-20 as folhas saem pela **oficina** (Para quem ensina → Fazer uma folha → Atividades → Ler o Mundo), inclusive a ficha da palavra da professora. Na estante da criança, ainda não.
+
+**Na tela desde 2026-11-22** (`src/telas/telaLerOMundo.ts`, regras puras em
+`src/conteudo/lerOMundoNaTela.ts`): a porta **🌎 Ler o Mundo** fica na tela
+inicial, ao lado da prancha, FORA da estante das crianças. Ela não pede perfil
+(abre também por `#ler-o-mundo`), e o que se marca como feito fica no aparelho
+(`aparelho:lerOMundo:feitas`). Os mesmos cinco passos da ficha, tocando e ouvindo:
+1. a placa (`svgPlacaDaPalavra`, o desenho da folha recortado);
+2. as partes, que se tocam para ouvir;
+3. encontrar a palavra entre parecidas, zero-gate;
+4. montar a palavra com as letras em ordem alfabética, nunca sorteadas; no teclado,
+   O vale por Ô;
+5. onde se vê.
+
+Quem ensina põe palavras próprias na lista (o nome, a linha do ônibus), com as
+sílabas sugeridas, e elas ficam em `aparelho:lerOMundo:proprias`. Isto resolve a
+decisão 3 por ora: porta própria, como a prancha. É reversível, e o Bruno pode
+mudar.
 Feito pelo Fable numa sessão do celular do Bruno; este arquivo é a passagem
 de bastão para o Claude Code no desktop.
 
