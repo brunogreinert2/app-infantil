@@ -1,5 +1,6 @@
 // Folhas de matemática da oficina para a revisão da Luiza (36 folhas A4 numa página só).
 //   node scripts/exportar-matematica-luiza.mjs <pasta>   → <pasta>/folhas.html (imprimir em PDF) e lista.txt
+import { createServer } from 'vite';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
