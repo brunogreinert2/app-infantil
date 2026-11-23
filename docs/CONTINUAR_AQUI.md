@@ -218,6 +218,18 @@ Os documentos foram gerados por um teste temporário (já apagado) a partir de
 `livro.nos` — o texto puro, sem o negrito do `.md`. Para gerar de novo: ver
 este registro e refazer; não há script guardado.
 
+**Atualização 2026-11-23 (matemática da oficina):** dois arquivos novos na
+mesma pasta. `9 · Matemática nova — o que conferir` (Google Doc, id
+`1lniC65ecbPzgqvKEsKw07FaXUw_oNz_V6qs0J8P7HKM`): lista das folhas e as
+perguntas para ela (vai-um vazio no gabarito, divisão só exata, siglas do
+valor posicional, escrita do Bhaskara e do vértice, diagonal da tábua etc.).
+`9b · Matemática da oficina — 36 folhas (PDF)` (id
+`1_-OOff1hVL0shAP34XqXOTMMz5dW2bmj`). Para gerar de novo:
+`node scripts/exportar-matematica-luiza.mjs <pasta>` e imprimir `folhas.html`
+com `chrome-headless-shell --headless --no-pdf-header-footer --print-to-pdf=...`.
+Lição: HTML enviado ao Drive precisa de `<meta charset="utf-8">`, senão os
+emojis viram lixo na conversão para Google Doc.
+
 
 ## Textos próprios compatíveis com o Pedra Angular — 2026-11-12, noite (Opus 5.5)
 
