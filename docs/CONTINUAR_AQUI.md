@@ -251,7 +251,7 @@ pedido do Bruno; na tela, as abas da estante ficam à vista sem nenhuma marcada.
   em em, nas cores do tema; teclado do computador; contas de antes (só na
   sessão); o «=» lê a conta em voz alta; «Ler cada tecla» é liga/desliga
   guardado por perfil.
-- ETAPA 2 (2026-11-25, na branch, NÃO publicada): o microfone 🎤.
+- ETAPA 2 (2026-11-25), PUBLICADA na 0.19.0 (master `7ac1ef2`, Actions 45655528286 com sucesso): o microfone 🎤.
   `src/geradores/contaFalada.ts` entende «quanto é sete vezes oito?»,
   «12 + 7», «dois vírgula cinco», «trezentos e quarenta e dois», com testes.
   O botão só aparece se `SpeechRecognition.available({langs:['pt-BR'],
@@ -261,7 +261,10 @@ pedido do Bruno; na tela, as abas da estante ficam à vista sem nenhuma marcada.
   de fora de propósito, porque não garante ficar no aparelho: ali aparece só
   um aviso. No navegador embutido do Claude, o local dá «unavailable» para
   todas as línguas (só pela rede), e por isso o caminho do 🎤 foi testado com
-  um reconhecedor simulado. FALTA testar no Chrome de verdade do Bruno.
+  um reconhecedor simulado. FALTA o Bruno testar no Chrome/Edge de verdade (139+):
+  pode aparecer «Ligar a voz» (baixa o português, cerca de 60 MB) ou só o aviso,
+  se o Chrome não tiver o pt-BR no aparelho. Se aparecer só o aviso, NÃO cair
+  para o reconhecimento pela rede: a voz da criança não sai do aparelho.
 
 **Atualização 2026-11-23 (matemática da oficina):** dois arquivos novos na
 mesma pasta. `9 · Matemática nova — o que conferir` (Google Doc, id
