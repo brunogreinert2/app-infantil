@@ -29,6 +29,7 @@ import { perfilAtivo, temPerfilAtivo } from '../perfis/perfis';
 import { listarTextos } from '../armazenamento/textos';
 import { combina, nomeParaMostrar, type TextoProprio } from '../conteudo/textosProprios';
 import { el } from './comum';
+import { creditoDoAutor } from '../conteudo/credito';
 
 export interface NavPainel {
   livro: (id: string) => void;
@@ -428,7 +429,7 @@ function pesquisar(q: string): Achado[] {
       saida.push({
         emoji: EMOJIS_CAPA[livro.id] ?? '📖',
         rotulo: livro.metadados.titulo,
-        onde: [livro.metadados.autor_original, pasta?.rotulo].filter(Boolean).join(', '),
+        onde: [creditoDoAutor(livro.metadados), pasta?.rotulo].filter(Boolean).join(', '),
         abrir: () => ir(() => nav?.livro(livro.id)),
       });
     }

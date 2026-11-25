@@ -3,6 +3,7 @@
 
 import { armazenamento } from '../armazenamento/armazenamento';
 import { EMOJIS_CAPA } from '../conteudo/capas';
+import { creditoDoAutor } from '../conteudo/credito';
 import { livros } from '../conteudo/catalogo';
 import { PASTAS, PASTA_PADRAO, acharPasta, secoesDaPasta, todasAsPastas } from '../conteudo/pastas';
 import type { Livro } from '../motor/tipos';
@@ -64,7 +65,7 @@ export async function montarTelaEstante(
       cartao.appendChild(el('span', 'capa-emoji', EMOJIS_CAPA[livro.id] ?? '📖'));
       cartao.appendChild(el('span', 'titulo-livro', livro.metadados.titulo));
       if (livro.metadados.autor_original) {
-        cartao.appendChild(el('span', 'autor-livro', livro.metadados.autor_original));
+        cartao.appendChild(el('span', 'autor-livro', creditoDoAutor(livro.metadados)));
       }
       const rotulo =
         progresso?.status === 'concluido' ? '⭐ Lido' : progresso ? '▶ Continuar' : '✨ Novo';
