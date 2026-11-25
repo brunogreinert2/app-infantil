@@ -116,7 +116,16 @@ async function irJogos(tipo?: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | '
   carregarPreferencias(); // pode ter vindo de um livro tematizado, pelo menu
   marcarLocal(localDoJogo(tipo ?? 'todos'));
   const { montarTelaJogos } = await import('./geradores/telaJogos');
-  await montarTelaJogos(raiz, tipo, { perfis: irPerfis, estante: irEstante, abas: abasDaEstante });
+  await montarTelaJogos(raiz, tipo, { perfis: irPerfis, estante: irEstante, abas: abasDaEstante, calculadora: () => void irCalculadora() });
+}
+
+// 🧮 a calculadora (ideia da Luiza, 2026-11-25): mora na pasta dos Jogos
+async function irCalculadora(): Promise<void> {
+  pararFala();
+  carregarPreferencias();
+  marcarLocal(localDoJogo('calculadora'));
+  const { montarTelaCalculadora } = await import('./geradores/telaCalculadora');
+  await montarTelaCalculadora(raiz, { perfis: irPerfis, voltar: () => void irJogos(), abas: abasDaEstante });
 }
 
 // 🖨️ Para quem ensina (barra lateral): a trava sempre; desistir volta à estante
@@ -322,6 +331,7 @@ configurarPainel({
   pinturas: irPinturas,
   perfis: irPerfis,
   jogos: FOLHAS_LIGADAS ? (tipo) => void irJogos(tipo) : undefined,
+  calculadora: FOLHAS_LIGADAS ? () => void irCalculadora() : undefined,
   ensinar: FOLHAS_LIGADAS ? irEnsinar : undefined,
 });
 

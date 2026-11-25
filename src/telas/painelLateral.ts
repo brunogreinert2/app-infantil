@@ -42,6 +42,8 @@ export interface NavPainel {
   perfis: () => void;
   /** 🎮 Jogos (só com a oficina ligada): abre a tela do jogo escolhido */
   jogos?: (tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas' | 'memoria') => void;
+  /** 🧮 a calculadora (mora na pasta dos Jogos) */
+  calculadora?: () => void;
   /** 🖨️ Para quem ensina: a trava dos adultos e, depois dela, a oficina */
   ensinar?: () => void;
 }
@@ -370,6 +372,8 @@ function ramoDosJogos(abrirJogo: (tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labi
     for (const j of JOGOS_NO_MENU) {
       ul.appendChild(item(j.rotulo, j.emoji, localDoJogo(j.tipo), 2, () => ir(() => abrirJogo(j.tipo))).li);
     }
+    const calc = nav?.calculadora;
+    if (calc) ul.appendChild(item('Calculadora', '🧮', localDoJogo('calculadora'), 2, () => ir(calc)).li);
     li.appendChild(ul);
   }
   return li;

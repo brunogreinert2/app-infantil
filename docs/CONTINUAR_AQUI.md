@@ -236,7 +236,22 @@ pintar), e o texto saiu da brincadeira do waffle.
 
 FICARAM EM ABERTO (o Bruno decide):
 - oito como «infinito em pé» (achei abstrato para 5–9 anos);
-- no zero, passo 4, «Circule o 0» em vez de «pinte a casinha».
+(Os dois que restavam também foram feitos depois, na branch: o oito ganhou a
+frase extra «E também parece o símbolo do infinito em pé.», e o zero, no
+passo 4, pede «Circule o 0 embaixo da fila».)
+
+**🧮 CALCULADORA (ideia da Luiza, 2026-11-25), etapa 1 feita na branch, NÃO
+publicada.** Mora na pasta 🎮 Jogos (no fim da lista e no menu lateral).
+- Regras puras em `src/geradores/calculadora.ts`, com testes: × e ÷ antes de
+  + e −; vírgula; «≈» com 6 casas; dividir por zero explica o porquê.
+- Tela em `src/geradores/telaCalculadora.ts`: a conta inteira à vista; teclas
+  em em, nas cores do tema; teclado do computador; contas de antes (só na
+  sessão); o «=» lê a conta em voz alta; «Ler cada tecla» é liga/desliga
+  guardado por perfil.
+- ETAPA 2 (por fazer): o microfone 🎤. Só com reconhecimento NO APARELHO
+  (`SpeechRecognition.processLocally`, Chrome/Edge 139+, pacote de ~60 MB).
+  Onde não houver, o botão não aparece. No Safari do iPhone isso não está
+  confirmado: testar no iPhone do Bruno antes.
 
 **Atualização 2026-11-23 (matemática da oficina):** dois arquivos novos na
 mesma pasta. `9 · Matemática nova — o que conferir` (Google Doc, id

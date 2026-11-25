@@ -2832,3 +2832,33 @@ button.casa-caa.vazia { cursor: pointer; }
 .lom-dica { color: var(--texto-suave); font-size: 0.95em; margin: 0; }
 .lom-aviso { margin: 0; font-weight: 700; color: var(--texto); }
 .lom-sugestao { align-self: flex-start; }
+
+/* ---- A CALCULADORA (ideia da Luiza, 2026-11-25): teclas e números grandes,
+   tudo em em (cresce com o A+), nas cores do tema. As operações usam o
+   destaque; o «=» é o botão cheio. ---- */
+.calc-corpo { width: 100%; box-sizing: border-box; max-width: max(420px, 24em); margin: 0 auto; padding: 1em 16px 3em; display: flex; flex-direction: column; gap: 0.9em; }
+.calc-visor {
+  background: var(--cartao); color: var(--texto); border: 2px solid var(--borda); border-radius: 0.8em;
+  padding: 0.5em 0.8em; text-align: end; font-family: 'Atkinson Hyperlegible', 'OpenDyslexic', sans-serif;
+}
+.calc-conta { margin: 0; min-height: 1.4em; font-size: 1.2em; color: var(--texto-suave); overflow-wrap: anywhere; }
+.calc-resultado { margin: 0; font-size: 2.6em; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+.calc-resultado.calc-aviso { font-size: 1.15em; font-weight: 700; text-align: start; }
+.calc-teclas { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.45em; }
+.calc-tecla {
+  min-height: max(56px, 2.2em); font-size: 1.7em; font-weight: 700; font-family: 'Atkinson Hyperlegible', 'OpenDyslexic', sans-serif;
+  background: var(--cartao); color: var(--texto); border: 2px solid var(--borda); border-radius: 0.4em; cursor: pointer;
+  touch-action: manipulation; padding: 0;
+}
+.calc-tecla:focus-visible { outline: 3px solid var(--destaque); outline-offset: 3px; }
+.calc-tecla:active { transform: translateY(1px); }
+.calc-op { color: var(--destaque); border-color: var(--destaque); }
+.calc-acao { color: var(--texto-suave); }
+.calc-igual { grid-row: span 2; background: var(--destaque); color: var(--cartao); border-color: var(--destaque); }
+.calc-zero { grid-column: span 2; }
+.calc-opcoes { display: flex; flex-wrap: wrap; gap: 0.6em; align-items: center; }
+.calc-marcar { display: inline-flex; align-items: center; gap: 0.5em; min-height: 44px; cursor: pointer; }
+.calc-marcar input { width: max(24px, 1em); height: max(24px, 1em); flex: none; margin: 0; }
+.calc-antes-titulo { margin: 0.4em 0 0.2em; font-size: 1em; color: var(--texto-suave); }
+.calc-antes-lista { margin: 0; padding-inline-start: 1.4em; font-family: 'Atkinson Hyperlegible', sans-serif; }
+.calc-antes-lista li { margin: 0.15em 0; }

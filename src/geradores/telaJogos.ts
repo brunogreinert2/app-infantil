@@ -46,7 +46,7 @@ import { montarTelaJogo } from './telaJogo';
 
 export type { JogoDaCrianca } from './jogosDaCrianca';
 
-type Nav = { perfis: () => void; estante: () => void; abas?: AbasDaEstante };
+type Nav = { perfis: () => void; estante: () => void; abas?: AbasDaEstante; calculadora?: () => void };
 
 /** Uma fileira de escolhas que ficam lembradas (nível do caça, modelo do sudoku). */
 function escolhas<T extends string>(nomes: Record<T, string>, atual: T, rotulo: string, aoEscolher: (v: T) => void): HTMLElement {
@@ -103,6 +103,18 @@ export async function montarTelaJogos(raiz: HTMLElement, tipo: JogoDaCrianca | u
       marca.setAttribute('aria-hidden', 'true');
       b.append(marca, el('span', 'jogos-tema-nome', JOGOS_DA_CRIANCA[t].nome));
       b.addEventListener('click', () => void montarTelaJogos(raiz, t, nav));
+      li.appendChild(b);
+      lista.appendChild(li);
+    }
+    // a calculadora (ideia da Luiza, 2026-11-25): não é jogo, mas mora aqui
+    if (nav.calculadora) {
+      const li = el('li');
+      const b = el('button', 'jogos-tema');
+      b.type = 'button';
+      const marca = el('span', 'jogos-tema-emoji', '🧮');
+      marca.setAttribute('aria-hidden', 'true');
+      b.append(marca, el('span', 'jogos-tema-nome', 'Calculadora'));
+      b.addEventListener('click', nav.calculadora);
       li.appendChild(b);
       lista.appendChild(li);
     }
