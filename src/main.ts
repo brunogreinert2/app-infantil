@@ -188,13 +188,15 @@ async function abrirEstante(idPasta?: unknown): Promise<void> {
     pinturas: irPinturas,
     pasta: irEstante,
     jogos: FOLHAS_LIGADAS ? () => void irJogos() : undefined,
+    calculadora: FOLHAS_LIGADAS ? () => void irCalculadora() : undefined,
   });
 }
 
-// as abas do alto da estante, as mesmas nas seis telas que elas abrem
+// as abas do alto da estante, as mesmas nas sete telas que elas abrem
 const abasDaEstante: AbasDaEstante = {
   pasta: (id) => irEstante(id),
   jogos: FOLHAS_LIGADAS ? () => void irJogos() : undefined,
+  calculadora: FOLHAS_LIGADAS ? () => void irCalculadora() : undefined,
   pinturas: () => irPinturas(),
   anotacoes: () => irAnotacoes(),
 };

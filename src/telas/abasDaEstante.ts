@@ -11,12 +11,14 @@ export interface AbasDaEstante {
   pasta: (id: string) => void;
   /** 🎮 Jogos (só com a oficina ligada) */
   jogos?: () => void;
+  /** 🧮 Calculadora (pedido do Bruno, 2026-11-25: também aqui no alto, não só no menu) */
+  calculadora?: () => void;
   pinturas: () => void;
   anotacoes: () => void;
 }
 
-/** Qual aba está aberta: o id de uma pasta de fora, ou uma das três de depois. */
-export type AbaAtual = string | 'jogos' | 'pinturas' | 'anotacoes';
+/** Qual aba está aberta: o id de uma pasta de fora, ou uma das de depois. */
+export type AbaAtual = string | 'jogos' | 'calculadora' | 'pinturas' | 'anotacoes';
 
 export function abasDaEstante(atual: AbaAtual, nav: AbasDaEstante): HTMLElement {
   const abas = el('nav', 'pastas-estante');
@@ -34,6 +36,7 @@ export function abasDaEstante(atual: AbaAtual, nav: AbasDaEstante): HTMLElement 
   for (const f of PASTAS) aba(`${f.emoji} ${f.rotulo}`, f.id === atual, () => nav.pasta(f.id));
   // pedido do Bruno (2026-11-19): os Jogos também aqui no alto, não só no menu
   if (nav.jogos) aba('🎮 Jogos', atual === 'jogos', nav.jogos);
+  if (nav.calculadora) aba('🧮 Calculadora', atual === 'calculadora', nav.calculadora);
   aba('🖼️ Pinturas', atual === 'pinturas', nav.pinturas);
   aba('📝 Anotações', atual === 'anotacoes', nav.anotacoes);
   return abas;

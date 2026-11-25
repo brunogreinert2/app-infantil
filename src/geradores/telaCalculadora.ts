@@ -64,7 +64,7 @@ export async function montarTelaCalculadora(raiz: HTMLElement, nav: NavCalculado
   window.removeEventListener('keydown', teclaAtual);
   raiz.innerHTML = '';
   raiz.className = 'tela tela-calculadora';
-  // lugar próprio, fora dos Jogos: as abas da estante à vista, nenhuma marcada
+  // lugar próprio, fora dos Jogos, com a sua aba no alto da estante (2026-11-25)
   raiz.appendChild(barraTopo({ titulo: '🧮 Calculadora', aoVoltar: nav.abas ? undefined : nav.voltar, aoTrocarPerfil: nav.perfis }));
   if (nav.abas) raiz.appendChild(abasDaEstante('calculadora', nav.abas));
 
@@ -268,20 +268,53 @@ async function montarMicrofone(lugar: HTMLElement, corpo: HTMLElement, aoEntende
   };
   pronto(estado);
 
+  // O download leva um tempo (cerca de 60 MB): conferimos de novo a cada 3 s,
+  // por até 3 minutos, e trocamos o botão sozinhos quando ficar pronto.
+  const esperarOPortugues = async () => {
+    pronto('baixando');
+    ouvi.textContent = 'Baixando o português para entender a voz aqui no aparelho. Só desta vez.';
+    for (let i = 0; i < 60 && corpo.isConnected; i++) {
+      const agora = await estadoDaVoz();
+      if (agora === 'pronta') {
+        pronto('pronta');
+        ouvi.textContent = 'Pronto! Toque no microfone e diga a conta.';
+        return;
+      }
+      if (agora !== 'baixando') break;
+      await new Promise((ok) => setTimeout(ok, 3000));
+    }
+    if (!corpo.isConnected) return;
+    pronto('baixar');
+    ouvi.textContent = 'O português ainda não chegou. Toque de novo para tentar.';
+  };
+  if (estado === 'baixando') void esperarOPortugues();
+
   botao.addEventListener('click', async () => {
     const SR = classeDoReconhecedor();
     if (!SR) return;
     if (botao.dataset.estado === 'baixar') {
       pronto('baixando');
       ouvi.textContent = 'Baixando o português para entender a voz aqui no aparelho. Só desta vez.';
+      let aceitou = false;
       try {
-        await SR.install?.({ langs: [IDIOMA] });
+        aceitou = (await SR.install?.({ langs: [IDIOMA] })) === true;
       } catch {
-        /* segue para conferir de novo */
+        /* recusou: fica como «não» */
       }
+      if (!corpo.isConnected) return;
       const agora = await estadoDaVoz();
-      pronto(agora === 'nao' ? 'baixar' : agora);
-      ouvi.textContent = agora === 'pronta' ? 'Pronto! Toque no microfone e diga a conta.' : 'Ainda não deu. Tente de novo daqui a pouco.';
+      if (agora === 'pronta') {
+        pronto('pronta');
+        ouvi.textContent = 'Pronto! Toque no microfone e diga a conta.';
+      } else if (aceitou || agora === 'baixando') {
+        void esperarOPortugues();
+      } else {
+        // o navegador disse «não» (visto no Chrome 157 do Bruno, 2026-11-25:
+        // install() responde false para toda língua, até o inglês). Dizemos a
+        // verdade e deixamos o botão para tentar outra vez.
+        pronto('baixar');
+        ouvi.textContent = 'Este navegador não deixou baixar o português agora. As teclas continuam funcionando.';
+      }
       return;
     }
     if (ouvindo) {

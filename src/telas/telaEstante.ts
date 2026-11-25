@@ -24,6 +24,8 @@ export async function montarTelaEstante(
     pasta: (id: string) => void;
     /** 🎮 Jogos (só com a oficina ligada) */
     jogos?: () => void;
+    /** 🧮 Calculadora (só com a oficina ligada) */
+    calculadora?: () => void;
   },
 ): Promise<void> {
   raiz.innerHTML = '';
