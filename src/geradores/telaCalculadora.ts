@@ -10,8 +10,11 @@ import { abasDaEstante, type AbasDaEstante } from '../telas/abasDaEstante';
 import { barraTopo, el } from '../telas/comum';
 import { dono } from '../telas/preferencias';
 import { falar, pararFala } from '../tts';
+import { contaFalada } from './contaFalada';
 import {
   CONTA_VAZIA,
+  resolver,
+  type Pedaco,
   escreverConta,
   falarConta,
   falarTecla,
@@ -101,16 +104,19 @@ export async function montarTelaCalculadora(raiz: HTMLElement, nav: NavCalculado
     desenharAntes();
   };
 
+  // a conta acabou de ser resolvida (pelo «=» ou pela voz): fala e guarda
+  const resolvida = () => {
+    falar(falarConta(conta));
+    antes.unshift(`${escreverConta(conta)} ${conta.erro ? '— não dá' : `= ${conta.resultado}${conta.continua ? '…' : ''}`}`);
+    antes.splice(5);
+  };
+
   const apertar = (t: Tecla) => {
     const nova = teclar(conta, t);
     const resolveu = t === '=' && nova !== conta && (nova.resultado !== undefined || nova.erro !== undefined);
     conta = nova;
-    if (resolveu) {
-      // o «=» sempre fala a conta inteira
-      falar(falarConta(conta));
-      antes.unshift(`${escreverConta(conta)} ${conta.erro ? '— não dá' : `= ${conta.resultado}${conta.continua ? '…' : ''}`}`);
-      antes.splice(5);
-    } else if (lerTeclas) {
+    if (resolveu) resolvida();
+    else if (lerTeclas) {
       falar(falarTecla(t));
     }
     desenhar();
@@ -146,6 +152,13 @@ export async function montarTelaCalculadora(raiz: HTMLElement, nav: NavCalculado
   opcoes.append(ouvir, marcar);
   corpo.appendChild(opcoes);
 
+  // --- 🎤 falar a conta (etapa 2): só onde a voz é entendida NO APARELHO ---
+  void montarMicrofone(opcoes, corpo, (pedacos) => {
+    conta = { pedacos, ...resolver(pedacos) };
+    resolvida();
+    desenhar();
+  });
+
   // --- as contas de antes (só desta vez, não ficam guardadas) ---
   const caixaAntes = el('section', 'calc-antes');
   const tituloAntes = el('h2', 'calc-antes-titulo', 'Contas de antes');
@@ -173,4 +186,144 @@ export async function montarTelaCalculadora(raiz: HTMLElement, nav: NavCalculado
   window.addEventListener('keydown', teclaAtual);
 
   desenhar();
+}
+
+// ---------------------------------------------------------------------------
+// 🎤 A VOZ (calculadora, etapa 2, 2026-11-25). Regra da casa: nada da criança
+// sai do aparelho. Por isso só usamos o reconhecimento de voz LOCAL
+// (`SpeechRecognition.available/install` com `processLocally`, Chrome e Edge
+// 139+). Onde ele não existe (Safari, Firefox, navegador antigo), o botão não
+// aparece — nunca caímos no reconhecimento pela internet.
+// ---------------------------------------------------------------------------
+
+type EstadoDaVoz = 'pronta' | 'baixar' | 'baixando' | 'nao';
+type Reconhecedor = {
+  lang: string;
+  processLocally: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null;
+  onerror: ((e: { error: string }) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+type ClasseDoReconhecedor = {
+  new (): Reconhecedor;
+  available?: (o: { langs: string[]; processLocally: boolean }) => Promise<string>;
+  install?: (o: { langs: string[] }) => Promise<boolean>;
+};
+
+const IDIOMA = 'pt-BR';
+
+function classeDoReconhecedor(): ClasseDoReconhecedor | undefined {
+  // só o nome padrão: o webkitSpeechRecognition antigo não sabe ficar no aparelho
+  return (window as unknown as { SpeechRecognition?: ClasseDoReconhecedor }).SpeechRecognition;
+}
+
+async function estadoDaVoz(): Promise<EstadoDaVoz> {
+  const SR = classeDoReconhecedor();
+  if (!SR || typeof SR.available !== 'function') return 'nao';
+  try {
+    const s = await SR.available({ langs: [IDIOMA], processLocally: true });
+    return s === 'available' ? 'pronta' : s === 'downloadable' ? 'baixar' : s === 'downloading' ? 'baixando' : 'nao';
+  } catch {
+    return 'nao';
+  }
+}
+
+const MOTIVOS: Record<string, string> = {
+  'not-allowed': 'O microfone não foi liberado. Dá para liberar nas configurações do navegador.',
+  'service-not-allowed': 'O microfone não foi liberado. Dá para liberar nas configurações do navegador.',
+  'no-speech': 'Não ouvi nada. Toque no microfone e fale de novo.',
+  'audio-capture': 'Não achei um microfone neste aparelho.',
+  aborted: '',
+};
+
+async function montarMicrofone(lugar: HTMLElement, corpo: HTMLElement, aoEntender: (p: Pedaco[]) => void): Promise<void> {
+  const estado = await estadoDaVoz();
+  if (!corpo.isConnected) return;
+  const ouvi = el('p', 'calc-ouvi');
+  ouvi.setAttribute('role', 'status');
+
+  if (estado === 'nao') {
+    // diz por que não tem, sem prometer nada
+    lugar.after(
+      el('p', 'calc-nota', '🎤 Falar a conta: este navegador ainda não entende a voz aqui mesmo, no aparelho. Por cuidado, a voz não vai para a internet.'),
+    );
+    return;
+  }
+
+  const botao = el('button', 'botao-opcao calc-microfone');
+  botao.type = 'button';
+  lugar.appendChild(botao);
+  lugar.after(ouvi);
+
+  let ouvindo: Reconhecedor | undefined;
+  const pronto = (s: EstadoDaVoz) => {
+    botao.disabled = s === 'baixando';
+    botao.textContent =
+      s === 'pronta' ? '🎤 Falar a conta' : s === 'baixar' ? '🎤 Ligar a voz (baixa o português uma vez)' : '🎤 Baixando o português…';
+    botao.dataset.estado = s;
+  };
+  pronto(estado);
+
+  botao.addEventListener('click', async () => {
+    const SR = classeDoReconhecedor();
+    if (!SR) return;
+    if (botao.dataset.estado === 'baixar') {
+      pronto('baixando');
+      ouvi.textContent = 'Baixando o português para entender a voz aqui no aparelho. Só desta vez.';
+      try {
+        await SR.install?.({ langs: [IDIOMA] });
+      } catch {
+        /* segue para conferir de novo */
+      }
+      const agora = await estadoDaVoz();
+      pronto(agora === 'nao' ? 'baixar' : agora);
+      ouvi.textContent = agora === 'pronta' ? 'Pronto! Toque no microfone e diga a conta.' : 'Ainda não deu. Tente de novo daqui a pouco.';
+      return;
+    }
+    if (ouvindo) {
+      ouvindo.stop();
+      return;
+    }
+    pararFala(); // a voz do app não pode ser ouvida pelo microfone
+    const r = new SR();
+    r.lang = IDIOMA;
+    r.processLocally = true; // NUNCA pela internet
+    r.interimResults = false;
+    r.maxAlternatives = 3;
+    r.onresult = (e) => {
+      const alternativas = Array.from(e.results[0] ?? [], (a) => a.transcript);
+      for (const frase of alternativas) {
+        const pedacos = contaFalada(frase);
+        if (pedacos) {
+          ouvi.textContent = `Ouvi: «${frase.trim()}»`;
+          aoEntender(pedacos);
+          return;
+        }
+      }
+      ouvi.textContent = `Ouvi: «${(alternativas[0] ?? '').trim()}». Não entendi a conta. Tente assim: «quanto é sete vezes oito?»`;
+      falar('Não entendi a conta. Tente de novo.');
+    };
+    r.onerror = (e) => {
+      const motivo = MOTIVOS[e.error] ?? 'A voz não funcionou desta vez. Tente de novo.';
+      if (motivo) ouvi.textContent = motivo;
+    };
+    r.onend = () => {
+      ouvindo = undefined;
+      botao.textContent = '🎤 Falar a conta';
+      botao.classList.remove('ouvindo');
+    };
+    ouvindo = r;
+    botao.textContent = '🎤 Ouvindo… (toque para parar)';
+    botao.classList.add('ouvindo');
+    ouvi.textContent = 'Pode falar a conta.';
+    try {
+      r.start();
+    } catch {
+      r.onend?.();
+    }
+  });
 }

@@ -251,10 +251,17 @@ pedido do Bruno; na tela, as abas da estante ficam à vista sem nenhuma marcada.
   em em, nas cores do tema; teclado do computador; contas de antes (só na
   sessão); o «=» lê a conta em voz alta; «Ler cada tecla» é liga/desliga
   guardado por perfil.
-- ETAPA 2 (por fazer): o microfone 🎤. Só com reconhecimento NO APARELHO
-  (`SpeechRecognition.processLocally`, Chrome/Edge 139+, pacote de ~60 MB).
-  Onde não houver, o botão não aparece. No Safari do iPhone isso não está
-  confirmado: testar no iPhone do Bruno antes.
+- ETAPA 2 (2026-11-25, na branch, NÃO publicada): o microfone 🎤.
+  `src/geradores/contaFalada.ts` entende «quanto é sete vezes oito?»,
+  «12 + 7», «dois vírgula cinco», «trezentos e quarenta e dois», com testes.
+  O botão só aparece se `SpeechRecognition.available({langs:['pt-BR'],
+  processLocally:true})` responder available, downloadable ou downloading;
+  com downloadable, «Ligar a voz» chama `install()`. O reconhecedor sempre
+  sai com `processLocally = true`. O `webkitSpeechRecognition` (Safari) fica
+  de fora de propósito, porque não garante ficar no aparelho: ali aparece só
+  um aviso. No navegador embutido do Claude, o local dá «unavailable» para
+  todas as línguas (só pela rede), e por isso o caminho do 🎤 foi testado com
+  um reconhecedor simulado. FALTA testar no Chrome de verdade do Bruno.
 
 **Atualização 2026-11-23 (matemática da oficina):** dois arquivos novos na
 mesma pasta. `9 · Matemática nova — o que conferir` (Google Doc, id

@@ -2862,3 +2862,7 @@ button.casa-caa.vazia { cursor: pointer; }
 .calc-antes-titulo { margin: 0.4em 0 0.2em; font-size: 1em; color: var(--texto-suave); }
 .calc-antes-lista { margin: 0; padding-inline-start: 1.4em; font-family: 'Atkinson Hyperlegible', sans-serif; }
 .calc-antes-lista li { margin: 0.15em 0; }
+/* 🎤 a voz da calculadora (etapa 2) */
+.calc-ouvi { margin: 0; min-height: 1.4em; font-weight: 700; }
+.calc-nota { margin: 0; color: var(--texto-suave); font-size: 0.95em; }
+.calc-microfone.ouvindo { background: var(--destaque); color: var(--cartao); border-color: var(--destaque); }
