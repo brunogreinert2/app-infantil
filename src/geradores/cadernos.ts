@@ -11,6 +11,8 @@ import { gerarCadernoAlfabeto, type FichaAlfabeto } from '../conteudo/alfabetos'
 import { gerarCadernoNumeros } from '../conteudo/numeros';
 import { fichaDePalavraPropria, gerarCadernoLerOMundo, type Contexto } from '../conteudo/lerOMundo';
 import { svgPalavraA4 } from '../conteudo/lerOMundoArte';
+import { comLetraDaLegenda } from '../conteudo/alfabetoArte';
+import { letraEmUso, tabelaDaLetra } from './comum';
 
 export type Caderno = 'alfabeto' | 'alfabeto-grego' | 'numeros' | 'ler-o-mundo';
 
@@ -37,15 +39,31 @@ export const NOMES_DOS_CONTEXTOS: Record<Contexto, string> = {
 /** A folha escolhida: '' todas · 'grupo:<nome>' um grupo · '<id>' uma só · 'propria' (Ler o Mundo). */
 export const PALAVRA_PROPRIA = 'propria';
 
-const cache = new Map<Caderno, FichaAlfabeto[]>();
+const cache = new Map<string, FichaAlfabeto[]>();
 
-/** As folhas de um caderno, na ordem do livro (geradas uma vez por sessão). */
+/**
+ * O LER O MUNDO SAI NA LETRA ESCOLHIDA (pedido do Bruno, 2026-11-25): a
+ * «Letra das folhas» da oficina não mudava nada nele. Agora a palavra da placa,
+ * o «encontre», o modelo do «escreva» e as instruções saem na letra pedida.
+ * O passo 2 (as partes vazadas, para destacar) continua na Cardo do livro.
+ * Os alfabetos e Os Números ficam como no livro: lá a letra É o desenho.
+ */
+function naLetraEscolhida<T>(fazer: () => T): T {
+  return comLetraDaLegenda(tabelaDaLetra(letraEmUso()), fazer);
+}
+
+/** As folhas de um caderno, na ordem do livro (geradas uma vez por sessão e por letra). */
 export function fichasDoCaderno(caderno: Caderno): FichaAlfabeto[] {
-  let fichas = cache.get(caderno);
+  const chave = caderno === 'ler-o-mundo' ? `${caderno}:${letraEmUso()}` : caderno;
+  let fichas = cache.get(chave);
   if (!fichas) {
     fichas =
-      caderno === 'numeros' ? gerarCadernoNumeros() : caderno === 'ler-o-mundo' ? gerarCadernoLerOMundo() : gerarCadernoAlfabeto(caderno);
-    cache.set(caderno, fichas);
+      caderno === 'numeros'
+        ? gerarCadernoNumeros()
+        : caderno === 'ler-o-mundo'
+          ? naLetraEscolhida(gerarCadernoLerOMundo)
+          : gerarCadernoAlfabeto(caderno);
+    cache.set(chave, fichas);
   }
   return fichas;
 }
@@ -82,5 +100,5 @@ export function folhasDoCaderno(caderno: Caderno, folha: string): FichaAlfabeto[
 export function fichaDaPalavra(palavra: string, silabas: string, contexto: Contexto): { svg: string; titulo: string } {
   const partes = silabas.trim() ? silabas.trim().split(/[-·.\s]+/u).filter(Boolean) : undefined;
   const p = fichaDePalavraPropria({ palavra, silabas: partes, contexto });
-  return { svg: svgPalavraA4(p), titulo: p.palavra };
+  return { svg: naLetraEscolhida(() => svgPalavraA4(p)), titulo: p.palavra };
 }

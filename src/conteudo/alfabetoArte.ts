@@ -21,13 +21,31 @@ export function quadro(id: string, x: number, y: number, w: number, h: number, r
 export function linha(x1: number, y1: number, x2: number, y2: number): string {
   return `<path d="M${x1} ${y1} H${x2}" transform="translate(0 ${y2-y1})" stroke="${TINTA}" stroke-width="1.5" fill="none" pointer-events="none"/>`;
 }
+// A LETRA DAS LEGENDAS pode vir de fora (2026-11-25): na oficina, o Ler o
+// Mundo sai na letra que quem ensina escolheu (Atkinson, Cardo, OpenDyslexic).
+// Sem ninguém pedir, é a Atkinson de sempre — os livros não mudam.
+type GlifoDeLegenda = { d: string; adv: number };
+let legenda: Record<string, GlifoDeLegenda> = L;
+const glifoDeLegenda = (c: string): GlifoDeLegenda | undefined => legenda[c] ?? L[c];
+
+/** Desenha com outra tabela de letras e volta para a de antes, aconteça o que acontecer. */
+export function comLetraDaLegenda<T>(tabela: Record<string, GlifoDeLegenda> | undefined, fazer: () => T): T {
+  const antes = legenda;
+  legenda = tabela ?? L;
+  try {
+    return fazer();
+  } finally {
+    legenda = antes;
+  }
+}
+
 export function largura(s: string, size: number): number {
-  return [...s].reduce((n,c) => n + (L[c]?.adv ?? 0) * size / 1000, 0);
+  return [...s].reduce((n,c) => n + (glifoDeLegenda(c)?.adv ?? 0) * size / 1000, 0);
 }
 export function texto(s: string, x: number, y: number, size = 22, anchor: 'start'|'middle'|'end' = 'start'): string {
   let atual = x - (anchor === 'middle' ? largura(s,size)/2 : anchor === 'end' ? largura(s,size) : 0);
   const paths = [...s].map(c => {
-    const g = L[c];
+    const g = glifoDeLegenda(c);
     if (!g) throw new Error(`Falta glifo de legenda: ${c}`);
     const p = g.d ? `<path d="${g.d}" transform="translate(${atual.toFixed(2)} ${y}) scale(${size/1000})"/>` : '';
     atual += g.adv * size / 1000;

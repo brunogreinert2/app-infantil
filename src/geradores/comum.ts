@@ -143,6 +143,10 @@ export function comEstilo<T>(estilo: Estilo | undefined, fazer: () => T): T {
   }
 }
 
+/** A letra em uso agora (a de `comLetra`) e a tabela dos desenhos dela. */
+export const letraEmUso = (): Letra => letraAtual;
+export const tabelaDaLetra = (letra: Letra): Record<string, Glifo> => TABELAS[letra];
+
 /** Faz as folhas com outra letra e volta para a de antes, aconteça o que acontecer. */
 export function comLetra<T>(letra: Letra | undefined, fazer: () => T): T {
   const antes = letraAtual;

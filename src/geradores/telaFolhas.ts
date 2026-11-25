@@ -326,9 +326,17 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
     void montarTelaJogo(raiz, jogavel, chave, { voltar: () => void montarTelaFolhas(raiz, nav), outra });
   };
 
+  // a «Letra das folhas» não muda os alfabetos nem Os Números (lá a letra É o
+  // desenho do livro): ali o seletor some, para não prometer o que não faz
+  let campoLetra: HTMLElement | undefined;
+  const mostrarLetra = (): void => {
+    if (campoLetra) campoLetra.style.display = pedido().tipo === 'alfabetos' || pedido().tipo === 'numeros' ? 'none' : '';
+  };
+
   const desenharCampos = (): void => {
     campos.innerHTML = '';
     const p = pedido();
+    mostrarLetra();
     switch (p.tipo) {
       case 'caca': {
         campos.appendChild(rotulado('Título', campoTexto(p.titulo, (v) => ((p.titulo = v), atualizar()))));
@@ -964,7 +972,9 @@ export async function montarTelaFolhas(raiz: HTMLElement, nav: { voltar: () => v
   formulario.appendChild(lugarDoSeletor);
   formulario.appendChild(campos);
   const seletorLetra = lista(opcoes(NOMES_DAS_LETRAS), letra, (v) => ((letra = v), atualizar(true)));
-  formulario.appendChild(rotulado('Letra das folhas', seletorLetra));
+  campoLetra = rotulado('Letra das folhas', seletorLetra);
+  formulario.appendChild(campoLetra);
+  mostrarLetra();
   // sem a palavra "acessibilidade": é só uma folha maior, para quem quiser
   const caixaAmpliada = marcar('🔍 Folha ampliada: letra e traço mais grossos, e maiores onde cabe', ampliada, (v) => {
     ampliada = v;

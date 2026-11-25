@@ -1573,6 +1573,25 @@ describe('folha ampliada (2026-11-20)', () => {
 });
 
 describe('cadernos prontos na oficina (2026-11-20)', () => {
+  it('o Ler o Mundo sai na letra escolhida; o livro continua na Atkinson (2026-11-25)', async () => {
+    const { fazerFolhas, pedidoInicial } = await import('./pedido');
+    const { svgPalavraA4 } = await import('../conteudo/lerOMundoArte');
+    const { TODAS_AS_PALAVRAS } = await import('../conteudo/lerOMundo');
+    const base = pedidoInicial('lerOMundo');
+    if (base.tipo !== 'lerOMundo') throw new Error('lerOMundo');
+    const pare = { ...base, folha: 'palavra-pare' };
+    const [atk, cardo, od] = (['atkinson', 'cardo', 'opendyslexic'] as const).map((l) => fazerFolhas(pare, l).folhas[0].svg);
+    expect(cardo).not.toBe(atk);
+    expect(od).not.toBe(atk);
+    expect(od).not.toBe(cardo);
+    // a palavra própria também
+    const propria = { ...base, folha: 'propria', palavra: 'INTER', silabas: 'IN-TER', contexto: 'letreiro' as const };
+    expect(fazerFolhas(propria, 'opendyslexic').folhas[0].svg).not.toBe(fazerFolhas(propria, 'atkinson').folhas[0].svg);
+    // depois disso, a folha do livro continua igual à de sempre (nada vazou)
+    const doLivro = TODAS_AS_PALAVRAS.find((x) => x.palavra === 'PARE')!;
+    expect(svgPalavraA4(doLivro)).toBe(atk);
+  });
+
   it('alfabetos, números e Ler o Mundo: todas, um grupo, uma folha', async () => {
     const { fazerFolhas, pedidoInicial } = await import('./pedido');
     const { fichasDoCaderno, opcoesDeFolha } = await import('./cadernos');
