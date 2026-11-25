@@ -5,7 +5,10 @@
 // - a conta inteira fica à vista («12 + 7 × 2 = 26»), não só o resultado;
 // - vezes e dividir antes de mais e menos, como na escola (não da esquerda para
 //   a direita, como as calculadoras baratas);
-// - divisão que não dá exata mostra «≈» e no máximo seis casas, com vírgula;
+// - divisão que não fecha (10 ÷ 3) mostra seis casas e reticências: «3,333333…»,
+//   e a voz diz «e continua». Nada de «mais ou menos»: é exata, só não cabe
+//   (pedido do Bruno, 2026-11-25). As casas são CORTADAS, nunca arredondadas,
+//   para as reticências dizerem a verdade (2 ÷ 3 = 0,666666…, não 0,666667…);
 // - dividir por zero não «dá erro»: diz que não dá, e por quê.
 
 export type Operacao = '+' | '−' | '×' | '÷';
@@ -17,7 +20,8 @@ export interface Conta {
   pedacos: Pedaco[];
   /** depois do «=»: o resultado já escrito (com vírgula), ou o motivo de não ter */
   resultado?: string;
-  aproximado?: boolean;
+  /** o resultado tem mais casas do que as seis que aparecem (vem com «…») */
+  continua?: boolean;
   erro?: string;
 }
 
@@ -96,7 +100,7 @@ export function escreverNumero(x: number): string {
 }
 
 /** Resolve a conta: × e ÷ primeiro, depois + e −. */
-export function resolver(pedacos: Pedaco[]): Pick<Conta, 'resultado' | 'aproximado' | 'erro'> {
+export function resolver(pedacos: Pedaco[]): Pick<Conta, 'resultado' | 'continua' | 'erro'> {
   const nums: number[] = [];
   const ops: Operacao[] = [];
   for (const p of pedacos) {
@@ -122,8 +126,12 @@ export function resolver(pedacos: Pedaco[]): Pick<Conta, 'resultado' | 'aproxima
   for (let i = 0; i < o2.length; i++) x = o2[i] === '+' ? x + n2[i + 1] : x - n2[i + 1];
   if (!Number.isFinite(x) || Math.abs(x) >= 1e15) return { erro: 'Esse número é grande demais para caber aqui.' };
   const arredondado = Number(x.toFixed(CASAS));
-  const aproximado = Math.abs(arredondado - x) > 1e-9;
-  return { resultado: escreverNumero(arredondado), ...(aproximado ? { aproximado: true } : {}) };
+  // diferença só do «barulho» do computador (0,1 + 0,2): a conta fechou
+  if (Math.abs(arredondado - x) <= 1e-9) return { resultado: escreverNumero(arredondado) };
+  // não fechou: corta nas seis casas (sem arredondar) e avisa que continua
+  const [inteira, casas = ''] = x.toFixed(10).split('.');
+  const cortado = Number(`${inteira}.${casas.slice(0, CASAS)}`);
+  return { resultado: escreverNumero(cortado), continua: true };
 }
 
 /** A conta como se escreve: «12 + 7 × 2». */
@@ -139,7 +147,7 @@ export function falarConta(c: Conta): string {
   if (c.erro) return `${conta}. ${c.erro}`;
   if (c.resultado === undefined) return conta;
   const resultado = c.resultado.replace(/^−/, 'menos ');
-  return `${conta} ${c.aproximado ? 'é mais ou menos' : 'é igual a'} ${resultado}`;
+  return `${conta} é igual a ${resultado}${c.continua ? ', e continua' : ''}`;
 }
 
 /** O que a voz diz ao tocar numa tecla (quando «ler cada tecla» está ligado). */

@@ -1,6 +1,7 @@
 // A CALCULADORA NA TELA (ideia da Luiza, 2026-11-25). Teclas e números
 // grandes, que crescem com o A+ e vestem o tema; a conta inteira à vista; e a
 // voz do app lendo a conta no «=» («12 mais 7 vezes 2 é igual a 26»).
+// Mora no menu lateral, com item próprio (não é jogo).
 // Etapa 1: sem microfone. O comando de voz fica para depois, e só onde a voz
 // for reconhecida no próprio aparelho (nada da criança sai dele).
 
@@ -22,7 +23,7 @@ import {
 
 export interface NavCalculadora {
   perfis: () => void;
-  /** volta para a tela de todos os jogos */
+  /** volta para a estante */
   voltar: () => void;
   abas?: AbasDaEstante;
 }
@@ -60,8 +61,9 @@ export async function montarTelaCalculadora(raiz: HTMLElement, nav: NavCalculado
   window.removeEventListener('keydown', teclaAtual);
   raiz.innerHTML = '';
   raiz.className = 'tela tela-calculadora';
-  raiz.appendChild(barraTopo({ titulo: '🧮 Calculadora', aoVoltar: nav.voltar, aoTrocarPerfil: nav.perfis }));
-  if (nav.abas) raiz.appendChild(abasDaEstante('jogos', nav.abas));
+  // lugar próprio, fora dos Jogos: as abas da estante à vista, nenhuma marcada
+  raiz.appendChild(barraTopo({ titulo: '🧮 Calculadora', aoVoltar: nav.abas ? undefined : nav.voltar, aoTrocarPerfil: nav.perfis }));
+  if (nav.abas) raiz.appendChild(abasDaEstante('calculadora', nav.abas));
 
   const corpo = el('main', 'calc-corpo');
   raiz.appendChild(corpo);
@@ -87,7 +89,7 @@ export async function montarTelaCalculadora(raiz: HTMLElement, nav: NavCalculado
       linhaResultado.classList.add('calc-aviso');
     } else if (conta.resultado !== undefined) {
       linhaConta.textContent = escrita;
-      linhaResultado.textContent = `${conta.aproximado ? '≈' : '='} ${conta.resultado}`;
+      linhaResultado.textContent = `= ${conta.resultado}${conta.continua ? '…' : ''}`;
       linhaResultado.classList.remove('calc-aviso');
     } else {
       // enquanto digita, o número que está sendo escrito fica grande embaixo
@@ -106,7 +108,7 @@ export async function montarTelaCalculadora(raiz: HTMLElement, nav: NavCalculado
     if (resolveu) {
       // o «=» sempre fala a conta inteira
       falar(falarConta(conta));
-      antes.unshift(`${escreverConta(conta)} ${conta.erro ? '— não dá' : `${conta.aproximado ? '≈' : '='} ${conta.resultado}`}`);
+      antes.unshift(`${escreverConta(conta)} ${conta.erro ? '— não dá' : `= ${conta.resultado}${conta.continua ? '…' : ''}`}`);
       antes.splice(5);
     } else if (lerTeclas) {
       falar(falarTecla(t));

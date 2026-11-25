@@ -240,10 +240,13 @@ FICARAM EM ABERTO (o Bruno decide):
 frase extra «E também parece o símbolo do infinito em pé.», e o zero, no
 passo 4, pede «Circule o 0 embaixo da fila».)
 
-**🧮 CALCULADORA (ideia da Luiza, 2026-11-25), etapa 1 feita na branch, NÃO
-publicada.** Mora na pasta 🎮 Jogos (no fim da lista e no menu lateral).
+**🧮 CALCULADORA (ideia da Luiza, 2026-11-25), etapa 1 PUBLICADA na 0.18.0.**
+Tem item próprio no menu lateral (`LOCAL_CALCULADORA`), fora dos Jogos, por
+pedido do Bruno; na tela, as abas da estante ficam à vista sem nenhuma marcada.
 - Regras puras em `src/geradores/calculadora.ts`, com testes: × e ÷ antes de
-  + e −; vírgula; «≈» com 6 casas; dividir por zero explica o porquê.
+  + e −; vírgula; divisão que não fecha mostra 6 casas CORTADAS e «…», e a
+  voz diz «e continua». NUNCA «mais ou menos» nem «≈» (o Bruno achou que
+  virava «ciências aproximadas»). Dividir por zero explica o porquê.
 - Tela em `src/geradores/telaCalculadora.ts`: a conta inteira à vista; teclas
   em em, nas cores do tema; teclado do computador; contas de antes (só na
   sessão); o «=» lê a conta em voz alta; «Ler cada tecla» é liga/desliga

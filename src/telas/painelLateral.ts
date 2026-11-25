@@ -42,7 +42,7 @@ export interface NavPainel {
   perfis: () => void;
   /** 🎮 Jogos (só com a oficina ligada): abre a tela do jogo escolhido */
   jogos?: (tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | 'contas' | 'memoria') => void;
-  /** 🧮 a calculadora (mora na pasta dos Jogos) */
+  /** 🧮 a calculadora: item próprio no menu (pedido do Bruno, 2026-11-25) */
   calculadora?: () => void;
   /** 🖨️ Para quem ensina: a trava dos adultos e, depois dela, a oficina */
   ensinar?: () => void;
@@ -52,6 +52,8 @@ export interface NavPainel {
 export const LOCAL_ANOTACOES = 'anotacoes';
 /** id do item "Minhas pinturas" */
 export const LOCAL_PINTURAS = 'pinturas';
+/** id do item "Calculadora" */
+export const LOCAL_CALCULADORA = 'calculadora';
 /** a PASTA "Minhas anotações" no menu (o item de dentro, LOCAL_ANOTACOES, abre a tela) */
 const PASTA_ANOTACOES = 'pasta-anotacoes';
 /** a PASTA "Jogos" no menu */
@@ -372,8 +374,6 @@ function ramoDosJogos(abrirJogo: (tipo: 'caca' | 'cruzadinha' | 'sudoku' | 'labi
     for (const j of JOGOS_NO_MENU) {
       ul.appendChild(item(j.rotulo, j.emoji, localDoJogo(j.tipo), 2, () => ir(() => abrirJogo(j.tipo))).li);
     }
-    const calc = nav?.calculadora;
-    if (calc) ul.appendChild(item('Calculadora', '🧮', localDoJogo('calculadora'), 2, () => ir(calc)).li);
     li.appendChild(ul);
   }
   return li;
@@ -508,6 +508,8 @@ function desenhar(comoGaveta: boolean): void {
   arvore.setAttribute('aria-label', 'Estante');
   for (const pasta of PASTAS) arvore.appendChild(ramo(pasta, 1));
   if (nav?.jogos) arvore.appendChild(ramoDosJogos(nav.jogos));
+  const calc = nav?.calculadora;
+  if (calc) arvore.appendChild(item('Calculadora', '🧮', LOCAL_CALCULADORA, 1, () => ir(calc)).li);
   arvore.appendChild(
     item('Minhas pinturas', '🖼️', LOCAL_PINTURAS, 1, () => ir(() => nav?.pinturas())).li,
   );

@@ -26,11 +26,14 @@ describe('a calculadora (2026-11-25)', () => {
     expect(digitar(',5+1=').resultado).toBe('1,5');
   });
 
-  it('divisão que não fecha mostra «mais ou menos»', () => {
+  it('divisão que não fecha: seis casas cortadas e «e continua», nunca «mais ou menos»', () => {
     const c = digitar('10÷3=');
     expect(c.resultado).toBe('3,333333');
-    expect(c.aproximado).toBe(true);
-    expect(falarConta(c)).toBe('10 dividido por 3 é mais ou menos 3,333333');
+    expect(c.continua).toBe(true);
+    expect(falarConta(c)).toBe('10 dividido por 3 é igual a 3,333333, e continua');
+    // cortada, não arredondada: as reticências dizem a verdade
+    expect(digitar('2÷3=').resultado).toBe('0,666666');
+    expect(digitar('7÷2=').continua).toBeUndefined();
   });
 
   it('dividir por zero explica, não quebra', () => {

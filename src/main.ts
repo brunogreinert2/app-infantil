@@ -28,6 +28,7 @@ import {
   atualizarTextosDoPainel,
   localDoTexto,
   LOCAL_PINTURAS,
+  LOCAL_CALCULADORA,
   localDoJogo,
   configurarPainel,
   marcarLocal,
@@ -116,16 +117,16 @@ async function irJogos(tipo?: 'caca' | 'cruzadinha' | 'sudoku' | 'labirinto' | '
   carregarPreferencias(); // pode ter vindo de um livro tematizado, pelo menu
   marcarLocal(localDoJogo(tipo ?? 'todos'));
   const { montarTelaJogos } = await import('./geradores/telaJogos');
-  await montarTelaJogos(raiz, tipo, { perfis: irPerfis, estante: irEstante, abas: abasDaEstante, calculadora: () => void irCalculadora() });
+  await montarTelaJogos(raiz, tipo, { perfis: irPerfis, estante: irEstante, abas: abasDaEstante });
 }
 
-// 🧮 a calculadora (ideia da Luiza, 2026-11-25): mora na pasta dos Jogos
+// 🧮 a calculadora (ideia da Luiza, 2026-11-25): item próprio no menu lateral
 async function irCalculadora(): Promise<void> {
   pararFala();
   carregarPreferencias();
-  marcarLocal(localDoJogo('calculadora'));
+  marcarLocal(LOCAL_CALCULADORA);
   const { montarTelaCalculadora } = await import('./geradores/telaCalculadora');
-  await montarTelaCalculadora(raiz, { perfis: irPerfis, voltar: () => void irJogos(), abas: abasDaEstante });
+  await montarTelaCalculadora(raiz, { perfis: irPerfis, voltar: irEstante, abas: abasDaEstante });
 }
 
 // 🖨️ Para quem ensina (barra lateral): a trava sempre; desistir volta à estante
