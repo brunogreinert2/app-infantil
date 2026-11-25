@@ -50,7 +50,7 @@ export const BRINCADEIRAS_PORTUGUES: Record<string, string> = {
   T: 'O tatu foi cavar um túnel. Será que vai encontrar um tesouro?',
   U: 'Uvas em cachinho! Você pode pintar cada bolinha de um jeito.',
   V: 'Muuu! A vaca quer uma roupa nova. Que manchas você desenharia?',
-  W: 'Waffle tem quadradinhos que parecem janelinhas. Que tal pintar uma cidade neles?',
+  W: 'Wi-fi é o sinal que leva a internet pelo ar. Pinte cada risquinho do sinal: quanto mais risquinhos, mais forte!',
   X: 'Uma xícara para um gigante ou para uma formiguinha? Imagine o tamanho!',
   Y: 'Yoga convida a brincar com o corpo. Como seria uma pose de árvore? Também vale imaginar ou desenhar.',
   Z: 'A zebra chegou de pijama listrado! Se ela trocasse de roupa, como ficaria?',

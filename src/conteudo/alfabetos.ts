@@ -66,7 +66,7 @@ export const LATINO: DadoLetra[] = [
   ['T', 't', 'T', 'de tatu'],
   ['U', 'u', 'U', 'de uva'],
   ['V', 'v', 'V', 'de vaca'],
-  ['W', 'w', 'W', 'de waffle'],
+  ['W', 'w', 'W', 'de wi-fi'],
   ['X', 'x', 'X', 'de xícara'],
   ['Y', 'y', 'Y', 'de yoga'],
   ['Z', 'z', 'Z', 'de zebra'],

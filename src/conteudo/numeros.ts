@@ -41,7 +41,7 @@ const CONVITES: string[] = [
   'Quatro: o cachorro tem quatro patas, o carro tem quatro rodas. O quatro parece uma cadeira de cabeça para baixo.',
   'Cinco: uma mão tem cinco dedos! Bate aqui: cinco! O cinco usa um chapéu reto.',
   'Seis: uma mão inteira e mais um dedo. O seis tem uma barrigona embaixo. Ele comeu demais?',
-  'Sete: a semana tem sete dias. O sete parece um nariz comprido. Hoje é qual dia?',
+  'Sete: a semana tem sete dias. Hoje é qual dia? E o arco-íris tem sete cores!',
   'Oito: a aranha tem oito pernas! O oito é feito de duas bolinhas, uma em cima da outra. Um boneco de neve!',
   'Nove: quase dez! Falta só um. O nove é um seis que resolveu plantar bananeira.',
   'Dez: duas mãos juntas têm dez dedos! Um e zero de mãos dadas. Mostre as duas mãos e conte bem alto, de um até dez.',

@@ -229,11 +229,14 @@ anotações no próprio PDF, que se leem com pypdf pela cópia sincronizada em
   barquinho vazio em A Formiga e a Pomba.
 - Folha do zero, passo 1: «Pinte o número. Zero: nenhuma bolinha no quadro.»
 
+Depois, também aprovado e feito: o sete «a semana tem sete dias. Hoje é qual
+dia? E o arco-íris tem sete cores!»; o W virou «W de wi-fi», com o desenho
+novo do sinal em `ICONES.W` de `alfabetoArte.ts` (três faixas e o ponto, para
+pintar), e o texto saiu da brincadeira do waffle.
+
 FICARAM EM ABERTO (o Bruno decide):
-- sete com o arco-íris de sete cores;
 - oito como «infinito em pé» (achei abstrato para 5–9 anos);
 - «adaptado de Esopo», e talvez de Grimm e Andersen, sob o título;
-- W de wi-fi no lugar de waffle (desenho novo, tarefa à parte);
 - no zero, passo 4, «Circule o 0» em vez de «pinte a casinha».
 
 **Atualização 2026-11-23 (matemática da oficina):** dois arquivos novos na
