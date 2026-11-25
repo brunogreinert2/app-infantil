@@ -85,7 +85,9 @@ export function svgNumeroA4(n: number): string {
   const nome = NOMES_DOS_NUMEROS[n];
 
   // --- 1. o número e a quantidade ---
-  let corpo = texto('1. Observe e pinte o número e as bolinhas.', 48, 197, 24);
+  // no zero não há bolinha para pintar: a instrução diz isso (revisão da Luiza, 2026-11-25)
+  const passo1 = n === 0 ? '1. Pinte o número. Zero: nenhuma bolinha no quadro.' : '1. Observe e pinte o número e as bolinhas.';
+  let corpo = texto(passo1, 48, 197, 24);
   corpo += quadro('regiao-quadro-numero', 48, 216, 336, 254) + quadro('regiao-quadro-quantidade', 416, 216, 336, 254);
   corpo += texto('NÚMERO', 216, 249, 18, 'middle') + texto('QUANTIDADE', 584, 249, 18, 'middle');
   corpo += letras('regiao-numero', algarismo, 78, 268, 276, 182);

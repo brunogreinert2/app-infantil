@@ -218,6 +218,24 @@ Os documentos foram gerados por um teste temporário (já apagado) a partir de
 `livro.nos` — o texto puro, sem o negrito do `.md`. Para gerar de novo: ver
 este registro e refazer; não há script guardado.
 
+**Revisão da Luiza aplicada em parte (2026-11-25, na branch, NÃO publicada).**
+Ela revisou os docs 1, 5 e 6 e o PDF 7 (duas notas na folha do zero, como
+anotações no próprio PDF, que se leem com pypdf pela cópia sincronizada em
+`G:\Meu Drive\Historinhas — revisão (Luiza)\`). O Bruno aprovou e foi feito:
+- Os Números (`numeros.ts`): 4, 5, 7 e 8 em ordem direta; o três «parece que
+  tem barriguinhas»; o dez «duas mãos juntas têm dez dedos… de um até dez»;
+  o onze «com onze jogadores».
+- Duas frases cortadas: o fim das flores em A Raposa e a Cegonha e o
+  barquinho vazio em A Formiga e a Pomba.
+- Folha do zero, passo 1: «Pinte o número. Zero: nenhuma bolinha no quadro.»
+
+FICARAM EM ABERTO (o Bruno decide):
+- sete com o arco-íris de sete cores;
+- oito como «infinito em pé» (achei abstrato para 5–9 anos);
+- «adaptado de Esopo», e talvez de Grimm e Andersen, sob o título;
+- W de wi-fi no lugar de waffle (desenho novo, tarefa à parte);
+- no zero, passo 4, «Circule o 0» em vez de «pinte a casinha».
+
 **Atualização 2026-11-23 (matemática da oficina):** dois arquivos novos na
 mesma pasta. `9 · Matemática nova — o que conferir` (Google Doc, id
 `1lniC65ecbPzgqvKEsKw07FaXUw_oNz_V6qs0J8P7HKM`): lista das folhas e as

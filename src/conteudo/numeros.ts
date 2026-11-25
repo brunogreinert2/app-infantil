@@ -31,19 +31,21 @@ import {
 export const ID_LIVRO_NUMEROS = 'numeros';
 
 // o que a criança lê (e ouve) em cada número
+// Revisão da Luiza (2026-11-25): frases em ordem direta (4, 5, 7, 8), o três
+// sem misturar números («parece que tem barriguinhas»), o dez e o onze completos.
 const CONVITES: string[] = [
   'Zero é o número de quando não tem nada. Nenhuma estrela, nenhum biscoito! Parece um ovo. O que será que vai nascer dele?',
   'Um é só um: um nariz, um sol, um você! Fininho feito um palito. Levante um dedo e diga: um!',
   'Dois: dois olhos, duas mãos, dois pés. O dois parece um cisne passeando no lago. Quem anda de dois em dois na sua casa?',
-  'Três: três porquinhos, três pulinhos. Um, dois, três e já! O três tem duas barriguinhas.',
-  'Quatro: quatro patas tem o cachorro, quatro rodas tem o carro. O quatro parece uma cadeira de cabeça para baixo.',
-  'Cinco: os dedos de uma mão inteira! Bate aqui: cinco! O cinco usa um chapéu reto.',
+  'Três: três porquinhos, três pulinhos. Um, dois, três e já! O três parece que tem barriguinhas.',
+  'Quatro: o cachorro tem quatro patas, o carro tem quatro rodas. O quatro parece uma cadeira de cabeça para baixo.',
+  'Cinco: uma mão tem cinco dedos! Bate aqui: cinco! O cinco usa um chapéu reto.',
   'Seis: uma mão inteira e mais um dedo. O seis tem uma barrigona embaixo. Ele comeu demais?',
-  'Sete: os dias da semana são sete. O sete parece um nariz comprido. Hoje é qual dia?',
-  'Oito: oito pernas tem a aranha! O oito é feito de duas bolinhas, uma em cima da outra. Um boneco de neve!',
+  'Sete: a semana tem sete dias. O sete parece um nariz comprido. Hoje é qual dia?',
+  'Oito: a aranha tem oito pernas! O oito é feito de duas bolinhas, uma em cima da outra. Um boneco de neve!',
   'Nove: quase dez! Falta só um. O nove é um seis que resolveu plantar bananeira.',
-  'Dez: todos os dedos das duas mãos! Um e zero de mãos dadas. Mostre as duas mãos e conte bem alto.',
-  'Onze: dez e mais um. Um time de futebol inteiro entra em campo com onze!',
+  'Dez: duas mãos juntas têm dez dedos! Um e zero de mãos dadas. Mostre as duas mãos e conte bem alto, de um até dez.',
+  'Onze: dez e mais um. Um time de futebol inteiro entra em campo com onze jogadores!',
   'Doze: dez e mais dois. Uma dúzia de ovos, doze meses do ano. Qual é o mês do seu aniversário?',
   'Treze: dez e mais três. Tem gente que acha que dá sorte, tem gente que acha que dá azar. E você?',
   'Catorze: dez e mais quatro. Duas semanas inteirinhas têm catorze dias.',

@@ -45,6 +45,6 @@ Na noite seguinte, a cegonha serviu o jantar em dois vasos altos, de boca estrei
 
 A raposa olhou para o vaso. Depois olhou para a amiga. — Ah... ontem foi assim para você. Eu pensei na minha brincadeira e esqueci da sua fome. Desculpe.
 
-A cegonha foi buscar uma tigela larga. A raposa ajudou a servir. Dessa vez, cada uma tinha uma vasilha que conseguia usar. As duas comeram conversando. E as flores da mesa? Continuaram no vaso, porque naquele jantar ninguém precisava beber sopa pelo nariz!
+A cegonha foi buscar uma tigela larga. A raposa ajudou a servir. Dessa vez, cada uma tinha uma vasilha que conseguia usar. As duas comeram conversando.
 
 {{img:il02}}

@@ -45,6 +45,6 @@ Dias depois, a formiga passeava perto da mesma árvore. A pomba descansava num g
 
 Ela correu até o sapato do homem, subiu pela beirada e deu uma picadinha. — Ai! — ele exclamou, recuando. O barulho acordou a pomba. Num bater de asas, ela já estava longe do alcance dele.
 
-Mais tarde, a pomba voltou quando o lugar estava tranquilo. Encontrou a formiga sobre uma pedra seca. — Então era você lá embaixo! — Era eu! As amigas olharam uma folha que navegava no riacho. Dessa vez, o barquinho estava vazio.
+Mais tarde, a pomba voltou quando o lugar estava tranquilo. Encontrou a formiga sobre uma pedra seca. — Então era você lá embaixo! — Era eu!
 
 {{img:il02}}
