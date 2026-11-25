@@ -275,6 +275,21 @@ pedido do Bruno; na tela, as abas da estante ficam à vista sem nenhuma marcada.
   diz «Este navegador não deixou baixar o português agora» (PUBLICADO na
   0.19.1, master `29b3977`, Actions 45659307830 com sucesso), e quando aceita, espera o download e troca o botão sozinha.
   A Calculadora também ganhou aba na fileira do alto da estante (0.19.1).
+- ETAPA 2b (2026-11-25, commit c719ee7, na branch, NÃO publicada): **o Vosk**.
+  O 🎤 não ligou em nenhum navegador do Bruno (Edge e Safari sem português no
+  aparelho; Chrome recusa o install()). Agora o app traz o seu reconhecedor:
+  `src/geradores/vozNoAparelho.ts` + pacote `vosk-browser` (Apache 2.0) + modelo
+  `public/voz/vosk-model-small-pt-0.3.tar.gz` (31 MB, Apache 2.0, origem e sha256
+  em `public/voz/LEIA-ME.txt`). Ordem: reconhecedor do navegador se JÁ estiver
+  «available» no aparelho; senão o Vosk. Só baixa ao tocar «Ligar a voz»; fica
+  no IndexedDB «/vosk» (`extracted.ok`) e a chave `aparelho:voz:modeloBaixado`
+  faz o botão já nascer «Falar a conta». Fora do precache (globIgnores no
+  vite.config.ts). DOIS ouvidos juntos (livre + gramática), porque cada um
+  erra num lugar; a tela fica com o primeiro texto que forma conta. Testado no
+  navegador embutido com microfone falso tocando a voz Maria do Windows:
+  7 × 8 = 56, 342 − 100 = 242, 10 ÷ 3 = 3,333333…; parar sem falar e microfone
+  negado dão aviso. FALTA: publicar e o Bruno testar com a voz dele e das
+  crianças (voz de criança é o caso difícil), e ver no celular.
 
 **Atualização 2026-11-23 (matemática da oficina):** dois arquivos novos na
 mesma pasta. `9 · Matemática nova — o que conferir` (Google Doc, id
