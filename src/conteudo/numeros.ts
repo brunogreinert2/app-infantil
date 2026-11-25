@@ -42,7 +42,7 @@ const CONVITES: string[] = [
   'Cinco: uma mão tem cinco dedos! Bate aqui: cinco! O cinco usa um chapéu reto.',
   'Seis: uma mão inteira e mais um dedo. O seis tem uma barrigona embaixo. Ele comeu demais?',
   'Sete: a semana tem sete dias. Hoje é qual dia? E o arco-íris tem sete cores!',
-  'Oito: a aranha tem oito pernas! O oito é feito de duas bolinhas, uma em cima da outra. Um boneco de neve!',
+  'Oito: a aranha tem oito pernas! O oito é feito de duas bolinhas, uma em cima da outra. Um boneco de neve! E também parece o símbolo do infinito em pé.',
   'Nove: quase dez! Falta só um. O nove é um seis que resolveu plantar bananeira.',
   'Dez: duas mãos juntas têm dez dedos! Um e zero de mãos dadas. Mostre as duas mãos e conte bem alto, de um até dez.',
   'Onze: dez e mais um. Um time de futebol inteiro entra em campo com onze jogadores!',

@@ -131,7 +131,10 @@ export function svgNumeroA4(n: number): string {
   });
 
   // --- 4. a reta numérica ---
-  corpo += texto(`4. Onde o ${algarismo} mora? Pinte a casinha dele.`, 48, 834, 24);
+  // no zero, pintar uma casinha seria «pintar o nada»: ali se circula o número
+  // embaixo da fila (revisão da Luiza, 2026-11-25)
+  const passo4 = n === 0 ? '4. Onde o 0 mora? Circule o 0 embaixo da fila.' : `4. Onde o ${algarismo} mora? Pinte a casinha dele.`;
+  corpo += texto(passo4, 48, 834, 24);
   corpo += reta('regiao-reta', 884);
 
   // --- 5. escrever ---
