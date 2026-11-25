@@ -85,6 +85,9 @@ export function contaFalada(texto: string): Pedaco[] | undefined {
   // o que não é conta: «quanto é», «quanto que dá», «calcula», o «igual» do fim
   s = s.replace(/\b(quanto (que )?(e|da|fica)|qual (e )?o resultado de|calcul[ae]r?|me diz|por favor|e igual a?|igual a?|da quanto|resultado)\b/g, ' ');
   s = s.replace(/[?!=:]/g, ' ');
+  // «sem» soa igual a «cem», e numa conta só pode ser o número (o reconhecedor
+  // escreveu «sem» no teste de 2026-11-25)
+  s = s.replace(/\bsem\b/g, 'cem');
   for (const [re, op] of SINAIS) s = s.replace(re, ` §${op}§ `);
   const partes = s.split(/§/).map((p) => p.trim()).filter(Boolean);
   const pedacos: Pedaco[] = [];

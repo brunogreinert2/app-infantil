@@ -1,0 +1,14 @@
+Voz da calculadora do Historinhas (2026-11-25)
+
+vosk-model-small-pt-0.3.tar.gz
+  Modelo de reconhecimento de voz em português do projeto Vosk (Alpha Cephei),
+  licença Apache 2.0: https://alphacephei.com/vosk/models
+  Origem: https://alphacephei.com/vosk/models/vosk-model-small-pt-0.3.zip
+    (sha256 do .zip: 6e1ce909032e1afa7a88e68a3d628ecafff302bdf195befab308826c395e93b7)
+  Só reempacotado de .zip para .tar.gz (o formato que o vosk-browser lê),
+  sem mudar nenhum arquivo de dentro.
+    (sha256 do .tar.gz: 418215aa4490e222634f18fae9cabfbc2e19a9354a313dd6e209df9eb60cfb41)
+
+Roda inteiro no aparelho (WebAssembly, pacote npm vosk-browser, Apache 2.0).
+Só é baixado quando alguém toca em «Ligar a voz» na calculadora; a voz da
+criança nunca sai do aparelho.

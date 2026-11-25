@@ -34,6 +34,10 @@ describe('a conta falada (calculadora, etapa 2)', () => {
     expect(escrita('trezentos e quarenta e dois mais mil e cinco')).toBe('342 + 1005');
     expect(escrita('cento e vinte e três vezes dois')).toBe('123 × 2');
     expect(escrita('dois mil e vinte e seis menos mil novecentos e oitenta')).toBe('2026 − 1980');
+    // o que o Vosk escreveu de verdade (voz Maria do Windows, 2026-11-25)
+    expect(escrita('trezentos e quarenta dois menos sem')).toBe('342 − 100');
+    expect(escrita('quanto e sete vezes oito')).toBe('7 × 8');
+    expect(escrita('mil e quinhentos dividido por cinco')).toBe('1500 ÷ 5');
   });
 
   it('vírgula e meio', () => {

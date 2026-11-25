@@ -22,6 +22,9 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff,woff2}'],
         maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
+        // a voz da calculadora (Vosk ~6 MB + modelo ~31 MB) só vem para quem
+        // tocar em «Ligar a voz», e o próprio Vosk a guarda no aparelho
+        globIgnores: ['**/vosk-*.js', 'voz/**', '__teste-voz/**'],
       },
       manifest: {
         name: 'Historinhas',
