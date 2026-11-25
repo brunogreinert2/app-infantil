@@ -265,6 +265,16 @@ pedido do Bruno; na tela, as abas da estante ficam à vista sem nenhuma marcada.
   pode aparecer «Ligar a voz» (baixa o português, cerca de 60 MB) ou só o aviso,
   se o Chrome não tiver o pt-BR no aparelho. Se aparecer só o aviso, NÃO cair
   para o reconhecimento pela rede: a voz da criança não sai do aparelho.
+  TESTE DO BRUNO (2026-11-25): Chrome 157 no Windows mostra pt-BR
+  «downloadable», mas `install()` responde **false para toda língua (até
+  en-US)**, mesmo com clique de verdade e a política
+  on-device-speech-recognition liberada. O defeito está no Chrome dele, não no
+  app. Pistas não conferidas: chrome://components (Speech On-Device API / SODA,
+  «Verificar atualização»), ligar a Legenda instantânea em
+  chrome://settings/accessibility (baixa o SODA), ou testar no Edge. A tela agora
+  diz «Este navegador não deixou baixar o português agora» (commit 539381a, na
+  branch), e quando aceita, espera o download e troca o botão sozinha.
+  A Calculadora também ganhou aba na fileira do alto da estante (539381a).
 
 **Atualização 2026-11-23 (matemática da oficina):** dois arquivos novos na
 mesma pasta. `9 · Matemática nova — o que conferir` (Google Doc, id
