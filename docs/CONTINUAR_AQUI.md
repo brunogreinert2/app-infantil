@@ -218,7 +218,7 @@ Os documentos foram gerados por um teste temporário (já apagado) a partir de
 `livro.nos` — o texto puro, sem o negrito do `.md`. Para gerar de novo: ver
 este registro e refazer; não há script guardado.
 
-**Revisão da Luiza aplicada em parte (2026-11-25, na branch, NÃO publicada).**
+**Revisão da Luiza aplicada em parte (2026-11-25), PUBLICADA na 0.17.0** (master `1d0b589`, Actions 45627047920 com sucesso, bundle no ar conferido). Na mesma versão foram juntos: a «Letra das folhas» valendo no Ler o Mundo da oficina e o «adaptado de…» sob o título (`src/conteudo/credito.ts`).
 Ela revisou os docs 1, 5 e 6 e o PDF 7 (duas notas na folha do zero, como
 anotações no próprio PDF, que se leem com pypdf pela cópia sincronizada em
 `G:\Meu Drive\Historinhas — revisão (Luiza)\`). O Bruno aprovou e foi feito:
@@ -236,7 +236,6 @@ pintar), e o texto saiu da brincadeira do waffle.
 
 FICARAM EM ABERTO (o Bruno decide):
 - oito como «infinito em pé» (achei abstrato para 5–9 anos);
-- «adaptado de Esopo», e talvez de Grimm e Andersen, sob o título;
 - no zero, passo 4, «Circule o 0» em vez de «pinte a casinha».
 
 **Atualização 2026-11-23 (matemática da oficina):** dois arquivos novos na
