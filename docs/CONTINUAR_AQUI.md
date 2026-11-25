@@ -272,9 +272,9 @@ pedido do Bruno; na tela, as abas da estante ficam à vista sem nenhuma marcada.
   app. Pistas não conferidas: chrome://components (Speech On-Device API / SODA,
   «Verificar atualização»), ligar a Legenda instantânea em
   chrome://settings/accessibility (baixa o SODA), ou testar no Edge. A tela agora
-  diz «Este navegador não deixou baixar o português agora» (commit 539381a, na
-  branch), e quando aceita, espera o download e troca o botão sozinha.
-  A Calculadora também ganhou aba na fileira do alto da estante (539381a).
+  diz «Este navegador não deixou baixar o português agora» (PUBLICADO na
+  0.19.1, master `29b3977`, Actions 45659307830 com sucesso), e quando aceita, espera o download e troca o botão sozinha.
+  A Calculadora também ganhou aba na fileira do alto da estante (0.19.1).
 
 **Atualização 2026-11-23 (matemática da oficina):** dois arquivos novos na
 mesma pasta. `9 · Matemática nova — o que conferir` (Google Doc, id
